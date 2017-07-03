@@ -1,0 +1,32 @@
+{
+    "request": {
+        "uri": "/openoapi/catalog/v1/csars/12345",
+        "method": "get",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+           
+        }
+    },
+    "response": {
+        "status": 200,
+        "json": {
+            "csarId":"78ede6f3-66cc-46ab-b748-38a6c010d272",
+            "name":"NanocellGateway",
+            "provider":"ZTE",
+            "version":"V1.0",
+            "deletionPending":"false",
+            "createTime":"2016-06-29 03:33:15",
+            "modifyTime":"2016-06-29 09:33:15",
+            "size":"0.93M",
+            "operationalState":"Disabled",
+            "usageState":"InUse",
+            "onBoardState":"non-onBoarded",
+            "processState":"normal",
+            "format":"yml",
+            "downloadUri":"http://msb_ip:msb_port/files/catalog-http/NSAR/ZTE/NanocellGW/v1.0/NanocellGateway.csar",
+            "type":"NSAR"       
+        }
+    }
+}

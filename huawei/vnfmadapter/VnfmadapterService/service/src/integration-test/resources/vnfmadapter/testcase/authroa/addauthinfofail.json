@@ -1,0 +1,28 @@
+{
+    "request": {
+        "uri": "/rest/vnfmmed/v2/auth/tokens",
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+            "auth": {
+                "identity": {
+                    "methods": ["password"],
+                    "password": {
+                          "user": {
+                                "name": "admin",
+                                "password": "User@123"
+                          }
+                    }
+                }
+            }
+        }        
+    },
+    "response": {
+        "status": 500,
+        "json": {
+
+        }
+    }
+}

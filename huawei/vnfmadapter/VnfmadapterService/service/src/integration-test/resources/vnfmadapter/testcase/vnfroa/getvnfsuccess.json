@@ -1,0 +1,33 @@
+{
+    "request": {
+        "uri": "/rest/openoapi/hw-vnfm/v1/12345/vnfs/54321",
+        "method": "get",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+        }        
+    },
+    "response": {
+        "status": 200,
+        "json": {
+             "retCode": 1,
+             "data": {
+                "name":"vsnfm1",
+                "updateAt": "2016-09-30 16:03:15",
+                "createAt": "2016-09-30 16:10:15",
+                "id": "fj392842fj32jf392fj392f",
+                "url": "https://188.100.100.86:30001",
+                "type": "csm",
+                "version": "v1",
+                "userName": "manoadmin",
+                "sites": ["Miano","Roma"],
+                "pwd": "User@12345",
+                "extro_info": {
+                
+                },
+                "status": "active"
+              }
+        }
+    }
+}

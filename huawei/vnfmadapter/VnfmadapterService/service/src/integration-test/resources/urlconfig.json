@@ -1,0 +1,18 @@
+[    
+    {
+        "url": "/svc/ipsec/v1",
+        "prefix": "/org.openo.sdno.ipsecservice"
+    },
+    {
+        "url": "/v2.0/tokens",
+        "prefix": ""
+    },
+    {
+        "url": "/v2.0/networks",
+        "prefix": ""
+    },
+    {
+        "url": "/rest/v1/resmanage/virtualnetworks",
+        "prefix": ""
+    } 
+]

@@ -1,0 +1,39 @@
+{
+    "request": {
+        "uri": "/rest/vnfmmed/csm/v2/vapps/instances/123456/grant",
+        "method": "put",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+            "grant": {
+                "vnf_id":"",
+                "project_id": "",
+                "type": "instantiation",
+                "oparetion_right": "increase",
+                "vnf_name": "",
+                "vm_list": [{
+                       "vm_flavor": {
+                              "vdu_name": "OMU_VDU",
+                              "location": "",
+                              "num_cpus": "",
+                              "mem_size": "",
+                              "proirity": "",
+                              "storage": [{
+                                   "vol_type": "network_storage",
+                                   "vol_size": "512"
+                              }]
+                       },
+                       "init_number": ""
+                }]
+            }
+        }        
+    },
+    "response": {
+        "status": 400,
+        "json": {
+              "grant": {
+              }
+        }
+    }
+}

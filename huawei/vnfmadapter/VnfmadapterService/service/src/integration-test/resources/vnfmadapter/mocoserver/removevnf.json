@@ -1,0 +1,16 @@
+{
+    "request": {
+        "uri": "/v2/vapps/instances/12345?roarand=123456",
+        "method": "delete",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+        }
+    },
+    "response": {
+        "status": 200,
+        "json": {
+        }
+    }
+}

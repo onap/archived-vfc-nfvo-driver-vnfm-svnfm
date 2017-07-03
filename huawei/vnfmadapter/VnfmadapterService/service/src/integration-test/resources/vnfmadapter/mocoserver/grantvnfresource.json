@@ -1,0 +1,31 @@
+{
+    "request": {
+        "uri": "/rest/v1/resmanage/vappvm",
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+            "vapp": {
+                "id": "",
+                "name": "",
+                "action": "",
+                "used": {
+                     "vcpus": "",
+                     "memory": "",
+                     "disk": ""
+                },
+                "drTotal": {
+                     "vcpus": "0",
+                     "memory": "0",
+                     "disk": "0"                
+                }
+            }
+        }        
+    },
+    "response": {
+        "status": 200,
+        "json": {
+        }
+    }
+}

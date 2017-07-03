@@ -1,0 +1,14 @@
+{
+  "serviceName": "hwvnfm",
+  "version": "v1",
+  "url": "/openoapi/hwvnfm/v1",
+  "protocol": "REST",
+  "visualRange": "1",
+  "nodes": [
+    {
+      "ip": "127.0.0.1",
+      "port": "8482",
+      "ttl": 0
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2016-2017, Huawei Technologies Co., Ltd.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.openo.nfvo.vnfmadapter.service.mapper.VnfmMapper">
+    <resultMap type="org.openo.nfvo.vnfmadapter.service.entity.Vnfm"
+        id="VnfmResultMap">
+        <result property="id" javaType="String" column="ID" jdbcType="VARCHAR" />
+        <result property="version" javaType="String" column="VERSION" jdbcType="VARCHAR" />
+        <result property="vnfdId" javaType="String" column="VNFDID" jdbcType="VARCHAR" />
+        <result property="vnfPackageId" javaType="String" column="VNFPACKAGEID" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID, VERSION, VNFDID, VNFPACKAGEID
+    </sql>
+
+    <insert id="insertVnfm" parameterType="org.openo.nfvo.vnfmadapter.service.entity.Vnfm">
+        INSERT INTO VNFM (ID, VERSION, VNFDID, VNFPACKAGEID)
+        VALUES(#{id},#{version},#{vnfdId},#{vnfPackageId})
+    </insert>
+
+    <update id="updateVnfm" parameterType="org.openo.nfvo.vnfmadapter.service.entity.Vnfm">
+        UPDATE VNFM
+        <set>
+            <if test="id != null">
+                id=#{id},
+            </if>
+            <if test="version != null">
+                version=#{version},
+            </if>
+            <if test="vnfdId != null">
+                vnfdId=#{vnfdId},
+            </if>
+            <if test="vnfPackageId != null">
+                vnfPackageId=#{vnfPackageId},
+            </if>
+        </set>
+        WHERE ID=#{id}
+    </update>
+
+    <delete id="deleteVnfm" parameterType="String">
+        DELETE FROM VNFM WHERE ID = #{id}
+    </delete>
+
+    <select id="indexVnfms" resultMap="VnfmResultMap" >
+        select
+        <include refid="Base_Column_List" />
+            FROM VNFM
+        ORDER BY NAME DESC
+        <if test="offset!=0 and pageSize!=0 ">
+            limit ${offset}, ${pageSize}
+        </if>
+    </select>
+
+    <select id="getCountVnfms" parameterType="String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM VNFM
+    </select>
+
+    <select id="getVnfmById" parameterType="java.lang.String" resultType="org.openo.nfvo.vnfmadapter.service.entity.Vnfm">
+        SELECT * FROM VNFM
+        WHERE id = #{id}
+    </select>
+</mapper>

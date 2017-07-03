@@ -1,0 +1,18 @@
+{
+    "driverInfo": {
+        "driverName": "hwvnfm",
+        "instanceID": "hwvnfm-0-1",
+        "ip": "127.0.0.1",
+        "port": "8482",
+        "protocol": "http",
+        "services": [{
+                "service_url": "/openoapi/hwvnfm/v1",
+                "support_sys": [{
+                        "type": "vnfm",
+                        "version": "V100R001"
+                    }
+                ]
+            }
+        ]
+    }
+}

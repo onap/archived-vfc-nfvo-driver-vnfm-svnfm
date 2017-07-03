@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2016-2017, Huawei Technologies Co., Ltd.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+    xmlns:ctx="http://www.springframework.org/schema/context"
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/osgi
+    http://www.springframework.org/schema/osgi/spring-osgi.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/osgi-compendium
+    http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
+    http://cxf.apache.org/jaxrs
+    http://cxf.apache.org/schemas/jaxrs.xsd
+    http://cxf.apache.org/transports/http/configuration
+    http://cxf.apache.org/schemas/configuration/http-conf.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop-3.0.xsd ">
+
+    <!-- these are included in the dependency jar -->
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+
+    <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
+
+    <bean id="source"  class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/vnfmdb" />
+        <property name="username" value="root"/>
+        <property name="password" value="rootpass"/>
+    </bean>
+
+    <bean id="sessionFactory"  class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="source" />
+        <property name="mapperLocations" value="classpath*:mybatis/mysql/*.xml" />
+        <!-- <property name="configLocation" value="classpath:mybatis-config.xml" />  -->
+    </bean>
+
+    <bean id="session" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sessionFactory" />
+    </bean>
+
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="source" />
+    </bean>
+
+    <bean id="vnfmDao"
+        class="org.openo.nfvo.vnfmadapter.service.dao.impl.VnfmDaoImpl">
+        <property name="session" ref="session"></property>
+    </bean>
+
+    <bean id="vnfMgr" class="org.openo.nfvo.vnfmadapter.service.process.VnfMgr">
+        <property name="vnfmDao" ref="vnfmDao"></property>
+    </bean>
+
+    <bean id="VnfRoa" class="org.openo.nfvo.vnfmadapter.service.rest.VnfRoa">
+        <property name="vnfMgr" ref="vnfMgr"></property>
+    </bean>
+
+    <bean id="vnfResourceMgr"
+        class="org.openo.nfvo.vnfmadapter.service.process.VnfResourceMgr">
+    </bean>
+
+    <bean id="VnfResourceRoa" class="org.openo.nfvo.vnfmadapter.service.rest.VnfResourceRoa">
+        <property name="vnfResourceMgr" ref="vnfResourceMgr"></property>
+    </bean>
+
+    <bean id="authMgr" class="org.openo.nfvo.vnfmadapter.service.process.AuthMgr" />
+
+    <bean id="AuthRoa" class="org.openo.nfvo.vnfmadapter.service.rest.AuthRoa">
+        <property name="authMgr" ref="authMgr"></property>
+    </bean>
+
+    <bean id="VnfAdaResRoa" class="org.openo.nfvo.vnfmadapter.service.rest.VnfAdapterResourceRoa">
+    </bean>
+
+    <bean id="SwaggerRoa" class="org.openo.nfvo.vnfmadapter.service.rest.SwaggerRoa"></bean>
+
+    <!-- bean id="registerMgr" class="org.openo.nfvo.vnfmadapter.service.process.RegisterMgr"
+        init-method="register" destroy-method="unRegister">
+    </bean-->
+
+    <jaxrs:server id="restContainer" address="/">
+        <jaxrs:serviceBeans>
+            <ref bean="AuthRoa" />
+            <ref bean="VnfResourceRoa" />
+            <ref bean="VnfRoa" />
+            <ref bean="VnfAdaResRoa" />
+            <ref bean="SwaggerRoa" />
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jsonProvider" />
+            <bean class="org.openo.nfvo.vnfmadapter.service.rest.exceptionmapper.ServiceExceptionMapper" />
+            <bean class="org.openo.nfvo.vnfmadapter.service.rest.exceptionmapper.GenericExceptionMapper" />
+        </jaxrs:providers>
+    </jaxrs:server>
+</beans>

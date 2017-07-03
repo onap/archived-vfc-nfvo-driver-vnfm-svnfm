@@ -1,0 +1,36 @@
+{
+    "request": {
+        "uri": "/rest/vnfmmed/v2/auth/tokens",
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+            "auth": {
+                "identity": {
+                    "methods": ["password"],
+                    "password": {
+                          "user": {
+                                "name": "admin",
+                                "password": "User@123"
+                          }
+                    }
+                }
+            }
+        }        
+    },
+    "response": {
+        "status": 201,
+        "json": {
+              "token": {
+                  "methods": ["password"],
+                  "expires_at": "",
+                  "user": {
+                      "id": "admin",
+                      "name": "admin"
+                  },
+                  "roa_rand": "RoaRand"
+              }
+        }
+    }
+}

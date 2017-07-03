@@ -1,0 +1,29 @@
+{
+    "request": {
+        "uri": "/v2/vapps/templates/12345",
+        "method": "post",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+           "template": {
+                "name": "MME",
+                "catalog": "huawei/epc/mme"
+           }
+        }
+    },
+    "response": {
+        "status": 200,
+        "json": {
+           "template": {
+                "id": "000000001",
+                "name": "MME",
+                "vnfd_catalog": "huawei/epc/mme",
+                "description": "",
+                "vnfd_format": "tosca",
+                "vnfd_file_status": "queued",
+                "image_file_status": "queued"
+           }
+        }
+    }
+}

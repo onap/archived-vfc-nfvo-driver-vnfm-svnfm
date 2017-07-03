@@ -1,0 +1,29 @@
+{
+    "request": {
+        "uri": "/openoapi/extsys/v1/vnfms/12345",
+        "method": "get",
+        "headers": {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        "json": {
+           
+        }
+    },
+    "response": {
+        "status": 200,
+        "json": {
+            "vnfmId":"19ecbb3a-3242-4fa3-9926-8dfb7ddc29ee",
+            "name":"vnfm",
+            "type":"Tacker",
+            "vimId":"",
+            "vendor":"ZTE",
+            "version":"v1.0",
+            "description":"vnfm",
+            "certificateUrl":"",
+            "url":"http://127.0.0.1:12306",
+            "userName":"admin",
+            "password":"admin",
+            "createTime":"2016-07-06 15:33:18"
+        }
+    }
+}
