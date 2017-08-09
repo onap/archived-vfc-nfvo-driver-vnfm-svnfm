@@ -18,11 +18,11 @@ MSB_SERVICE_PORT = '80'
 
 # [register]
 REG_TO_MSB_WHEN_START = True
-REG_TO_MSB_REG_URL = "/openoapi/microservices/v1/services"
+REG_TO_MSB_REG_URL = "/api/microservices/v1/services"
 REG_TO_MSB_REG_PARAM = {
     "serviceName": "ztevmanagerdriver",
     "version": "v1",
-    "url": "/openoapi/ztevmanagerdriver/v1",
+    "url": "/api/ztevmanagerdriver/v1",
     "protocol": "REST",
     "visualRange": "1",
     "nodes": [{

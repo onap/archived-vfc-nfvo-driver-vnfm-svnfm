@@ -26,6 +26,6 @@ class SwaggerViewTest(unittest.TestCase):
         pass
 
     def test_sample(self):
-        response = self.client.get("/openoapi/ztevmanagerdriver/v1/swagger.json")
+        response = self.client.get("/api/ztevmanagerdriver/v1/swagger.json")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
 

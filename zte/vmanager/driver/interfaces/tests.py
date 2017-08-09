@@ -122,7 +122,7 @@ class InterfacesTest(TestCase):
                                         'externalDataNetworkName': 'Flow_out_net',
                                         'inputs':{}}}
 
-        response = self.client.post("/openoapi/ztevnfm/v1/ztevnfmid/vnfs",
+        response = self.client.post("/api/ztevnfm/v1/ztevnfmid/vnfs",
                                     data=json.dumps(req_data), content_type="application/json")
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
         expect_resp_data = {"jobid": "NF-CREATE-8-b384535c-9f45-11e6-8749-fa163e91c2f9", "vnfInstanceId": "8"}
@@ -150,7 +150,7 @@ class InterfacesTest(TestCase):
         r2 = [0, json.JSONEncoder().encode({"vnfInstanceId": "1", "JobId": "1"}), "200"]
         mock_call_req.side_effect = [r1, r2]
 
-        response = self.client.post("/openoapi/ztevnfm/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate")
+        response = self.client.post("/api/ztevnfm/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate")
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
         expect_resp_data = {"jobid": "1", "vnfInstanceId": "1"}
@@ -178,7 +178,7 @@ class InterfacesTest(TestCase):
         r2 = [0, json.JSONEncoder().encode({"vnfinstancestatus": "1"}), "200"]
         mock_call_req.side_effect = [r1, r2]
 
-        response = self.client.get("/openoapi/ztevnfm/v1/ztevnfmid/vnfs/vbras_innstance_id")
+        response = self.client.get("/api/ztevnfm/v1/ztevnfmid/vnfs/vbras_innstance_id")
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
 
@@ -217,7 +217,7 @@ class InterfacesTest(TestCase):
         r1 = [0, json.JSONEncoder().encode(vnfm_info), '200']
         r2 = [0, json.JSONEncoder().encode(resp_body), '200']
         mock_call_req.side_effect = [r1, r2]
-        response = self.client.get("/openoapi/ztevmanagerdriver/v1/{vnfmid}/jobs/{jobid}?responseId={responseId}".
+        response = self.client.get("/api/ztevmanagerdriver/v1/{vnfmid}/jobs/{jobid}?responseId={responseId}".
             format(
             vnfmid=vnfm_info["vnfmId"],
             jobid=resp_body["jobid"],
@@ -256,7 +256,7 @@ class InterfacesTest(TestCase):
             ]}
 
         mock_call_req.return_value = ret
-        response = self.client.put("/openoapi/ztevmanagerdriver/v1/resource/grant",
+        response = self.client.put("/api/ztevmanagerdriver/v1/resource/grant",
                                    data=json.dumps(req_data), content_type='application/json')
 
         self.assertEqual(str(status.HTTP_201_CREATED), response.status_code)
@@ -335,7 +335,7 @@ class InterfacesTest(TestCase):
                         "vmnumber": "3",
                         "vmidlist ": ["vmuuid"]}]}
         mock_call_req.side_effect = [r1, r2]
-        response = self.client.post("/openoapi/ztevmanagerdriver/v1/vnfs/lifecyclechangesnotification",
+        response = self.client.post("/api/ztevmanagerdriver/v1/vnfs/lifecyclechangesnotification",
                                     data=json.dumps(req_data), content_type='application/json')
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
@@ -415,7 +415,7 @@ class InterfacesTest(TestCase):
         }
 
 
-        response = self.client.post("/openoapi/ztevnfm/v1/vnfmid/vnfs/101/scale",
+        response = self.client.post("/api/ztevnfm/v1/vnfmid/vnfs/101/scale",
                                    data=json.dumps(scale_vnf_data), content_type='application/json')
 
         self.assertEqual(str(status.HTTP_202_ACCEPTED), response.status_code)

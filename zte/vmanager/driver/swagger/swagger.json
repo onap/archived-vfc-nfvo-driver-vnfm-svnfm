@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "title": "ZTE VNFM Driver Service rest API"
   },
-  "basePath": "/openoapi/{vnfmtype}/v1",
+  "basePath": "/api/{vnfmtype}/v1",
   "tags": [
     {
       "name": "ztevmanagerdriver"

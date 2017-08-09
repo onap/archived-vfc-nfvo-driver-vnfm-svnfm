@@ -51,24 +51,24 @@ def mapping_conv(keyword_map, rest_return):
     return resp_data
 
 
-query_vnfd_url = "openoapi/nslcm/v1/vnfpackage/%s"
-query_vnfm_url = "openoapi/extsys/v1/vnfms/%s"
-query_package_url = "openoapi/nslcm/v1/vnfpackage/%s"
+query_vnfd_url = "api/nslcm/v1/vnfpackage/%s"
+query_vnfm_url = "api/extsys/v1/vnfms/%s"
+query_package_url = "api/nslcm/v1/vnfpackage/%s"
 
 
 # Query VNFM by VNFMID
 def vnfm_get(vnfmid):
-    ret = req_by_msb("openoapi/extsys/v1/vnfms/%s" % vnfmid, "GET")
+    ret = req_by_msb("api/extsys/v1/vnfms/%s" % vnfmid, "GET")
     return ret
 
 
 def vnfd_get(vnfpackageid):
-    ret = req_by_msb("openoapi/nslcm/v1/vnfpackage/%s" % vnfpackageid, "GET")
+    ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % vnfpackageid, "GET")
     return ret
 
 
 def vnfpackage_get(csarid):
-    ret = req_by_msb("openoapi/nslcm/v1/vnfpackage/%s" % csarid, "GET")
+    ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % csarid, "GET")
     return ret
 
 
@@ -297,7 +297,7 @@ def operation_status(request, *args, **kwargs):
 
 
 # Grant VNF Lifecycle Operation
-grant_vnf_url = 'openoapi/nslcm/v1/ns/grantvnf'
+grant_vnf_url = 'api/nslcm/v1/ns/grantvnf'
 grant_vnf_param_map = {
     "VNFMID": "",
     "NFVOID": "",
@@ -357,7 +357,7 @@ def grantvnf(request, *args, **kwargs):
 
 
 # Notify LCM Events
-notify_url = 'openoapi/nslcm/v1/ns/{vnfmid}/vnfs/{vnfInstanceId}/Notify'
+notify_url = 'api/nslcm/v1/ns/{vnfmid}/vnfs/{vnfInstanceId}/Notify'
 notify_param_map = {
     "NFVOID": "",
     "VNFMID": "VNFMID",
