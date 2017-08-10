@@ -16,17 +16,17 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.onap.nfvo</groupId>
+        <groupId>org.onap.oparent</groupId>
         <artifactId>oparent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.onap.nfvo</groupId>
-    <artifactId>vnfmadapter</artifactId>
+    <groupId>org.onap.vfc.driver.vnfm.svnfm</groupId>
+    <artifactId>huawei-vnfmadapter</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>nfvo/drivers/vnfm/svnfm/huawei/vnfmadapter</name>
-    <description>nfvo vnfmadapter</description>
+    <name>vfc/drivers/vnfm/svnfm/huawei/vnfmadapter</name>
+    <description>vfc vnfmadapter</description>
     <modules>
         <module>VnfmadapterService</module>
     </modules>
