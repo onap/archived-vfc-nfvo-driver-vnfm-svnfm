@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-
 import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
