@@ -65,38 +65,38 @@
     </bean>
 
     <bean id="vnfmDao"
-        class="org.openo.nfvo.vnfmadapter.service.dao.impl.VnfmDaoImpl">
+        class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.impl.VnfmDaoImpl">
         <property name="session" ref="session"></property>
     </bean>
 
-    <bean id="vnfMgr" class="org.openo.nfvo.vnfmadapter.service.process.VnfMgr">
+    <bean id="vnfMgr" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr">
         <property name="vnfmDao" ref="vnfmDao"></property>
     </bean>
 
-    <bean id="VnfRoa" class="org.openo.nfvo.vnfmadapter.service.rest.VnfRoa">
+    <bean id="VnfRoa" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.VnfRoa">
         <property name="vnfMgr" ref="vnfMgr"></property>
     </bean>
 
     <bean id="vnfResourceMgr"
-        class="org.openo.nfvo.vnfmadapter.service.process.VnfResourceMgr">
+        class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfResourceMgr">
     </bean>
 
-    <bean id="VnfResourceRoa" class="org.openo.nfvo.vnfmadapter.service.rest.VnfResourceRoa">
+    <bean id="VnfResourceRoa" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.VnfResourceRoa">
         <property name="vnfResourceMgr" ref="vnfResourceMgr"></property>
     </bean>
 
-    <bean id="authMgr" class="org.openo.nfvo.vnfmadapter.service.process.AuthMgr" />
+    <bean id="authMgr" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.AuthMgr" />
 
-    <bean id="AuthRoa" class="org.openo.nfvo.vnfmadapter.service.rest.AuthRoa">
+    <bean id="AuthRoa" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.AuthRoa">
         <property name="authMgr" ref="authMgr"></property>
     </bean>
 
-    <bean id="VnfAdaResRoa" class="org.openo.nfvo.vnfmadapter.service.rest.VnfAdapterResourceRoa">
+    <bean id="VnfAdaResRoa" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.VnfAdapterResourceRoa">
     </bean>
 
-    <bean id="SwaggerRoa" class="org.openo.nfvo.vnfmadapter.service.rest.SwaggerRoa"></bean>
+    <bean id="SwaggerRoa" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.SwaggerRoa"></bean>
 
-    <!-- bean id="registerMgr" class="org.openo.nfvo.vnfmadapter.service.process.RegisterMgr"
+    <!-- bean id="registerMgr" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.RegisterMgr"
         init-method="register" destroy-method="unRegister">
     </bean-->
 
@@ -110,8 +110,8 @@
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <ref bean="jsonProvider" />
-            <bean class="org.openo.nfvo.vnfmadapter.service.rest.exceptionmapper.ServiceExceptionMapper" />
-            <bean class="org.openo.nfvo.vnfmadapter.service.rest.exceptionmapper.GenericExceptionMapper" />
+            <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.exceptionmapper.ServiceExceptionMapper" />
+            <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.exceptionmapper.GenericExceptionMapper" />
         </jaxrs:providers>
     </jaxrs:server>
 </beans>

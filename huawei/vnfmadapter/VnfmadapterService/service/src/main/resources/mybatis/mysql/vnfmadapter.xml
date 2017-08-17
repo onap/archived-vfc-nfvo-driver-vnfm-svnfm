@@ -15,8 +15,8 @@
     limitations under the License.
  -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.openo.nfvo.vnfmadapter.service.mapper.VnfmMapper">
-    <resultMap type="org.openo.nfvo.vnfmadapter.service.entity.Vnfm"
+<mapper namespace="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.mapper.VnfmMapper">
+    <resultMap type="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm"
         id="VnfmResultMap">
         <result property="id" javaType="String" column="ID" jdbcType="VARCHAR" />
         <result property="version" javaType="String" column="VERSION" jdbcType="VARCHAR" />
@@ -28,12 +28,12 @@
         ID, VERSION, VNFDID, VNFPACKAGEID
     </sql>
 
-    <insert id="insertVnfm" parameterType="org.openo.nfvo.vnfmadapter.service.entity.Vnfm">
+    <insert id="insertVnfm" parameterType="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm">
         INSERT INTO VNFM (ID, VERSION, VNFDID, VNFPACKAGEID)
         VALUES(#{id},#{version},#{vnfdId},#{vnfPackageId})
     </insert>
 
-    <update id="updateVnfm" parameterType="org.openo.nfvo.vnfmadapter.service.entity.Vnfm">
+    <update id="updateVnfm" parameterType="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm">
         UPDATE VNFM
         <set>
             <if test="id != null">
@@ -70,7 +70,7 @@
         SELECT COUNT(*) FROM VNFM
     </select>
 
-    <select id="getVnfmById" parameterType="java.lang.String" resultType="org.openo.nfvo.vnfmadapter.service.entity.Vnfm">
+    <select id="getVnfmById" parameterType="java.lang.String" resultType="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm">
         SELECT * FROM VNFM
         WHERE id = #{id}
     </select>

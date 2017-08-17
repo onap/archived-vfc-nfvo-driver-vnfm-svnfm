@@ -36,8 +36,8 @@
     http://cxf.apache.org/schemas/configuration/http-conf.xsd
     http://www.springframework.org/schema/aop
     http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
-    <bean class="org.openo.nfvo.vnfmadapter.service.activator.RoaVnfmServicePostProcessor"></bean>
-    <bean class="org.openo.nfvo.vnfmadapter.service.api.internalsvc.impl.VnfmAdapterMgrService"></bean>
-    <bean class="org.openo.nfvo.vnfmadapter.service.activator.RoaVnfmService2DriverMgr"></bean>
-    <bean class="org.openo.nfvo.vnfmadapter.service.api.internalsvc.impl.VnfmAdapter2DriverMgrService"></bean>
+    <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.activator.RoaVnfmServicePostProcessor"></bean>
+    <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.impl.VnfmAdapterMgrService"></bean>
+    <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.activator.RoaVnfmService2DriverMgr"></bean>
+    <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.impl.VnfmAdapter2DriverMgrService"></bean>
 </beans>
