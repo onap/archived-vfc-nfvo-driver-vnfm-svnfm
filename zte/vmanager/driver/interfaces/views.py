@@ -432,7 +432,7 @@ def scale(request, *args, **kwargs):
         logger.info("request.data = %s", request.data)
         logger.info("requested_url = %s", request.get_full_path())
         vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        nf_instance_id = ignorcase_get(kwargs, "nfInstanceId")
+        nf_instance_id = ignorcase_get(kwargs, "vnfInstanceId")
         ret = vnfm_get(vnfm_id)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
@@ -477,6 +477,42 @@ def scale(request, *args, **kwargs):
         return Response(data={'error':'scale expection'}, status='500')
     return Response(data=resp_data, status=ret[2])
 
+@api_view(http_method_names=['POST'])
+def heal(request, *args, **kwargs):
+    logger.info("====heal_vnf===")
+    try:
+        logger.info("request.data = %s", request.data)
+        logger.info("requested_url = %s", request.get_full_path())
+        vnfm_id = ignorcase_get(kwargs, "vnfmid")
+        nf_instance_id = ignorcase_get(kwargs, "vnfInstanceId")
+        ret = vnfm_get(vnfm_id)
+        if ret[0] != 0:
+            return Response(data={'error': ret[1]}, status=ret[2])
+        vnfm_info = json.JSONDecoder().decode(ret[1])
+        data = request.data
+        data['lifecycleoperation'] = 'operate'
+        data['isgrace'] = 'force'
+
+        logger.info("data = %s", data)
+        ret = restcall.call_req(
+            base_url=ignorcase_get(vnfm_info, "url"),
+            user=ignorcase_get(vnfm_info, "userName"),
+            passwd=ignorcase_get(vnfm_info, "password"),
+            auth_type=restcall.rest_no_auth,
+            resource=nf_scaling_url.format(vnfInstanceID=nf_instance_id),
+            method='put',  # POST
+            content=json.JSONEncoder().encode(data))
+        logger.info("ret=%s", ret)
+        if ret[0] != 0:
+            return Response(data={'error': 'heal error'}, status=ret[2])
+        resp_data = json.JSONDecoder().decode(ret[1])
+        # jobId = resp_data["jobid"]
+        logger.info("resp_data=%s", resp_data)
+    except Exception as e:
+        logger.error("Error occurred when healing VNF")
+        logger.error(traceback.format_exc())
+        return Response(data={'error': 'heal expection'}, status='500')
+    return Response(data=resp_data, status=ret[2])
 
 #@staticmethod
 def get_vdus(nf_model, aspect_id):
