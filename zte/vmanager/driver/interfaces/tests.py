@@ -343,7 +343,7 @@ class InterfacesTest(TestCase):
         expect_resp_data = None
         self.assertEqual(expect_resp_data, response.data)
 
-    '''
+
     @mock.patch.object(restcall, 'call_req')
     def test_scale(self,mock_call_req):
         job_info = {"jobid":"801","nfInstanceId":"101"}
@@ -361,7 +361,7 @@ class InterfacesTest(TestCase):
                      u'description': u''}
 
         ret = [0, json.JSONEncoder().encode(job_info), "202"]
-        ret_vnfm = [0,json.JSONEncoder().encode(job_info), "200"]
+        ret_vnfm = [0,json.JSONEncoder().encode(vnfm_info), "200"]
         mock_call_req.side_effect = [ret_vnfm, ret]
 
         vnfd_info = {
@@ -415,11 +415,49 @@ class InterfacesTest(TestCase):
         }
 
 
-        response = self.client.post("/api/ztevmanagerdriver/v1/vnfmid/vnfs/101/scale",
+        response = self.client.post("/api/ztevmanagerdriver/v1/100/vnfs/101/scale",
                                    data=json.dumps(scale_vnf_data), content_type='application/json')
+        self.assertEqual(str(status.HTTP_202_ACCEPTED), response.status_code)
+        self.assertDictEqual(job_info, response.data)
+
+    @mock.patch.object(restcall, 'call_req')
+    def test_heal(self,mock_call_req):
+        job_info = {"jobid": "12234455", "nfInstanceId": "10144445666"}
+        vnfm_info = {u'userName': u'admin',
+                     u'vendor': u'ZTE',
+                     u'name': u'ZTE_VNFM_237_62',
+                     u'vimId': u'516cee95-e8ca-4d26-9268-38e343c2e31e',
+                     u'url': u'http://192.168.237.165:2324',
+                     u'certificateUrl': u'',
+                     u'version': u'V1.0',
+                     u'vnfmId': u'b0797c9b-3da9-459c-b25c-3813e9d8fd70',
+                     u'password': u'admin',
+                     u'type': u'ztevmanagerdriver',
+                     u'createTime': u'2016-10-31 11:08:39',
+                     u'description': u''}
+
+        ret = [0, json.JSONEncoder().encode(job_info), "202"]
+        ret_vnfm = [0, json.JSONEncoder().encode(vnfm_info), "200"]
+        mock_call_req.side_effect = [ret_vnfm, ret]
+
+        heal_vnf_data = {
+            'action': 'vmReset',
+            'affectedvm': [{
+                'flavour': {
+
+                },
+                'extention': '',
+                'vmid': '804cca71-9ae9-4511-8e30-d1387718caff',
+                'changtype': 'changed',
+                'vduid': 'vdu_100',
+                'vmname': 'ZTE_SSS_111_PP_2_L'
+            }],
+            'lifecycleoperation': 'operate',
+            'isgrace': 'force'
+        }
+
+        response = self.client.post("/api/ztevmanagerdriver/v1/200/vnfs/201/heal",
+                                    data=json.dumps(heal_vnf_data), content_type='application/json')
 
         self.assertEqual(str(status.HTTP_202_ACCEPTED), response.status_code)
-
-        expect_resp_data = {"jobid":"801","nfInstanceId":"101"}
-        self.assertDictEqual(expect_resp_data, response.data)
-    '''
+        self.assertDictEqual(job_info, response.data)

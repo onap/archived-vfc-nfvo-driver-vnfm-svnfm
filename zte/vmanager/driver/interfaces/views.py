@@ -469,13 +469,16 @@ def scale(request, *args, **kwargs):
         if ret[0] != 0:
             return Response(data={'error':'scale error'}, status=ret[2])
         resp_data = json.JSONDecoder().decode(ret[1])
-        jobId = resp_data["jobid"]
+        # jobId = resp_data["jobid"]
         logger.info("resp_data=%s", resp_data)
     except Exception as e:
         logger.error("Error occurred when scaling VNF")
         logger.error(traceback.format_exc())
         return Response(data={'error':'scale expection'}, status='500')
     return Response(data=resp_data, status=ret[2])
+
+
+nf_healing_url = '/api/v1/nf_m_i/nfs/{vnfInstanceID}/vms/operation'
 
 @api_view(http_method_names=['POST'])
 def heal(request, *args, **kwargs):
@@ -499,7 +502,7 @@ def heal(request, *args, **kwargs):
             user=ignorcase_get(vnfm_info, "userName"),
             passwd=ignorcase_get(vnfm_info, "password"),
             auth_type=restcall.rest_no_auth,
-            resource=nf_scaling_url.format(vnfInstanceID=nf_instance_id),
+            resource=nf_healing_url.format(vnfInstanceID=nf_instance_id),
             method='put',  # POST
             content=json.JSONEncoder().encode(data))
         logger.info("ret=%s", ret)
