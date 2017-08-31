@@ -224,7 +224,7 @@ public final class ResultRequestUtil {
      * @param paramsJson
      * @param authModel
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public static JSONObject callSouth(JSONObject vnfmObject, String path, String methodName, String paramsJson,
             String authModel) {
@@ -287,6 +287,14 @@ public final class ResultRequestUtil {
         return resultJson;
     }
 
+    /**
+     * <br>
+     * 
+     * @param vnfmUrl
+     * @param token
+     * @param user
+     * @since VFC 1.0
+     */
     private static void removeV3Tokens(String vnfmUrl, String token, String user) {
         HttpMethod httpMethodToken = null;
         String tokenUrl = String.format(ParamConstants.CSM_AUTH_CONNECT_SOUTH_DISCONNECT, user);

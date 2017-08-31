@@ -120,7 +120,7 @@ public class ConnectMgrVnfm {
      * @param vnfmObj
      * @param authModel
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public int connectSouth(JSONObject vnfmObj, String authModel) {
         LOG.info("function=connectSouth, msg=enter connect function.");

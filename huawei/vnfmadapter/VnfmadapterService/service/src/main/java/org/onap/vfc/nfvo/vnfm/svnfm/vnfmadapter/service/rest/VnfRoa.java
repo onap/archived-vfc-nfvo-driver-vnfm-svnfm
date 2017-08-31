@@ -277,11 +277,11 @@ public class VnfRoa {
      * 
      * @param context
      *            {
-     *            ¡°action¡±: ¡°vmReset¡±,
-     *            ¡°affectedvm¡±: {
-     *            ¡°vmid¡±: ¡°804cca71 - 9ae9 - 4511 - 8e30 - d1387718caff¡±,
-     *            ¡°vduid¡±: ¡°vdu_100¡±,
-     *            ¡°vmname¡±: ¡°ZTE_SSS_111_PP_2_L¡±
+     *            “action”: “vmReset”,
+     *            “affectedvm”: {
+     *            “vmid”: “804cca71 - 9ae9 - 4511 - 8e30 - d1387718caff”,
+     *            “vduid”: “vdu_100”,
+     *            “vmname”: “ZTE_SSS_111_PP_2_L”
      *            }
      *            }
      * @param resp
@@ -289,7 +289,7 @@ public class VnfRoa {
      * @param vnfInstanceId
      * @return
      * @throws ServiceException
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @PUT
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}/heal")

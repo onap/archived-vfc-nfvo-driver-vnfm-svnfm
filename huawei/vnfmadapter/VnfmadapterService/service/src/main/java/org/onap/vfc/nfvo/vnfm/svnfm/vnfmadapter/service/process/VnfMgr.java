@@ -300,7 +300,7 @@ public class VnfMgr {
      * @param vnfInstanceId
      * @param vnfmId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject healVnf(JSONObject jsonObject, String vnfInstanceId, String vnfmId) {
         JSONObject restJson = new JSONObject();

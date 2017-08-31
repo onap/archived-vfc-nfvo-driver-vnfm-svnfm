@@ -233,7 +233,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
      * @param vnfmId
      * @param vnfInstanceId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject healVnf(JSONObject jsonObject, JSONObject vnfmObjcet, String vnfmId, String vnfInstanceId) {
         LOG.info("healVnf request body :" + jsonObject);
