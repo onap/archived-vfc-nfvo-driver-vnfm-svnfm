@@ -25,7 +25,6 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.vnf.VnfMgrVnfm;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.inf.VnfmDao;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,17 +48,17 @@ public class VnfMgr {
         this.vnfmDao = vnfmDao;
     }
 
-
     /**
      * Scale vnf
+     * 
      * @param vnfObject
-     * {
-     *     "vnfInstanceId":"5",
-     *     "type":"SCALE_OUT",
-     *     "aspectId":"101",
-     *     "numberOfSteps":"1",
-     *     "additionalParam":{}
-     * }
+     *            {
+     *            "vnfInstanceId":"5",
+     *            "type":"SCALE_OUT",
+     *            "aspectId":"101",
+     *            "numberOfSteps":"1",
+     *            "additionalParam":{}
+     *            }
      * @param vnfmId
      * @param vnfInstanceId
      * @return
@@ -74,9 +73,9 @@ public class VnfMgr {
             }
 
             JSONObject vnfmObjcet = VnfmUtil.getVnfmById(vnfmId);
-            LOG.info("vnfm info:"+vnfmObjcet);
+            LOG.info("vnfm info:" + vnfmObjcet);
             if(vnfmObjcet.isNullObject()) {
-                LOG.error("function=scaleVNF,can't find vnfm from db by vnfmId="+vnfmId);
+                LOG.error("function=scaleVNF,can't find vnfm from db by vnfmId=" + vnfmId);
                 return restJson;
             }
             restJson = (new VnfMgrVnfm()).scaleVnf(vnfObject, vnfmObjcet, vnfmId, vnfInstanceId);
@@ -114,7 +113,7 @@ public class VnfMgr {
             Map<String, String> conMap = new ConcurrentHashMap<>(Constant.DEFAULT_COLLECTION_SIZE);
             conMap.put("csarid", vnfObject.getString("vnfPackageId"));
             conMap.put("vnfmid", vnfmId);
-            conMap.put("vnfDescriptorId",vnfObject.getString("vnfDescriptorId"));
+            conMap.put("vnfDescriptorId", vnfObject.getString("vnfDescriptorId"));
 
             JSONObject resObjcet = (new AdapterResourceManager()).uploadVNFPackage(null, conMap);
 
@@ -292,5 +291,32 @@ public class VnfMgr {
                 LOG.error("function=saveVnfInfo, msg=ServiceException occurs, e={}.", e);
             }
         }
+    }
+
+    /**
+     * <br>
+     * 
+     * @param jsonObject
+     * @param vnfInstanceId
+     * @param vnfmId
+     * @return
+     * @since NFVO 0.5
+     */
+    public JSONObject healVnf(JSONObject jsonObject, String vnfInstanceId, String vnfmId) {
+        JSONObject restJson = new JSONObject();
+        restJson.put(Constant.RETCODE, Constant.REST_FAIL);
+
+        if(jsonObject.isNullObject() || jsonObject.isEmpty()) {
+            return restJson;
+        }
+
+        JSONObject vnfmObjcet = VnfmUtil.getVnfmById(vnfmId);
+        LOG.info("vnfm info:" + vnfmObjcet);
+        if(vnfmObjcet.isNullObject()) {
+            LOG.error("function=scaleVNF,can't find vnfm from db by vnfmId=" + vnfmId);
+            return restJson;
+        }
+        restJson = (new VnfMgrVnfm()).healVnf(jsonObject, vnfmObjcet, vnfmId, vnfInstanceId);
+        return restJson;
     }
 }

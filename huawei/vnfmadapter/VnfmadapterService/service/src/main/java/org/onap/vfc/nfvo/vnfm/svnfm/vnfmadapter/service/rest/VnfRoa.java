@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -269,6 +270,51 @@ public class VnfRoa {
         }
 
         return getJobBody(restJson);
+    }
+
+    /**
+     * <br>
+     * 
+     * @param context
+     *            {
+     *            ¡°action¡±: ¡°vmReset¡±,
+     *            ¡°affectedvm¡±: {
+     *            ¡°vmid¡±: ¡°804cca71 - 9ae9 - 4511 - 8e30 - d1387718caff¡±,
+     *            ¡°vduid¡±: ¡°vdu_100¡±,
+     *            ¡°vmname¡±: ¡°ZTE_SSS_111_PP_2_L¡±
+     *            }
+     *            }
+     * @param resp
+     * @param vnfmId
+     * @param vnfInstanceId
+     * @return
+     * @throws ServiceException
+     * @since NFVO 0.5
+     */
+    @PUT
+    @Path("/{vnfmId}/vnfs/{vnfInstanceId}/heal")
+    public String healVnf(@Context HttpServletRequest context, @Context HttpServletResponse resp,
+            @PathParam("vnfmId") String vnfmId, @PathParam("vnfInstanceId") String vnfInstanceId)
+            throws ServiceException {
+        LOG.warn("function=healVnf, msg=enter to heal a vnf: vnfInstanceId: {}, vnfmId: {}", vnfInstanceId, vnfmId);
+        JSONObject restJson = new JSONObject();
+        JSONObject jsonObject = VnfmJsonUtil.getJsonFromContexts(context);
+
+        if(StringUtils.isEmpty(vnfInstanceId) || StringUtils.isEmpty(vnfmId)) {
+            resp.setStatus(Constant.HTTP_INNERERROR);
+            restJson.put("message", "vnfmId is null or vnfInstanceId is null");
+            return restJson.toString();
+        }
+
+        restJson = vnfMgr.healVnf(jsonObject, vnfInstanceId, vnfmId);
+        if(restJson.getInt(Constant.RETCODE) == Constant.REST_FAIL) {
+            LOG.error("function=healVnf, msg=healVnf fail");
+            resp.setStatus(Constant.HTTP_INNERERROR);
+            return restJson.toString();
+        }
+
+        restJson.remove(Constant.RETCODE);
+        return restJson.toString();
     }
 
     private String getJobBody(JSONObject restJson) {
