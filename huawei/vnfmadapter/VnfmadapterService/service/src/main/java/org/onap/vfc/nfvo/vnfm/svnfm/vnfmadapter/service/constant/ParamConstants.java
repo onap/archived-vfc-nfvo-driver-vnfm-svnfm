@@ -17,9 +17,7 @@
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant;
 
 /**
- *
  * @author
- *
  * @version NFVO 0.5 Sep 6, 2016
  */
 public class ParamConstants {
@@ -29,9 +27,9 @@ public class ParamConstants {
     public static final String GET_TOKENS_V2 =
             "{\"auth\":{\"identity\": {\"methods\": [\"password\"],\"password\": {\"user\": {\"name\": \"%s\",\"password\": \"%s\"}}}}}";
 
-    public static final String GET_IAM_TOKENS =
+    public static final String GET_TOKENS_V3 =
             "{\"auth\": {\"identity\": {\"methods\": [\"password\"],\"password\": {\"user\": {\"name\": "
-                    + "\"%s\",\"password\": \"%s\",\"domain\": {\"name\": \"%s\"}}}},\"scope\": {\"domain\": {\"name\": \"%s\"}}}}";
+                    + "\"%s\",\"password\": \"%s\",\"domain\": {\"name\": \"%s\"}}}}}}";
 
     public static final String GET_TOKEN_SUC_RESP =
             "{\"token\": {\"methods\": [\"password\"],\"expires_at\": \"\",\"user\": {\"id\": \"%s\","
@@ -45,7 +43,9 @@ public class ParamConstants {
 
     public static final String REST_3RD_HANDSHAKE = "/rest/plat/ssm/v1/sessions/verify";
 
-    public static final String IAM_AUTH = "/v3/auth/tokens";
+    public static final String CSM_AUTH_CONNECT_SOUTH = "/v3/auth/tokens";
+
+    public static final String CSM_AUTH_CONNECT_SOUTH_DISCONNECT = "/v3/auth/tokens/%s";
 
     public static final String CSM_AUTH_CONNECT = "/v2/auth/tokens";
 
@@ -64,7 +64,6 @@ public class ParamConstants {
     public static final String CREATE_VNF_PERF = "/staticsmgr/v1/vnfperformance";
 
     public static final String VNFMGR_INSTANCE = "/vnfmgr/v1/instances";
-
 
     public static final String VNFD_FLAVOR = "/vnfdmgr/v1/flavor";
 
@@ -106,7 +105,6 @@ public class ParamConstants {
 
     public static final String VNF_GET_VMINFO = "/v2/vapps/instances/%s/vm";
 
-
     public static final String MSB_REGISTER_URL = "/openoapi/microservices/v1/services";
 
     public static final String MSB_UNREGISTER_URL = "/openoapi/microservices/v1/services/hw-vnfm";
@@ -116,6 +114,8 @@ public class ParamConstants {
     public static final String ESR_GET_VNFMS_URL = "/openoapi/extsys/v1/vnfms";
 
     public static final String GRANT_RES_URL = "/openoapi/resmgr/v1/resource/grant";
+
+    public static final String HEAL_VNF = "/v2/vapps/instances/vm/%s/action";
 
     private ParamConstants() {
         // private contstructor

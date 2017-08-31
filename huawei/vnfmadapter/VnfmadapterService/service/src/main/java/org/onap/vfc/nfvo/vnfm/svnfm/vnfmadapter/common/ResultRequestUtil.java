@@ -167,7 +167,8 @@ public final class ResultRequestUtil {
             String token = mgrVcmm.getAccessSession();
             String roaRand = mgrVcmm.getRoaRand();
             String vnfmUrl = vnfmObject.getString("url");
-            removeTokens(vnfmUrl, token, roaRand);
+            String user = vnfmObject.getString("userName");
+            removeTokens(vnfmUrl, token, roaRand, user);
         } catch(IOException e) {
             LOG.info("function=call, msg=IOException, e is {}", e);
         } catch(ReflectiveOperationException e) {
@@ -193,9 +194,102 @@ public final class ResultRequestUtil {
      *
      * @since NFVO 0.5
      */
-    private static void removeTokens(String vnfmUrl, String token, String roaRand) {
+    private static void removeTokens(String vnfmUrl, String token, String roaRand, String user) {
         HttpMethod httpMethodToken = null;
-        String tokenUrl = String.format(ParamConstants.CSM_AUTH_DISCONNECT, "manoadmin", roaRand);
+        String tokenUrl = String.format(ParamConstants.CSM_AUTH_DISCONNECT, user, roaRand);
+        LOG.info("removeTokens tokenUrl=" + tokenUrl);
+        try {
+            httpMethodToken = new HttpRequests.Builder(Constant.CERTIFICATE).setUrl(vnfmUrl.trim(), tokenUrl)
+                    .setParams("").addHeader("X-Auth-Token", token).delete().execute();
+            int statusCode = httpMethodToken.getStatusCode();
+            String result = httpMethodToken.getResponseBodyAsString();
+            LOG.info("removeTokens int=" + statusCode + ", result=" + result);
+        } catch(IOException e) {
+            LOG.info("function=call, msg=IOException, e is {}", e);
+        } catch(Throwable e) {
+            LOG.info("function=call, msg=Throwable, e is {}", e);
+        } finally {
+            if(httpMethodToken != null) {
+                httpMethodToken.releaseConnection();
+            }
+        }
+    }
+
+    /**
+     * <br>
+     * 
+     * @param vnfmObject
+     * @param path
+     * @param methodName
+     * @param paramsJson
+     * @param authModel
+     * @return
+     * @since NFVO 0.5
+     */
+    public static JSONObject callSouth(JSONObject vnfmObject, String path, String methodName, String paramsJson,
+            String authModel) {
+        LOG.info("request-param=" + paramsJson + ",authModel=" + authModel + ",path=" + path + ",vnfmInfo="
+                + vnfmObject);
+        JSONObject resultJson = new JSONObject();
+
+        ConnectMgrVnfm mgrVcmm = new ConnectMgrVnfm();
+
+        if(Constant.HTTP_OK != mgrVcmm.connectSouth(vnfmObject, authModel)) {
+            resultJson.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
+            resultJson.put("data", "connect fail.");
+            return resultJson;
+        }
+
+        HttpMethod httpMethod = null;
+        try {
+
+            String result = null;
+            String vnfPath = path.contains("%s") ? String.format(path, mgrVcmm.getRoaRand()) : path;
+            LOG.info("function=call, msg=url is {}, session is {}", vnfmObject.getString("url") + vnfPath,
+                    mgrVcmm.getAccessSession());
+            HttpRequests.Builder builder =
+                    new HttpRequests.Builder(authModel).addHeader(Constant.ACCESSSESSION, mgrVcmm.getAccessSession())
+                            .setUrl(vnfmObject.getString("url"), vnfPath).setParams(paramsJson);
+            MethodType methodType = MethodType.methodType(HttpRequests.Builder.class, new Class[0]);
+            MethodHandle mt =
+                    MethodHandles.lookup().findVirtual(builder.getClass(), methodName, methodType).bindTo(builder);
+
+            builder = (HttpRequests.Builder)mt.invoke();
+            httpMethod = builder.execute();
+            result = httpMethod.getResponseBodyAsString();
+            LOG.warn("function=call, msg=response status is {}. result is {}", httpMethod.getStatusCode(), result);
+            resultJson.put(Constant.RETCODE, httpMethod.getStatusCode());
+            resultJson.put("data", result);
+
+            // logout delete tokens
+            String token = mgrVcmm.getAccessSession();
+            String oldUrl = vnfmObject.getString("url").trim();
+            String newUrl = oldUrl.replaceAll("30001", "30000");
+            String user = vnfmObject.getString("userName");
+            removeV3Tokens(newUrl, token, user);
+        } catch(IOException e) {
+            LOG.info("function=call, msg=IOException, e is {}", e);
+        } catch(ReflectiveOperationException e) {
+            LOG.info("function=call, msg=ReflectiveOperationException, e is {}", e);
+        } catch(Throwable e) {
+            LOG.info("function=call, msg=Throwable, e is {}", e);
+        } finally {
+            if(httpMethod != null) {
+                httpMethod.releaseConnection();
+            }
+        }
+
+        if(httpMethod == null) {
+            resultJson.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
+            resultJson.put("data", "get connection error");
+        }
+
+        return resultJson;
+    }
+
+    private static void removeV3Tokens(String vnfmUrl, String token, String user) {
+        HttpMethod httpMethodToken = null;
+        String tokenUrl = String.format(ParamConstants.CSM_AUTH_CONNECT_SOUTH_DISCONNECT, user);
         LOG.info("removeTokens tokenUrl=" + tokenUrl);
         try {
             httpMethodToken = new HttpRequests.Builder(Constant.CERTIFICATE).setUrl(vnfmUrl.trim(), tokenUrl)
