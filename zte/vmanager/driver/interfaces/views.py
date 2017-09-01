@@ -21,7 +21,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from driver.pub.utils import restcall
-from driver.pub.utils.restcall import req_by_msb
+from driver.pub.utils.restcall import req_by_msb, call_aai
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ query_package_url = "api/nslcm/v1/vnfpackage/%s"
 
 # Query VNFM by VNFMID
 def vnfm_get(vnfmid):
-    ret = req_by_msb("api/extsys/v1/vnfms/%s" % vnfmid, "GET")
+    ret = call_aai("api/aai-esr-server/v1/vnfms/%s" % vnfmid, "GET")
     return ret
 
 
@@ -117,6 +117,7 @@ def instantiate_vnf(request, *args, **kwargs):
         data["NFVOID"] = 1
         data["VNFMID"] = vnfm_id
         vnfdId = ignorcase_get(packageInfo, "vnfdId")
+        # TODO  convert sdc vnf package to vnf vender package
         from urlparse import urlparse
         vnfm_ip = urlparse(ignorcase_get(vnfm_info, "url")).netloc.split(':')[0]
         VNFS = ["SPGW", "MME"]
@@ -141,6 +142,7 @@ def instantiate_vnf(request, *args, **kwargs):
         data["extension"]["vnfid"] = data["VNFD"]
         data["extension"]["multivim"] = 0
         logger.debug("[%s] call_req data=%s", fun_name(), data)
+
         ret = restcall.call_req(
             base_url=ignorcase_get(vnfm_info, "url"),
             user=ignorcase_get(vnfm_info, "userName"),
@@ -149,6 +151,7 @@ def instantiate_vnf(request, *args, **kwargs):
             resource=create_vnf_url,
             method='post',
             content=json.JSONEncoder().encode(data))
+
         logger.debug("[%s] call_req ret=%s", fun_name(), ret)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
