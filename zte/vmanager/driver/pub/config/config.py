@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [AAI]
+AAI_SERVICE_IP = '127.0.0.1'
+AAI_SERVICE_PORT = '8443'
+AAI_BASE_URL = "https://%s:%s/aai/v8" % (AAI_SERVICE_IP, AAI_SERVICE_PORT)
+AAI_USER = "AAI"
+AAI_PASSWORD = "AAI"
+CLOUD_OWNER = "11"
+CLOUD_REGION_ID = ""
+TENANT_ID = ""
+
 # [MSB]
 MSB_SERVICE_IP = '127.0.0.1'
 MSB_SERVICE_PORT = '80'

@@ -21,7 +21,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from driver.pub.utils import restcall
-from driver.pub.utils.restcall import req_by_msb
+from driver.pub.utils.restcall import req_by_msb, call_aai
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ query_package_url = "api/nslcm/v1/vnfpackage/%s"
 
 # Query VNFM by VNFMID
 def vnfm_get(vnfmid):
-    ret = req_by_msb("api/extsys/v1/vnfms/%s" % vnfmid, "GET")
+    ret = call_aai("api/aai-esr-server/v1/vnfms/%s" % vnfmid, "GET")
     return ret
 
 
@@ -117,6 +117,7 @@ def instantiate_vnf(request, *args, **kwargs):
         data["NFVOID"] = 1
         data["VNFMID"] = vnfm_id
         vnfdId = ignorcase_get(packageInfo, "vnfdId")
+        # TODO  convert sdc vnf package to vnf vender package
         from urlparse import urlparse
         vnfm_ip = urlparse(ignorcase_get(vnfm_info, "url")).netloc.split(':')[0]
         VNFS = ["SPGW", "MME"]
