@@ -16,6 +16,8 @@ import os
 import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from driver.pub.config import config
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -115,6 +117,8 @@ LOGGING = {
             'propagate': False}, }}
 
 if 'test' in sys.argv:
+    config.REG_TO_MSB_WHEN_START = False
+    REST_FRAMEWORK = {}
     import platform
     if platform.system() == 'Linux':
         TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
