@@ -1,6 +1,6 @@
 {
     "request": {
-        "uri": "/rest/openoapi/hw-vnfm/v1/12345/vnfs/54321",
+        "uri": "/rest/api/hw-vnfm/v1/12345/vnfs/54321",
         "method": "get",
         "headers": {
             "Content-Type": "application/json;charset=UTF-8"

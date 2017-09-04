@@ -1,6 +1,6 @@
 {
     "request": {
-        "uri": "/openoapi/extsys/v1/vnfms/12345",
+        "uri": "/api/extsys/v1/vnfms/12345",
         "method": "get",
         "headers": {
             "Content-Type": "application/json;charset=UTF-8"

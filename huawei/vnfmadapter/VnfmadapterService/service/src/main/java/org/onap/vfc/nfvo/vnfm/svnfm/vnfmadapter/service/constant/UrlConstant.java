@@ -24,13 +24,13 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant;
  */
 public class UrlConstant {
 
-    public static final String REST_MSB_REGISTER = "/openoapi/microservices/v1/services";
+    public static final String REST_MSB_REGISTER = "/api/microservices/v1/services";
 
-    public static final String REST_DRIVERMGR_REGISTER = "/openoapi/drivermgr/v1/drivers";
+    public static final String REST_DRIVERMGR_REGISTER = "/api/drivermgr/v1/drivers";
 
-    public static final String REST_CSARINFO_GET = "/openoapi/catalog/v1/csars/%s";
+    public static final String REST_CSARINFO_GET = "/api/catalog/v1/csars/%s";
 
-    public static final String REST_VNFMINFO_GET = "/openoapi/extsys/v1/vnfms/%s";
+    public static final String REST_VNFMINFO_GET = "/api/extsys/v1/vnfms/%s";
 
     public static final String URL_ALLCLOUD_GET = "/rest/vnfm/vnfmvim/v2/computeservice/getAllCloud";
 

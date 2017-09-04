@@ -10,7 +10,7 @@
             "name": "Huawei VNFM Driver services"
         }
     ],
-  "basePath": "/openoapi",
+  "basePath": "/api",
   "paths": {
     "/{vnfmtype}/v1/{vnfmid}/vnfs": {
       "post": {
