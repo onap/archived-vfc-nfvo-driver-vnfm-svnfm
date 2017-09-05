@@ -1,6 +1,6 @@
 {
     "request": {
-        "uri": "/openoapi/catalog/v1/csars/12345",
+        "uri": "/api/catalog/v1/csars/12345",
         "method": "get",
         "headers": {
             "Content-Type": "application/json;charset=UTF-8"

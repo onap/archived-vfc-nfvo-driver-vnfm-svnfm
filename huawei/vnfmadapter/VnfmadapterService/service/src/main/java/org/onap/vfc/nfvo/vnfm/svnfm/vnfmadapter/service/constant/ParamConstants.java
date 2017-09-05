@@ -105,15 +105,15 @@ public class ParamConstants {
 
     public static final String VNF_GET_VMINFO = "/v2/vapps/instances/%s/vm";
 
-    public static final String MSB_REGISTER_URL = "/openoapi/microservices/v1/services";
+    public static final String MSB_REGISTER_URL = "/api/microservices/v1/services";
 
-    public static final String MSB_UNREGISTER_URL = "/openoapi/microservices/v1/services/hw-vnfm";
+    public static final String MSB_UNREGISTER_URL = "/api/microservices/v1/services/hw-vnfm";
 
-    public static final String ESR_GET_VNFM_URL = "/openoapi/extsys/v1/vnfms/%s";
+    public static final String ESR_GET_VNFM_URL = "/api/extsys/v1/vnfms/%s";
 
-    public static final String ESR_GET_VNFMS_URL = "/openoapi/extsys/v1/vnfms";
+    public static final String ESR_GET_VNFMS_URL = "/api/extsys/v1/vnfms";
 
-    public static final String GRANT_RES_URL = "/openoapi/resmgr/v1/resource/grant";
+    public static final String GRANT_RES_URL = "/api/resmgr/v1/resource/grant";
 
     public static final String HEAL_VNF = "/v2/vapps/instances/vm/%s/action";
 

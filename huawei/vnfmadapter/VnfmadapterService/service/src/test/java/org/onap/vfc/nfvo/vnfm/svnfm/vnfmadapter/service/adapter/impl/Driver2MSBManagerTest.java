@@ -70,7 +70,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.registerDriver(paramsMap, new JSONObject());
@@ -92,7 +92,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.registerDriver(paramsMap, new JSONObject());
@@ -114,7 +114,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.registerDriver(paramsMap, new JSONObject());
@@ -136,7 +136,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.registerDriver(paramsMap, new JSONObject());
@@ -158,7 +158,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.registerDriver(paramsMap, new JSONObject());
@@ -177,7 +177,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.unregisterDriver(paramsMap);
@@ -199,7 +199,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.unregisterDriver(paramsMap);
@@ -221,7 +221,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.unregisterDriver(paramsMap);
@@ -243,7 +243,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.unregisterDriver(paramsMap);
@@ -265,7 +265,7 @@ public class Driver2MSBManagerTest {
             }
         };
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("url", "/test/openoapi");
+        paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
         paramsMap.put("methodType", "get");
         JSONObject obj = manager.unregisterDriver(paramsMap);

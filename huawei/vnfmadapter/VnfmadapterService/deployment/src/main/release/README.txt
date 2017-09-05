@@ -42,7 +42,7 @@ How to run?
           'conf/server.xml'
           - Verify that 'Tomcat started.' is reported on the console.
     - Once service is started, please verify below details:
-        - from MSB service, verify that "hwvnfm"  is reported from GET request on "/openoapi/microservices/v1/services"
+        - from MSB service, verify that "hwvnfm"  is reported from GET request on "/api/microservices/v1/services"
         - from this service, run one of the supported REST API mentioned in open-o NFVO wiki and verify that the
           expected response is returned.
 How to stop?
