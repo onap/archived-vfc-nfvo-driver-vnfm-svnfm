@@ -23,7 +23,7 @@
     </parent>
     <artifactId>vnfmadapter-service-root</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>nfvo/drivers/vnfm/svnfm/huawei/vnfmadapter/VnfmadapterService</name>
+    <name>vfc/nfvo/drivers/vnfm/svnfm/huawei/vnfmadapter/VnfmadapterService</name>
     <packaging>pom</packaging>
 
     <properties>
