@@ -28,7 +28,6 @@
     <name>vfc/nfvo/driver/vnfm/svnfm</name>
     <description>vfc-nfvo-driver-vnfm-svnfm</description>
     <modules>
-        <module>huawei</module>
         <module>zte</module>
     </modules>
 </project>
