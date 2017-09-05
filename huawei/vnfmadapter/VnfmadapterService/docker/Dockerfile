@@ -42,7 +42,7 @@ RUN wget -q -O nfvo-driver-vnfm-huawei-1.0.0-SNAPSHOT.zip "https://nexus.onap.or
 RUN find . -type d -exec chmod o-w {} \;
 RUN find . -name "*.sh" -exec chmod +x {} \;
 EXPOSE 8482
-RUN echo ONAP nfvo-driver-vnfm-huawei 1.1.0-SNAPSHOT "https://nexus.onap.org/service/local/repositories/snapshots/content/org/openo/nfvo/hw-vnfmadapter-deployment/1.1.0-SNAPSHOT/hw-vnfmadapter-deployment-1.1.0-20170515.020959-39.zip" > ONAP_VERSION
+RUN echo ONAP nfvo-driver-vnfm-huawei 1.0.0-SNAPSHOT "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=hw-vnfmadapter-deployment&v=LATEST&e=zip" > ONAP_VERSION
 
 
 # 90-entrypoint.txt
