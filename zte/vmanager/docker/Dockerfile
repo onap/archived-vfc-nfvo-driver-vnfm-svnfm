@@ -31,6 +31,9 @@ RUN wget -q -O vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip 'https://nexus.onap.o
     unzip vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip && \
     rm -rf vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip
 
+WORKDIR /service/vfc/nfvo/driver/vnfm/svnfm/zte/vmanager
+RUN pip install -r requirements.txt
+
 EXPOSE 8410
 
 WORKDIR /service
