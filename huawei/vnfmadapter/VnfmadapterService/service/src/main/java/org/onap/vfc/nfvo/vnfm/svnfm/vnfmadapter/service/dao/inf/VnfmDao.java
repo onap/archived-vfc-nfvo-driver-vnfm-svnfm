@@ -19,7 +19,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.inf;
 import java.util.List;
 
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 
 /**
  * VNFM DAO

@@ -22,7 +22,7 @@ import java.util.Map;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.RegisterConfigInfo;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VnfmRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
-import org.openo.baseservice.roa.util.restclient.RestfulResponse;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

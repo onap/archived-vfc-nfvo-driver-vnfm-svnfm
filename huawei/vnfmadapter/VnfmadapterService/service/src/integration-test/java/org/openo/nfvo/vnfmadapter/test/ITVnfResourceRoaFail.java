@@ -21,7 +21,7 @@ import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 import org.openo.nfvo.vnfmadapter.mocoserver.VnfmAdapterSuccessServer;
 import org.openo.nfvo.vnfmadapter.util.FailureChecker;
 import org.openo.nfvo.vnfmadapter.util.GetSuccessChecker;

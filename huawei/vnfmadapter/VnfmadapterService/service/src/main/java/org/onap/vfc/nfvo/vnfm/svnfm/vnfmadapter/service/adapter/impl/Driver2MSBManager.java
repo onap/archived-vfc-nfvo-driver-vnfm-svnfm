@@ -21,7 +21,7 @@ import java.util.Map;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VNFRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.inf.IDriver2MSBManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
-import org.openo.baseservice.roa.util.restclient.RestfulResponse;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -25,12 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.SystemEnvVariablesFactory;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.VnfmAdapter2DriverManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.inf.IVnfmAdapter2DriverManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.inf.IVnfmAdapter2DriverMgrService;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.UrlConstant;
-import org.openo.baseservice.util.impl.SystemEnvVariablesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

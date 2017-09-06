@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.HttpRestfulHelp;
-import org.openo.baseservice.roa.util.restclient.Restful;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.Restful;
 
 /**
  * <br/>

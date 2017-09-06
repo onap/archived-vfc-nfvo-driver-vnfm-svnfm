@@ -25,12 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.SystemEnvVariablesFactory;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.Driver2MSBManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.inf.IDriver2MSBManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.inf.IVnfmAdapterMgrService;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.UrlConstant;
-import org.openo.baseservice.util.impl.SystemEnvVariablesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,10 +76,11 @@ public class VnfmAdapterMgrService implements IVnfmAdapterMgrService {
 
     /**
      * Retrieve VIM driver information.
+     * 
      * @return
      * @throws IOException
      */
-    public  String readVnfmAdapterInfoFromJson() throws IOException {
+    public String readVnfmAdapterInfoFromJson() throws IOException {
         InputStream ins = null;
         BufferedInputStream bins = null;
         String fileContent = "";
@@ -101,10 +102,10 @@ public class VnfmAdapterMgrService implements IVnfmAdapterMgrService {
         } catch(FileNotFoundException e) {
             LOG.error(fileName + "is not found!", e);
         } finally {
-            if (ins != null) {
+            if(ins != null) {
                 ins.close();
             }
-            if (bins != null) {
+            if(bins != null) {
                 bins.close();
             }
         }
@@ -175,7 +176,7 @@ public class VnfmAdapterMgrService implements IVnfmAdapterMgrService {
 
     @Override
     public void unregister() {
-        //unregister
+        // unregister
     }
 
 }

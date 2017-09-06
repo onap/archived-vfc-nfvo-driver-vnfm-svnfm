@@ -21,9 +21,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
-import org.openo.baseservice.roa.util.restclient.RestfulParametes;
-import org.openo.baseservice.roa.util.restclient.RestfulResponse;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulParametes;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.openo.sdno.testframework.checker.DefaultChecker;
 import org.openo.sdno.testframework.http.model.HttpModelUtils;
 import org.openo.sdno.testframework.http.model.HttpRequest;

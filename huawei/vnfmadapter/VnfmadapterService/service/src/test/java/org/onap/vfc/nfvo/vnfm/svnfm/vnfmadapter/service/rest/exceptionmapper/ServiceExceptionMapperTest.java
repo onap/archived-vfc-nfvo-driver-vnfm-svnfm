@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.exceptionmapper.ServiceExceptionMapper;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 
 /**
  * <br>

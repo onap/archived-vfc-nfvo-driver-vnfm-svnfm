@@ -31,7 +31,7 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.impl.VnfmDaoImpl;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.inf.VnfmDao;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 
 import mockit.Mock;
 import mockit.MockUp;

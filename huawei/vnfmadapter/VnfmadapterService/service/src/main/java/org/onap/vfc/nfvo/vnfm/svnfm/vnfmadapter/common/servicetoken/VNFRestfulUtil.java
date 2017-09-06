@@ -24,13 +24,13 @@ import java.util.Map;
 
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
-import org.openo.baseservice.roa.util.restclient.Restful;
-import org.openo.baseservice.roa.util.restclient.RestfulAsyncCallback;
-import org.openo.baseservice.roa.util.restclient.RestfulFactory;
-import org.openo.baseservice.roa.util.restclient.RestfulOptions;
-import org.openo.baseservice.roa.util.restclient.RestfulParametes;
-import org.openo.baseservice.roa.util.restclient.RestfulResponse;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.Restful;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulAsyncCallback;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulFactory;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulOptions;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulParametes;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

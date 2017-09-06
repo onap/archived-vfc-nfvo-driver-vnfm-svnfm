@@ -27,7 +27,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VNFRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.testutils.JsonUtil;
-import org.openo.baseservice.roa.util.restclient.RestfulResponse;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 
 import mockit.Mock;
 import mockit.MockUp;

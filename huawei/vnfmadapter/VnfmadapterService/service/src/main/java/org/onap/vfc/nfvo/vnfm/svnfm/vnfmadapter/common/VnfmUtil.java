@@ -16,10 +16,10 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common;
 
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VnfmRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
-import org.openo.baseservice.roa.util.restclient.RestfulResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ import net.sf.json.JSONObject;
  * <br/>
  *
  * @author
- * @version     NFVO 0.5  Aug 25, 2016
+ * @version NFVO 0.5 Aug 25, 2016
  */
 public final class VnfmUtil {
 
@@ -47,7 +47,7 @@ public final class VnfmUtil {
      *
      * @param vnfmId
      * @return
-     * @since  NFVO 0.5
+     * @since NFVO 0.5
      */
     public static JSONObject getVnfmById(String vnfmId) {
         RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(String.format(ParamConstants.ESR_GET_VNFM_URL, vnfmId),
@@ -59,10 +59,11 @@ public final class VnfmUtil {
         return JSONObject.fromObject(rsp.getResponseContent());
     }
 
-    public static JSONObject mockForTest(String vnfmId){
-        String vInfo = "{\"vnfmId\":\"1234\", \"name\":\"vnfm\", \"type\":\"Tacker\", \"vimId\":\"\", \"vendor\":\"huawei\", \"version\":\"v1.0\", \"description\":\"vnfm\", \"certificateUrl\":\"\", \"url\":\"https://192.168.44.126:30001\", \"userName\":\"manoadmin\", \"password\":\"User@12345\", \"createTime\":\"2016-07-06 15:33:18\"}";
+    public static JSONObject mockForTest(String vnfmId) {
+        String vInfo =
+                "{\"vnfmId\":\"1234\", \"name\":\"vnfm\", \"type\":\"Tacker\", \"vimId\":\"\", \"vendor\":\"huawei\", \"version\":\"v1.0\", \"description\":\"vnfm\", \"certificateUrl\":\"\", \"url\":\"https://192.168.44.126:30001\", \"userName\":\"manoadmin\", \"password\":\"User@12345\", \"createTime\":\"2016-07-06 15:33:18\"}";
         JSONObject json = JSONObject.fromObject(vInfo);
-        json.put("vnfmId",vnfmId);
+        json.put("vnfmId", vnfmId);
         return json;
     }
 
@@ -72,7 +73,7 @@ public final class VnfmUtil {
      *
      * @param ip
      * @return
-     * @since  NFVO 0.5
+     * @since NFVO 0.5
      */
     public static String getVnfmIdByIp(String ip) {
         RestfulResponse rsp =

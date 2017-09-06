@@ -19,7 +19,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.impl.VnfmDaoImpl;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 
 /**
  * Created by QuanZhong on 2017/3/17.

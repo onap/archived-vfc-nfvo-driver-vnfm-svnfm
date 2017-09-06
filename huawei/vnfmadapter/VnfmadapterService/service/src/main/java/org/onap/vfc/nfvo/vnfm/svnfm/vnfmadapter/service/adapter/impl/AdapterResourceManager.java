@@ -28,14 +28,14 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.DownloadCsarManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.SystemEnvVariablesFactory;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VNFRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.inf.IResourceManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.UrlConstant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect.ConnectMgrVnfm;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect.HttpRequests;
-import org.openo.baseservice.roa.util.restclient.RestfulResponse;
-import org.openo.baseservice.util.impl.SystemEnvVariablesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

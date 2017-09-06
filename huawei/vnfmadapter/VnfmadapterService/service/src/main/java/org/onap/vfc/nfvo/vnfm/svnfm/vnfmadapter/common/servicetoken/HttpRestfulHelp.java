@@ -19,8 +19,8 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openo.baseservice.roa.util.restclient.HttpRest;
-import org.openo.baseservice.roa.util.restclient.Restful;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.HttpRest;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.Restful;
 
 /**
  * HTTP Restful helper.

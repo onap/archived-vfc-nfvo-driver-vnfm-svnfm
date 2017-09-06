@@ -22,7 +22,7 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.inf.AbstractDao;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.inf.VnfmDao;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.mapper.VnfmMapper;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 
 /**
  * VNFM DAO

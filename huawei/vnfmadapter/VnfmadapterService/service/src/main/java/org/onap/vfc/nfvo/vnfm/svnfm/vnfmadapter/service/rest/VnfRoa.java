@@ -35,9 +35,9 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
-import org.openo.baseservice.remoteservice.exception.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -277,11 +277,11 @@ public class VnfRoa {
      * 
      * @param context
      *            {
-     *            “action”: “vmReset”,
-     *            “affectedvm”: {
-     *            “vmid”: “804cca71 - 9ae9 - 4511 - 8e30 - d1387718caff”,
-     *            “vduid”: “vdu_100”,
-     *            “vmname”: “ZTE_SSS_111_PP_2_L”
+     *            ï¿½actionï¿½: ï¿½vmResetï¿½,
+     *            ï¿½affectedvmï¿½: {
+     *            ï¿½vmidï¿½: ï¿½804cca71 - 9ae9 - 4511 - 8e30 - d1387718caffï¿½,
+     *            ï¿½vduidï¿½: ï¿½vdu_100ï¿½,
+     *            ï¿½vmnameï¿½: ï¿½ZTE_SSS_111_PP_2_Lï¿½
      *            }
      *            }
      * @param resp
