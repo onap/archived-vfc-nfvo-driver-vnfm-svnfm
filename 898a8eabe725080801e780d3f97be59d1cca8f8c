@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_bf95ac41",
+        "filename": "zte/vmanager/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2017-09-06T01:22:10Z",
+      "side": 1,
+      "message": "This need be deleted",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 95
+      },
+      "revId": "898a8eabe725080801e780d3f97be59d1cca8f8c",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_dfb070f6",
+        "filename": "zte/vmanager/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2017-09-06T01:22:10Z",
+      "side": 1,
+      "message": "This need be deleted",
+      "range": {
+        "startLine": 23,
+        "startChar": 34,
+        "endLine": 24,
+        "endChar": 34
+      },
+      "revId": "898a8eabe725080801e780d3f97be59d1cca8f8c",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
