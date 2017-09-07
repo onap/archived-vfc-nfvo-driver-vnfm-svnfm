@@ -27,7 +27,7 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceExcepti
  * ServiceException response provider.<br>
  *
  * @author
- * @version     NFVO 0.5 Sep 27, 2016
+ * @version     VFC 1.0 Sep 27, 2016
  */
 @Provider
 public class ServiceExceptionMapper implements ExceptionMapper<ServiceException>{

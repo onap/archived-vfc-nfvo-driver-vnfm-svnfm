@@ -32,7 +32,7 @@ import org.openo.nfvo.vnfmadapter.util.MyTestManager;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Sep 24, 2016
+ * @version VFC 1.0 Sep 24, 2016
  */
 public class ITVnfRoaFail extends MyTestManager {
 

@@ -33,7 +33,7 @@ import net.sf.json.JSONObject;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Jan 23, 2017
+ * @version VFC 1.0 Jan 23, 2017
  */
 public class VnfmAdapter2DriverManager implements IVnfmAdapter2DriverManager {
 

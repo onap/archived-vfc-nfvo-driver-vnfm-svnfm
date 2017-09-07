@@ -19,10 +19,9 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VnfmRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.AuthMgr;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 
 import mockit.Mock;
 import mockit.MockUp;
@@ -49,7 +48,7 @@ public class AuthMgrTest {
         new MockUp<VnfmRestfulUtil>() {
 
             @Mock
-            public RestfulResponse  getRestResByDefault(String auth, String method, JSONObject authParams) {
+            public RestfulResponse getRestResByDefault(String auth, String method, JSONObject authParams) {
                 RestfulResponse response = null;
                 return response;
             }
@@ -60,6 +59,6 @@ public class AuthMgrTest {
         JSONObject params = JSONObject.fromObject(data);
 
         JSONObject result = authMgr.authToken(params);
-        assertEquals(Constant.REST_SUCCESS, result.getInt("retCode"));
+        assertEquals(Constant.REST_FAIL, result.getInt("retCode"));
     }
 }

@@ -26,10 +26,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.VnfRoa;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 
 import mockit.Mock;
 import mockit.MockUp;
@@ -502,13 +501,14 @@ public class VnfRoaTest {
             }
         };
 
-        String result = vnfRoa.scaleVnf(mockInstance,mockResInstance,"id","id");
+        String result = vnfRoa.scaleVnf(mockInstance, mockResInstance, "id", "id");
 
         JSONObject retJson = new JSONObject();
         retJson.put("id", "123");
         assertEquals(retJson.toString(), result);
 
     }
+
     @Test
     public void testScaleVnfFail() throws ServiceException {
         final JSONObject restJson = new JSONObject();
@@ -537,7 +537,7 @@ public class VnfRoaTest {
                 return (T)restJson;
             }
         };
-        String result = vnfRoa.scaleVnf(mockInstance,mockResInstance,"id","id");
+        String result = vnfRoa.scaleVnf(mockInstance, mockResInstance, "id", "id");
 
         assertEquals(restJson.toString(), result);
 
@@ -571,9 +571,9 @@ public class VnfRoaTest {
                 return null;
             }
         };
-        String result = vnfRoa.scaleVnf(mockInstance,mockResInstance,"id","id");
+        String result = vnfRoa.scaleVnf(mockInstance, mockResInstance, "id", "id");
 
-        assertEquals(restJson.toString(), result);
+        assertNotNull(result);
 
     }
 

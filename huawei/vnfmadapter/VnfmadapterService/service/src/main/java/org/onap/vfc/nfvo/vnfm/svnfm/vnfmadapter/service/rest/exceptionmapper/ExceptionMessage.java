@@ -22,7 +22,7 @@ import org.apache.http.HttpStatus;
  * Exception response model.<br>
  *
  * @author
- * @version NFVO 0.5 Sep 27, 2016
+ * @version VFC 1.0 Sep 27, 2016
  */
 public class ExceptionMessage {
 

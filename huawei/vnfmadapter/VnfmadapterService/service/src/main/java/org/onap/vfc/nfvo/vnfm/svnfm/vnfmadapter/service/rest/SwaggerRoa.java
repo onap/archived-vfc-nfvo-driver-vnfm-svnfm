@@ -29,7 +29,7 @@ import org.apache.commons.io.IOUtils;
  * Swagger API Doc.<br/>
  *
  * @author
- * @version NFVO 0.5 Oct 24, 2016
+ * @version VFC 1.0 Oct 24, 2016
  */
 @Path("/api/hwvnfm/v1")
 @Produces({MediaType.APPLICATION_JSON})

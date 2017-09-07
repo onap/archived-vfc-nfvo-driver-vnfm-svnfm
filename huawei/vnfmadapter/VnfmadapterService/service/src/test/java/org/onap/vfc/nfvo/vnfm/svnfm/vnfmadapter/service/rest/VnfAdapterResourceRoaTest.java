@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.VnfAdapterResourceRoa;
 
 import mockit.Mock;
 import mockit.MockUp;
@@ -32,7 +31,7 @@ import net.sf.json.JSONObject;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Jan 13, 2017
+ * @version VFC 1.0 Jan 13, 2017
  */
 public class VnfAdapterResourceRoaTest {
 
@@ -41,7 +40,7 @@ public class VnfAdapterResourceRoaTest {
         new MockUp<AdapterResourceManager>() {
 
             @Mock
-            public JSONObject getAllCloud(String url) {
+            public JSONObject getAllCloud(String url, String conntoken) {
                 JSONObject resultObj = new JSONObject();
                 resultObj.put("dn", "test");
                 return resultObj;

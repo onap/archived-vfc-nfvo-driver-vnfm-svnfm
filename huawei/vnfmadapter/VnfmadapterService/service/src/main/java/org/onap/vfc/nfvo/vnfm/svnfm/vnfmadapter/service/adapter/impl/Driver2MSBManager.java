@@ -34,7 +34,7 @@ import net.sf.json.JSONObject;
  * </p>
  *
  * @author
- * @version     NFVO 0.5  Aug 29, 2016
+ * @version     VFC 1.0  Aug 29, 2016
  */
 public class Driver2MSBManager implements IDriver2MSBManager {
 

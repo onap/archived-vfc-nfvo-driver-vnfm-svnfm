@@ -23,7 +23,7 @@ import net.sf.json.JSONObject;
  * <br/>
  *
  * @author
- * @version NFVO 0.5 Aug 24, 2016
+ * @version VFC 1.0 Aug 24, 2016
  */
 public interface InterfaceVnfMgr {
 
@@ -43,7 +43,7 @@ public interface InterfaceVnfMgr {
      * @param subJsonObject
      * @param vnfmObjcet
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     JSONObject createVnf(JSONObject subJsonObject, JSONObject vnfmObjcet);
 
@@ -55,7 +55,7 @@ public interface InterfaceVnfMgr {
      * @param vnfId
      * @param vnfObject
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     JSONObject removeVnf(JSONObject vnfmObject, String vnfId, JSONObject vnfObject);
 
@@ -66,7 +66,7 @@ public interface InterfaceVnfMgr {
      * @param vnfmObject
      * @param vnfId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     JSONObject getVnf(JSONObject vnfmObject, String vnfId);
 
@@ -77,7 +77,7 @@ public interface InterfaceVnfMgr {
      * @param vnfmObject
      * @param jobId
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     JSONObject getJob(JSONObject vnfmObject, String jobId);
 }

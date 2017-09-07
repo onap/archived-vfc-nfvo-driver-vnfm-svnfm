@@ -28,7 +28,7 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.Restful;
  * </p>
  *
  * @author
- * @version NFVO 0.5 Aug 10, 2016
+ * @version VFC 1.0 Aug 10, 2016
  */
 public class HttpRestfulHelpTest {
 

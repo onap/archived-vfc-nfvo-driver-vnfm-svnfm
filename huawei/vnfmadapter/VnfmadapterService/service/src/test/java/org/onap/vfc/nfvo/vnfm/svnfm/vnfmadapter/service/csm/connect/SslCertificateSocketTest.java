@@ -16,64 +16,45 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect;
 
+import java.io.IOException;
+
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect.SslCertificateSocket;
-
-import java.io.IOException;
 
 /**
  * Created by QuanZhong on 2017/3/20.
  */
 public class SslCertificateSocketTest {
+
     @Test
-    public void initTest(){
+    public void initTest() {
         SslCertificateSocket socket = new SslCertificateSocket();
         try {
             socket.init();
-        } catch (VnfmException e) {
-            e.printStackTrace();
-        }
-    }
-    @Test
-    public void createSocketTest(){
-        SslCertificateSocket socket = new SslCertificateSocket();
-        try {
-            socket.createSocket("http://127.0.0.1",1234);
-        } catch (IOException e) {
+        } catch(VnfmException e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    public void createSocketTest2(){
+    public void createSocketTest2() {
         SslCertificateSocket socket = new SslCertificateSocket();
         try {
-            socket.createSocket("http://127.0.0.1",1234,null,4321,null);
-        } catch (IOException e) {
+            socket.createSocket("http://127.0.0.1", 1234, null, 4321, null);
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
+
     @Test
-    public void createSocketTest3(){
-        SslCertificateSocket socket = new SslCertificateSocket();
-        try {
-            HttpConnectionParams params = new HttpConnectionParams();
-            params.setConnectionTimeout(0);
-            socket.createSocket("http://127.0.0.1",1234,null,4321,params);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    @Test
-    public void createSocketTest4(){
+    public void createSocketTest4() {
         SslCertificateSocket socket = new SslCertificateSocket();
         try {
             HttpConnectionParams params = new HttpConnectionParams();
             params.setConnectionTimeout(3000);
-            socket.createSocket("http://127.0.0.1",1234,null,4321,params);
-        } catch (IOException e) {
+            socket.createSocket("http://127.0.0.1", 1234, null, 4321, params);
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }

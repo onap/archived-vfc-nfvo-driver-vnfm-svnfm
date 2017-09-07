@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * .</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 14, 2016
+ * @version     VFC 1.0  Sep 14, 2016
  */
 public class SslProtocolSocketFactory {
 
@@ -46,7 +46,7 @@ public class SslProtocolSocketFactory {
      * <br>
      *
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static synchronized SslProtocolSocketFactory getInstance() {
         if(singleinstance == null) {
@@ -62,7 +62,7 @@ public class SslProtocolSocketFactory {
      * @param authenticateMode
      * @return
      * @throws VnfmException
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public synchronized ProtocolSocketFactory get(String authenticateMode) throws VnfmException {
         if(SOCKMAP.get(authenticateMode) == null) {
@@ -89,7 +89,7 @@ public class SslProtocolSocketFactory {
      *
      * @param autherMode
      * @throws VnfmException
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public synchronized void refresh(String autherMode) throws VnfmException {
         if(Constant.ANONYMOUS.equals(autherMode)) {

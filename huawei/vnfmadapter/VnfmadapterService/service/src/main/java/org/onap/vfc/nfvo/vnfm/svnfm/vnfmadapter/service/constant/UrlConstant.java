@@ -20,7 +20,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant;
  * URL constant
  * 
  * @author
- * @version NFVO 0.5 Sep 6, 2016
+ * @version VFC 1.0 Sep 6, 2016
  */
 public class UrlConstant {
 

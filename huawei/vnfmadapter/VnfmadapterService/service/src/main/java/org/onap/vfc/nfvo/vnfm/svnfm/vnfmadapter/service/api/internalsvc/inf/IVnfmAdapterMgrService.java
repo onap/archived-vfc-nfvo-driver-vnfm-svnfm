@@ -22,7 +22,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.inf;
  * </p>
  *
  * @author
- * @version NFVO 0.5 Aug 31, 2016
+ * @version VFC 1.0 Aug 31, 2016
  */
 public interface IVnfmAdapterMgrService {
 

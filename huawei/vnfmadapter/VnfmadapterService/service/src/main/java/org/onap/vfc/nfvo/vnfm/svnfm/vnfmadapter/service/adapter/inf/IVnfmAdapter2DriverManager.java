@@ -26,7 +26,7 @@ import net.sf.json.JSONObject;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Jan 23, 2017
+ * @version VFC 1.0 Jan 23, 2017
  */
 public interface IVnfmAdapter2DriverManager {
 
@@ -36,7 +36,7 @@ public interface IVnfmAdapter2DriverManager {
      * @param paramsMap
      * @param driverInfo
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     JSONObject registerDriver(Map<String, String> paramsMap, JSONObject driverInfo);
 
@@ -45,7 +45,7 @@ public interface IVnfmAdapter2DriverManager {
      *
      * @param paramsMap
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     JSONObject unregisterDriver(Map<String, String> paramsMap);
 

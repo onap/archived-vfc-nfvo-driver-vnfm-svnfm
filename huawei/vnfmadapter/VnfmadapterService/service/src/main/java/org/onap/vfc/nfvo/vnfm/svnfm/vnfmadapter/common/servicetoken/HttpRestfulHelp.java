@@ -27,7 +27,7 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.Restful;
  * .</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 10, 2016
+ * @version     VFC 1.0  Sep 10, 2016
  */
 public class HttpRestfulHelp {
 
@@ -48,7 +48,7 @@ public class HttpRestfulHelp {
      * @param ssloptionfile
      * @param restoptionfile
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static synchronized Restful getRestInstance(String ssloptionfile, String restoptionfile) {
         Restful rest = INSTANCES.get(PROTO_HTTP);

@@ -45,7 +45,7 @@ import org.springframework.http.HttpRequest;
  * HTTP Request class.</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 14, 2016
+ * @version     VFC 1.0  Sep 14, 2016
  */
 public final class HttpRequests {
 
@@ -70,7 +70,7 @@ public final class HttpRequests {
      * Request builder.</br>
      *
      * @author
-     * @version     NFVO 0.5  Sep 14, 2016
+     * @version     VFC 1.0  Sep 14, 2016
      */
     public static class Builder {
 
@@ -93,7 +93,7 @@ public final class HttpRequests {
          * Constructor<br>
          *
          * @param authenticateMode
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder(String authenticateMode) {
             this.authenticateMode = authenticateMode;
@@ -110,7 +110,7 @@ public final class HttpRequests {
          * @param name
          * @param value
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder addHeader(String name, String value) {
             headers.add(new Header(name, value));
@@ -124,7 +124,7 @@ public final class HttpRequests {
          * @param header
          * @param headers
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder addHeaders(Header header, Header... headers) {
             if(header != null) {
@@ -144,7 +144,7 @@ public final class HttpRequests {
          *
          * @param headers
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder addHeaders(List<Header> headers) {
             if(headers != null && !headers.isEmpty()) {
@@ -161,7 +161,7 @@ public final class HttpRequests {
          * @param path
          * @return
          * @throws VnfmException
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder setUrl(String url, String path) throws VnfmException {
             if(StringUtils.isEmpty(url)) {
@@ -187,7 +187,7 @@ public final class HttpRequests {
          * @param defPort
          * @return
          * @throws VnfmException
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder setUrl(String url, String path, int defPort) throws VnfmException {
             if(StringUtils.isEmpty(url)) {
@@ -209,7 +209,7 @@ public final class HttpRequests {
          * <br>
          *
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder post() {
             this.httpMethod = new PostMethod(url);
@@ -221,7 +221,7 @@ public final class HttpRequests {
          * <br>
          *
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder get() {
             this.httpMethod = new GetMethod(url);
@@ -233,7 +233,7 @@ public final class HttpRequests {
          * <br>
          *
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder put() {
             this.httpMethod = new PutMethod(url);
@@ -245,7 +245,7 @@ public final class HttpRequests {
          * <br>
          *
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder delete() {
             this.httpMethod = new DeleteMethod(url);
@@ -258,7 +258,7 @@ public final class HttpRequests {
          *
          * @param json
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder setParams(String json) {
             this.paramsJson = json;
@@ -271,7 +271,7 @@ public final class HttpRequests {
          *
          * @param encode
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public Builder setEncoding(String encode) {
             this.encoding = encode;
@@ -283,7 +283,7 @@ public final class HttpRequests {
          * <br>
          *
          * @return
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public String request() {
             String result = null;
@@ -320,7 +320,7 @@ public final class HttpRequests {
          * @return
          * @throws VnfmException
          * @throws IOException
-         * @since  NFVO 0.5
+         * @since  VFC 1.0
          */
         public HttpMethod execute() throws VnfmException, IOException {
             try {

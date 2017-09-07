@@ -48,7 +48,7 @@ import net.sf.json.JSONObject;
  * <br/>
  *
  * @author
- * @version NFVO 0.5 Aug 24, 2016
+ * @version VFC 1.0 Aug 24, 2016
  */
 @SuppressWarnings("unchecked")
 @Path("/api/hwvnfm/v1")
@@ -139,7 +139,7 @@ public class VnfRoa {
      * @param vnfmId
      * @return
      * @throws ServiceException
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @POST
     @Path("/{vnfmId}/vnfs")
@@ -176,7 +176,7 @@ public class VnfRoa {
      * @param context
      * @return
      * @throws ServiceException
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @POST
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}/terminate")
@@ -212,7 +212,7 @@ public class VnfRoa {
      * @param context
      * @return
      * @throws ServiceException
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @GET
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}")
@@ -248,7 +248,7 @@ public class VnfRoa {
      * @param responseId
      * @return
      * @throws ServiceException
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @GET
     @Path("/{vnfmId}/jobs/{jobId}")

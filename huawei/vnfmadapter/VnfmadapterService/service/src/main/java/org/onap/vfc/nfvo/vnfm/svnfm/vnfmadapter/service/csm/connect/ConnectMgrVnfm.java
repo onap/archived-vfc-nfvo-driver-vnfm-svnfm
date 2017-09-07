@@ -36,7 +36,7 @@ import net.sf.json.JSONObject;
  * .</br>
  *
  * @author
- * @version NFVO 0.5 Sep 14, 2016
+ * @version VFC 1.0 Sep 14, 2016
  */
 public class ConnectMgrVnfm {
 
@@ -68,7 +68,7 @@ public class ConnectMgrVnfm {
      *
      * @param vnfmObj
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public int connect(JSONObject vnfmObj, String authModel) {
         LOG.info("function=connect, msg=enter connect function.");
@@ -171,7 +171,7 @@ public class ConnectMgrVnfm {
      *
      * @param vnfmObj
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public int connect(JSONObject vnfmObj) {
         LOG.info("function=connect, msg=enter connect function.");

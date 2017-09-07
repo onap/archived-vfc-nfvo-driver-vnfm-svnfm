@@ -48,7 +48,7 @@ import net.sf.json.JSONObject;
  * .</br>
  *
  * @author
- * @version NFVO 0.5 Sep 13, 2016
+ * @version VFC 1.0 Sep 13, 2016
  */
 public class AdapterResourceManager implements IResourceManager {
 
@@ -388,7 +388,7 @@ public class AdapterResourceManager implements IResourceManager {
      * @param vnfmurl
      * @param conntoken
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject upload(JSONObject vnfpackage, String vnfmurl, String conntoken) {
         JSONObject resultObj = new JSONObject();
@@ -438,7 +438,7 @@ public class AdapterResourceManager implements IResourceManager {
      * @param prefixUrl
      * @param serviceUrl
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject getVnfdVersion(String prefixUrl, String serviceUrl, String conntoken) {
         JSONObject resultObj = new JSONObject();
@@ -484,7 +484,7 @@ public class AdapterResourceManager implements IResourceManager {
      *
      * @param paramsMap
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject getVnfmConnInfo(Map<String, String> paramsMap) {
         return this.sendRequest(paramsMap);
@@ -537,7 +537,7 @@ public class AdapterResourceManager implements IResourceManager {
      *
      * @return
      * @throws IOException
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public static String readVfnPkgInfoFromJson() throws IOException {
         InputStream ins = null;

@@ -21,7 +21,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common;
  * .</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 10, 2016
+ * @version     VFC 1.0  Sep 10, 2016
  */
 public class VnfmException extends Exception {
 
@@ -31,7 +31,7 @@ public class VnfmException extends Exception {
      *
      * Constructor<br>
      *
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public VnfmException() {
         super();
@@ -43,7 +43,7 @@ public class VnfmException extends Exception {
      *
      * @param message
      * @param cause
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public VnfmException(String message, Throwable cause) {
         super(message, cause);
@@ -54,7 +54,7 @@ public class VnfmException extends Exception {
      * Constructor<br>
      *
      * @param message
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public VnfmException(String message) {
         super(message);
@@ -65,7 +65,7 @@ public class VnfmException extends Exception {
      * Constructor<br>
      *
      * @param cause
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public VnfmException(Throwable cause) {
         super(cause);

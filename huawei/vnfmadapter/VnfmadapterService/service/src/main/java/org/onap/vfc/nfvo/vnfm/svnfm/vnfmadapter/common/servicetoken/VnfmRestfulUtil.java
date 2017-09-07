@@ -42,7 +42,7 @@ import net.sf.json.JSONObject;
  * .</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 10, 2016
+ * @version     VFC 1.0  Sep 10, 2016
  */
 public final class VnfmRestfulUtil {
 
@@ -147,7 +147,7 @@ public final class VnfmRestfulUtil {
      * @param methodName String
      * @param objects String
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static RestfulResponse getRestRes(String methodName, Object... objects) {
         Restful rest = RestfulFactory.getRestInstance(RestfulFactory.PROTO_HTTP);
@@ -202,7 +202,7 @@ public final class VnfmRestfulUtil {
      * @param methodName String
      * @param paraJson JSONObject
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static JSONObject sendReqToApp(String path, String methodName, JSONObject paraJson) {
         JSONObject retJson = new JSONObject();
@@ -287,7 +287,7 @@ public final class VnfmRestfulUtil {
      * @param domainTokens String
      * @param isNfvoApp boolean
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params, String domainTokens,
             boolean isNfvoApp) {
@@ -350,7 +350,7 @@ public final class VnfmRestfulUtil {
      * @param methodType String
      * @param params String
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static RestfulResponse getRemoteResponse(String url, String methodType, String params) {
         RestfulResponse rsp = null;
@@ -390,7 +390,7 @@ public final class VnfmRestfulUtil {
      * @param path String
      * @param authMode String
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static Map<String, String> generateParamsMap(String url, String methodType, String path, String authMode) {
         Map<String, String> utilParamsMap = new HashMap<>(6);

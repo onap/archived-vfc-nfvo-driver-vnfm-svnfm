@@ -33,7 +33,7 @@ import net.sf.json.util.JSONTokener;
  * VNFM JSON utils.</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 10, 2016
+ * @version     VFC 1.0  Sep 10, 2016
  */
 public final class VnfmJsonUtil {
 
@@ -49,7 +49,7 @@ public final class VnfmJsonUtil {
      *
      * @param vnfReq HttpServletRequest
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     @SuppressWarnings("unchecked")
     public static <T> T getJsonFromContexts(HttpServletRequest vnfReq) {

@@ -26,7 +26,7 @@ import net.sf.json.JSONObject;
  * </p>
  *
  * @author
- * @version     NFVO 0.5  Aug 25, 2016
+ * @version     VFC 1.0  Aug 25, 2016
  */
 @FunctionalInterface
 public interface InterfaceConnectMgr {
@@ -38,7 +38,7 @@ public interface InterfaceConnectMgr {
      * @param obj
      * @return
      * @throws VnfmException
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     int connect(JSONObject obj) throws VnfmException;
 

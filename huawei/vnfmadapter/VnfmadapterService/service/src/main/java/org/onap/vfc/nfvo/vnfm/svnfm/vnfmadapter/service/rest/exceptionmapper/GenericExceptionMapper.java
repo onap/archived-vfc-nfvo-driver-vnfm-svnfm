@@ -26,7 +26,7 @@ import javax.ws.rs.ext.Provider;
  *
  *
  * @author
- * @version     NFVO 0.5 Sep 27, 2016
+ * @version     VFC 1.0 Sep 27, 2016
  */
 @Provider
 public class GenericExceptionMapper implements ExceptionMapper<Exception>{

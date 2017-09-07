@@ -37,7 +37,7 @@ import net.sf.json.JSONObject;
  * </p>
  *
  * @author
- * @version NFVO 0.5 Aug 25, 2016
+ * @version VFC 1.0 Aug 25, 2016
  */
 public final class ResultRequestUtil {
 
@@ -60,7 +60,7 @@ public final class ResultRequestUtil {
      *            raw data with json format, if <code>methodName</code> is get
      *            or delete, fill it with null
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public static JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson) {
         JSONObject resultJson = new JSONObject();
@@ -126,7 +126,7 @@ public final class ResultRequestUtil {
      *            raw data with json format, if <code>methodName</code> is get
      *            or delete, fill it with null
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public static JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson,
             String authModel) {
@@ -192,7 +192,7 @@ public final class ResultRequestUtil {
     /**
      * <br>
      *
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     private static void removeTokens(String vnfmUrl, String token, String roaRand, String user) {
         HttpMethod httpMethodToken = null;

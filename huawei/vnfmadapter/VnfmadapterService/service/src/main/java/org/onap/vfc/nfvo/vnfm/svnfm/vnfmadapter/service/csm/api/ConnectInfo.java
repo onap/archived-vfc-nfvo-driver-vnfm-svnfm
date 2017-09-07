@@ -22,7 +22,7 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
  * .</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 14, 2016
+ * @version     VFC 1.0  Sep 14, 2016
  */
 public class ConnectInfo {
 
@@ -39,7 +39,7 @@ public class ConnectInfo {
      * Constructor<br>
      *
      * @param url
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public ConnectInfo(String url) {
         this.url = url == null ? "" : url;
@@ -54,7 +54,7 @@ public class ConnectInfo {
      * @param userName
      * @param userPwd
      * @param authenticateMode
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public ConnectInfo(String url, String userName, String userPwd, String authenticateMode) {
         this.url = url == null ? "" : url;

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Sep 21, 2016
+ * @version VFC 1.0 Sep 21, 2016
  */
 public class MyTestManager extends TestManager {
 
@@ -59,7 +59,7 @@ public class MyTestManager extends TestManager {
      * @param file
      * @return
      * @throws ServiceException
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @Override
     public HttpResponse execTestCase(File file) throws ServiceException {

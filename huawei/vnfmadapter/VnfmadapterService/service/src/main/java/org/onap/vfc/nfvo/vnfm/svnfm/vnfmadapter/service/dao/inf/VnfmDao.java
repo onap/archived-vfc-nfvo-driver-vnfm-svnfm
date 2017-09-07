@@ -26,7 +26,7 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceExcepti
  * .</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 14, 2016
+ * @version     VFC 1.0  Sep 14, 2016
  */
 public interface VnfmDao {
 
@@ -37,7 +37,7 @@ public interface VnfmDao {
      * @param vnfm
      * @return
      * @throws ServiceException
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     int insertVnfm(Vnfm vnfm) throws ServiceException;
 
@@ -48,7 +48,7 @@ public interface VnfmDao {
      * @param vnfmDn
      * @return
      * @throws ServiceException
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     int deleteVnfm(String vnfmDn) throws ServiceException;
 
@@ -59,7 +59,7 @@ public interface VnfmDao {
      * @param vnfm
      * @return
      * @throws ServiceException
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     int updateVnfm(Vnfm vnfm) throws ServiceException;
 
@@ -71,7 +71,7 @@ public interface VnfmDao {
      * @param pageNo
      * @return
      * @throws ServiceException
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     List<Vnfm> indexVnfms(int pageSize, int pageNo) throws ServiceException;
 
@@ -81,7 +81,7 @@ public interface VnfmDao {
      *
      * @param id
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     Vnfm getVnfmById(String id);
 }

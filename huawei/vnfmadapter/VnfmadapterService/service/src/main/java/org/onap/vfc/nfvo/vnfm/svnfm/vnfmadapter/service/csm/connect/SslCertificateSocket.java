@@ -43,7 +43,7 @@ public class SslCertificateSocket extends AbstractSslContext implements SecurePr
      * <br>
      *
      * @throws VnfmException
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public void init() throws VnfmException {
         try {

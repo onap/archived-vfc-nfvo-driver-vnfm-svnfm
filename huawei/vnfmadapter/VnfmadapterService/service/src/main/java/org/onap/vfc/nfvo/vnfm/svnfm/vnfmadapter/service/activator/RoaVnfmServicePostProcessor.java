@@ -28,7 +28,7 @@ import org.springframework.beans.factory.config.DestructionAwareBeanPostProcesso
  * </p>
  *
  * @author
- * @version NFVO 0.5 Aug 31, 2016
+ * @version VFC 1.0 Aug 31, 2016
  */
 public class RoaVnfmServicePostProcessor implements DestructionAwareBeanPostProcessor {
 

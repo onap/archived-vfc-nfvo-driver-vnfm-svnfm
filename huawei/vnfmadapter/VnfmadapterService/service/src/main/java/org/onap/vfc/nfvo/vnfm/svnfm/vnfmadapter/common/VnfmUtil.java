@@ -31,7 +31,7 @@ import net.sf.json.JSONObject;
  * <br/>
  *
  * @author
- * @version NFVO 0.5 Aug 25, 2016
+ * @version VFC 1.0 Aug 25, 2016
  */
 public final class VnfmUtil {
 
@@ -42,17 +42,20 @@ public final class VnfmUtil {
     }
 
     /**
-     * Get vnfmInfo by ip
-     * <br/>
-     *
+     * <br>
+     * 
      * @param vnfmId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public static JSONObject getVnfmById(String vnfmId) {
         RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(String.format(ParamConstants.ESR_GET_VNFM_URL, vnfmId),
                 VnfmRestfulUtil.TYPE_GET, null);
-        if(rsp == null || rsp.getStatus() != Constant.HTTP_OK) {
+        if(rsp == null) {
+            LOGGER.error("funtion=getVnfmById, response is null.");
+            return null;
+        }
+        if(rsp.getStatus() != Constant.HTTP_OK) {
             LOGGER.error("funtion=getVnfmById, status={}", rsp.getStatus());
             return null;
         }
@@ -73,7 +76,7 @@ public final class VnfmUtil {
      *
      * @param ip
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public static String getVnfmIdByIp(String ip) {
         RestfulResponse rsp =

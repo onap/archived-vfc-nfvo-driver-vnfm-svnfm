@@ -28,7 +28,7 @@ import org.openo.sdno.testframework.moco.responsehandler.MocoResponseHandler;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Aug 2, 2016
+ * @version VFC 1.0 Aug 2, 2016
  */
 public class VnfmAdapterSuccessServer extends MocoHttpServer {
 

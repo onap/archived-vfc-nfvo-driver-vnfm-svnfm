@@ -46,7 +46,7 @@ import net.sf.json.JSONObject;
  * </p>
  *
  * @author
- * @version NFVO 0.5 Aug 24, 2016
+ * @version VFC 1.0 Aug 24, 2016
  */
 @Path("/rest/plat/smapp/v1")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -67,7 +67,7 @@ public class AuthRoa {
      *
      * @param context
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @PUT
     @Path("/oauth/token")
@@ -113,7 +113,7 @@ public class AuthRoa {
      * @param userName
      * @param roarand
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @DELETE
     @Path("/auth/tokens/{userName}/{roarand}")
@@ -135,7 +135,7 @@ public class AuthRoa {
      * @param context
      * @param roattr
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @GET
     @Path("/nfvo/shakehand")

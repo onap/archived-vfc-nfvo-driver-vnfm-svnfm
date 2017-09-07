@@ -22,21 +22,21 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.inf;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Jan 23, 2017
+ * @version VFC 1.0 Jan 23, 2017
  */
 public interface IVnfmAdapter2DriverMgrService {
 
     /**
      * VimAdapter register interface.<br>
      *
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     void register();
 
     /**
      * VimAdapter unregister interface.<br>
      *
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     void unregister();
 }

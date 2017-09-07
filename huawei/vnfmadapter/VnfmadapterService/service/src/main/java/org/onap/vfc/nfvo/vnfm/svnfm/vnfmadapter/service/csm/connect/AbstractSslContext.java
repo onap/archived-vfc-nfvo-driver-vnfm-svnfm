@@ -45,7 +45,7 @@ import net.sf.json.JSONObject;
  * .</br>
  *
  * @author
- * @version NFVO 0.5 Sep 14, 2016
+ * @version VFC 1.0 Sep 14, 2016
  */
 public class AbstractSslContext {
 
@@ -139,7 +139,7 @@ public class AbstractSslContext {
      * 
      * @return
      * @throws IOException
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public static JSONObject readSSLConfToJson() throws IOException {
         JSONObject sslJson = null;

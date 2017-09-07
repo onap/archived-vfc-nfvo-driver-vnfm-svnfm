@@ -41,7 +41,7 @@ import net.sf.json.JSONObject;
  * Utility class.</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 10, 2016
+ * @version     VFC 1.0  Sep 10, 2016
  */
 public final class VNFRestfulUtil {
 
@@ -152,7 +152,7 @@ public final class VNFRestfulUtil {
      * @param methodName
      * @param objects
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static RestfulResponse getRestRes(String methodName, Object... objects) {
         Restful rest = RestfulFactory.getRestInstance(RestfulFactory.PROTO_HTTP);
@@ -288,7 +288,7 @@ public final class VNFRestfulUtil {
      * @param domainTokens String
      * @param isNfvoApp Boolean
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params, String domainTokens,
             boolean isNfvoApp) {
@@ -350,7 +350,7 @@ public final class VNFRestfulUtil {
      * @param paramsMap
      * @param params
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
         if(null == paramsMap){
@@ -396,7 +396,7 @@ public final class VNFRestfulUtil {
      * @param path
      * @param authMode
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static Map<String, String> generateParamsMap(String url, String methodType, String path, String authMode) {
         Map<String, String> utilParamsMap = new HashMap<>(6);
@@ -414,7 +414,7 @@ public final class VNFRestfulUtil {
      * @param methodType
      * @param path
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static Map<String, String> generateParamsMap(String url, String methodType, String path) {
         Map<String, String> paramsMap = new HashMap<>(6);
@@ -432,7 +432,7 @@ public final class VNFRestfulUtil {
      * @param vnfmInfo
      * @param vnfmId
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     public static JSONObject getResultToVnfm(JSONObject vnfmInfo, String vnfmId) {
         JSONObject retJson = new JSONObject();

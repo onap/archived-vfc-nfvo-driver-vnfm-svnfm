@@ -28,7 +28,7 @@ import net.sf.json.JSONObject;
  * <br/>
  *
  * @author
- * @version NFVO 0.5 Aug 24, 2016
+ * @version VFC 1.0 Aug 24, 2016
  */
 public class AuthMgr {
 
@@ -40,7 +40,7 @@ public class AuthMgr {
      *
      * @param params
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject authToken(JSONObject params) {
         JSONObject restJson = new JSONObject();

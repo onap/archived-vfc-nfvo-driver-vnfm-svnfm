@@ -38,7 +38,7 @@ import net.sf.json.JSONObject;
  * <br/>
  *
  * @author
- * @version NFVO 0.5 Aug 24, 2016
+ * @version VFC 1.0 Aug 24, 2016
  */
 @Path("/rest/vnfmmed/csm/v2/vapps")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -60,7 +60,7 @@ public class VnfResourceRoa {
      * @param context
      * @param vnfId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     @PUT
     @Path("/instances/{vnfId}/grant")

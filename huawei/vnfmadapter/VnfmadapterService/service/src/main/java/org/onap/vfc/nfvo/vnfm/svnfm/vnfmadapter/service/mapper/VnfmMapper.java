@@ -25,7 +25,7 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
  * VNFM mapper.</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 14, 2016
+ * @version     VFC 1.0  Sep 14, 2016
  */
 public interface VnfmMapper {
 
@@ -35,7 +35,7 @@ public interface VnfmMapper {
      *
      * @param vnfm Vnfm
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     int insertVnfm(Vnfm vnfm);
 
@@ -45,7 +45,7 @@ public interface VnfmMapper {
      *
      * @param vnfm Vnfm
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     int updateVnfm(Vnfm vnfm);
 
@@ -55,7 +55,7 @@ public interface VnfmMapper {
      *
      * @param vnfmDn
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     int deleteVnfm(String vnfmDn);
 
@@ -66,7 +66,7 @@ public interface VnfmMapper {
      * @param offset
      * @param pageSize
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     List<Vnfm> indexVnfms(@Param("offset") int offset, @Param("pageSize") int pageSize);
 
@@ -75,7 +75,7 @@ public interface VnfmMapper {
      * <br>
      *
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     int getCountVnfms();
 
@@ -85,7 +85,7 @@ public interface VnfmMapper {
      *
      * @param id
      * @return
-     * @since  NFVO 0.5
+     * @since  VFC 1.0
      */
     Vnfm getVnfmById(String id);
 }

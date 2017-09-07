@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * .</br>
  *
  * @author
- * @version     NFVO 0.5  Sep 10, 2016
+ * @version     VFC 1.0  Sep 10, 2016
  */
 public class AsyncCallback implements RestfulAsyncCallback {
 

@@ -27,7 +27,7 @@ import net.sf.json.JSONObject;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Aug 16, 2016
+ * @version VFC 1.0 Aug 16, 2016
  */
 public class FailureChecker implements IChecker {
 

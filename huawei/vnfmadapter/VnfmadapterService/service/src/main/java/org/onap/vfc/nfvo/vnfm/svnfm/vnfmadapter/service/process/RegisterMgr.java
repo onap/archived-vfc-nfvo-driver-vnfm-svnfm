@@ -33,7 +33,7 @@ import net.sf.json.JSONObject;
  * <br/>
  *
  * @author
- * @version NFVO 0.5 Aug 24, 2016
+ * @version VFC 1.0 Aug 24, 2016
  */
 public class RegisterMgr {
 
@@ -43,7 +43,7 @@ public class RegisterMgr {
      * Register service to the Bus
      * <br/>
      *
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public void register() {
         RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(ParamConstants.MSB_REGISTER_URL,
@@ -56,7 +56,7 @@ public class RegisterMgr {
      * UnRegister service to the Bus
      * <br/>
      *
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public void unRegister() {
         Map<String, String> paramsMap = new HashMap<>();

@@ -36,7 +36,7 @@ import net.sf.json.JSONObject;
  * <br/>
  *
  * @author
- * @version NFVO 0.5 Aug 24, 2016
+ * @version VFC 1.0 Aug 24, 2016
  */
 public class VnfMgr {
 
@@ -93,7 +93,7 @@ public class VnfMgr {
      * @param vnfObject
      * @param vnfmId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject addVnf(JSONObject vnfObject, String vnfmId) {
         JSONObject restJson = new JSONObject();
@@ -139,7 +139,7 @@ public class VnfMgr {
      * @param vnfmId
      * @param vnfObject
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject deleteVnf(String vnfId, String vnfmId, JSONObject vnfObject) {
         LOG.warn("function=deleteVnf ,msg=enter to delete a vnf, vnfId:{}, vnfmId:{}", vnfId, vnfmId);
@@ -166,7 +166,7 @@ public class VnfMgr {
      * @param vnfId
      * @param vnfmId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject getVnf(String vnfId, String vnfmId) {
         LOG.warn("function=getVnf ,msg=enter to get a vnf, vnfId:{}, vnfmId:{}", vnfId, vnfmId);
@@ -247,7 +247,7 @@ public class VnfMgr {
      * @param jobId
      * @param vnfmId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject getJob(String jobId, String vnfmId) {
         LOG.warn("function=getJob ,msg=enter to get a job, vnfId:{}", jobId);
@@ -275,7 +275,7 @@ public class VnfMgr {
      *
      * @param vnfObject
      * @param resObject
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public void saveVnfInfo(JSONObject vnfObject, JSONObject resObject) {
         LOG.warn("function=saveVnfInfo , vnfObject:{}", vnfObject);

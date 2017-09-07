@@ -39,7 +39,7 @@ import net.sf.json.JSONObject;
  * </p>
  * 
  * @author
- * @version NFVO 0.5 Jan 24, 2017
+ * @version VFC 1.0 Jan 24, 2017
  */
 public class Driver2MSBManagerTest {
 

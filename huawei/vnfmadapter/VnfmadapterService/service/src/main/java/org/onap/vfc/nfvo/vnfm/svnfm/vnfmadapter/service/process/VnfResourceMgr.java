@@ -38,7 +38,7 @@ import net.sf.json.JSONObject;
  * </p>
  *
  * @author
- * @version NFVO 0.5 Aug 25, 2016
+ * @version VFC 1.0 Aug 25, 2016
  */
 public class VnfResourceMgr {
 
@@ -52,7 +52,7 @@ public class VnfResourceMgr {
      * @param vnfId
      * @param vnfmId
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     public JSONObject grantVnfResource(JSONObject vnfObj, String vnfId, String vnfmId) {
         LOG.warn("function=grantVnfResource, msg=enter to grant vnf resource, params: {}", vnfObj);
@@ -104,7 +104,7 @@ public class VnfResourceMgr {
      *
      * @param grantParam
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     private JSONObject sendGrantToResmgr(JSONObject grantParam) {
         RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(ParamConstants.GRANT_RES_URL, VnfmRestfulUtil.TYPE_PUT,
@@ -122,7 +122,7 @@ public class VnfResourceMgr {
      * @param resMap
      * @param grantParam
      * @return
-     * @since NFVO 0.5
+     * @since VFC 1.0
      */
     private JSONObject parseGrantParam(Map<String, Integer> resMap, JSONObject grantParam) {
         JSONObject result = new JSONObject();

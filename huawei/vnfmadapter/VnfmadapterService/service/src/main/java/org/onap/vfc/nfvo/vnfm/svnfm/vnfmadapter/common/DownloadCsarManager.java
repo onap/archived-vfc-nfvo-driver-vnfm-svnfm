@@ -48,7 +48,7 @@ import net.sf.json.JSONObject;
  * Utility class to download CSAR
  *
  * @author
- * @version      NFVO 0.5  Sep 5, 2016
+ * @version      VFC 1.0  Sep 5, 2016
  *
  */
 public class DownloadCsarManager {
