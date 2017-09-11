@@ -55,18 +55,22 @@ query_vnfd_url = "api/nslcm/v1/vnfpackage/%s"
 query_vnfm_url = "api/extsys/v1/vnfms/%s"
 query_package_url = "api/nslcm/v1/vnfpackage/%s"
 
+#Query vnfm_info from nslcm
+def get_vnfminfo_from_nslcm(vnfmid):
+    ret = req_by_msb("api/nslcm/v1/vnfms/%s" % vnfmid, "GET")
+    return ret
 
-# Query VNFM by VNFMID
+# Query vnfm_info from esr
 def vnfm_get(vnfmid):
     ret = call_aai("api/aai-esr-server/v1/vnfms/%s" % vnfmid, "GET")
     return ret
 
-
+# Query vnfd_info from nslcm
 def vnfd_get(vnfpackageid):
     ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % vnfpackageid, "GET")
     return ret
 
-
+# Query vnfpackage_info from nslcm
 def vnfpackage_get(csarid):
     ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % csarid, "GET")
     return ret
@@ -95,7 +99,7 @@ def instantiate_vnf(request, *args, **kwargs):
     try:
         logger.debug("[%s] request.data=%s", fun_name(), request.data)
         vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        ret = vnfm_get(vnfm_id)
+        ret = get_vnfminfo_from_nslcm(vnfm_id)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
@@ -179,7 +183,7 @@ def terminate_vnf(request, *args, **kwargs):
     try:
         logger.debug("[%s] request.data=%s", fun_name(), request.data)
         vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        ret = vnfm_get(vnfm_id)
+        ret = get_vnfminfo_from_nslcm(vnfm_id)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
@@ -218,7 +222,7 @@ def query_vnf(request, *args, **kwargs):
     try:
         logger.debug("[%s] request.data=%s", fun_name(), request.data)
         vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        ret = vnfm_get(vnfm_id)
+        ret = get_vnfminfo_from_nslcm(vnfm_id)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
@@ -263,7 +267,7 @@ def operation_status(request, *args, **kwargs):
     try:
         logger.debug("[%s] request.data=%s", fun_name(), request.data)
         vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        ret = vnfm_get(vnfm_id)
+        ret = get_vnfminfo_from_nslcm(vnfm_id)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
@@ -436,7 +440,7 @@ def scale(request, *args, **kwargs):
         logger.info("requested_url = %s", request.get_full_path())
         vnfm_id = ignorcase_get(kwargs, "vnfmid")
         nf_instance_id = ignorcase_get(kwargs, "vnfInstanceId")
-        ret = vnfm_get(vnfm_id)
+        ret = get_vnfminfo_from_nslcm(vnfm_id)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
@@ -491,7 +495,7 @@ def heal(request, *args, **kwargs):
         logger.info("requested_url = %s", request.get_full_path())
         vnfm_id = ignorcase_get(kwargs, "vnfmid")
         nf_instance_id = ignorcase_get(kwargs, "vnfInstanceId")
-        ret = vnfm_get(vnfm_id)
+        ret = get_vnfminfo_from_nslcm(vnfm_id)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
