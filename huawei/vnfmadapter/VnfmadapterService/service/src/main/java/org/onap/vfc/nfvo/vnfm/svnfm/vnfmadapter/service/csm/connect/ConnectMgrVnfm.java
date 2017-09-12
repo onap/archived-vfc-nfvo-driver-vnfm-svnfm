@@ -135,14 +135,17 @@ public class ConnectMgrVnfm {
         try {
             httpMethod = new HttpRequests.Builder(info.getAuthenticateMode())
                     .setUrl(info.getUrl(), ParamConstants.CSM_AUTH_CONNECT_SOUTH)
-                    .setParams(String.format(ParamConstants.GET_TOKENS_V3, info.getUserName(), info.getUserPwd()))
+                    .setParams(String.format(ParamConstants.GET_TOKENS_V3, info.getUserName(), info.getUserPwd(),
+                            info.getUserName()))
                     .post().execute();
             statusCode = httpMethod.getStatusCode();
 
             String result = httpMethod.getResponseBodyAsString();
-            LOG.info("connect result:" + result);
+            LOG.info("connect statusCode={}, result={}:", statusCode, result);
             if(statusCode == HttpStatus.SC_CREATED) {
-                Header header = httpMethod.getResponseHeader("accessSession");
+                LOG.info("function=connectSouth, header={}.", httpMethod.getResponseHeaders());
+                Header header = httpMethod.getResponseHeader("X-Subject-Token");
+                LOG.info("function=connectSouth, header={}.", header.getValue());
                 setAccessSession(header.getValue());
                 statusCode = HttpStatus.SC_OK;
             } else {

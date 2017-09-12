@@ -245,11 +245,12 @@ public final class ResultRequestUtil {
 
             String result = null;
             String vnfPath = path.contains("%s") ? String.format(path, mgrVcmm.getRoaRand()) : path;
-            LOG.info("function=call, msg=url is {}, session is {}", vnfmObject.getString("url") + vnfPath,
-                    mgrVcmm.getAccessSession());
+            String oldUrl = vnfmObject.getString("url").trim();
+            String newUrl = oldUrl.replaceAll("30001", "30000");
+            LOG.info("function=call, msg=url is {}, session is {}", newUrl + vnfPath, mgrVcmm.getAccessSession());
             HttpRequests.Builder builder =
-                    new HttpRequests.Builder(authModel).addHeader(Constant.ACCESSSESSION, mgrVcmm.getAccessSession())
-                            .setUrl(vnfmObject.getString("url"), vnfPath).setParams(paramsJson);
+                    new HttpRequests.Builder(authModel).addHeader("X-Auth-Token", mgrVcmm.getAccessSession())
+                            .setUrl(newUrl, vnfPath).setParams(paramsJson);
             MethodType methodType = MethodType.methodType(HttpRequests.Builder.class, new Class[0]);
             MethodHandle mt =
                     MethodHandles.lookup().findVirtual(builder.getClass(), methodName, methodType).bindTo(builder);
@@ -263,8 +264,6 @@ public final class ResultRequestUtil {
 
             // logout delete tokens
             String token = mgrVcmm.getAccessSession();
-            String oldUrl = vnfmObject.getString("url").trim();
-            String newUrl = oldUrl.replaceAll("30001", "30000");
             String user = vnfmObject.getString("userName");
             removeV3Tokens(newUrl, token, user);
         } catch(IOException e) {

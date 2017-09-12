@@ -260,7 +260,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
         } else {
-            LOG.error("function=getJob, msg=send get vnf msg to csm get wrong status: {}", statusCode);
+            LOG.error("function=healVnf, msg=send heal vnf msg to csm get wrong status: {}", statusCode);
         }
 
         return restJson;
