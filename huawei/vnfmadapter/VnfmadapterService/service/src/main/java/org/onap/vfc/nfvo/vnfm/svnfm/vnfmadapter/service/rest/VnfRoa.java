@@ -314,6 +314,7 @@ public class VnfRoa {
         }
 
         restJson.remove(Constant.RETCODE);
+        restJson.put("jobId", vnfInstanceId + "_put");
         return restJson.toString();
     }
 

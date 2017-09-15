@@ -247,11 +247,11 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
         JSONObject subJsonObject = new JSONObject();
         subJsonObject.put("type", "hard");
-        subJsonObject.put("boot_mode", null);
+        subJsonObject.put("boot_mode", "");
         if("vmReset".equals(action)) {
             subJsonObject.put("action", "reset");
         }
-
+        LOG.info("healVnf subJsonObject :" + subJsonObject);
         JSONObject healResult = ResultRequestUtil.callSouth(vnfmObjcet, path, Constant.PUT, subJsonObject.toString(),
                 Constant.CERTIFICATE);
 
