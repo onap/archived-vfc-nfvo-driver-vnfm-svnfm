@@ -247,7 +247,9 @@ public final class ResultRequestUtil {
             String vnfPath = path.contains("%s") ? String.format(path, mgrVcmm.getRoaRand()) : path;
             String oldUrl = vnfmObject.getString("url").trim();
             String newUrl = oldUrl.replaceAll("30001", "30000");
-            LOG.info("function=call, msg=url is {}, session is {}", newUrl + vnfPath, mgrVcmm.getAccessSession());
+            LOG.info("function=callSouth, msg=url is {}, session is {}", newUrl + vnfPath, mgrVcmm.getAccessSession());
+            LOG.info("function=callSouth, paramsJson is {}", paramsJson);
+
             HttpRequests.Builder builder =
                     new HttpRequests.Builder(authModel).addHeader("X-Auth-Token", mgrVcmm.getAccessSession())
                             .setUrl(newUrl, vnfPath).setParams(paramsJson);
