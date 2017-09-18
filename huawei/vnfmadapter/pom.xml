@@ -25,7 +25,7 @@
     <artifactId>vnfmadapter</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>vfc/nfvo/drivers/vnfm/svnfm/huawei/vnfmadapter</name>
+    <name>vfc-nfvo-driver-vnfm-svnfm</name>
     <description>nfvo vnfmadapter</description>
     <modules>
         <module>VnfmadapterService</module>
