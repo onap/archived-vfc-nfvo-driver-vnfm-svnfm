@@ -57,7 +57,7 @@ public class VnfResourceMgr {
     public JSONObject grantVnfResource(JSONObject vnfObj, String vnfId, String vnfmId) {
         LOG.warn("function=grantVnfResource, msg=enter to grant vnf resource, params: {}", vnfObj);
         JSONObject resultJson = new JSONObject();
-        resultJson.put("retCode", Constant.REST_FAIL);
+        resultJson.put(Constant.RETCODE, Constant.REST_FAIL);
         try {
             String type = vnfObj.getString("type");
             String requestType = vnfObj.getString("operation_right");
@@ -81,12 +81,12 @@ public class VnfResourceMgr {
             }
 
             JSONObject grantObj = new JSONObject();
-            grantObj.put("vimId", vnfObj.getString("vim_id"));
+            grantObj.put(Constant.VIMID, vnfObj.getString("vim_id"));
             grantObj.put("vnfId", vnfId);
             grantObj.put("vnfName", vnfName);
-            grantObj.put("vnfmId", vnfmId);
+            grantObj.put(Constant.VNFMID, vnfmId);
             String action = getGrantAction(type, requestType);
-            grantObj.put("action", action);
+            grantObj.put(Constant.ACTION, action);
 
             JSONObject grantParam = parseGrantParam(resMap, grantObj);
             resultJson = sendGrantToResmgr(grantParam);
@@ -127,7 +127,7 @@ public class VnfResourceMgr {
     private JSONObject parseGrantParam(Map<String, Integer> resMap, JSONObject grantParam) {
         JSONObject result = new JSONObject();
         result.put("vnfInstanceId", grantParam.getString("vnfId"));
-        result.put("vimId", grantParam.getString("vimId"));
+        result.put(Constant.VIMID, grantParam.getString(Constant.VIMID));
 
         JSONArray resource = new JSONArray();
         JSONObject resourceObj = new JSONObject();
@@ -151,15 +151,16 @@ public class VnfResourceMgr {
         resourceObj.put("vdu", grantParam.getString("vnfName"));
         resource.add(resourceObj);
 
-        if("online".equals(grantParam.getString("action")) || "scaleOut".equals(grantParam.getString("action"))) {
+        if("online".equals(grantParam.getString(Constant.ACTION))
+                || "scaleOut".equals(grantParam.getString(Constant.ACTION))) {
             result.put("addResource", resource);
         } else {
             result.put("removeResource", resource);
         }
 
         JSONObject additionalParam = new JSONObject();
-        additionalParam.put("vnfmId", grantParam.getString("vnfmId"));
-        additionalParam.put("vimId", grantParam.getString("vimId"));
+        additionalParam.put(Constant.VNFMID, grantParam.getString(Constant.VNFMID));
+        additionalParam.put(Constant.VIMID, grantParam.getString(Constant.VIMID));
         additionalParam.put("tenant", "");
         result.put("additionalParam", additionalParam);
         LOG.info("funtion=parseGrantParam, result={}", result);

@@ -124,6 +124,8 @@ public class Constant {
 
     public static final String RETCODE = "retCode";
 
+    public static final String REASON = "reason";
+
     public static final String STATUS = "status";
 
     public static final String VNFPKGINFO = "vnfpkginfo.json";
@@ -133,6 +135,16 @@ public class Constant {
     public static final String COLON = ":";
 
     public static final String ERRORMSG = "errorMsg";
+
+    public static final String VIMID = "vimId";
+
+    public static final String VNFMID = "vnfmId";
+
+    public static final String ACTION = "action";
+
+    public static final String VNFDID = "vnfdId";
+
+    public static final String JOBID = "jobId";
 
     private Constant() {
         // private constructor
