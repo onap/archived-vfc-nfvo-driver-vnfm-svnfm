@@ -60,9 +60,9 @@ public class VnfRoa {
 
     private VnfMgr vnfMgr;
 
-    private static Map<String, String> PROGRESSITEM;
+    private static Map<String, String> progressItem;
 
-    private static Map<String, String> JOBSTATUSITEM;
+    private static Map<String, String> jobstatusItem;
 
     static {
         Map<String, String> map = new HashMap<>();
@@ -70,14 +70,14 @@ public class VnfRoa {
         map.put("Active", "100");
         map.put("Stopped", "50");
         map.put("Error", "100");
-        PROGRESSITEM = UnmodifiableMap.decorate(map);
+        progressItem = UnmodifiableMap.decorate(map);
 
         map = new HashMap<>();
         map.put("Building", "processing");
         map.put("Active", "finished");
         map.put("Stopped", "processing");
         map.put("Error", "error");
-        JOBSTATUSITEM = UnmodifiableMap.decorate(map);
+        jobstatusItem = UnmodifiableMap.decorate(map);
     }
 
     public void setVnfMgr(VnfMgr vnfMgr) {
@@ -321,10 +321,10 @@ public class VnfRoa {
         JSONObject jobInfoJson = new JSONObject();
         JSONObject retJson = restJson.getJSONArray("data").getJSONObject(0);
         jobInfoJson.put("jobId", retJson.getString("id"));
-        responseJson.put("progress", PROGRESSITEM.get(retJson.getString(Constant.STATUS)));
-        responseJson.put("status", JOBSTATUSITEM.get(retJson.getString(Constant.STATUS)));
+        responseJson.put("progress", progressItem.get(retJson.getString(Constant.STATUS)));
+        responseJson.put("status", jobstatusItem.get(retJson.getString(Constant.STATUS)));
         responseJson.put("errorCode", "null");
-        responseJson.put("responseId", PROGRESSITEM.get(retJson.getString(Constant.STATUS)));
+        responseJson.put("responseId", progressItem.get(retJson.getString(Constant.STATUS)));
         jobInfoJson.put("responsedescriptor", responseJson);
         return jobInfoJson.toString();
     }
