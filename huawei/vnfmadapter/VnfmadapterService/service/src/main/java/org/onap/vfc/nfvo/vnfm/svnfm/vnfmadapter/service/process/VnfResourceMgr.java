@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VnfmRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ public class VnfResourceMgr {
             if(StringUtils.isEmpty(type) || StringUtils.isEmpty(requestType) || StringUtils.isEmpty(vnfName)
                     || StringUtils.isEmpty(vnfId)) {
                 LOG.error("function=grantVnfResource, msg=grant basic params error");
-                resultJson.put("errorMsg", "basic params error");
+                resultJson.put(Constant.ERRORMSG, "basic params error");
                 return resultJson;
             }
 
@@ -76,7 +76,7 @@ public class VnfResourceMgr {
 
             if(null == resMap) {
                 LOG.error("function=grantVnfResource, msg=grant resource params error");
-                resultJson.put("errorMsg", "resource params error");
+                resultJson.put(Constant.ERRORMSG, "resource params error");
                 return resultJson;
             }
 
@@ -93,7 +93,7 @@ public class VnfResourceMgr {
             LOG.error("function=grantVnfResource, resultJson={}.", resultJson);
         } catch(JSONException e) {
             LOG.error("function=grantVnfResource, msg=parse params occoured JSONException e={}.", e);
-            resultJson.put("errorMsg", "params parse exception");
+            resultJson.put(Constant.ERRORMSG, "params parse exception");
         }
 
         return resultJson;
