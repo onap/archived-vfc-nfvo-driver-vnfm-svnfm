@@ -180,8 +180,9 @@ public class AdapterResourceManager implements IResourceManager {
         }
 
         // upload VNF package
-        csarTempObj.put("vim_id", vimId);
+        csarTempObj.getJSONArray("vim_list").getJSONObject(0).put("vim_id", vimId);
         vnfpkg.put("template", csarTempObj);
+        LOG.info("vnfpkg: " + vnfpkg);
 
         JSONObject uploadPkgObject = upload(vnfpkg, vnfmUrl, connToken);
         LOG.info("uploadPkgObject:" + uploadPkgObject);

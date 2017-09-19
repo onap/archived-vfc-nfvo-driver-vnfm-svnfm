@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant;
 
 import java.util.Arrays;
@@ -90,7 +91,8 @@ public class Constant {
 
     public static final int HTTP_INNERERROR = 500;
 
-    public static final List<String> AUTHLIST = Collections.unmodifiableList(Arrays.asList(Constant.ANONYMOUS, Constant.CERTIFICATE));
+    public static final List<String> AUTHLIST =
+            Collections.unmodifiableList(Arrays.asList(Constant.ANONYMOUS, Constant.CERTIFICATE));
 
     public static final int INTERNAL_EXCEPTION = 600;
 
@@ -124,13 +126,15 @@ public class Constant {
 
     public static final String STATUS = "status";
 
-    public static final String VNFPKGINFO="vnfpkginfo.json";
+    public static final String VNFPKGINFO = "vnfpkginfo.json";
 
     public static final int ERROR_STATUS_CODE = -1;
-    
-    public static final String COLON=":";
+
+    public static final String COLON = ":";
+
+    public static final String ERRORMSG = "errorMsg";
 
     private Constant() {
-        //private constructor
+        // private constructor
     }
 }

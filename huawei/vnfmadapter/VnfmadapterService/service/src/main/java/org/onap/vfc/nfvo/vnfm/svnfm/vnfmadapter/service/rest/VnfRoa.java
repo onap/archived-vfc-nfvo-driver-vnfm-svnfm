@@ -111,9 +111,8 @@ public class VnfRoa {
         JSONObject jsonObject = VnfmJsonUtil.getJsonFromContexts(context);
         LOG.info("function=scaleVNF, msg=enter to scale a vnf. request body:" + jsonObject);
         JSONObject result = new JSONObject();
-        String msg = "";
         if(null == jsonObject) {
-            msg = "the parameters do not meet the requirements,please check it!";
+            String msg = "the parameters do not meet the requirements,please check it!";
             LOG.error("function=scalVnf," + msg);
             resp.setStatus(Constant.HTTP_NOT_ACCEPTABLE);
             result.put("msg", msg);
@@ -217,8 +216,7 @@ public class VnfRoa {
     @GET
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}")
     public String getVnf(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp,
-            @PathParam("vnfInstanceId") String vnfInstanceId, @Context HttpServletRequest context)
-            throws ServiceException {
+            @PathParam("vnfInstanceId") String vnfInstanceId) throws ServiceException {
         LOG.warn("function=getVnf, msg=enter to get a vnf: vnfInstanceId: {}, vnfmId: {}", vnfInstanceId, vnfmId);
         JSONObject restJson = new JSONObject();
 
