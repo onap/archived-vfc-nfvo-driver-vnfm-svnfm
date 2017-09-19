@@ -300,7 +300,7 @@ public class VnfRoaTest {
             }
         };
 
-        String result = vnfRoa.getVnf("vnfmId", mockResInstance, "", mockInstance);
+        String result = vnfRoa.getVnf("vnfmId", mockResInstance, "");
 
         assertEquals(restJson.toString(), result);
     }
@@ -323,7 +323,7 @@ public class VnfRoaTest {
             }
         };
 
-        String result = vnfRoa.getVnf("", mockResInstance, "vnfId", mockInstance);
+        String result = vnfRoa.getVnf("", mockResInstance, "vnfId");
 
         assertEquals(restJson.toString(), result);
     }
@@ -355,7 +355,7 @@ public class VnfRoaTest {
             }
         };
 
-        String result = vnfRoa.getVnf("vnfmId", mockResInstance, "vnfId", mockInstance);
+        String result = vnfRoa.getVnf("vnfmId", mockResInstance, "vnfId");
         assertEquals(restJson.toString(), result);
     }
 
@@ -399,7 +399,7 @@ public class VnfRoaTest {
             }
         };
 
-        String result = vnfRoa.getVnf("vnfmId", mockResInstance, "vnfId", mockInstance);
+        String result = vnfRoa.getVnf("vnfmId", mockResInstance, "vnfId");
         JSONObject basicInfoJson = new JSONObject();
         JSONObject retJson = new JSONObject();
         basicInfoJson.put("vnfInstanceId", "123");
