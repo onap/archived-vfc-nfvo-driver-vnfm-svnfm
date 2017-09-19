@@ -51,7 +51,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         JSONObject scaleInfo = new JSONObject();
         JSONArray vduList = new JSONArray();
         JSONObject vdu = new JSONObject();
-        vdu.put("vdu_type", this.getVduType(vnfmObject, vnfInstanceId));// TODO:set vdu_type
+        vdu.put("vdu_type", this.getVduType(vnfmObject, vnfInstanceId));
         vdu.put("h_steps", vnfObject.get("numberOfSteps"));
         vduList.add(vdu);
         scaleInfo.put("vnf_id", vnfInstanceId);
