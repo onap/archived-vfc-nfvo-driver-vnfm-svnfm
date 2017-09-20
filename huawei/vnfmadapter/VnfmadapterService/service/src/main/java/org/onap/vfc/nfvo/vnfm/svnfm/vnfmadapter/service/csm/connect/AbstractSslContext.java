@@ -35,6 +35,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.SystemEnvVariablesFactory;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,9 +148,9 @@ public class AbstractSslContext {
         BufferedInputStream bins = null;
         String fileContent = "";
 
-        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot() + System.getProperty("file.separator")
-                + "etc" + System.getProperty("file.separator") + "conf" + System.getProperty("file.separator")
-                + "sslconf.json";
+        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
+                + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
+                + "conf" + System.getProperty(Constant.FILE_SEPARATOR) + "sslconf.json";
 
         try {
             ins = new FileInputStream(fileName);

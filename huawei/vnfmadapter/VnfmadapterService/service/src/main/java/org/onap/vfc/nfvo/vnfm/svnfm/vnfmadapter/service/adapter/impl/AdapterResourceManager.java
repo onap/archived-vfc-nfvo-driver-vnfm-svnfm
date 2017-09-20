@@ -111,7 +111,7 @@ public class AdapterResourceManager implements IResourceManager {
 
         // download csar package and save in location.
         JSONObject downloadObject =
-                downloadCsar(downloadUri, csarfilepath + System.getProperty("file.separator") + csarfilename);
+                downloadCsar(downloadUri, csarfilepath + System.getProperty(Constant.FILE_SEPARATOR) + csarfilename);
 
         if(Integer.valueOf(downloadObject.get("retCode").toString()) != Constant.REST_SUCCESS) {
             LOG.error("download CSAR fail.", downloadObject.get("retCode"));
@@ -123,7 +123,7 @@ public class AdapterResourceManager implements IResourceManager {
 
         // unzip csar package to location.
         JSONObject unzipObject =
-                unzipCSAR(csarfilepath + System.getProperty("file.separator") + csarfilename, csarfilepath);
+                unzipCSAR(csarfilepath + System.getProperty(Constant.FILE_SEPARATOR) + csarfilename, csarfilepath);
 
         if(Integer.valueOf(unzipObject.get("retCode").toString()) != Constant.REST_SUCCESS) {
             LOG.error("unzip CSAR fail.", unzipObject.get("retCode"));
@@ -545,9 +545,9 @@ public class AdapterResourceManager implements IResourceManager {
         BufferedInputStream bins = null;
         String fileContent = "";
 
-        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot() + System.getProperty("file.separator")
-                + "etc" + System.getProperty("file.separator") + "vnfpkginfo" + System.getProperty("file.separator")
-                + Constant.VNFPKGINFO;
+        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
+                + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
+                + "vnfpkginfo" + System.getProperty(Constant.FILE_SEPARATOR) + Constant.VNFPKGINFO;
 
         try {
             ins = new FileInputStream(fileName);
@@ -579,9 +579,9 @@ public class AdapterResourceManager implements IResourceManager {
         BufferedInputStream bins = null;
         String fileContent = "";
 
-        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot() + System.getProperty("file.separator")
-                + "etc" + System.getProperty("file.separator") + "vnfpkginfo" + System.getProperty("file.separator")
-                + "vnfd_ids.json";
+        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
+                + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
+                + "vnfpkginfo" + System.getProperty(Constant.FILE_SEPARATOR) + "vnfd_ids.json";
 
         try {
             ins = new FileInputStream(fileName);
