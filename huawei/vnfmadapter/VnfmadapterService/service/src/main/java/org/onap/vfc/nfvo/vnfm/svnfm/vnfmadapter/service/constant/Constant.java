@@ -146,6 +146,8 @@ public class Constant {
 
     public static final String JOBID = "jobId";
 
+    public static final String FILE_SEPARATOR = "file.separator";
+
     private Constant() {
         // private constructor
     }

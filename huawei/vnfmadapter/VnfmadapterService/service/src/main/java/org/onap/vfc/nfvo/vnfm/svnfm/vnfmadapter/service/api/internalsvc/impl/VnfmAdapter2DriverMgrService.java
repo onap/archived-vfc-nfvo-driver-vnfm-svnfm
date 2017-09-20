@@ -86,9 +86,9 @@ public class VnfmAdapter2DriverMgrService implements IVnfmAdapter2DriverMgrServi
         BufferedInputStream bins = null;
         String fileContent = "";
 
-        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot() + System.getProperty("file.separator")
-                + "etc" + System.getProperty("file.separator") + "adapterInfo" + System.getProperty("file.separator")
-                + VNFMADAPTER2DRIVERMGR;
+        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
+                + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
+                + "adapterInfo" + System.getProperty(Constant.FILE_SEPARATOR) + VNFMADAPTER2DRIVERMGR;
 
         try {
             ins = new FileInputStream(fileName);

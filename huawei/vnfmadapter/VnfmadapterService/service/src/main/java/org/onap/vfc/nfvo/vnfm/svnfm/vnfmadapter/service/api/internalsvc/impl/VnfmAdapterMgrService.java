@@ -85,9 +85,9 @@ public class VnfmAdapterMgrService implements IVnfmAdapterMgrService {
         BufferedInputStream bins = null;
         String fileContent = "";
 
-        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot() + System.getProperty("file.separator")
-                + "etc" + System.getProperty("file.separator") + "adapterInfo" + System.getProperty("file.separator")
-                + VNFMADAPTERINFO;
+        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
+                + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
+                + "adapterInfo" + System.getProperty(Constant.FILE_SEPARATOR) + VNFMADAPTERINFO;
 
         try {
             ins = new FileInputStream(fileName);
