@@ -202,7 +202,7 @@ public class VnfMgr {
             basicInfoJson.put("vnfInstanceDescription", "vFW");
 
             Vnfm vnfm = vnfmDao.getVnfmById(retJson.getString("id"));
-            basicInfoJson.put("vnfdId", vnfm == null ? "" : vnfm.getVnfdId());
+            basicInfoJson.put(Constant.VNFDID, vnfm == null ? "" : vnfm.getVnfdId());
             basicInfoJson.put("vnfdPackageId", vnfm == null ? "" : vnfm.getVnfPackageId());
             basicInfoJson.put("version", vnfm == null ? "" : vnfm.getVersion());
             basicInfoJson.put("vnfProvider", "hw");
@@ -227,7 +227,7 @@ public class VnfMgr {
     private JSONObject transferVnfBody(JSONObject vnfObject, JSONObject resObject, String vnfmId) {
         JSONObject restJson = new JSONObject();
         JSONObject vappIfno = new JSONObject();
-        restJson.put("vnfd_id", resObject.getString("vnfdId"));
+        restJson.put("vnfd_id", resObject.getString(Constant.VNFDID));
         restJson.put("plan_id", resObject.getOrDefault("planId", ""));
         restJson.put("plan_name", resObject.getOrDefault("planName", ""));
         restJson.put("vapp_name", vnfObject.get("vnfInstanceName"));
@@ -283,7 +283,7 @@ public class VnfMgr {
             Vnfm info = new Vnfm();
             info.setId(vnfObject.getJSONObject("data").getString("vnfInstanceId"));
             info.setVersion(resObject.getString("vnfdVersion"));
-            info.setVnfdId(resObject.getString("vnfdId"));
+            info.setVnfdId(resObject.getString(Constant.VNFDID));
             info.setVnfPackageId("");
             try {
                 vnfmDao.insertVnfm(info);
