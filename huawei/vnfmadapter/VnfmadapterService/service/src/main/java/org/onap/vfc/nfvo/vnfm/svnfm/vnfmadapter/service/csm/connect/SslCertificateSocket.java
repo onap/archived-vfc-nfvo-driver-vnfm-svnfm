@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect;
 
-import org.apache.commons.httpclient.ConnectTimeoutException;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.security.GeneralSecurityException;
+
+import javax.net.ssl.SSLSocketFactory;
+
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLSocketFactory;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.security.GeneralSecurityException;
 
 /**
  * Created by QuanZhong on 2017/3/6.
@@ -43,7 +44,7 @@ public class SslCertificateSocket extends AbstractSslContext implements SecurePr
      * <br>
      *
      * @throws VnfmException
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public void init() throws VnfmException {
         try {
@@ -66,7 +67,7 @@ public class SslCertificateSocket extends AbstractSslContext implements SecurePr
 
     @Override
     public Socket createSocket(String host, int port, InetAddress localAddress, int localPort,
-                               HttpConnectionParams params) throws IOException, ConnectTimeoutException {
+            HttpConnectionParams params) throws IOException {
         if(params == null) {
             throw new IOException("Illegal socket parameters!");
         } else {
