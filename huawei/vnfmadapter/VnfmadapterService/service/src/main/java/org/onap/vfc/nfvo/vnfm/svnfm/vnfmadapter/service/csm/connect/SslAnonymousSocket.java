@@ -23,7 +23,6 @@ import java.security.GeneralSecurityException;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
@@ -45,7 +44,7 @@ public class SslAnonymousSocket extends AbstractSslContext implements SecureProt
      * <br>
      *
      * @throws VnfmException
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public void init() throws VnfmException {
         try {
@@ -68,7 +67,7 @@ public class SslAnonymousSocket extends AbstractSslContext implements SecureProt
 
     @Override
     public Socket createSocket(String host, int port, InetAddress localAddress, int localPort,
-            HttpConnectionParams params) throws IOException, ConnectTimeoutException {
+            HttpConnectionParams params) throws IOException {
         if(params == null) {
             throw new IOException("Illegal socket parameters!");
         } else {
