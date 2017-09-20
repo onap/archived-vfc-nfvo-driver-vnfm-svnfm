@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * .</br>
  *
  * @author
- * @version     VFC 1.0  Sep 14, 2016
+ * @version VFC 1.0 Sep 14, 2016
  */
 public class SslProtocolSocketFactory {
 
@@ -46,7 +46,7 @@ public class SslProtocolSocketFactory {
      * <br>
      *
      * @return
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public static synchronized SslProtocolSocketFactory getInstance() {
         if(singleinstance == null) {
@@ -56,13 +56,12 @@ public class SslProtocolSocketFactory {
     }
 
     /**
-     *
      * <br>
      *
      * @param authenticateMode
      * @return
      * @throws VnfmException
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public synchronized ProtocolSocketFactory get(String authenticateMode) throws VnfmException {
         if(SOCKMAP.get(authenticateMode) == null) {
@@ -70,13 +69,13 @@ public class SslProtocolSocketFactory {
                 SslAnonymousSocket anonymous = new SslAnonymousSocket();
                 anonymous.init();
                 SOCKMAP.put(Constant.ANONYMOUS, anonymous);
-            }else if (Constant.CERTIFICATE.equals(authenticateMode)){
+            } else if(Constant.CERTIFICATE.equals(authenticateMode)) {
                 SslCertificateSocket certificateSocket = new SslCertificateSocket();
                 certificateSocket.init();
                 SOCKMAP.put(Constant.CERTIFICATE, certificateSocket);
             } else {
                 LOG.error("funtion=get, msg=ProtocolSocketFactory Unknown AuthenticateMode={}", authenticateMode);
-                throw new VnfmException(String.format("Illegal Auth mode", authenticateMode));
+                throw new VnfmException("Illegal Auth mode: " + authenticateMode);
             }
         }
 
@@ -89,7 +88,7 @@ public class SslProtocolSocketFactory {
      *
      * @param autherMode
      * @throws VnfmException
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public synchronized void refresh(String autherMode) throws VnfmException {
         if(Constant.ANONYMOUS.equals(autherMode)) {
