@@ -96,6 +96,7 @@ public class DownloadCsarManager {
             is.close();
             fileout.flush();
             fileout.close();
+            client.close();
             status = Constant.DOWNLOADCSAR_SUCCESS;
 
         } catch(Exception e) {

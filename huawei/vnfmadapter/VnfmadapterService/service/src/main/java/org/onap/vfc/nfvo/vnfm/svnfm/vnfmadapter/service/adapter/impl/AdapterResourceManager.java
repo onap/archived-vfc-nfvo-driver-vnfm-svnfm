@@ -596,12 +596,8 @@ public class AdapterResourceManager implements IResourceManager {
             if(fileContent != null) {
                 jsonObject = JSONObject.fromObject(fileContent).getJSONObject("vnfdIds");
             }
-            if(ins != null) {
-                ins.close();
-            }
-            if(bins != null) {
-                bins.close();
-            }
+            ins.close();
+            bins.close();
         } catch(Exception e) {
             LOG.error(fileName + " read error!", e);
         } finally {
