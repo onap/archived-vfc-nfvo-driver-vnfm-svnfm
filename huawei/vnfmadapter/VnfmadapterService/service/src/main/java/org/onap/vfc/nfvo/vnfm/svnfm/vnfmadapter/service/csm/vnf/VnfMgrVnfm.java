@@ -78,7 +78,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
             if(statusCode == Constant.HTTP_CREATED || statusCode == Constant.HTTP_OK) {
                 restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
                 JSONObject resultObj = new JSONObject();
-                resultObj.put("jobId", vnfInstanceId + "_" + Constant.PUT);
+                resultObj.put(Constant.JOBID, vnfInstanceId + "_" + Constant.PUT);
                 restJson.put("data", resultObj);
             } else {
                 LOG.error("function=scaleVnf, msg=send create vnf msg to csm get wrong status: " + statusCode);
@@ -134,7 +134,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
                 JSONObject appInfo = JSONObject.fromObject(queryResult.getString("data")).getJSONObject("app_info");
                 JSONObject resultObj = new JSONObject();
                 resultObj.put("vnfInstanceId", appInfo.getString("id"));
-                resultObj.put("jobId", appInfo.getString("id") + "_" + Constant.POST);
+                resultObj.put(Constant.JOBID, appInfo.getString("id") + "_" + Constant.POST);
                 restJson.put("data", resultObj);
             } else {
                 LOG.error("function=createVnf, msg=send create vnf msg to csm get wrong status: " + statusCode);
@@ -162,7 +162,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         if(statusCode == Constant.HTTP_NOCONTENT) {
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
             JSONObject resultObj = new JSONObject();
-            resultObj.put("jobId", vnfId + "_" + Constant.DELETE);
+            resultObj.put(Constant.JOBID, vnfId + "_" + Constant.DELETE);
             restJson.put("data", resultObj);
         } else {
             LOG.error("function=removeVnf, msg=send remove vnf msg to csm get wrong status: {}", statusCode);
@@ -181,7 +181,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
                 String.format(ParamConstants.VNF_INSTANCE_GET, vnfId) + Constant.ROARAND + "&type=status", Constant.GET,
                 null, Constant.CERTIFICATE);
 
-        int statusCode = queryResult.getInt("retCode");
+        int statusCode = queryResult.getInt(Constant.RETCODE);
 
         if(statusCode == Constant.HTTP_OK || statusCode == Constant.HTTP_CREATED) {
             if(null == (queryResult.get("data"))) {
@@ -208,7 +208,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
                 String.format(ParamConstants.VNF_INSTANCE_GET, vnfId) + Constant.ROARAND + "&type=status", Constant.GET,
                 null, Constant.CERTIFICATE);
 
-        int statusCode = queryResult.getInt("retCode");
+        int statusCode = queryResult.getInt(Constant.RETCODE);
 
         if(statusCode == Constant.HTTP_OK || statusCode == Constant.HTTP_CREATED) {
 
@@ -255,7 +255,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         JSONObject healResult = ResultRequestUtil.callSouth(vnfmObjcet, path, Constant.PUT, subJsonObject.toString(),
                 Constant.CERTIFICATE);
 
-        int statusCode = healResult.getInt("retCode");
+        int statusCode = healResult.getInt(Constant.RETCODE);
         if(statusCode == Constant.HTTP_OK) {
 
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
