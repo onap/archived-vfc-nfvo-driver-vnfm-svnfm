@@ -171,7 +171,6 @@ public class DownloadCsarManager {
         try {
             ZipFile zipFile = new ZipFile(fileName);
             Enumeration emu = zipFile.entries();
-            int i = 0;
             while(emu.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry)emu.nextElement();
                 // read directory as file first,so only need to create directory
