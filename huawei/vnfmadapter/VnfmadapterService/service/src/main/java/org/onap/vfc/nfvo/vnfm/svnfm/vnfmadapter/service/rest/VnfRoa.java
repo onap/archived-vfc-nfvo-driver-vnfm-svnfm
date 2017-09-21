@@ -252,7 +252,7 @@ public class VnfRoa {
     @Path("/{vnfmId}/jobs/{jobId}")
     public String getJob(@PathParam("jobId") String jobId, @PathParam("vnfmId") String vnfmId,
             @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) throws ServiceException {
-        LOG.warn("function=getJob, msg=enter to get a job: jobId: {}", jobId);
+        LOG.warn("function=getJob, msg=enter to get a job: jobId: {}, responseId: {}", jobId, responseId);
         JSONObject restJson = new JSONObject();
 
         if(StringUtils.isEmpty(jobId) || StringUtils.isEmpty(vnfmId)) {

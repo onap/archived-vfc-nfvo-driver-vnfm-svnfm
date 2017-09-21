@@ -57,14 +57,14 @@ public class AdapterResourceManager implements IResourceManager {
     @Override
     public JSONObject uploadVNFPackage(JSONObject vnfpkg, Map<String, String> paramsMap) {
         JSONObject resultObj = new JSONObject();
-        JSONObject csarTempObj = new JSONObject();
-
+        String vnfDescriptorId = paramsMap.get("vnfDescriptorId");
         try {
             // if upper layer do not provide vnfpackage info,then get the
             // vnfpackage info from JSON file.
             if(vnfpkg == null || vnfpkg.isEmpty()) {
                 String vnfPkgInfo = readVfnPkgInfoFromJson();
-                vnfpkg = JSONObject.fromObject(vnfPkgInfo); // NOSONAR
+                JSONObject vnfpkgJson = JSONObject.fromObject(vnfPkgInfo);
+                vnfpkg = vnfpkgJson.getJSONObject(vnfDescriptorId);
             }
         } catch(IOException e) {
             LOG.error("function=uploadVNFPackage", e);
@@ -80,7 +80,7 @@ public class AdapterResourceManager implements IResourceManager {
         String csarid = paramsMap.get("csarid");
         String vnfmid = paramsMap.get("vnfmid");
         String vnfdid = "";
-        String vnfDescriptorId = paramsMap.get("vnfDescriptorId");
+
         if(null == csarid || "".equals(csarid)) {
             resultObj.put("reason", "csarid is null.");
             resultObj.put("retCode", Constant.REST_FAIL);
@@ -104,7 +104,7 @@ public class AdapterResourceManager implements IResourceManager {
             resultObj.put("retCode", Constant.REST_FAIL);
             return resultObj;
         }
-
+        JSONObject csarTempObj = new JSONObject();
         csarTempObj = vnfpkg.getJSONObject("template");
         String csarfilepath = csarTempObj.getString("csar_file_path");
         String csarfilename = csarTempObj.getString("csar_file_name");
@@ -180,12 +180,17 @@ public class AdapterResourceManager implements IResourceManager {
         }
 
         // upload VNF package
-        csarTempObj.getJSONArray("vim_list").getJSONObject(0).put("vim_id", vimId);
+        csarTempObj.put("vim_id", vimId);
         vnfpkg.put("template", csarTempObj);
         LOG.info("vnfpkg: " + vnfpkg);
 
         JSONObject uploadPkgObject = upload(vnfpkg, vnfmUrl, connToken);
         LOG.info("uploadPkgObject:" + uploadPkgObject);
+        if(!uploadPkgObject.isEmpty() && uploadPkgObject.get(Constant.RETCODE).equals(HttpStatus.SC_OK)) {
+            LOG.info("upload vnf package info successful.", uploadPkgObject.get(Constant.RETCODE));
+            vnfdid = uploadPkgObject.getString("id");
+        }
+
         if(vnfdid == null || "".equals(vnfdid.trim())) {
             JSONObject vnfdConf = readVnfdIdInfoFromJson();
             LOG.info("vnfdConf=" + vnfdConf);
