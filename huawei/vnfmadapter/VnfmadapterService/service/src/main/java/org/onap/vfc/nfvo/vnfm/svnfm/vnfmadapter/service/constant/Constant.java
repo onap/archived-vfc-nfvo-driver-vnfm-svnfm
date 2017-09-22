@@ -47,6 +47,8 @@ public class Constant {
 
     public static final String ASYNCDELETE = "asyncDelete";
 
+    public static final String HTTPS = "https";
+
     public static final String ENCODEING = "utf-8";
 
     public static final String COOKIE = "Cookie";
