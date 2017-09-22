@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2016-2017, Nokia Corporation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+<something-else-entirely>
+	<proxool>
+		
+		<alias>proxoolPool</alias>
+  	 		<driver-url>jdbc:mysql://135.251.208.57:3306/aware_db?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=round  
+<!-- 	 		<driver-url>jdbc:mysql://10.134.120.95:3306/aware_db?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=round --> 
+
+	 		</driver-url> 
+ 			<driver-class>com.mysql.jdbc.Driver</driver-class>
+		<driver-properties>
+			<property name="user" value="root" />
+	        <property name="password" value="irlaxjwrMLu03MNgih6czpllxKgnfk" /> 
+			<property name="autoReconnect" value="true" />
+		</driver-properties>
+
+		<house-keeping-sleep-time>2700000</house-keeping-sleep-time>
+		<simultaneous-build-throttle>100</simultaneous-build-throttle>
+		<!--
+			<maximum-new-connections>5</maximum-new-connections>
+		-->
+		<prototype-count>5</prototype-count>
+		<maximum-connection-count>50</maximum-connection-count>
+
+		<maximum-active-time>2700000</maximum-active-time>
+		<maximum-connection-lifetime>7200000</maximum-connection-lifetime>
+
+		<minimum-connection-count>2</minimum-connection-count>
+		<test-before-use>true</test-before-use>
+		<!--
+		<test-after-use>true</test-after-use>
+		-->
+		<trace>true</trace>
+		<house-keeping-test-sql>select CURRENT_DATE from dual
+		</house-keeping-test-sql>
+
+	</proxool>
+</something-else-entirely>

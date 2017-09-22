@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.jdbc.batch_size">100</prop>
+				<!--<prop key="hibernate.connection.autocommit">false</prop>-->
+				<prop key="hibernate.connection.autocommit">true</prop>
+				<prop key="hibernate.proxool.pool_alias">proxoolPool</prop>
+				<prop key="hibernate.proxool.xml">ProxoolConf.xml</prop>
+				<prop key="hibernate.connection.provider_class">org.hibernate.connection.ProxoolConnectionProvider</prop>
+				<prop key="hibernate.cache.provider_class">
+                         org.hibernate.cache.HashtableCacheProvider
+               </prop>
+               <prop key="hibernate.connection.release_mode">after_transaction</prop>
+			</props>
+		</property>
+
+		<!-- mappingResources属性用来列出全部映射文件 -->
+         <property name="mappingResources">
+             <list>
+                 <!-- 配置所有PO映射文件 -->
+                 <value>hbm/vnfm_job_execution_map.hbm.xml</value>
+             </list>
+         </property>
+	</bean>
+	<!-- 事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref local="sessionFactory" />
+		</property>
+	</bean>
+	
+</beans>
