@@ -73,8 +73,8 @@ public class ConnectMgrVnfm {
     public int connect(JSONObject vnfmObj, String authModel) {
         LOG.info("function=connect, msg=enter connect function.");
 
-        ConnectInfo info = new ConnectInfo(vnfmObj.getString("url"), vnfmObj.getString("userName"),
-                vnfmObj.getString("password"), authModel);
+        ConnectInfo info = new ConnectInfo(vnfmObj.getString("url"), vnfmObj.getString(Constant.USERNAME),
+                vnfmObj.getString(Constant.PASSWORD), authModel);
         HttpMethod httpMethod = null;
         int statusCode = Constant.INTERNAL_EXCEPTION;
 
@@ -127,8 +127,8 @@ public class ConnectMgrVnfm {
         String oldUrl = vnfmObj.getString("url").trim();
         String newUrl = oldUrl.replaceAll("30001", "30000");
         LOG.info("function=connectSouth, url={}.", newUrl);
-        ConnectInfo info =
-                new ConnectInfo(newUrl, vnfmObj.getString("userName"), vnfmObj.getString("password"), authModel);
+        ConnectInfo info = new ConnectInfo(newUrl, vnfmObj.getString(Constant.USERNAME),
+                vnfmObj.getString(Constant.PASSWORD), authModel);
         HttpMethod httpMethod = null;
         int statusCode = Constant.INTERNAL_EXCEPTION;
 
@@ -179,8 +179,8 @@ public class ConnectMgrVnfm {
     public int connect(JSONObject vnfmObj) {
         LOG.info("function=connect, msg=enter connect function.");
 
-        ConnectInfo info = new ConnectInfo(vnfmObj.getString("url"), vnfmObj.getString("userName"),
-                vnfmObj.getString("password"), Constant.ANONYMOUS);
+        ConnectInfo info = new ConnectInfo(vnfmObj.getString("url"), vnfmObj.getString(Constant.USERNAME),
+                vnfmObj.getString(Constant.PASSWORD), Constant.ANONYMOUS);
         HttpMethod httpMethod = null;
         int statusCode = Constant.INTERNAL_EXCEPTION;
 

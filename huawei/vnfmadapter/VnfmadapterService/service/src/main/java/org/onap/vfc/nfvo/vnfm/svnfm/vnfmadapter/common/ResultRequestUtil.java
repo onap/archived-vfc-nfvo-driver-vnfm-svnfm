@@ -167,7 +167,7 @@ public final class ResultRequestUtil {
             String token = mgrVcmm.getAccessSession();
             String roaRand = mgrVcmm.getRoaRand();
             String vnfmUrl = vnfmObject.getString("url");
-            String user = vnfmObject.getString("userName");
+            String user = vnfmObject.getString(Constant.USERNAME);
             removeTokens(vnfmUrl, token, roaRand, user);
         } catch(IOException e) {
             LOG.info("function=call, msg=IOException, e is {}", e);
@@ -266,7 +266,7 @@ public final class ResultRequestUtil {
 
             // logout delete tokens
             String token = mgrVcmm.getAccessSession();
-            String user = vnfmObject.getString("userName");
+            String user = vnfmObject.getString(Constant.USERNAME);
             removeV3Tokens(newUrl, token, user);
         } catch(IOException e) {
             LOG.info("function=call, msg=IOException, e is {}", e);

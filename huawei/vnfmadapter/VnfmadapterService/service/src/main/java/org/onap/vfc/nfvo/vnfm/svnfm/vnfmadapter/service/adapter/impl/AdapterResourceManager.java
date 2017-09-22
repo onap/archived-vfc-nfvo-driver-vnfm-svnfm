@@ -148,16 +148,16 @@ public class AdapterResourceManager implements IResourceManager {
         LOG.info("get Vnfm Connection Info successful.", vnfmObject.get(Constant.RETCODE));
 
         String vnfmUrl = vnfmObject.getString("url");
-        String userName = vnfmObject.getString("userName");
-        String password = vnfmObject.getString("password");
+        String userName = vnfmObject.getString(Constant.USERNAME);
+        String password = vnfmObject.getString(Constant.PASSWORD);
 
         // build VNFM connection and get token
         ConnectMgrVnfm mgrVcmm = new ConnectMgrVnfm();
 
         JSONObject connObject = new JSONObject();
         connObject.put("url", vnfmUrl);
-        connObject.put("userName", userName);
-        connObject.put("password", password);
+        connObject.put(Constant.USERNAME, userName);
+        connObject.put(Constant.PASSWORD, password);
         if(Constant.HTTP_OK != mgrVcmm.connect(vnfmObject, Constant.CERTIFICATE)) {
             LOG.error("get Access Session fail.");
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);

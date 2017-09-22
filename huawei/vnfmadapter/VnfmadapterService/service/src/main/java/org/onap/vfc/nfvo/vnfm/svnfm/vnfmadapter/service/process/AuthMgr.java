@@ -46,7 +46,7 @@ public class AuthMgr {
         JSONObject restJson = new JSONObject();
         restJson.put(Constant.RETCODE, Constant.REST_FAIL);
         try {
-            String userName = params.getString("userName");
+            String userName = params.getString(Constant.USERNAME);
 
             restJson = getStatusResult(userName);
         } catch(JSONException e) {
