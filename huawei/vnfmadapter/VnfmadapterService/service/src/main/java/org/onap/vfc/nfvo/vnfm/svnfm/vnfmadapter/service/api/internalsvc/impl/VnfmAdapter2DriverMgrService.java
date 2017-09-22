@@ -153,11 +153,12 @@ public class VnfmAdapter2DriverMgrService implements IVnfmAdapter2DriverMgrServi
         private void sendRequest(Map<String, String> paramsMap, JSONObject driverInfo) {
             JSONObject resultObj = adapter2DriverMgr.registerDriver(paramsMap, driverInfo);
 
-            if(Integer.valueOf(resultObj.get("retCode").toString()) == Constant.HTTP_CREATED) {
+            if(Integer.valueOf(resultObj.get(Constant.RETCODE).toString()) == Constant.HTTP_CREATED) {
                 LOG.info("Vnfmadapter has now Successfully Registered to the Driver Manager!");
             } else {
                 LOG.error("Vnfmadapter failed to  Register to the Driver Manager! Reason:"
-                        + resultObj.get("reason").toString() + " retCode:" + resultObj.get("retCode").toString());
+                        + resultObj.get(Constant.REASON).toString() + " retCode:"
+                        + resultObj.get(Constant.RETCODE).toString());
 
                 // if registration fails,wait one minute and try again
                 try {

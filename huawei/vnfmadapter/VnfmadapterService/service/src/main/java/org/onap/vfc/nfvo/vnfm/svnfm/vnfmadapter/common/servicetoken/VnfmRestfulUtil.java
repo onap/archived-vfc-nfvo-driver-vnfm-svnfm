@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Huawei Technologies Co., Ltd.
+ * Copyright 2016-2017 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,14 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.Restful;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulAsyncCallback;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulFactory;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulOptions;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulParametes;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ import net.sf.json.JSONObject;
  * .</br>
  *
  * @author
- * @version     VFC 1.0  Sep 10, 2016
+ * @version VFC 1.0 Sep 10, 2016
  */
 public final class VnfmRestfulUtil {
 
@@ -147,7 +147,7 @@ public final class VnfmRestfulUtil {
      * @param methodName String
      * @param objects String
      * @return
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public static RestfulResponse getRestRes(String methodName, Object... objects) {
         Restful rest = RestfulFactory.getRestInstance(RestfulFactory.PROTO_HTTP);
@@ -183,7 +183,7 @@ public final class VnfmRestfulUtil {
             response.setResponseJson(e.getCause().getMessage());
             return response;
 
-        } catch(Throwable e) { //NOSONAR
+        } catch(Throwable e) { // NOSONAR
             try {
                 throw (VnfmException)new VnfmException().initCause(e.getCause());
             } catch(VnfmException e1) {
@@ -202,11 +202,11 @@ public final class VnfmRestfulUtil {
      * @param methodName String
      * @param paraJson JSONObject
      * @return
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public static JSONObject sendReqToApp(String path, String methodName, JSONObject paraJson) {
         JSONObject retJson = new JSONObject();
-        retJson.put("retCode", Constant.REST_FAIL);
+        retJson.put(Constant.RETCODE, Constant.REST_FAIL);
         String abPath = null;
         String vnfmId = null;
         if(paraJson != null && paraJson.containsKey("vnfmInfo")) {
@@ -226,12 +226,12 @@ public final class VnfmRestfulUtil {
             if(!abPath.contains("vnfdmgr/v1")) {
                 LOG.warn("function=sendReqToApp, msg=result from app is: " + object.toString());
             }
-            if(object.getInt("retCode") == Constant.REST_SUCCESS) {
-                retJson.put("retCode", Constant.REST_SUCCESS);
+            if(object.getInt(Constant.RETCODE) == Constant.REST_SUCCESS) {
+                retJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
                 retJson.put("data", withVnfmIdSuffix(vnfmId, object.get("data")));
                 return retJson;
             } else {
-                retJson.put("retCode", Constant.REST_FAIL);
+                retJson.put(Constant.RETCODE, Constant.REST_FAIL);
                 if(object.containsKey("msg")) {
                     retJson.put("data", object.getString("msg"));
                     return retJson;
@@ -287,7 +287,7 @@ public final class VnfmRestfulUtil {
      * @param domainTokens String
      * @param isNfvoApp boolean
      * @return
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public static RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params, String domainTokens,
             boolean isNfvoApp) {
@@ -350,7 +350,7 @@ public final class VnfmRestfulUtil {
      * @param methodType String
      * @param params String
      * @return
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public static RestfulResponse getRemoteResponse(String url, String methodType, String params) {
         RestfulResponse rsp = null;
@@ -390,7 +390,7 @@ public final class VnfmRestfulUtil {
      * @param path String
      * @param authMode String
      * @return
-     * @since  VFC 1.0
+     * @since VFC 1.0
      */
     public static Map<String, String> generateParamsMap(String url, String methodType, String path, String authMode) {
         Map<String, String> utilParamsMap = new HashMap<>(6);

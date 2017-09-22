@@ -72,8 +72,8 @@ public class AdapterResourceManager implements IResourceManager {
 
         // check if parameters are null.
         if(paramsMap == null || paramsMap.isEmpty()) {
-            resultObj.put("reason", "csarid and vnfmid are null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "csarid and vnfmid are null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
 
@@ -82,26 +82,26 @@ public class AdapterResourceManager implements IResourceManager {
         String vnfdid = "";
 
         if(null == csarid || "".equals(csarid)) {
-            resultObj.put("reason", "csarid is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "csarid is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
         if(null == vnfmid || "".equals(vnfmid)) {
-            resultObj.put("reason", "vnfmid is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "vnfmid is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
 
         // obtain CSAR package info
         JSONObject csarobj = getVnfmCsarInfo(csarid);
         String downloadUri = "";
-        if(Integer.valueOf(csarobj.get("retCode").toString()) == Constant.HTTP_OK) {
-            LOG.info("get CSAR info successful.", csarobj.get("retCode"));
+        if(Integer.valueOf(csarobj.get(Constant.RETCODE).toString()) == Constant.HTTP_OK) {
+            LOG.info("get CSAR info successful.", csarobj.get(Constant.RETCODE));
             downloadUri = csarobj.getString("downloadUri");
         } else {
-            LOG.error("get CSAR info fail.", csarobj.get("retCode"));
-            resultObj.put("reason", csarobj.get("reason").toString());
-            resultObj.put("retCode", Constant.REST_FAIL);
+            LOG.error("get CSAR info fail.", csarobj.get(Constant.RETCODE));
+            resultObj.put(Constant.REASON, csarobj.get(Constant.REASON).toString());
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
         JSONObject csarTempObj = new JSONObject();
@@ -113,25 +113,25 @@ public class AdapterResourceManager implements IResourceManager {
         JSONObject downloadObject =
                 downloadCsar(downloadUri, csarfilepath + System.getProperty(Constant.FILE_SEPARATOR) + csarfilename);
 
-        if(Integer.valueOf(downloadObject.get("retCode").toString()) != Constant.REST_SUCCESS) {
-            LOG.error("download CSAR fail.", downloadObject.get("retCode"));
-            resultObj.put("reason", downloadObject.get("reason").toString());
-            resultObj.put("retCode", downloadObject.get("retCode").toString());
+        if(Integer.valueOf(downloadObject.get(Constant.RETCODE).toString()) != Constant.REST_SUCCESS) {
+            LOG.error("download CSAR fail.", downloadObject.get(Constant.RETCODE));
+            resultObj.put(Constant.REASON, downloadObject.get(Constant.REASON).toString());
+            resultObj.put(Constant.RETCODE, downloadObject.get(Constant.RETCODE).toString());
             return resultObj;
         }
-        LOG.info("download CSAR successful.", downloadObject.get("retCode"));
+        LOG.info("download CSAR successful.", downloadObject.get(Constant.RETCODE));
 
         // unzip csar package to location.
         JSONObject unzipObject =
                 unzipCSAR(csarfilepath + System.getProperty(Constant.FILE_SEPARATOR) + csarfilename, csarfilepath);
 
-        if(Integer.valueOf(unzipObject.get("retCode").toString()) != Constant.REST_SUCCESS) {
-            LOG.error("unzip CSAR fail.", unzipObject.get("retCode"));
-            resultObj.put("reason", unzipObject.get("reason").toString());
-            resultObj.put("retCode", unzipObject.get("retCode").toString());
+        if(Integer.valueOf(unzipObject.get(Constant.RETCODE).toString()) != Constant.REST_SUCCESS) {
+            LOG.error("unzip CSAR fail.", unzipObject.get(Constant.RETCODE));
+            resultObj.put(Constant.REASON, unzipObject.get(Constant.REASON).toString());
+            resultObj.put(Constant.RETCODE, unzipObject.get(Constant.RETCODE).toString());
             return resultObj;
         }
-        LOG.info("unzip CSAR successful.", unzipObject.get("retCode"));
+        LOG.info("unzip CSAR successful.", unzipObject.get(Constant.RETCODE));
 
         Map<String, String> vnfmMap = new HashMap<>();
         vnfmMap.put("url", String.format(UrlConstant.REST_VNFMINFO_GET, vnfmid));
@@ -139,13 +139,13 @@ public class AdapterResourceManager implements IResourceManager {
 
         // get VNFM connection info
         JSONObject vnfmObject = getVnfmConnInfo(vnfmMap);
-        if(Integer.valueOf(vnfmObject.get("retCode").toString()) != Constant.HTTP_OK) {
-            LOG.error("get Vnfm Connection Info fail.", vnfmObject.get("retCode"));
-            resultObj.put("reason", vnfmObject.get("reason").toString());
-            resultObj.put("retCode", vnfmObject.get("retCode").toString());
+        if(Integer.valueOf(vnfmObject.get(Constant.RETCODE).toString()) != Constant.HTTP_OK) {
+            LOG.error("get Vnfm Connection Info fail.", vnfmObject.get(Constant.RETCODE));
+            resultObj.put(Constant.REASON, vnfmObject.get(Constant.REASON).toString());
+            resultObj.put(Constant.RETCODE, vnfmObject.get(Constant.RETCODE).toString());
             return resultObj;
         }
-        LOG.info("get Vnfm Connection Info successful.", vnfmObject.get("retCode"));
+        LOG.info("get Vnfm Connection Info successful.", vnfmObject.get(Constant.RETCODE));
 
         String vnfmUrl = vnfmObject.getString("url");
         String userName = vnfmObject.getString("userName");
@@ -161,7 +161,7 @@ public class AdapterResourceManager implements IResourceManager {
         if(Constant.HTTP_OK != mgrVcmm.connect(vnfmObject, Constant.CERTIFICATE)) {
             LOG.error("get Access Session fail.");
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "connect fail.");
+            resultObj.put(Constant.REASON, "connect fail.");
             return resultObj;
         }
         LOG.info("get Access Session successful.");
@@ -257,7 +257,7 @@ public class AdapterResourceManager implements IResourceManager {
         }
 
         // return values
-        resultObj.put("retCode", Constant.HTTP_OK);
+        resultObj.put(Constant.RETCODE, Constant.HTTP_OK);
         resultObj.put("vnfdId", vnfdid);
         resultObj.put("vnfdVersion", vnfdVersion);
         resultObj.put("planName", planName);
@@ -273,8 +273,8 @@ public class AdapterResourceManager implements IResourceManager {
         RestfulResponse rsp = VNFRestfulUtil.getRemoteResponse(paramsMap, "");
         if(null == rsp) {
             LOG.error("function=sendRequest,  RestfulResponse is null");
-            resultObj.put("reason", "RestfulResponse is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "RestfulResponse is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
         String resultCreate = rsp.getResponseContent();
@@ -282,13 +282,13 @@ public class AdapterResourceManager implements IResourceManager {
         if(rsp.getStatus() == Constant.HTTP_OK) {
             LOG.warn("function=sendRequest, msg= status={}, result={}.", rsp.getStatus(), resultCreate);
             resultObj = JSONObject.fromObject(resultCreate);
-            resultObj.put("retCode", Constant.HTTP_OK);
+            resultObj.put(Constant.RETCODE, Constant.HTTP_OK);
             return resultObj;
         } else {
             LOG.error("function=sendRequest, msg=ESR return fail,status={}, result={}.", rsp.getStatus(), resultCreate);
-            resultObj.put("reason", "ESR return fail.");
+            resultObj.put(Constant.REASON, "ESR return fail.");
         }
-        resultObj.put("retCode", Constant.REST_FAIL);
+        resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
         return resultObj;
     }
 
@@ -297,8 +297,8 @@ public class AdapterResourceManager implements IResourceManager {
         JSONObject resultObj = new JSONObject();
 
         if(null == csarid || "".equals(csarid)) {
-            resultObj.put("reason", "csarid is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "csarid is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
 
@@ -315,24 +315,24 @@ public class AdapterResourceManager implements IResourceManager {
         JSONObject resultObj = new JSONObject();
 
         if(url == null || "".equals(url)) {
-            resultObj.put("reason", "url is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "url is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
         if(filePath == null || "".equals(filePath)) {
-            resultObj.put("reason", "downloadUrl filePath is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "downloadUrl filePath is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
 
         String status = DownloadCsarManager.download(url, filePath);
 
         if(Constant.DOWNLOADCSAR_SUCCESS.equals(status)) {
-            resultObj.put("reason", "download csar file successfully.");
-            resultObj.put("retCode", Constant.REST_SUCCESS);
+            resultObj.put(Constant.REASON, "download csar file successfully.");
+            resultObj.put(Constant.RETCODE, Constant.REST_SUCCESS);
         } else {
-            resultObj.put("reason", "download csar file failed.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "download csar file failed.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
         }
         return resultObj;
     }
@@ -365,23 +365,23 @@ public class AdapterResourceManager implements IResourceManager {
             } else {
                 LOG.error("uploadVNFPackage get allcloud failed, code:" + statusCode + " re:" + result);
                 resultObj.put(Constant.RETCODE, statusCode);
-                resultObj.put("reason", "get allcloud failed. code:" + statusCode + " re:" + result);
+                resultObj.put(Constant.REASON, "get allcloud failed. code:" + statusCode + " re:" + result);
                 return resultObj;
             }
         } catch(JSONException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get allcloud JSONException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get allcloud failed and JSONException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get allcloud failed and JSONException." + e.getMessage());
             return resultObj;
         } catch(VnfmException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get allcloud VnfmException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get allcloud failed and VnfmException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get allcloud failed and VnfmException." + e.getMessage());
             return resultObj;
         } catch(IOException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get allcloud IOException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get allcloud failed and IOException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get allcloud failed and IOException." + e.getMessage());
             return resultObj;
         }
         return resultObj;
@@ -422,17 +422,17 @@ public class AdapterResourceManager implements IResourceManager {
         } catch(JSONException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage upload VNF package JSONException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "upload VNF package failed and JSONException." + e.getMessage());
+            resultObj.put(Constant.REASON, "upload VNF package failed and JSONException." + e.getMessage());
             return resultObj;
         } catch(VnfmException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage upload VNF package VnfmException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "upload VNF package failed and VnfmException." + e.getMessage());
+            resultObj.put(Constant.REASON, "upload VNF package failed and VnfmException." + e.getMessage());
             return resultObj;
         } catch(IOException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage upload VNF package IOException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "upload VNF package failed and IOException." + e.getMessage());
+            resultObj.put(Constant.REASON, "upload VNF package failed and IOException." + e.getMessage());
             return resultObj;
         }
         return resultObj;
@@ -469,17 +469,17 @@ public class AdapterResourceManager implements IResourceManager {
         } catch(JSONException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get vnfd version JSONException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get vnfd version failed and JSONException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get vnfd version failed and JSONException." + e.getMessage());
             return resultObj;
         } catch(VnfmException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get vnfd version VnfmException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get vnfd version failed and VnfmException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get vnfd version failed and VnfmException." + e.getMessage());
             return resultObj;
         } catch(IOException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get vnfd version IOException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get vnfd version failed and IOException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get vnfd version failed and IOException." + e.getMessage());
             return resultObj;
         }
         return resultObj;
@@ -516,23 +516,23 @@ public class AdapterResourceManager implements IResourceManager {
             } else {
                 LOG.error("uploadVNFPackage get VNFDPlanInfo failed, code:" + statusCode + " re:" + result);
                 resultObj.put(Constant.RETCODE, statusCode);
-                resultObj.put("reason", "get VNFDPlanInfo failed. code:" + statusCode + " re:" + result);
+                resultObj.put(Constant.REASON, "get VNFDPlanInfo failed. code:" + statusCode + " re:" + result);
                 return resultObj;
             }
         } catch(JSONException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get VNFDPlanInfo JSONException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get VNFDPlanInfo failed and JSONException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get VNFDPlanInfo failed and JSONException." + e.getMessage());
             return resultObj;
         } catch(VnfmException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get VNFDPlanInfo VnfmException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get VNFDPlanInfo failed and VnfmException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get VNFDPlanInfo failed and VnfmException." + e.getMessage());
             return resultObj;
         } catch(IOException e) {
             LOG.error("function=uploadVNFPackage, msg=uploadVNFPackage get VNFDPlanInfo IOException e={}.", e);
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultObj.put("reason", "get VNFDPlanInfo failed and IOException." + e.getMessage());
+            resultObj.put(Constant.REASON, "get VNFDPlanInfo failed and IOException." + e.getMessage());
             return resultObj;
         }
         return resultObj;
@@ -621,24 +621,24 @@ public class AdapterResourceManager implements IResourceManager {
         JSONObject resultObj = new JSONObject();
 
         if(fileName == null || "".equals(fileName)) {
-            resultObj.put("reason", "fileName is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "fileName is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
         if(filePath == null || "".equals(filePath)) {
-            resultObj.put("reason", "unzipCSAR filePath is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "unzipCSAR filePath is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
 
         int status = DownloadCsarManager.unzipCSAR(fileName, filePath);
 
         if(Constant.UNZIP_SUCCESS == status) {
-            resultObj.put("reason", "unzip csar file successfully.");
-            resultObj.put("retCode", Constant.REST_SUCCESS);
+            resultObj.put(Constant.REASON, "unzip csar file successfully.");
+            resultObj.put(Constant.RETCODE, Constant.REST_SUCCESS);
         } else {
-            resultObj.put("reason", "unzip csar file failed.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "unzip csar file failed.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
         }
         return resultObj;
     }

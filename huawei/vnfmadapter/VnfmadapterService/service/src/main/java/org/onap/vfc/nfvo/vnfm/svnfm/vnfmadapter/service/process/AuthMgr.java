@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Huawei Technologies Co., Ltd.
+ * Copyright 2016-2017 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class AuthMgr {
         addInfo.put("expires", 10);
         addInfo.put("passwdStatus", "expiring");
         authResult.put("additionalInfo", addInfo);
-        restJson.put("retCode", Constant.REST_SUCCESS);
+        restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
         restJson.put("data", authResult);
         return restJson;
     }
