@@ -159,7 +159,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
         int statusCode = queryResult.getInt(Constant.RETCODE);
 
-        if(statusCode == Constant.HTTP_NOCONTENT) {
+        if(statusCode == Constant.HTTP_NOCONTENT || statusCode == Constant.HTTP_OK) {
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
             JSONObject resultObj = new JSONObject();
             resultObj.put(Constant.JOBID, vnfId + "_" + Constant.DELETE);
