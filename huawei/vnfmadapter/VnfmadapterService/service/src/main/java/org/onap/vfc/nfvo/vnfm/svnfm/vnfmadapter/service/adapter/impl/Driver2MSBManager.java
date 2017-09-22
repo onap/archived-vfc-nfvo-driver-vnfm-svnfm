@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Huawei Technologies Co., Ltd.
+ * Copyright 2016-2017 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,22 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl;
 
 import java.util.Map;
 
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VNFRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.inf.IDriver2MSBManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.json.JSONObject;
 
 /**
- *
  * Driver to MSB Manager Class.<br/>
  * <p>
  * </p>
  *
  * @author
- * @version     VFC 1.0  Aug 29, 2016
+ * @version VFC 1.0 Aug 29, 2016
  */
 public class Driver2MSBManager implements IDriver2MSBManager {
 
@@ -47,8 +46,8 @@ public class Driver2MSBManager implements IDriver2MSBManager {
         RestfulResponse rsp = VNFRestfulUtil.getRemoteResponse(paramsMap, driverInfo.toString());
         if(null == rsp) {
             LOG.error("function=registerDriver,  RestfulResponse is null");
-            resultObj.put("reason", "RestfulResponse is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "RestfulResponse is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
         String resultCreate = rsp.getResponseContent();
@@ -56,18 +55,18 @@ public class Driver2MSBManager implements IDriver2MSBManager {
         if(rsp.getStatus() == Constant.HTTP_CREATED) {
             LOG.warn("function=registerDriver, msg= status={}, result={}.", rsp.getStatus(), resultCreate);
             resultObj = JSONObject.fromObject(resultCreate);
-            resultObj.put("retCode", Constant.HTTP_CREATED);
+            resultObj.put(Constant.RETCODE, Constant.HTTP_CREATED);
             return resultObj;
         } else if(rsp.getStatus() == Constant.HTTP_INVALID_PARAMETERS) {
             LOG.error("function=registerDriver, msg=MSB return fail,invalid parameters,status={}, result={}.",
                     rsp.getStatus(), resultCreate);
-            resultObj.put("reason", "MSB return fail,invalid parameters.");
+            resultObj.put(Constant.REASON, "MSB return fail,invalid parameters.");
         } else if(rsp.getStatus() == Constant.HTTP_INNERERROR) {
             LOG.error("function=registerDriver, msg=MSB return fail,internal system error,status={}, result={}.",
                     rsp.getStatus(), resultCreate);
-            resultObj.put("reason", "MSB return fail,internal system error.");
+            resultObj.put(Constant.REASON, "MSB return fail,internal system error.");
         }
-        resultObj.put("retCode", Constant.REST_FAIL);
+        resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
         return resultObj;
     }
 
@@ -78,8 +77,8 @@ public class Driver2MSBManager implements IDriver2MSBManager {
         RestfulResponse rsp = VNFRestfulUtil.getRemoteResponse(paramsMap, "");
         if(null == rsp) {
             LOG.error("function=unregisterDriver,  RestfulResponse is null");
-            resultObj.put("reason", "RestfulResponse is null.");
-            resultObj.put("retCode", Constant.REST_FAIL);
+            resultObj.put(Constant.REASON, "RestfulResponse is null.");
+            resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
         String resultCreate = rsp.getResponseContent();
@@ -87,23 +86,23 @@ public class Driver2MSBManager implements IDriver2MSBManager {
         if(rsp.getStatus() == Constant.HTTP_NOCONTENT) {
             LOG.warn("function=unregisterDriver, msg= status={}, result={}.", rsp.getStatus(), resultCreate);
             resultObj = JSONObject.fromObject(resultCreate);
-            resultObj.put("retCode", Constant.HTTP_NOCONTENT);
+            resultObj.put(Constant.RETCODE, Constant.HTTP_NOCONTENT);
             return resultObj;
         } else if(rsp.getStatus() == Constant.HTTP_NOTFOUND) {
             LOG.error(
                     "function=unregisterDriver, msg=MSB return fail,can't find the service instance.status={}, result={}.",
                     rsp.getStatus(), resultCreate);
-            resultObj.put("reason", "MSB return fail,can't find the service instance.");
+            resultObj.put(Constant.REASON, "MSB return fail,can't find the service instance.");
         } else if(rsp.getStatus() == Constant.HTTP_INVALID_PARAMETERS) {
             LOG.error("function=unregisterDriver, msg=MSB return fail,invalid parameters,status={}, result={}.",
                     rsp.getStatus(), resultCreate);
-            resultObj.put("reason", "MSB return fail,invalid parameters.");
+            resultObj.put(Constant.REASON, "MSB return fail,invalid parameters.");
         } else if(rsp.getStatus() == Constant.HTTP_INNERERROR) {
             LOG.error("function=unregisterDriver, msg=MSB return fail,internal system error,status={}, result={}.",
                     rsp.getStatus(), resultCreate);
-            resultObj.put("reason", "MSB return fail,internal system error.");
+            resultObj.put(Constant.REASON, "MSB return fail,internal system error.");
         }
-        resultObj.put("retCode", Constant.REST_FAIL);
+        resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
         return resultObj;
     }
 
