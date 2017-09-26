@@ -92,8 +92,8 @@ public class AuthRoa {
             resp.setStatus(Constant.HTTP_OK);
             // resp.setHeader("accessSession", data.getString("accessSession"));
             return data.toString();// String.format(ParamConstants.GET_TOKEN_SUC_RESP,
-            // data.getString("userName"),
-            // data.getString("userName"), data.getString("roaRand"));
+            // data.getString(Constant.USERNAME),
+            // data.getString(Constant.USERNAME), data.getString("roaRand"));
         } else if(authResult.getInt(Constant.RETCODE) == Constant.HTTP_INNERERROR) {
             Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(authResult.getString("data")).build();
 
@@ -117,7 +117,7 @@ public class AuthRoa {
      */
     @DELETE
     @Path("/auth/tokens/{userName}/{roarand}")
-    public String delAuthToken(@Context HttpServletRequest context, @PathParam("userName") String userName,
+    public String delAuthToken(@Context HttpServletRequest context, @PathParam(Constant.USERNAME) String userName,
             @PathParam("roarand") String roarand, @Context HttpServletResponse resp) {
         LOG.warn("function=logout, msg=enter to logout");
         JSONObject resultJson = new JSONObject();
