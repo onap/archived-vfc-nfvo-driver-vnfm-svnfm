@@ -42,6 +42,14 @@ public class ConnectMgrVnfm {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectMgrVnfm.class);
 
+    private static final String CONNECT_FAIL = "connect fail, code:";
+
+    private static final String CONNECT_JSONEXCEPTION = "function=connect, msg=connect JSONException e={}.";
+
+    private static final String CONNECT_VNFMEXCEPTION = "function=connect, msg=connect VnfmException e={}.";
+
+    private static final String CONNECT_IOEXCEPTION = "function=connect, msg=connect IOException e={}.";
+
     private String accessSession;
 
     private String roaRand;
@@ -63,10 +71,10 @@ public class ConnectMgrVnfm {
     }
 
     /**
-     * Make connection
      * <br>
-     *
+     * 
      * @param vnfmObj
+     * @param authModel
      * @return
      * @since VFC 1.0
      */
@@ -95,15 +103,15 @@ public class ConnectMgrVnfm {
                 setRoaRand(tokenObj.getString("roa_rand"));
                 statusCode = HttpStatus.SC_OK;
             } else {
-                LOG.error("connect fail, code:" + statusCode + " re:" + result);
+                LOG.error(CONNECT_FAIL + statusCode + " re:" + result);
             }
 
         } catch(JSONException e) {
-            LOG.error("function=connect, msg=connect JSONException e={}.", e);
+            LOG.error(CONNECT_JSONEXCEPTION, e);
         } catch(VnfmException e) {
-            LOG.error("function=connect, msg=connect VnfmException e={}.", e);
+            LOG.error(CONNECT_VNFMEXCEPTION, e);
         } catch(IOException e) {
-            LOG.error("function=connect, msg=connect IOException e={}.", e);
+            LOG.error(CONNECT_IOEXCEPTION, e);
         } finally {
             clearCSMPwd(info);
             if(httpMethod != null) {
@@ -149,15 +157,15 @@ public class ConnectMgrVnfm {
                 setAccessSession(header.getValue());
                 statusCode = HttpStatus.SC_OK;
             } else {
-                LOG.error("connect fail, code:" + statusCode + " re:" + result);
+                LOG.error(CONNECT_FAIL + statusCode + " re:" + result);
             }
 
         } catch(JSONException e) {
-            LOG.error("function=connect, msg=connect JSONException e={}.", e);
+            LOG.error(CONNECT_JSONEXCEPTION, e);
         } catch(VnfmException e) {
-            LOG.error("function=connect, msg=connect VnfmException e={}.", e);
+            LOG.error(CONNECT_VNFMEXCEPTION, e);
         } catch(IOException e) {
-            LOG.error("function=connect, msg=connect IOException e={}.", e);
+            LOG.error(CONNECT_IOEXCEPTION, e);
         } finally {
             clearCSMPwd(info);
             if(httpMethod != null) {
@@ -201,15 +209,15 @@ public class ConnectMgrVnfm {
                 setRoaRand(tokenObj.getString("roa_rand"));
                 statusCode = HttpStatus.SC_OK;
             } else {
-                LOG.error("connect fail, code:" + statusCode + " re:" + result);
+                LOG.error(CONNECT_FAIL + statusCode + " re:" + result);
             }
 
         } catch(JSONException e) {
-            LOG.error("function=connect, msg=connect JSONException e={}.", e);
+            LOG.error(CONNECT_JSONEXCEPTION, e);
         } catch(VnfmException e) {
-            LOG.error("function=connect, msg=connect VnfmException e={}.", e);
+            LOG.error(CONNECT_VNFMEXCEPTION, e);
         } catch(IOException e) {
-            LOG.error("function=connect, msg=connect IOException e={}.", e);
+            LOG.error(CONNECT_IOEXCEPTION, e);
         } finally {
             clearCSMPwd(info);
             if(httpMethod != null) {
