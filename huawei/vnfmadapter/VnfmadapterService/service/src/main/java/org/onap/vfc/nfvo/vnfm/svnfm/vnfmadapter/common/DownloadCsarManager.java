@@ -166,7 +166,7 @@ public class DownloadCsarManager {
      * @return
      * @throws IOException
      */
-    public static int unzipCSAR(String fileName, String filePath) throws IOException {
+    public static int unzipCSAR(String fileName, String filePath) {
         final int BUFFER = 2048;
         int status = 0;
         ZipFile zipFile = null;
@@ -206,10 +206,14 @@ public class DownloadCsarManager {
         } catch(Exception e) {
             status = Constant.UNZIP_FAIL;
             LOG.error("Exception: " + e);
-            ;
         } finally {
             if(zipFile != null) {
-                zipFile.close();
+                try {
+                    zipFile.close();
+                } catch(IOException e) {
+                    LOG.error("IOException: " + e);
+                    ;
+                }
             }
         }
         return status;
