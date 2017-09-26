@@ -63,6 +63,8 @@ public class Constant {
 
     public static final String HEADER_AUTH_TOKEN = "accessSession";
 
+    public static final String X_AUTH_TOKEN = "X-Auth-Token";
+
     public static final String DOWNLOADCSAR_SUCCESS = "Success";
 
     public static final int UNZIP_SUCCESS = 0;
