@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -163,13 +164,14 @@ public class DownloadCsarManager {
      * 
      * @param fileName filePath
      * @return
+     * @throws IOException
      */
     public static int unzipCSAR(String fileName, String filePath) {
         final int BUFFER = 2048;
         int status = 0;
-
+        ZipFile zipFile = null;
         try {
-            ZipFile zipFile = new ZipFile(fileName);
+            zipFile = new ZipFile(fileName);
             Enumeration emu = zipFile.entries();
             while(emu.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry)emu.nextElement();
@@ -198,11 +200,20 @@ public class DownloadCsarManager {
                 bos.close();
                 bis.close();
             }
+
             status = Constant.UNZIP_SUCCESS;
-            zipFile.close();
+
         } catch(Exception e) {
             status = Constant.UNZIP_FAIL;
-            e.printStackTrace();
+            LOG.error("Exception: " + e);
+        } finally {
+            if(zipFile != null) {
+                try {
+                    zipFile.close();
+                } catch(IOException e) {
+                    LOG.error("IOException: " + e);
+                }
+            }
         }
         return status;
     }
