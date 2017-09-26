@@ -17,6 +17,7 @@
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,6 +27,9 @@ import java.util.Map;
 
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.FTPSClient;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.DownloadCsarManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
@@ -53,6 +57,8 @@ import net.sf.json.JSONObject;
 public class AdapterResourceManager implements IResourceManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdapterResourceManager.class);
+
+    private static final String VNFD_FILE_PATH = "vnfd_file_path";
 
     @Override
     public JSONObject uploadVNFPackage(JSONObject vnfpkg, Map<String, String> paramsMap) {
@@ -104,26 +110,23 @@ public class AdapterResourceManager implements IResourceManager {
             resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
-        JSONObject csarTempObj = new JSONObject();
-        csarTempObj = vnfpkg.getJSONObject("template");
+        JSONObject csarTempObj = vnfpkg.getJSONObject("template");
         String csarfilepath = csarTempObj.getString("csar_file_path");
         String csarfilename = csarTempObj.getString("csar_file_name");
 
         // download csar package and save in location.
-        JSONObject downloadObject =
-                downloadCsar(downloadUri, csarfilepath + System.getProperty(Constant.FILE_SEPARATOR) + csarfilename);
+        JSONObject downloadObject = downloadCsar(downloadUri, csarfilepath + csarfilename);
 
         if(Integer.valueOf(downloadObject.get(Constant.RETCODE).toString()) != Constant.REST_SUCCESS) {
-            LOG.error("download CSAR fail.", downloadObject.get(Constant.RETCODE));
+            LOG.error("download CSAR fail." + downloadObject.get(Constant.RETCODE));
             resultObj.put(Constant.REASON, downloadObject.get(Constant.REASON).toString());
             resultObj.put(Constant.RETCODE, downloadObject.get(Constant.RETCODE).toString());
             return resultObj;
         }
-        LOG.info("download CSAR successful.", downloadObject.get(Constant.RETCODE));
+        LOG.info("download CSAR successful." + downloadObject.get(Constant.RETCODE));
 
         // unzip csar package to location.
-        JSONObject unzipObject =
-                unzipCSAR(csarfilepath + System.getProperty(Constant.FILE_SEPARATOR) + csarfilename, csarfilepath);
+        JSONObject unzipObject = unzipCSAR(csarfilepath + csarfilename, csarfilepath);
 
         if(Integer.valueOf(unzipObject.get(Constant.RETCODE).toString()) != Constant.REST_SUCCESS) {
             LOG.error("unzip CSAR fail.", unzipObject.get(Constant.RETCODE));
@@ -132,6 +135,10 @@ public class AdapterResourceManager implements IResourceManager {
             return resultObj;
         }
         LOG.info("unzip CSAR successful.", unzipObject.get(Constant.RETCODE));
+
+        // upload vnfd to ftps server
+        JSONObject uploadResJson = uploadCsar(csarTempObj, csarfilepath);
+        LOG.info("upload Csar result: {}.", uploadResJson);
 
         Map<String, String> vnfmMap = new HashMap<>();
         vnfmMap.put("url", String.format(UrlConstant.REST_VNFMINFO_GET, vnfmid));
@@ -266,6 +273,51 @@ public class AdapterResourceManager implements IResourceManager {
         LOG.info("resultObj:" + resultObj.toString());
 
         return resultObj;
+    }
+
+    private JSONObject uploadCsar(JSONObject vnfpkg, String csarfilepath) {
+        LOG.info("vnfpkg: " + vnfpkg + "csarfilepath:" + csarfilepath);
+        JSONObject resJson = new JSONObject();
+
+        boolean flag = false;
+        FTPSClient ftpClient = new FTPSClient();
+        try {
+            ftpClient.connect(vnfpkg.getString("ftp_server_ip"), 21);
+            ftpClient.login(vnfpkg.getString("ftp_username"), vnfpkg.getString("ftp_password"));
+            int replyCode = ftpClient.getReplyCode();
+            LOG.info("replyCode: " + replyCode);
+            if(!FTPReply.isPositiveCompletion(replyCode)) {
+                resJson.put("message", "Connect ftps server failed!");
+                return resJson;
+            }
+
+            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+            ftpClient.enterLocalPassiveMode();
+            ftpClient.makeDirectory(vnfpkg.getString(VNFD_FILE_PATH));
+            LOG.info("makeDirectory: " + ftpClient.makeDirectory(vnfpkg.getString(VNFD_FILE_PATH)));
+            ftpClient.changeWorkingDirectory(vnfpkg.getString(VNFD_FILE_PATH));
+            LOG.info("changeWorkingDirectory: " + ftpClient.changeWorkingDirectory(vnfpkg.getString(VNFD_FILE_PATH)));
+            String vnfdPath = csarfilepath + "Artifacts/Other/";
+            LOG.info("vnfd_file_name: " + vnfdPath + vnfpkg.getString("vnfd_file_name"));
+            InputStream inputStream = new FileInputStream(new File(vnfdPath + vnfpkg.getString("vnfd_file_name")));
+            flag = ftpClient.storeFile(vnfpkg.getString("vnfd_file_name"), inputStream);
+            if(flag) {
+                resJson.put("message", "upload Csar success!");
+            }
+            inputStream.close();
+            ftpClient.logout();
+        } catch(Exception e) {
+            LOG.error("Exception: " + e);
+        } finally {
+            if(ftpClient.isConnected()) {
+                try {
+                    ftpClient.disconnect();
+                } catch(IOException e) {
+                    LOG.error("IOException: " + e);
+                }
+            }
+        }
+        return resJson;
     }
 
     private JSONObject sendRequest(Map<String, String> paramsMap) {
@@ -618,6 +670,7 @@ public class AdapterResourceManager implements IResourceManager {
      * @return
      */
     public JSONObject unzipCSAR(String fileName, String filePath) {
+        LOG.info("fileName: " + fileName + ", filePath: " + filePath);
         JSONObject resultObj = new JSONObject();
 
         if(fileName == null || "".equals(fileName)) {

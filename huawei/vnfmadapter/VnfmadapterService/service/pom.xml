@@ -27,21 +27,26 @@
     <packaging>war</packaging>
 
 <dependencies>
-    <dependency>
-  <groupId>org.powermock</groupId>
-  <artifactId>powermock-core</artifactId>
-  <version>1.5.4</version>
-</dependency>
-    <dependency>
-  <groupId>org.powermock</groupId>
-  <artifactId>powermock-api-mockito</artifactId>
-  <version>1.5.4</version>
-</dependency>
-<dependency>
-  <groupId>org.powermock</groupId>
-  <artifactId>powermock-module-junit4</artifactId>
-  <version>1.5.4</version>
-</dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-core</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.6</version>
+        </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
