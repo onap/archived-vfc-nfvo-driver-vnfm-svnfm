@@ -61,6 +61,10 @@ public final class VNFRestfulUtil {
 
     public static final String APPLICATION = "application/json";
 
+    public static final String METHODTYPE = "methodType";
+
+    public static final String AUTHMODE = "authMode";
+
     private static final Logger LOG = LoggerFactory.getLogger(VNFRestfulUtil.class);
 
     private VNFRestfulUtil() {
@@ -293,9 +297,9 @@ public final class VNFRestfulUtil {
     public static RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params, String domainTokens,
             boolean isNfvoApp) {
         String utilUrl = paramsMap.get("url");
-        String utilMethodType = paramsMap.get("methodType");
+        String utilMethodType = paramsMap.get(METHODTYPE);
         String utilPath = paramsMap.get("path");
-        String authMode = paramsMap.get("authMode");
+        String authMode = paramsMap.get(AUTHMODE);
 
         RestfulResponse rsp = null;
         Restful rest = null;
@@ -357,7 +361,7 @@ public final class VNFRestfulUtil {
             return null;
         }
         String url = paramsMap.get("url");
-        String methodType = paramsMap.get("methodType");
+        String methodType = paramsMap.get(METHODTYPE);
 
         RestfulResponse rsp = null;
         Restful rest = RestfulFactory.getRestInstance(RestfulFactory.PROTO_HTTP);
@@ -400,9 +404,9 @@ public final class VNFRestfulUtil {
     public static Map<String, String> generateParamsMap(String url, String methodType, String path, String authMode) {
         Map<String, String> utilParamsMap = new HashMap<>(6);
         utilParamsMap.put("url", url);
-        utilParamsMap.put("methodType", methodType);
+        utilParamsMap.put(METHODTYPE, methodType);
         utilParamsMap.put("path", path);
-        utilParamsMap.put("authMode", authMode);
+        utilParamsMap.put(AUTHMODE, authMode);
         return utilParamsMap;
     }
 
@@ -418,9 +422,9 @@ public final class VNFRestfulUtil {
     public static Map<String, String> generateParamsMap(String url, String methodType, String path) {
         Map<String, String> paramsMap = new HashMap<>(6);
         paramsMap.put("url", url);
-        paramsMap.put("methodType", methodType);
+        paramsMap.put(METHODTYPE, methodType);
         paramsMap.put("path", path);
-        paramsMap.put("authMode", "Certificate");
+        paramsMap.put(AUTHMODE, "Certificate");
         return paramsMap;
     }
 

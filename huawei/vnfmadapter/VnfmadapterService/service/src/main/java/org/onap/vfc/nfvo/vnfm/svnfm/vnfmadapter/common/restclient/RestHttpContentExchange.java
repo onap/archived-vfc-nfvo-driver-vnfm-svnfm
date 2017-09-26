@@ -48,6 +48,8 @@ public class RestHttpContentExchange extends ContentExchange {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestHttpContentExchange.class);
 
+    private static final String PATH = "path:";
+
     private boolean gzip = false;
 
     private RestfulAsyncCallback callback = null;
@@ -140,7 +142,7 @@ public class RestHttpContentExchange extends ContentExchange {
     @Override
     protected void onResponseComplete() throws IOException {
         if(LOGGER.isInfoEnabled()) {
-            LOGGER.info("Response has Complete:" + "path:" + this.getRequestURI().replace("\n", "0x0A"));
+            LOGGER.info("Response has Complete:" + PATH + this.getRequestURI().replace("\n", "0x0A"));
         }
         super.onResponseComplete();
         if(callback != null) {
@@ -152,7 +154,7 @@ public class RestHttpContentExchange extends ContentExchange {
     @Override
     protected void onRequestCommitted() throws IOException {
         if(LOGGER.isInfoEnabled()) {
-            LOGGER.info("Request Header has been send:" + "path:" + this.getRequestURI().replace("\n", "0x0A"));
+            LOGGER.info("Request Header has been send:" + PATH + this.getRequestURI().replace("\n", "0x0A"));
         }
         super.onRequestCommitted();
     }
@@ -160,7 +162,7 @@ public class RestHttpContentExchange extends ContentExchange {
     @Override
     protected void onRequestComplete() throws IOException {
         if(LOGGER.isInfoEnabled()) {
-            LOGGER.info("Request has bend send complete:" + "path:" + this.getRequestURI().replace("\n", "0x0A"));
+            LOGGER.info("Request has bend send complete:" + PATH + this.getRequestURI().replace("\n", "0x0A"));
         }
         super.onRequestComplete();
     }

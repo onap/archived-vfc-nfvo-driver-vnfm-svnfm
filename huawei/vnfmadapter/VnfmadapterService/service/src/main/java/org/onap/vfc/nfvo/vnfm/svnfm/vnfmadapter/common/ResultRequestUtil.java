@@ -43,6 +43,19 @@ public final class ResultRequestUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResultRequestUtil.class);
 
+    private static final String CONNECT_FAIL = "connect fail.";
+
+    private static final String RESPONSE_STATUS = "function=call, msg=response status is {}. result is {}";
+
+    private static final String IOEXCEPTION = "function=call, msg=IOException, e is {}";
+
+    private static final String REFLECTIVEOPERATIONEXCEPTION =
+            "function=call, msg=ReflectiveOperationException, e is {}";
+
+    private static final String THROWABLE = "function=call, msg=Throwable, e is {}";
+
+    private static final String CONNECTION_ERROR = "get connection error";
+
     private ResultRequestUtil() throws VnfmException {
         throw new VnfmException("can't be instanced.");
     }
@@ -69,7 +82,7 @@ public final class ResultRequestUtil {
 
         if(Constant.HTTP_OK != mgrVcmm.connect(vnfmObject)) {
             resultJson.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultJson.put("data", "connect fail.");
+            resultJson.put("data", CONNECT_FAIL);
             return resultJson;
         }
 
@@ -90,15 +103,15 @@ public final class ResultRequestUtil {
             builder = (HttpRequests.Builder)mt.invoke();
             httpMethod = builder.execute();
             result = httpMethod.getResponseBodyAsString();
-            LOG.warn("function=call, msg=response status is {}. result is {}", httpMethod.getStatusCode(), result);
+            LOG.warn(RESPONSE_STATUS, httpMethod.getStatusCode(), result);
             resultJson.put(Constant.RETCODE, httpMethod.getStatusCode());
             resultJson.put("data", result);
         } catch(IOException e) {
-            LOG.info("function=call, msg=IOException, e is {}", e);
+            LOG.info(IOEXCEPTION, e);
         } catch(ReflectiveOperationException e) {
-            LOG.info("function=call, msg=ReflectiveOperationException, e is {}", e);
+            LOG.info(REFLECTIVEOPERATIONEXCEPTION, e);
         } catch(Throwable e) {
-            LOG.info("function=call, msg=Throwable, e is {}", e);
+            LOG.info(THROWABLE, e);
         } finally {
             if(httpMethod != null) {
                 httpMethod.releaseConnection();
@@ -107,7 +120,7 @@ public final class ResultRequestUtil {
 
         if(httpMethod == null) {
             resultJson.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultJson.put("data", "get connection error");
+            resultJson.put("data", CONNECTION_ERROR);
         }
 
         return resultJson;
@@ -138,7 +151,7 @@ public final class ResultRequestUtil {
 
         if(Constant.HTTP_OK != mgrVcmm.connect(vnfmObject, authModel)) {
             resultJson.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultJson.put("data", "connect fail.");
+            resultJson.put("data", CONNECT_FAIL);
             return resultJson;
         }
 
@@ -159,7 +172,7 @@ public final class ResultRequestUtil {
             builder = (HttpRequests.Builder)mt.invoke();
             httpMethod = builder.execute();
             result = httpMethod.getResponseBodyAsString();
-            LOG.warn("function=call, msg=response status is {}. result is {}", httpMethod.getStatusCode(), result);
+            LOG.warn(RESPONSE_STATUS, httpMethod.getStatusCode(), result);
             resultJson.put(Constant.RETCODE, httpMethod.getStatusCode());
             resultJson.put("data", result);
 
@@ -170,11 +183,11 @@ public final class ResultRequestUtil {
             String user = vnfmObject.getString(Constant.USERNAME);
             removeTokens(vnfmUrl, token, roaRand, user);
         } catch(IOException e) {
-            LOG.info("function=call, msg=IOException, e is {}", e);
+            LOG.info(IOEXCEPTION, e);
         } catch(ReflectiveOperationException e) {
-            LOG.info("function=call, msg=ReflectiveOperationException, e is {}", e);
+            LOG.info(REFLECTIVEOPERATIONEXCEPTION, e);
         } catch(Throwable e) {
-            LOG.info("function=call, msg=Throwable, e is {}", e);
+            LOG.info(THROWABLE, e);
         } finally {
             if(httpMethod != null) {
                 httpMethod.releaseConnection();
@@ -183,7 +196,7 @@ public final class ResultRequestUtil {
 
         if(httpMethod == null) {
             resultJson.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultJson.put("data", "get connection error");
+            resultJson.put("data", CONNECTION_ERROR);
         }
 
         return resultJson;
@@ -200,14 +213,14 @@ public final class ResultRequestUtil {
         LOG.info("removeTokens tokenUrl=" + tokenUrl);
         try {
             httpMethodToken = new HttpRequests.Builder(Constant.CERTIFICATE).setUrl(vnfmUrl.trim(), tokenUrl)
-                    .setParams("").addHeader("X-Auth-Token", token).delete().execute();
+                    .setParams("").addHeader(Constant.X_AUTH_TOKEN, token).delete().execute();
             int statusCode = httpMethodToken.getStatusCode();
             String result = httpMethodToken.getResponseBodyAsString();
             LOG.info("removeTokens int=" + statusCode + ", result=" + result);
         } catch(IOException e) {
-            LOG.info("function=call, msg=IOException, e is {}", e);
+            LOG.info(IOEXCEPTION, e);
         } catch(Throwable e) {
-            LOG.info("function=call, msg=Throwable, e is {}", e);
+            LOG.info(THROWABLE, e);
         } finally {
             if(httpMethodToken != null) {
                 httpMethodToken.releaseConnection();
@@ -236,7 +249,7 @@ public final class ResultRequestUtil {
 
         if(Constant.HTTP_OK != mgrVcmm.connectSouth(vnfmObject, authModel)) {
             resultJson.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultJson.put("data", "connect fail.");
+            resultJson.put("data", CONNECT_FAIL);
             return resultJson;
         }
 
@@ -251,7 +264,7 @@ public final class ResultRequestUtil {
             LOG.info("function=callSouth, paramsJson is {}", paramsJson);
 
             HttpRequests.Builder builder =
-                    new HttpRequests.Builder(authModel).addHeader("X-Auth-Token", mgrVcmm.getAccessSession())
+                    new HttpRequests.Builder(authModel).addHeader(Constant.X_AUTH_TOKEN, mgrVcmm.getAccessSession())
                             .setUrl(newUrl, vnfPath).setParams(paramsJson);
             MethodType methodType = MethodType.methodType(HttpRequests.Builder.class, new Class[0]);
             MethodHandle mt =
@@ -260,7 +273,7 @@ public final class ResultRequestUtil {
             builder = (HttpRequests.Builder)mt.invoke();
             httpMethod = builder.execute();
             result = httpMethod.getResponseBodyAsString();
-            LOG.warn("function=call, msg=response status is {}. result is {}", httpMethod.getStatusCode(), result);
+            LOG.warn(RESPONSE_STATUS, httpMethod.getStatusCode(), result);
             resultJson.put(Constant.RETCODE, httpMethod.getStatusCode());
             resultJson.put("data", result);
 
@@ -269,11 +282,11 @@ public final class ResultRequestUtil {
             String user = vnfmObject.getString(Constant.USERNAME);
             removeV3Tokens(newUrl, token, user);
         } catch(IOException e) {
-            LOG.info("function=call, msg=IOException, e is {}", e);
+            LOG.info(IOEXCEPTION, e);
         } catch(ReflectiveOperationException e) {
-            LOG.info("function=call, msg=ReflectiveOperationException, e is {}", e);
+            LOG.info(REFLECTIVEOPERATIONEXCEPTION, e);
         } catch(Throwable e) {
-            LOG.info("function=call, msg=Throwable, e is {}", e);
+            LOG.info(THROWABLE, e);
         } finally {
             if(httpMethod != null) {
                 httpMethod.releaseConnection();
@@ -282,7 +295,7 @@ public final class ResultRequestUtil {
 
         if(httpMethod == null) {
             resultJson.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
-            resultJson.put("data", "get connection error");
+            resultJson.put("data", CONNECTION_ERROR);
         }
 
         return resultJson;
@@ -302,14 +315,14 @@ public final class ResultRequestUtil {
         LOG.info("removeTokens tokenUrl=" + tokenUrl);
         try {
             httpMethodToken = new HttpRequests.Builder(Constant.CERTIFICATE).setUrl(vnfmUrl.trim(), tokenUrl)
-                    .setParams("").addHeader("X-Auth-Token", token).delete().execute();
+                    .setParams("").addHeader(Constant.X_AUTH_TOKEN, token).delete().execute();
             int statusCode = httpMethodToken.getStatusCode();
             String result = httpMethodToken.getResponseBodyAsString();
             LOG.info("removeTokens int=" + statusCode + ", result=" + result);
         } catch(IOException e) {
-            LOG.info("function=call, msg=IOException, e is {}", e);
+            LOG.info(IOEXCEPTION, e);
         } catch(Throwable e) {
-            LOG.info("function=call, msg=Throwable, e is {}", e);
+            LOG.info(THROWABLE, e);
         } finally {
             if(httpMethodToken != null) {
                 httpMethodToken.releaseConnection();
