@@ -204,10 +204,11 @@ public final class ResultRequestUtil {
 
     /**
      * <br>
-     *
+     * 
+     * @throws VnfmException
      * @since VFC 1.0
      */
-    private static void removeTokens(String vnfmUrl, String token, String roaRand, String user) {
+    private static void removeTokens(String vnfmUrl, String token, String roaRand, String user) throws VnfmException {
         HttpMethod httpMethodToken = null;
         String tokenUrl = String.format(ParamConstants.CSM_AUTH_DISCONNECT, user, roaRand);
         LOG.info("removeTokens tokenUrl=" + tokenUrl);
@@ -219,8 +220,6 @@ public final class ResultRequestUtil {
             LOG.info("removeTokens int=" + statusCode + ", result=" + result);
         } catch(IOException e) {
             LOG.info(IOEXCEPTION, e);
-        } catch(Throwable e) {
-            LOG.info(THROWABLE, e);
         } finally {
             if(httpMethodToken != null) {
                 httpMethodToken.releaseConnection();
@@ -307,9 +306,10 @@ public final class ResultRequestUtil {
      * @param vnfmUrl
      * @param token
      * @param user
+     * @throws VnfmException
      * @since VFC 1.0
      */
-    private static void removeV3Tokens(String vnfmUrl, String token, String user) {
+    private static void removeV3Tokens(String vnfmUrl, String token, String user) throws VnfmException {
         HttpMethod httpMethodToken = null;
         String tokenUrl = String.format(ParamConstants.CSM_AUTH_CONNECT_SOUTH_DISCONNECT, user);
         LOG.info("removeTokens tokenUrl=" + tokenUrl);
@@ -321,8 +321,6 @@ public final class ResultRequestUtil {
             LOG.info("removeTokens int=" + statusCode + ", result=" + result);
         } catch(IOException e) {
             LOG.info(IOEXCEPTION, e);
-        } catch(Throwable e) {
-            LOG.info(THROWABLE, e);
         } finally {
             if(httpMethodToken != null) {
                 httpMethodToken.releaseConnection();
