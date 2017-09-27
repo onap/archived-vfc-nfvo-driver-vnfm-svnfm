@@ -1,0 +1,9 @@
+{
+  "trustStore":"etc/conf/trust.jks",
+  "trustStoreType":"jks",
+  "trustStorePass":"Changeme_123",
+  "keyStore":"etc/conf/server.p12",
+  "keyStoreType":"PKCS12",
+  "keyStorePass":"Changeme_123"
+
+}
