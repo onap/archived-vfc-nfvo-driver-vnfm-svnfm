@@ -29,7 +29,7 @@
     <name>vfc/nfvo/drivers/vnfm/svnfm/nokia/vnfmdriver</name>
     <description>nfvo vnfmdriver</description>
     <modules>
-        <module>vfcadaptor</module>
+        <module>vfcadaptorservice</module>
     </modules>
 
     <build>
