@@ -26,7 +26,7 @@
     <artifactId>vnfmdriver</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>vfc/nfvo/drivers/vnfm/svnfm/nokia/vnfmdriver</name>
+    <name>vfc-nfvo-driver-vnfm-svnfm-nokia-vnfmdriver</name>
     <description>nfvo vnfmdriver</description>
     <modules>
         <module>vfcadaptorservice</module>
