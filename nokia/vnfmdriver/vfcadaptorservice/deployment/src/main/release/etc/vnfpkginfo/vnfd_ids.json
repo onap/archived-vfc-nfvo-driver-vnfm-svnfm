@@ -1,0 +1,7 @@
+{
+  "vnfdIds":{
+     "vHSS_HW":"1",
+     "vSPGW_HW":"1",
+     "vSBC_vP-CSCF":"1"
+  }
+}

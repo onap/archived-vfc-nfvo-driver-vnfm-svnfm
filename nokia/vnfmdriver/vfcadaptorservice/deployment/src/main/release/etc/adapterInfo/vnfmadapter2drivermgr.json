@@ -1,0 +1,18 @@
+{
+    "driverInfo": {
+        "driverName": "nokiavnfmdriver",
+        "instanceID": "nokiavnfm-0-1",
+        "ip": "127.0.0.1",
+        "port": "8485",
+        "protocol": "http",
+        "services": [{
+                "service_url": "/api/nokiavnfmdriver/v1",
+                "support_sys": [{
+                        "type": "vnfm",
+                        "version": "V100R001"
+                    }
+                ]
+            }
+        ]
+    }
+}

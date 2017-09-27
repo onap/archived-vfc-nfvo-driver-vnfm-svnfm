@@ -1,0 +1,14 @@
+{
+  "serviceName": "nokia-vnfm-driver",
+  "version": "v1",
+  "url": "/api/nokiavnfmdriver/v1",
+  "protocol": "REST",
+  "visualRange": "1",
+  "nodes": [
+    {
+      "ip": "127.0.0.1",
+      "port": "8485",
+      "ttl": 0
+    }
+  ]
+}
