@@ -45,8 +45,8 @@
 
     <modules>
         <module>vfcadaptor</module>
-        <module>depolyment</module>
-	      <module>docker</module>
+        <module>deployment</module>
+        
     </modules>
     
 </project>
