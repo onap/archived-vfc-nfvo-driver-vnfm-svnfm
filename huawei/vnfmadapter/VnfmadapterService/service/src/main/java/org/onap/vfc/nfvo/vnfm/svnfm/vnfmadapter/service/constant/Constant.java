@@ -156,6 +156,8 @@ public class Constant {
 
     public static final String USERNAME = "userName";
 
+    public static final String LOCAL_HOST = "127.0.0.1";
+
     private Constant() {
         // private constructor
     }

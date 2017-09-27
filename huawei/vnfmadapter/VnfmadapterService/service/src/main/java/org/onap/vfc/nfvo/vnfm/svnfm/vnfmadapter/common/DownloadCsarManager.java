@@ -212,6 +212,7 @@ public class DownloadCsarManager {
                     zipFile.close();
                 } catch(IOException e) {
                     LOG.error("IOException: " + e);
+                    ;
                 }
             }
         }

@@ -395,7 +395,7 @@ public class AdapterResourceManager implements IResourceManager {
         JSONArray resArray = new JSONArray();
 
         if(url == null || url.equals("")) {
-            url = "http://127.0.0.1:31943";
+            url = "http://" + Constant.LOCAL_HOST + ":31943";
         }
 
         // get vim_id
