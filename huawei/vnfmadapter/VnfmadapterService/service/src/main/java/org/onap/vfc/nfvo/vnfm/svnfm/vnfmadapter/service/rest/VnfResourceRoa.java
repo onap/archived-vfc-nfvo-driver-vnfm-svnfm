@@ -71,7 +71,7 @@ public class VnfResourceRoa {
 
         JSONObject dataObject = VnfmJsonUtil.getJsonFromContexts(context);
         LOG.info("function=grantVnfRes, dataObject: {}", dataObject);
-        /*if(null == dataObject) {
+        if(null == dataObject) {
             LOG.error("function=grantVnfRes, msg=param error");
             restJson.put("data", "Params error");
             return restJson.toString();
@@ -87,9 +87,10 @@ public class VnfResourceRoa {
 
         String vnfmId = grantObj.getString("project_id");
 
-        JSONObject resultObj = vnfResourceMgr.grantVnfResource(grantObj, vnfId, vnfmId);*/
+        JSONObject resultObj = vnfResourceMgr.grantVnfResource(grantObj, vnfId, vnfmId);
+        LOG.info("grantVnfResource resultObj:", resultObj);
         JSONObject res = new JSONObject();
-        res.put("msg","grant success");
+        res.put("msg", "grant success");
         return res.toString();
     }
 
