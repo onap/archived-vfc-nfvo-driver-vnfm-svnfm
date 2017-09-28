@@ -43,13 +43,14 @@ public class VnfAdapterResourceRoaTest {
             public JSONObject getAllCloud(String url, String conntoken) {
                 JSONObject resultObj = new JSONObject();
                 resultObj.put("dn", "test");
+                resultObj.put("vim_id", "12345");
                 return resultObj;
             }
         };
 
         VnfAdapterResourceRoa vnfAdapter = new VnfAdapterResourceRoa();
-        String result = vnfAdapter.getAllCloudInfo(null);
-        assertEquals("test", result);
+        String result = vnfAdapter.getAllCloudInfo();
+        assertEquals("12345", result);
     }
 
 }

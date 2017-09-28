@@ -90,10 +90,7 @@ public class AuthRoa {
             JSONObject data = authResult.getJSONObject("data");
 
             resp.setStatus(Constant.HTTP_OK);
-            // resp.setHeader("accessSession", data.getString("accessSession"));
-            return data.toString();// String.format(ParamConstants.GET_TOKEN_SUC_RESP,
-            // data.getString(Constant.USERNAME),
-            // data.getString(Constant.USERNAME), data.getString("roaRand"));
+            return data.toString();
         } else if(authResult.getInt(Constant.RETCODE) == Constant.HTTP_INNERERROR) {
             Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(authResult.getString("data")).build();
 
@@ -117,8 +114,8 @@ public class AuthRoa {
      */
     @DELETE
     @Path("/auth/tokens/{userName}/{roarand}")
-    public String delAuthToken(@Context HttpServletRequest context, @PathParam(Constant.USERNAME) String userName,
-            @PathParam("roarand") String roarand, @Context HttpServletResponse resp) {
+    public String delAuthToken(@PathParam(Constant.USERNAME) String userName, @PathParam("roarand") String roarand,
+            @Context HttpServletResponse resp) {
         LOG.warn("function=logout, msg=enter to logout");
         JSONObject resultJson = new JSONObject();
 
@@ -139,8 +136,7 @@ public class AuthRoa {
      */
     @GET
     @Path("/nfvo/shakehand")
-    public String shakehand(@Context HttpServletRequest context, @QueryParam("roattr") String roattr,
-            @Context HttpServletResponse resp) {
+    public String shakehand(@QueryParam("roattr") String roattr, @Context HttpServletResponse resp) {
         JSONObject resultJson = new JSONObject();
         resultJson.put("status", "running");
         resultJson.put("description", "Operation success");

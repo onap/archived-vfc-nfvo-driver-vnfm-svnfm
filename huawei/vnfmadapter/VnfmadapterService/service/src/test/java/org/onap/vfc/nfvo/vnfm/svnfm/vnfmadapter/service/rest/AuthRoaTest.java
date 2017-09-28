@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Huawei Technologies Co., Ltd.
+ * Copyright 2016-2017 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,11 +174,10 @@ public class AuthRoaTest {
     @Test
     public void testDelAuthToken() {
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
 
         MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
         HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
-        String result = authRoa.delAuthToken(mockInstance, null, null, mockResInstance);
+        String result = authRoa.delAuthToken(null, null, mockResInstance);
 
         JSONObject resultJson = new JSONObject();
         resultJson.put("Information", "Operation success");
@@ -188,11 +187,10 @@ public class AuthRoaTest {
     @Test
     public void testShakehand() {
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
 
         MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
         HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
-        String result = authRoa.shakehand(mockInstance, null, mockResInstance);
+        String result = authRoa.shakehand(null, mockResInstance);
 
         JSONObject resultJson = new JSONObject();
         resultJson.put("status", "running");
