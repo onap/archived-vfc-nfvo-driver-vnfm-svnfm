@@ -1,0 +1,608 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Nokia VNFM Driver API",
+    "description": "VNF service provider.",
+    "version": "1.0.0"
+  },
+  "tags": [
+        {
+            "name": "Nokia VNFM Driver services"
+        }
+    ],
+  "basePath": "/api",
+  "paths": {
+    "/{vnfmtype}/v1/{vnfmid}/vnfs": {
+      "post": {
+        "summary": "Instantiate VNF",
+        "description": "Add VNF",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "vnfmtype",
+            "in": "path",
+            "description": "vnfm type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "vnfmid",
+            "in": "path",
+            "description": "vnfm id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "vnf",
+            "description": "Provide required properties of VNF.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Vnf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VNF Response",
+            "schema": {
+              "$ref": "#/definitions/VnfResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "VNF Not Found"
+          },
+          "500": {
+            "description": "VNF service failed to process the request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{vnfmtype}/v1/{vnfmid}/vnfs/{vnfInstanceId}/terminate": {
+      "post": {
+        "summary": "Terminate VNF",
+        "description": "Delete VNF",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "vnfmtype",
+            "in": "path",
+            "description": "vnfm type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "vnfmid",
+            "in": "path",
+            "description": "vnfm id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "vnfInstanceId",
+            "in": "path",
+            "description": "vnfm instance id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "vnfTerminate",
+            "description": "Provide required properties of VNF.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfTerminate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VNF Response",
+            "schema": {
+              "$ref": "#/definitions/VnfTerminateResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "VNF Not Found"
+          },
+          "500": {
+            "description": "VNF service failed to process the request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{vnfmtype}/v1/{vnfmid}/vnfs/{vnfInstanceId}": {
+      "get": {
+        "summary": "Query VNF",
+        "description": "Get VNF Details",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "vnfmtype",
+            "in": "path",
+            "description": "vnfm type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "vnfmid",
+            "in": "path",
+            "description": "vnfm id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "vnfInstanceId",
+            "in": "path",
+            "description": "vnfm instance id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VNF Response",
+            "schema": {
+              "$ref": "#/definitions/VnfInfoResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "VNF Not Found"
+          },
+          "500": {
+            "description": "VNF service failed to process the request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/{vnfmtype}/v1/jobs/{jobid}": {
+      "get": {
+        "summary": "Get VNF operational status",
+        "description": "VNF operational status",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "vnfmtype",
+            "in": "path",
+            "description": "vnfm type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "jobid",
+            "in": "path",
+            "description": "jobid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "responseId",
+            "in": "query",
+            "description": "vnfm response id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VNF Response",
+            "schema": {
+              "$ref": "#/definitions/VnfStatusResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "VNF Not Found"
+          },
+          "500": {
+            "description": "VNF service failed to process the request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "VnfStatusResponse": {
+      "type": "object",
+      "description": "Operational Status Response.",
+      "required": [
+        "jobId",
+        "responseDescriptor",
+        "status",
+        "progress",
+        "statusDescription",
+        "errorCode",
+        "responseId",
+        "responseHistoryList"
+      ],
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "description": "Job ID"
+        },
+        "responseDescriptor": {
+          "type": "string",
+          "description": "Including vnfStatus, statusDescription, errorCode, progress, responseHistoryList, responseId."
+        },
+        "status": {
+          "type": "string",
+          "description": "JOB status started processing finished error"
+        },
+        "progress": {
+          "type": "integer",
+          "description": "Progress (1 - 100)"
+        },
+        "statusDescription": {
+          "type": "string",
+          "description": "Progress Description"
+        },
+        "errorCode": {
+          "type": "integer",
+          "description": "Errorcode"
+        },
+        "responseId": {
+          "type": "integer",
+          "description": "Response Identifier"
+        },
+        "responseHistoryList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HistoryDetails"
+          }
+        }
+      }
+    },
+    "HistoryDetails": {
+      "type": "object",
+      "description": "InitiateVnfResponse.",
+      "required": [
+        "vnfStatus",
+        "statusDescription",
+        "errorCode",
+        "progress",
+        "responseId"
+      ],
+      "properties": {
+        "vnfStatus": {
+          "type": "string",
+          "description": "Vnf Job Status."
+        },
+        "statusDescription": {
+          "type": "string",
+          "description": "Progress Description."
+        },
+        "errorCode": {
+          "type": "integer",
+          "description": "Error code."
+        },
+        "progress": {
+          "type": "integer",
+          "description": "progress (1-100)."
+        },
+        "responseId": {
+          "type": "integer",
+          "description": "Response Identifier."
+        }
+      }
+    },
+    "VnfResponse": {
+      "type": "object",
+      "description": "InitiateVnfResponse.",
+      "required": [
+        "jobId",
+        "vnfInstanceId"
+      ],
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "description": "Identifier of the VNF lifecycle operation occurrence."
+        },
+        "vnfInstanceId": {
+          "type": "string",
+          "description": "Identifier of the VNF instance."
+        }
+      }
+    },
+    "VnfTerminateResponse": {
+      "type": "object",
+      "description": "TerminateVnfResponse.",
+      "required": [
+        "jobId"
+      ],
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "description": "Identifier of the VNF lifecycle operation occurrence."
+        }
+      }
+    },
+    "VnfInfoResponse": {
+      "type": "object",
+      "description": "The information items about the selected VNF instance(s) that are returned..",
+      "required": [
+        "VnfInfo"
+      ],
+      "properties": {
+        "VnfInfo": {
+          "$ref": "#/definitions/VnfInfo"
+        }
+      }
+    },
+    "VnfInfo": {
+      "type": "object",
+      "description": "The information items about the selected VNF instance(s) that are returned..",
+      "required": [
+        "vnfInstanceId",
+        "vnfInstanceName",
+        "vnfInstanceDescription",
+        "vnfdId",
+        "vnfPackageId",
+        "version",
+        "vnfProvider",
+        "vnfType",
+        "vnfStatus"
+      ],
+      "properties": {
+        "vnfInstanceId": {
+          "type": "string",
+          "description": "VNF instance identifier."
+        },
+        "vnfInstanceName": {
+          "type": "string",
+          "description": "VNF instance name."
+        },
+        "vnfInstanceDescription": {
+          "type": "string",
+          "description": "Human-readable description of the VNF instance."
+        },
+        "vnfdId": {
+          "type": "string",
+          "description": "Identifier of the VNFD on which the VNF instance is based."
+        },
+        "vnfPackageId": {
+          "type": "string",
+          "description": "Identifier of the VNF Package used to manage the lifecycle of the VNF instance."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the VNF."
+        },
+        "vnfProvider": {
+          "type": "string",
+          "description": "Name of the person or company providing the VNF."
+        },
+        "vnfType": {
+          "type": "string",
+          "description": "VNF Application Type."
+        },
+        "vnfStatus": {
+          "default": "active",
+          "enum": [
+            "inactive",
+            "active"
+          ],
+          "description": "The instantiation state of the VNF. Possible values:INACTIVE (Vnf is terminated or not instantiated ), ACTIVE (Vnf is instantiated). [instantiationState]."
+        }
+      }
+    },
+    "VnfTerminate": {
+      "type": "object",
+      "description": "Terminate VNF.",
+      "required": [
+        "terminationType",
+        "gracefulTerminationTimeout"
+      ],
+      "properties": {
+        "terminationType": {
+          "default": "forceful",
+          "enum": [
+            "forceful",
+            "graceful"
+          ],
+          "description": "Signals whether forceful or graceful termination is requested.."
+        },
+        "gracefulTerminationTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The time interval (second) to wait for the VNF to be taken out of service during graceful termination, before shutting down the VNF and releasing the resources."
+        }
+      }
+    },
+    "Vnf": {
+      "type": "object",
+      "description": "VNF encapsulate an external IP for the given project in a domain. Each property description is provided with 1. required 2. update allowed 3. format. whenever its needs to be mentioned explicitly.",
+      "required": [
+        "vnfInstanceName",
+        "vnfPackageId",
+        "vnfDescriptorId",
+        "flavourId",
+        "vnfInstanceDescription",
+        "extVirtualLink"
+      ],
+      "properties": {
+        "vnfInstanceName": {
+          "type": "string",
+          "description": "Human-readable name of the VNF instance to be created.."
+        },
+        "vnfPackageId": {
+          "type": "string",
+          "description": "VNF packageId."
+        },
+        "vnfDescriptorId": {
+          "type": "string",
+          "description": "Information sufficient to identify the VNF Descriptor which defines the VNF to be created."
+        },
+        "flavourId": {
+          "type": "string",
+          "description": "verify."
+        },
+        "vnfInstanceDescription": {
+          "type": "string",
+          "description": "Human-readable description of the VNF instance to be created."
+        },
+        "extVirtualLink": {
+          "$ref": "#/definitions/ExtVirtualLinkData"
+        }
+      }
+    },
+    "ExtVirtualLinkData": {
+      "type": "object",
+      "description": "References to external virtual links to connect the VNF to.",
+      "required": [
+        "vlInstanceId",
+        "vim",
+        "networkId",
+        "cpdId"
+      ],
+      "properties": {
+        "vlInstanceId": {
+          "type": "string",
+          "description": "Identifier of the VL instance."
+        },
+        "vim": {
+          "$ref": "#/definitions/VimInfo"
+        },
+        "networkId": {
+          "type": "string",
+          "description": "The network UUID of network"
+        },
+        "cpdId": {
+          "type": "string",
+          "description": "Identifier of the external CPD in VNFD"
+        }
+      }
+    },
+    "VimInfo": {
+      "type": "object",
+      "description": "Information about the VIM that manages this resource.",
+      "required": [
+        "vimInfoId",
+        "vimId",
+        "interfaceInfo",
+        "accessInfo",
+        "interfaceEndpoint"
+      ],
+      "properties": {
+        "vimInfoId": {
+          "type": "string",
+          "description": "The identifier of this VimInfo instance, for the purpose of referencing it from other information elements."
+        },
+        "vimId": {
+          "type": "string",
+          "description": "The identifier of the VIM.."
+        },
+        "interfaceInfo": {
+          "$ref": "#/definitions/interfaceInfo"
+        },
+        "accessInfo": {
+          "$ref": "#/definitions/accessInfo"
+        },
+        "interfaceEndpoint": {
+          "type": "string",
+          "description": "Information about the interface endpoint. An example is a URL."
+        }
+      }
+    },
+    "interfaceInfo": {
+      "type": "object",
+      "description": "Information about the interface to the VIM, including VIM provider type, API version, and protocol type..",
+      "required": [
+        "vimType",
+        "apiVersion",
+        "protocolType"
+      ],
+      "properties": {
+        "vimType": {
+          "type": "string",
+          "description": "vim"
+        },
+        "apiVersion": {
+          "type": "string",
+          "description": "api version"
+        },
+        "protocolType": {
+          "type": "string",
+          "description": "Type of the protocol"
+        }
+      }
+    },
+    "accessInfo": {
+      "type": "object",
+      "description": "Authentication credentials for accessing the VIM. Examples may include those to support different authentication schemes, e.g., OAuth, Token, etc..",
+      "required": [
+        "tenant",
+        "username",
+        "password"
+      ],
+      "properties": {
+        "tenant": {
+          "type": "string",
+          "description": "Tenant Name of tenant"
+        },
+        "username": {
+          "type": "string",
+          "description": "Username for login"
+        },
+        "password": {
+          "type": "string",
+          "description": "Password of login user"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
