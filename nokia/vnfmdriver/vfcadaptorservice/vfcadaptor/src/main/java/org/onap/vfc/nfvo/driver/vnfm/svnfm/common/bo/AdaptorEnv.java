@@ -23,16 +23,23 @@ import org.springframework.stereotype.Component;
 public class AdaptorEnv {
 	@Value("${nslcmApiUriFront}")
 	private String nslcmApiUriFront;
+	
 	@Value("${catalogApiUriFront}")
 	private String catalogApiUriFront;
+	
 	@Value("${cbamApiUriFront}")
 	private String cbamApiUriFront;
+	
+	@Value("${msbApiUriFront}")
+	private String msbApiUriFront;
 	
 	//for retrieving token from CBAM
 	@Value("${grantType}")
 	private String grantType;
+	
 	@Value("${clientId}")
 	private String clientId;
+	
 	@Value("${clientSecret}")
 	private String clientSecret;
 	
@@ -71,6 +78,12 @@ public class AdaptorEnv {
 	}
 	public void setClientSecret(String clientSecret) {
 		this.clientSecret = clientSecret;
+	}
+	public String getMsbApiUriFront() {
+		return msbApiUriFront;
+	}
+	public void setMsbApiUriFront(String msbApiUriFront) {
+		this.msbApiUriFront = msbApiUriFront;
 	}
 	
 }

@@ -47,7 +47,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.Gson;
 
 @Controller
-@RequestMapping(value = "/nokiavnfm/v1")
+@RequestMapping(value = "/api/nokiavnfmdriver/v1")
 public class VnfmDriverController {
 	private static final Logger logger = LogManager.getLogger("VnfmDriverController");
 	
