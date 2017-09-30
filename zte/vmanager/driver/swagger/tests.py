@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-import json
+
 from django.test import Client
 from rest_framework import status
 
@@ -28,4 +28,3 @@ class SwaggerViewTest(unittest.TestCase):
     def test_sample(self):
         response = self.client.get("/api/ztevmanagerdriver/v1/swagger.json")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
-

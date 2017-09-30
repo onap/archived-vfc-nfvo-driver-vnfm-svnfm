@@ -112,18 +112,22 @@ class InterfacesTest(TestCase):
         # mock_call_req_aai.side_effect =[r1]
         mock_call_req.side_effect = [r1, r2, r3, ret]
 
-        req_data = {'vnfInstanceName': 'VFW_f88c0cb7-512a-44c4-bd09-891663f19367',
-                    'vnfPackageId': 'd852e1be-0aac-48f1-b1a4-cd825f6cdf9a',
-                    'vnfDescriptorId': 'vcpe_vfw_zte_1_0',
-                    'additionalParam': {'sdncontroller': 'e4d637f1-a4ec-4c59-8b20-4e8ab34daba9',
-                                        'NatIpRange': '192.167.0.10-192.168.0.20',
-                                        'm6000_mng_ip': '192.168.11.11',
-                                        'externalPluginManageNetworkName': 'plugin_net_2014',
-                                        'location': '516cee95-e8ca-4d26-9268-38e343c2e31e',
-                                        'externalManageNetworkName': 'mng_net_2017',
-                                        'sfc_data_network': 'sfc_data_net_2016',
-                                        'externalDataNetworkName': 'Flow_out_net',
-                                        'inputs':{}}}
+        req_data = {
+            'vnfInstanceName': 'VFW_f88c0cb7-512a-44c4-bd09-891663f19367',
+            'vnfPackageId': 'd852e1be-0aac-48f1-b1a4-cd825f6cdf9a',
+            'vnfDescriptorId': 'vcpe_vfw_zte_1_0',
+            'additionalParam': {
+                'sdncontroller': 'e4d637f1-a4ec-4c59-8b20-4e8ab34daba9',
+                'NatIpRange': '192.167.0.10-192.168.0.20',
+                'm6000_mng_ip': '192.168.11.11',
+                'externalPluginManageNetworkName': 'plugin_net_2014',
+                'location': '516cee95-e8ca-4d26-9268-38e343c2e31e',
+                'externalManageNetworkName': 'mng_net_2017',
+                'sfc_data_network': 'sfc_data_net_2016',
+                'externalDataNetworkName': 'Flow_out_net',
+                'inputs': {}
+            }
+        }
 
         response = self.client.post("/api/ztevmanagerdriver/v1/ztevnfmid/vnfs",
                                     data=json.dumps(req_data), content_type="application/json")
@@ -210,27 +214,34 @@ class InterfacesTest(TestCase):
                      u'type': u'ztevmanagerdriver',
                      u'createTime': u'2016-10-31 11:08:39',
                      u'description': u''}
-        resp_body = {"responsedescriptor":
-                         {"status": "processing", "responsehistorylist": [
-                             {"status": "error",
-                              "progress": 255,
-                              "errorcode": "",
-                              "responseid": 20,
-                              "statusdescription": "'JsonParser' object has no attribute 'parser_info'"}],
-                          "responseid": 21,
-                          "errorcode": "",
-                          "progress": 40,
-                          "statusdescription": "Create nf apply resource failed"},
-                     "jobid": "NF-CREATE-11-ec6c2f2a-9f48-11e6-9405-fa163e91c2f9"}
+        resp_body = {
+            "responsedescriptor": {
+                "status": "processing",
+                "responsehistorylist": [
+                    {
+                        "status": "error",
+                        "progress": 255,
+                        "errorcode": "",
+                        "responseid": 20,
+                        "statusdescription": "'JsonParser' object has no attribute 'parser_info'"
+                    }
+                ],
+                "responseid": 21,
+                "errorcode": "",
+                "progress": 40,
+                "statusdescription": "Create nf apply resource failed"
+            },
+            "jobid": "NF-CREATE-11-ec6c2f2a-9f48-11e6-9405-fa163e91c2f9"
+        }
         r1 = [0, json.JSONEncoder().encode(vnfm_info), '200']
         r2 = [0, json.JSONEncoder().encode(resp_body), '200']
         # mock_call_req_aai.side_effect = [r1]
         mock_call_req.side_effect = [r1, r2]
-        response = self.client.get("/api/ztevmanagerdriver/v1/{vnfmid}/jobs/{jobid}?responseId={responseId}".
-            format(
+        response = self.client.get("/api/ztevmanagerdriver/v1/{vnfmid}/jobs/{jobid}?responseId={responseId}".format(
             vnfmid=vnfm_info["vnfmId"],
             jobid=resp_body["jobid"],
-            responseId=resp_body["responsedescriptor"]["responseid"]))
+            responseId=resp_body["responsedescriptor"]["responseid"])
+        )
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
 
@@ -250,19 +261,23 @@ class InterfacesTest(TestCase):
             "vnfmid": "13232222",
             "nfvoid": "03212234",
             "vimid": "12345678",
-            "exvimidlist ":
-                ["exvimid"],
+            "exvimidlist ": [
+                "exvimid"
+            ],
             "tenant": " tenant1",
             "vnfistanceid": "1234",
             "operationright": "0",
             "vmlist": [
                 {
                     "vmflavor": "SMP",
-                    "vmnumber": "3"},
+                    "vmnumber": "3"
+                },
                 {
                     "vmflavor": "CMP",
-                    "vmnumber": "3"}
-            ]}
+                    "vmnumber": "3"
+                }
+            ]
+        }
 
         mock_call_req.return_value = ret
         response = self.client.put("/api/ztevmanagerdriver/v1/resource/grant",
@@ -341,7 +356,7 @@ class InterfacesTest(TestCase):
     # @mock.patch.object(restcall, 'call_req_aai')
     @mock.patch.object(restcall, 'call_req')
     def test_scale(self, mock_call_req):
-        job_info = {"jobid":"801","nfInstanceId":"101"}
+        job_info = {"jobid": "801", "nfInstanceId": "101"}
         vnfm_info = {u'userName': u'admin',
                      u'vendor': u'ZTE',
                      u'name': u'ZTE_VNFM_237_62',
@@ -356,29 +371,30 @@ class InterfacesTest(TestCase):
                      u'description': u''}
 
         ret = [0, json.JSONEncoder().encode(job_info), "202"]
-        ret_vnfm = [0,json.JSONEncoder().encode(vnfm_info), "200"]
+        ret_vnfm = [0, json.JSONEncoder().encode(vnfm_info), "200"]
         # mock_call_req_aai.side_effect = [ret_vnfm]
         mock_call_req.side_effect = [ret_vnfm, ret]
 
         vnfd_info = {
-            "vnf_flavours":[
+            "vnf_flavours": [
                 {
-                    "flavour_id":"flavour1",
-                    "description":"",
-                    "vdu_profiles":[
+                    "flavour_id": "flavour1",
+                    "description": "",
+                    "vdu_profiles": [
                         {
-                            "vdu_id":"vdu1Id",
+                            "vdu_id": "vdu1Id",
                             "instances_minimum_number": 1,
                             "instances_maximum_number": 4,
-                            "local_affinity_antiaffinity_rule":[
+                            "local_affinity_antiaffinity_rule": [
                                 {
-                                    "affinity_antiaffinity":"affinity",
-                                    "scope":"node",
+                                    "affinity_antiaffinity": "affinity",
+                                    "scope": "node",
+
                                 }
                             ]
                         }
                     ],
-                    "scaling_aspects":[
+                    "scaling_aspects": [
                         {
                             "id": "demo_aspect",
                             "name": "demo_aspect",
@@ -390,29 +406,31 @@ class InterfacesTest(TestCase):
                 }
             ],
             "element_groups": [
-                  {
-                      "group_id": "elementGroup1",
-                      "description": "",
-                      "properties":{
-                          "name": "elementGroup1",
-                      },
-                      "members": ["gsu_vm","pfu_vm"],
-                  }
+                {
+                    "group_id": "elementGroup1",
+                    "description": "",
+                    "properties": {
+                        "name": "elementGroup1"
+                    },
+                    "members": [
+                        "gsu_vm",
+                        "pfu_vm"
+                    ]
+                }
             ]
         }
 
         scale_vnf_data = {
-            "type":"SCALE_OUT",
-            "aspectId":"demo_aspect",
-            "numberOfSteps":"3",
-            "additionalParam":{
-                "vnfdModel":vnfd_info
+            "type": "SCALE_OUT",
+            "aspectId": "demo_aspect",
+            "numberOfSteps": "3",
+            "additionalParam": {
+                "vnfdModel": vnfd_info
             }
         }
 
-
         response = self.client.post("/api/ztevmanagerdriver/v1/100/vnfs/101/scale",
-                                   data=json.dumps(scale_vnf_data), content_type='application/json')
+                                    data=json.dumps(scale_vnf_data), content_type='application/json')
         self.assertEqual(str(status.HTTP_202_ACCEPTED), response.status_code)
         self.assertDictEqual(job_info, response.data)
 

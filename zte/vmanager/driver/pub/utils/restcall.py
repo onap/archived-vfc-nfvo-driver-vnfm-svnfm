@@ -94,6 +94,7 @@ def combine_url(base_url, resource):
         full_url = base_url + '/' + resource
     return full_url
 
+
 def call_req_aai(base_url, user, passwd, auth_type, resource, method, content=''):
     callid = str(uuid.uuid1())
     logger.debug("[%s]call_req('%s','%s','%s',%s,'%s','%s','%s')" % (
@@ -141,6 +142,7 @@ def call_req_aai(base_url, user, passwd, auth_type, resource, method, content=''
 
     logger.debug("[%s]ret=%s" % (callid, str(ret)))
     return ret
+
 
 def call_aai(resource, method, data=''):
     return call_req_aai(AAI_BASE_URL, AAI_USER, AAI_PASSWORD, rest_no_auth, resource, method, data)

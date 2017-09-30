@@ -55,20 +55,24 @@ query_vnfd_url = "api/nslcm/v1/vnfpackage/%s"
 query_vnfm_url = "api/extsys/v1/vnfms/%s"
 query_package_url = "api/nslcm/v1/vnfpackage/%s"
 
-#Query vnfm_info from nslcm
+
+# Query vnfm_info from nslcm
 def get_vnfminfo_from_nslcm(vnfmid):
     ret = req_by_msb("api/nslcm/v1/vnfms/%s" % vnfmid, "GET")
     return ret
+
 
 # Query vnfm_info from esr
 def vnfm_get(vnfmid):
     ret = call_aai("api/aai-esr-server/v1/vnfms/%s" % vnfmid, "GET")
     return ret
 
+
 # Query vnfd_info from nslcm
 def vnfd_get(vnfpackageid):
     ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % vnfpackageid, "GET")
     return ret
+
 
 # Query vnfpackage_info from nslcm
 def vnfpackage_get(csarid):
@@ -91,7 +95,8 @@ create_vnf_param_mapping = {
     "additionalParam": ""}
 create_vnf_resp_mapping = {
     "VNFInstanceID": "vnfInstanceId",
-    "JobId": "jobid",}
+    "JobId": "jobid"
+}
 
 
 @api_view(http_method_names=['POST'])
@@ -214,7 +219,8 @@ def terminate_vnf(request, *args, **kwargs):
 
 vnf_detail_url = "v1/vnfs/%s"
 vnf_detail_resp_mapping = {
-    "VNFInstanseStatus": "status",}
+    "VNFInstanseStatus": "status"
+}
 
 
 @api_view(http_method_names=['GET'])
@@ -258,7 +264,8 @@ operation_status_resp_map = {
     "ErrorCode": "errorCode",
     "ResponseId": "responseId",
     "ResponseHistoryList": "responseHistoryList",
-    "ResponseDescriptor": "responseDescriptor",}
+    "ResponseDescriptor": "responseDescriptor"
+}
 
 
 @api_view(http_method_names=['GET'])
@@ -366,7 +373,8 @@ notify_param_map = {
     "VMFlavor": "",
     "VMNumber": "",
     "VMIDlist": "",
-    "VMUUID": "",}
+    "VMUUID": ""
+}
 
 
 @api_view(http_method_names=['POST'])
@@ -447,14 +455,14 @@ def scale(request, *args, **kwargs):
         scale_type = ignorcase_get(request.data, "type")
         aspect_id = ignorcase_get(request.data, "aspectId")
         number_of_steps = ignorcase_get(request.data, "numberOfSteps")
-        extension = ignorcase_get(request.data, "additionalParam")
-        vnfd_model = ignorcase_get(extension, "vnfdModel")
+        # extension = ignorcase_get(request.data, "additionalParam")
+        # vnfd_model = ignorcase_get(extension, "vnfdModel")
         data = {
             'vnfmid': vnfm_id,
             'nfvoid': 1,
             'scaletype': '0' if scale_type == 'SCALE_OUT' else '1',
-            'vmlist': [{'VMNumber':number_of_steps,'VMFlavor':aspect_id}],
-            'extension':''
+            'vmlist': [{'VMNumber': number_of_steps, 'VMFlavor': aspect_id}],
+            'extension': ''
         }
         '''
         for vdu_id in get_vdus(vnfd_model, aspect_id):
@@ -474,18 +482,19 @@ def scale(request, *args, **kwargs):
             content=json.JSONEncoder().encode(data))
         logger.info("ret=%s", ret)
         if ret[0] != 0:
-            return Response(data={'error':'scale error'}, status=ret[2])
+            return Response(data={'error': 'scale error'}, status=ret[2])
         resp_data = json.JSONDecoder().decode(ret[1])
         # jobId = resp_data["jobid"]
         logger.info("resp_data=%s", resp_data)
     except Exception as e:
-        logger.error("Error occurred when scaling VNF")
+        logger.error("Error occurred when scaling VNF,error:%s", e.message)
         logger.error(traceback.format_exc())
-        return Response(data={'error':'scale expection'}, status='500')
+        return Response(data={'error': 'scale expection'}, status='500')
     return Response(data=resp_data, status=ret[2])
 
 
 nf_healing_url = '/api/v1/nf_m_i/nfs/{vnfInstanceID}/vms/operation'
+
 
 @api_view(http_method_names=['POST'])
 def heal(request, *args, **kwargs):
@@ -519,12 +528,12 @@ def heal(request, *args, **kwargs):
         # jobId = resp_data["jobid"]
         logger.info("resp_data=%s", resp_data)
     except Exception as e:
-        logger.error("Error occurred when healing VNF")
+        logger.error("Error occurred when healing VNF,error:%s", e.message)
         logger.error(traceback.format_exc())
         return Response(data={'error': 'heal expection'}, status='500')
     return Response(data=resp_data, status=ret[2])
 
-#@staticmethod
+
 def get_vdus(nf_model, aspect_id):
     associated_group = ''
     members = []
