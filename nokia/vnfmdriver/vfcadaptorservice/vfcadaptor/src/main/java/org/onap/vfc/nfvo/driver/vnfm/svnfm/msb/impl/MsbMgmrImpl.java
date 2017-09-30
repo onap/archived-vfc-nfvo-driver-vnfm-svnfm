@@ -23,74 +23,75 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpRequestProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.onap.msb.sdk.discovery.common.RouteException;
+import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
+import org.onap.msb.sdk.discovery.entity.MicroServiceInfo;
+import org.onap.msb.sdk.discovery.entity.RouteResult;
+import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.inf.IMsbMgmr;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
-import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.google.gson.Gson;
 
 @Component
 public class MsbMgmrImpl implements IMsbMgmr {
-	private static final Logger logger = LogManager.getLogger("MsbMgmrImpl");
-	@Autowired 
-	private HttpClientBuilder httpClientBuilder;
+	private static final Logger logger = LoggerFactory.getLogger(MsbMgmrImpl.class);
 	
-	@Autowired 
-	private AdaptorEnv adaptorEnv;
+	private Gson gson = new Gson();
 	
-	@Value("${serviceName}")
-	private String serviceName;
+	private String msb_ip;
 	
-	@Value("${version}")
-	private String version;
+	private int msb_port;
 	
-	@Value("${url}")
-	private String url;
-	
-	@Value("${protocol}")
-	private String protocol;
-	
-	@Value("${visualRange}")
-	private String visualRange;
-	
-	@Value("${ip}")
-	private String ip;
-	
-	@Value("${port}")
-	private String port;
-	
-	@Value("${ttl}")
-	private String ttl;
-
 	@Override
 	public void register() {
-		String httpPath = CommonConstants.MSB_REGISTER_SERVICE_PATH;
-		RequestMethod method = RequestMethod.POST;
-		
 		try {
-			String jsonStr = readVfcAdaptorInfoFromJsonFile();
-			String registerResponse = operateHttpTask(jsonStr, httpPath, method);
-			logger.info("registerResponse is ", registerResponse); 
+			String msbInfoJsonStr = readMsbInfoFromJsonFile();
+			JSONObject totalJsonObj = new JSONObject(msbInfoJsonStr);
+			JSONObject serverJsonObj = totalJsonObj.getJSONObject("defaultServer");
+			msb_ip = serverJsonObj.getString("host");
+			msb_port = serverJsonObj.getInt("port");
+			
+			String vfcAdaptorInfoJsonStr = readVfcAdaptorInfoFromJsonFile();
+			MicroServiceInfo msinfo = gson.fromJson(vfcAdaptorInfoJsonStr, MicroServiceInfo.class);
+			
+			MSBServiceClient msbClient = new MSBServiceClient(msb_ip, msb_port);
+			MicroServiceFullInfo microServiceInfo = msbClient.registerMicroServiceInfo(msinfo);
+			logger.info("Registered service response info is " + microServiceInfo.toString());
+			
 		} catch (IOException e) {
 			logger.error("Failed to read vfcadaptor info! ", e);
+		} catch (RouteException e) {
+			logger.error("Failed to register nokia vnfm driver! ", e);
+		} catch (JSONException e) {
+			logger.error("Failed to retrieve json info! ", e);
 		}
 			
 	}
 	
-	public String readVfcAdaptorInfoFromJsonFile()  throws IOException {
-        InputStream ins = null;
+	private String readMsbInfoFromJsonFile() throws IOException {
+		String filePath = "/etc/conf/restclient.json";
+		String fileContent = getJsonStrFromFile(filePath);
+
+        return fileContent;
+	}
+
+	private String readVfcAdaptorInfoFromJsonFile() throws IOException {
+        String filePath = "/etc/adapterInfo/vnfmadapterinfo.json";
+		String fileContent = getJsonStrFromFile(filePath);
+
+        return fileContent;
+    }
+
+	public String getJsonStrFromFile(String filePath) throws IOException {
+		InputStream ins = null;
         BufferedInputStream bins = null;
         String fileContent = "";
-        String fileName = getAppRoot() + "/etc/adapterInfo/vnfmadapterinfo.json";
+        String fileName = getAppRoot() + filePath;
 
         try {
             ins = new FileInputStream(fileName);
@@ -112,35 +113,24 @@ public class MsbMgmrImpl implements IMsbMgmr {
                 bins.close();
             }
         }
-
-        return fileContent;
-    }
+		return fileContent;
+	}
 
 	@Override
 	public void unregister() {
-		String httpPath = String.format(CommonConstants.MSB_UNREGISTER_SERVICE_PATH, serviceName, version, ip, port);
-		RequestMethod method = RequestMethod.DELETE;
-		
 		try {
 			String jsonStr = readVfcAdaptorInfoFromJsonFile();
-			String registerResponse = operateHttpTask(jsonStr, httpPath, method);
-			logger.info("unregisterResponse is ", registerResponse); 
+			MicroServiceInfo msinfo = gson.fromJson(jsonStr, MicroServiceInfo.class);
+			
+			MSBServiceClient msbClient = new MSBServiceClient(msb_ip, msb_port);
+			RouteResult routeResult = msbClient.cancelMicroServiceInfo(msinfo.getServiceName(), msinfo.getVersion());
+			logger.info("unregistered service response info is " + routeResult.toString());
+			
 		} catch (IOException e) {
-			logger.error("Failed to unregister! ", e);
+			logger.error("Failed to read vfcadaptor info! ", e);
+		} catch (RouteException e) {
+			logger.error("Failed to register nokia vnfm driver! ", e);
 		}
-
-	}
-	
-	public String operateHttpTask(String httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
-		String url=adaptorEnv.getMsbApiUriFront() + httpPath;
-		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, method);
-		processor.addHdeader(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-		
-		processor.addPostEntity(httpBodyObj);
-		
-		String responseStr = processor.process(url);
-		
-		return responseStr;
 	}
 	
     public String getAppRoot() {

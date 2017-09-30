@@ -42,7 +42,7 @@ then
 fi
 
 echo
-echo "DB-INIT [vnfmdb] : START"
+echo "DB-INIT [vnfm_db] : START"
 
 mysql -u$1 -p$2 -h$3 -P$4 <$(cd `dirname $0`; pwd)/db/mysql/db-schema.sql
 
@@ -51,10 +51,10 @@ if [ $? != 0 ] ; then
    exit 1
 fi
 
-echo "DB-INIT [vnfmdb] : PASSED"
+echo "DB-INIT [vnfm_db] : PASSED"
 echo
 echo "*************************************************************"
-echo "CAUTION: Existing vnfmdb will be cleaned before"
+echo "CAUTION: Existing vnfm_db will be cleaned before"
 echo "initializing the schema, so please take a back-up of it"
 echo "before executing it next time."
 echo "*************************************************************"

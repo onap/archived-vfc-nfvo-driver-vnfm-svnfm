@@ -24,11 +24,11 @@ FLUSH PRIVILEGES;
 /******************create new database and user***************************/
 create database vnfm_db CHARACTER SET utf8;
 
-GRANT ALL PRIVILEGES ON vnfm_db.* TO 'vnfm'@'%' IDENTIFIED BY 'vnfm' WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON mysql.* TO 'vnfm'@'%' IDENTIFIED BY 'vnfm' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON vnfm_db.* TO 'vnfm'@'%' IDENTIFIED BY 'vnfmpass' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON mysql.* TO 'vnfm'@'%' IDENTIFIED BY 'vnfmpass' WITH GRANT OPTION;
 
-GRANT ALL PRIVILEGES ON vnfm_db.* TO 'vnfm'@'localhost' IDENTIFIED BY 'vnfm' WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON mysql.* TO 'vnfm'@'localhost' IDENTIFIED BY 'vnfm' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON vnfm_db.* TO 'vnfm'@'localhost' IDENTIFIED BY 'vnfmpass' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON mysql.* TO 'vnfm'@'localhost' IDENTIFIED BY 'vnfmpass' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 
 use vnfm_db;
@@ -47,7 +47,7 @@ CREATE TABLE `vnfm_job_execution_record` (
 
 
 DROP TABLE IF EXISTS vnfm_resource_record;
-CREATE TABLE `vnfm_resource` (
+CREATE TABLE `vnfm_resource_record` (
   `id` int(11) auto_increment primary key,
   `type` enum ('VDU','VL','CP','Storage') DEFAULT NULL,
   `resourceDefinitionId` varchar(60) DEFAULT NULL,

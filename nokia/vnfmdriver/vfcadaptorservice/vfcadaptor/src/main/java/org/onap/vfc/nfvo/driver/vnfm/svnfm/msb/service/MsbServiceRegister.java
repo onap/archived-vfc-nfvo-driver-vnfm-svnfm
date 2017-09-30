@@ -16,8 +16,8 @@
  
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.service;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.inf.IMsbMgmr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -25,14 +25,15 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MsgServiceRegister implements ApplicationRunner{
-	private static final Logger logger = LogManager.getLogger("MsgServiceRegister");
+public class MsbServiceRegister implements ApplicationRunner{
+	private static final Logger logger = LoggerFactory.getLogger(MsbServiceRegister.class);
 	
 	@Autowired
 	private IMsbMgmr msbMgmr;
 
 	@Override
 	public void run(ApplicationArguments arg0) {
+		logger.info("Start to register nokia vnfm driver service.");
 		msbMgmr.register();
 		logger.info("nokia vnfm driver successfully registered on the MSB");
 	}

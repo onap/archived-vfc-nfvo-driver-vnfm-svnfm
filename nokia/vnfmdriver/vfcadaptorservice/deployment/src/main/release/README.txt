@@ -16,6 +16,7 @@ Installation steps:
         - CATALINIA_BASE: Set to the location, where this
           service installer is unzipped, its optional
         - PATH: Update it with the location of command 'mysql'
+        - MSB_ADDR: set Microservices Service Bus address <ip>:<port>
 
     - In command console, cd to 'bin' directory under the location,
       where this service installer is unzipped and
@@ -27,10 +28,6 @@ Installation steps:
 Configuration steps:
 ====================
     - Update the db credetials in 'application.properties' under webapps directory.
-    - Update the MSB address in 'application.properties' under webapps directory.
-    - Update the VNFM address in 'application.properties' under webapps directory.
-    - Update the Catalog address in 'application.properties' under webapps directory.
-    - Update the NSLCM address in 'application.properties' under webapps directory.
     - Update the MSB address in $PATH/etc/conf/restclient.json
     - Update the vnfmadapter service ip address in $PATH/etc/adapterInfo/vnfmadapterinfo.json
 

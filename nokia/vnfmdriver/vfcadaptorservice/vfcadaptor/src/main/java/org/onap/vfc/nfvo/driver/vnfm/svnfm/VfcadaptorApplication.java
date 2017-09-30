@@ -18,8 +18,10 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 @SpringBootApplication
@@ -27,7 +29,14 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan
 public class VfcadaptorApplication {
 
-	public static void main(String[] args) {
+	public final static void main(String[] args) {
 		SpringApplication.run(VfcadaptorApplication.class, args);
 	}
+	
+	@Bean
+    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
+        PropertySourcesPlaceholderConfigurer c = new PropertySourcesPlaceholderConfigurer();
+        c.setIgnoreUnresolvablePlaceholders(true);
+        return c;
+    }
 }

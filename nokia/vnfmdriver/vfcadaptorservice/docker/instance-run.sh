@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2016-2017 Huawei Technologies Co., Ltd.
+# Copyright 2016-2017, Nokia Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 # Start microservice
 cd bin
 ./startup.sh
-while [ ! -e ../logs/vnfmadapterservice.log ]; do
+while [ ! -e ../logs/vfcadaptor.log ]; do
     sleep 1
 done
-tail -F ../logs/vnfmadapterservice.log
+tail -F ../logs/vfcadaptor.log

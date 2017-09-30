@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfResponse;
@@ -42,7 +42,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
 
 
 public class InstantiateVnfContinueRunnable implements Runnable {
-	private static final Logger logger = LogManager.getLogger("InstantiateVnfContinueRunnable");
+	private static final Logger logger = LoggerFactory.getLogger(InstantiateVnfContinueRunnable.class);
 	private CbamMgmrInf cbamMgmr;
 	private CatalogMgmrInf catalogMgmr;
 	private NslcmMgmrInf nslcmMgmr;

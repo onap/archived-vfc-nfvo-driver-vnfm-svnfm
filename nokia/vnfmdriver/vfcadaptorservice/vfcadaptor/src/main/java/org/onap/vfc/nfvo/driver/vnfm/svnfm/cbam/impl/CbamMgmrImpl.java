@@ -20,8 +20,7 @@ import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
@@ -49,14 +48,14 @@ import com.google.gson.Gson;
 
 @Component
 public class CbamMgmrImpl implements CbamMgmrInf {
-	private static final Logger logger = LogManager.getLogger("CbamMgmrImpl");
+	private static final Logger logger = Logger.getLogger(CbamMgmrImpl.class);
 	private Gson gson = new Gson();
 	
 	@Autowired 
 	private AdaptorEnv adaptorEnv;
 	
 	@Autowired
-	private HttpClientBuilder httpClientBuilder;
+	private HttpClientBuilder httpClientBuilder;// = HttpClientUtils.createHttpClientBuilder();
 	
 	private String retrieveToken() throws ClientProtocolException, IOException, JSONException {
 		String result = null;

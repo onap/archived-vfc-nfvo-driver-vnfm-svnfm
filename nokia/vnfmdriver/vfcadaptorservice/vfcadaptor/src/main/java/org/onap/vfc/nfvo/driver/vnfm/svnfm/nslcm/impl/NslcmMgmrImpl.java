@@ -20,8 +20,8 @@ import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpRequestProcessor;
@@ -39,7 +39,7 @@ import com.google.gson.Gson;
 
 @Component
 public class NslcmMgmrImpl implements NslcmMgmrInf{
-	private static final Logger logger = LogManager.getLogger("NslcmMgmrImpl");
+	private static final Logger logger = LoggerFactory.getLogger(NslcmMgmrImpl.class);
 	
 	@Autowired 
 	private AdaptorEnv adaptorEnv;
@@ -56,7 +56,7 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 		
 		String responseStr = operateNslcmHttpTask(null, httpPath, method);
 		
-		logger.info("NslcmMgmrImpl->queryVnfm, the vnfmInfo is " + responseStr);
+		logger.info("NslcmMgmrImpl->queryVnfm, the vnfmInfo is {}", responseStr);
 		
 		VnfmInfo response = gson.fromJson(responseStr, VnfmInfo.class);
 		
@@ -69,7 +69,7 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 			
 		String responseStr = operateNslcmHttpTask(driverRequest, httpPath, method);
 		
-		logger.info("NslcmMgmrImpl->grantVnf, the NslcmGrantVnfResponse is " + responseStr);
+		logger.info("NslcmMgmrImpl->grantVnf, the NslcmGrantVnfResponse is {}", responseStr);
 		
 		NslcmGrantVnfResponse response = gson.fromJson(responseStr, NslcmGrantVnfResponse.class);
 		

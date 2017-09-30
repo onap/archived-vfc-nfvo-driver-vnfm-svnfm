@@ -21,14 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum.LifecycleOperation;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
@@ -40,7 +41,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
 
 
 public class TerminateVnfContinueRunnable implements Runnable {
-	private static final Logger logger = LogManager.getLogger("TerminateVnfContinueRunnable");
+	private static final Logger logger = LoggerFactory.getLogger(TerminateVnfContinueRunnable.class);
 
 	private CbamMgmrInf cbamMgmr;
 	private NslcmMgmrInf nslcmMgmr;
@@ -48,7 +49,7 @@ public class TerminateVnfContinueRunnable implements Runnable {
 	private TerminateVnfRequest driverRequest;
 	private String vnfInstanceId;
 	private String jobId;
-	private VnfmJobExecutionRepository jobDbManager;
+	private VnfmJobExecutionRepository jobDbMgmr;
 	
 	private Driver2CbamRequestConverter requestConverter;
 	
@@ -61,7 +62,7 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		this.cbamMgmr = cbamMgmr;
 		this.requestConverter = requestConverter;
 		this.jobId = jobId;
-		this.jobDbManager = dbManager;
+		this.jobDbMgmr = dbManager;
 	}
 	
 	public void run() {
@@ -72,6 +73,7 @@ public class TerminateVnfContinueRunnable implements Runnable {
 			
 			CBAMTerminateVnfRequest cbamRequest = requestConverter.terminateReqConvert(driverRequest);
 			CBAMTerminateVnfResponse cbamResponse = cbamMgmr.terminateVnf(cbamRequest, vnfInstanceId);
+			handleCbamInstantiateResponse(cbamResponse, jobId);
 			
 			cbamMgmr.deleteVnf(vnfInstanceId);
 			
@@ -84,6 +86,13 @@ public class TerminateVnfContinueRunnable implements Runnable {
 			logger.error("TerminateVnfContinueRunnable run error IOException", e);
 		}
 		
+	}
+	
+	private void handleCbamInstantiateResponse(CBAMTerminateVnfResponse cbamResponse, String jobId) {
+		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.getLong(jobId));
+		
+		jobInfo.setVnfmExecutionId(cbamResponse.getId());
+		jobDbMgmr.save(jobInfo);
 	}
 	
 	private NslcmGrantVnfRequest buildNslcmGrantVnfRequest() {

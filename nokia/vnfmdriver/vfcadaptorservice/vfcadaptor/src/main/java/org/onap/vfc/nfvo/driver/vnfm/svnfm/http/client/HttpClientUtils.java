@@ -36,13 +36,17 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+@EnableAutoConfiguration
+@Service
 public class HttpClientUtils {
-	private static final Logger logger = LogManager.getLogger("HttpClientUtils");
+	private static final Logger logger = LoggerFactory.getLogger(HttpClientUtils.class);
 	
 	@Bean
 	public static HttpClientBuilder createHttpClientBuilder() {
