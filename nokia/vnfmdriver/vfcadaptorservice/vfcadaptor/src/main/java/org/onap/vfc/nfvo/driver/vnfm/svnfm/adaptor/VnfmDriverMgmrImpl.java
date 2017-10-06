@@ -16,9 +16,13 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor;
 
+import java.io.IOException;
+
 import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.http.client.ClientProtocolException;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.entity.EsrSystemInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.inf.AaiMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
@@ -29,11 +33,11 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.VnfmInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
@@ -45,9 +49,14 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.inf.VnfContinueProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.inf.VnfmDriverMgmrInf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.Gson;
 
 
 @Component
@@ -70,28 +79,32 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 	private NslcmMgmrInf nslcmMgmr;
 	
 	@Autowired
+	private AaiMgmrInf aaiMgmr;
+	
+	@Autowired
 	private VnfmJobExecutionRepository jobDbManager;
+	
+	@Autowired
+	AdaptorEnv adaptorEnv;
+	
+	@Autowired
+	private VnfContinueProcessorInf vnfContinueProcessorInf;
+	
+	private Gson gson = new Gson();
 	
 	public InstantiateVnfResponse instantiateVnf(InstantiateVnfRequest driverRequest, String vnfmId) throws VnfmDriverException {
 		InstantiateVnfResponse driverResponse;
 		try {
-			//step 1: query vnfm info
-			VnfmInfo vnfmInfo = nslcmMgmr.queryVnfm(vnfmId);
-			
-			if(vnfmInfo == null || vnfmId.equalsIgnoreCase(vnfmInfo.getVnfmId()))
-			{
-				throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
-			}
+			buildVnfmHttpPathById(vnfmId);
 			
 			//step 3: create vnf
 			CBAMCreateVnfRequest cbamRequest = requestConverter.createReqConvert(driverRequest);
 			CBAMCreateVnfResponse cbamResponse = cbamMgmr.createVnf(cbamRequest);
-			driverResponse = responseConverter.createRspConvert(cbamResponse);
+			String vnfInstanceId = cbamResponse.getId();
+			Long jobId = saveCreateVnfJob(vnfInstanceId);
+			driverResponse = responseConverter.createRspConvert(cbamResponse, jobId);
 			
-			String vnfInstanceId = driverResponse.getVnfInstanceId();
-			String jobId = driverResponse.getJobId();
-			continueInstantiateVnf(driverRequest, vnfInstanceId, jobId);
-			
+			vnfContinueProcessorInf.continueInstantiateVnf(driverRequest, vnfInstanceId, jobId.toString(), nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager);
 			
 		} catch (Exception e) {
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
@@ -99,28 +112,25 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 		
         return driverResponse;
 	}
+	
+	private Long saveCreateVnfJob(String vnfInstanceId) {
+		VnfmJobExecutionInfo jobInfo = new VnfmJobExecutionInfo();
+		jobInfo.setVnfInstanceId(vnfInstanceId);
+		jobInfo.setVnfmInterfceName(CommonConstants.NSLCM_OPERATION_INSTANTIATE);
+		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_START);
 
-	public void continueInstantiateVnf(InstantiateVnfRequest driverRequest, String vnfInstanceId, String jobId) {
-		InstantiateVnfContinueRunnable runnable = new InstantiateVnfContinueRunnable(driverRequest, vnfInstanceId, jobId,
-				nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager);
-		
-		Thread thread = new Thread(runnable);
-		
-		thread.run();
+		VnfmJobExecutionInfo jobInfo1 = (VnfmJobExecutionInfo) jobDbManager.save(jobInfo);
+		Long jobId = jobInfo1.getJobId();
+		return jobId;
 	}
 
 	public TerminateVnfResponse terminateVnf(TerminateVnfRequest driverRequest, String vnfmId, String vnfInstanceId) {
 		TerminateVnfResponse driverResponse;
 		try {
-			VnfmInfo vnfmInfo = nslcmMgmr.queryVnfm(vnfmId);
-			
-			if(vnfmInfo == null || vnfmId.equalsIgnoreCase(vnfmInfo.getVnfmId()))
-			{
-				throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
-			}
+			buildVnfmHttpPathById(vnfmId);
 			driverResponse = generateTerminateVnfResponse(vnfInstanceId);
 			String jobId = driverResponse.getJobId();
-			continueTerminateVnf(driverRequest, vnfInstanceId, jobId);
+			vnfContinueProcessorInf.continueTerminateVnf(driverRequest, vnfInstanceId, jobId, nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
 			
 		} catch (Exception e) {
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
@@ -143,26 +153,10 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 		return response;
 	}
 
-	public void continueTerminateVnf(TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId) {
-		TerminateVnfContinueRunnable runnable = new TerminateVnfContinueRunnable(driverRequest, vnfInstanceId, jobId,
-				nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
-		
-		Thread thread = new Thread(runnable);
-		
-		thread.run();
-	}
-
-
 	public QueryVnfResponse queryVnf(String vnfmId, String vnfInstanceId) {
 		QueryVnfResponse driverResponse;
 		try {
-			nslcmMgmr.queryVnfm(vnfmId);
-			VnfmInfo vnfmInfo = nslcmMgmr.queryVnfm(vnfmId);
-			
-			if(vnfmInfo == null || vnfmId.equalsIgnoreCase(vnfmInfo.getVnfmId()))
-			{
-				throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
-			}
+			buildVnfmHttpPathById(vnfmId);
 			CBAMQueryVnfResponse cbamResponse = cbamMgmr.queryVnf(vnfInstanceId);
 			driverResponse = responseConverter.queryRspConvert(cbamResponse);
 		} catch (Exception e) {
@@ -173,24 +167,14 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 	}
 
 	public OperStatusVnfResponse getOperStatus(String vnfmId, String jobId)  throws VnfmDriverException {
-		VnfmInfo vnfmInfo;
-		try {
-			vnfmInfo = nslcmMgmr.queryVnfm(vnfmId);
-		}  catch (Exception e) {
-			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
-		}
-		
-		if(vnfmInfo == null || vnfmId.equalsIgnoreCase(vnfmInfo.getVnfmId()))
-		{
-			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
-		}
-		
-		VnfmJobExecutionInfo jobInfo = jobDbManager.findOne(Long.getLong(jobId));
-		String execId = jobInfo.getVnfmExecutionId();
 		
 		CBAMQueryOperExecutionResponse cbamResponse;
 		
 		try {
+			buildVnfmHttpPathById(vnfmId);
+			
+			VnfmJobExecutionInfo jobInfo = jobDbManager.findOne(Long.getLong(jobId));
+			String execId = jobInfo.getVnfmExecutionId();
 			cbamResponse = cbamMgmr.queryOperExecution(execId);
 		} catch (Exception e) {
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
@@ -204,12 +188,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 	public ScaleVnfResponse scaleVnf(ScaleVnfRequest driverRequest, String vnfmId, String vnfInstanceId) throws VnfmDriverException {
 		ScaleVnfResponse driverResponse;
 		try {
-			VnfmInfo vnfmInfo = nslcmMgmr.queryVnfm(vnfmId);
-			
-			if(vnfmInfo == null || vnfmId.equalsIgnoreCase(vnfmInfo.getVnfmId()))
-			{
-				throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
-			}
+			buildVnfmHttpPathById(vnfmId);
 			CBAMScaleVnfRequest cbamRequest = requestConverter.scaleReqconvert(driverRequest);
 			CBAMScaleVnfResponse cbamResponse = cbamMgmr.scaleVnf(cbamRequest, vnfInstanceId);
 			driverResponse = responseConverter.scaleRspConvert(cbamResponse);
@@ -223,12 +202,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 	public HealVnfResponse healVnf(HealVnfRequest driverRequest, String vnfmId, String vnfInstanceId) throws VnfmDriverException {
 		HealVnfResponse driverResponse;
 		try {
-			VnfmInfo vnfmInfo = nslcmMgmr.queryVnfm(vnfmId);
-			
-			if(vnfmInfo == null || vnfmId.equalsIgnoreCase(vnfmInfo.getVnfmId()))
-			{
-				throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
-			}
+			buildVnfmHttpPathById(vnfmId);
 			CBAMHealVnfRequest cbamRequest = requestConverter.healReqConvert(driverRequest);
 			CBAMHealVnfResponse cbamResponse = cbamMgmr.healVnf(cbamRequest, vnfInstanceId);
 			driverResponse = responseConverter.healRspConvert(cbamResponse);
@@ -237,6 +211,33 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 		}
 		
         return driverResponse;
+	}
+
+	public String buildVnfmHttpPathById(String vnfmId) throws ClientProtocolException, IOException, VnfmDriverException {
+		AaiVnfmInfo vnfmInfo = aaiMgmr.queryVnfm(vnfmId);
+		logger.info("vnfmInfo in AAI is {}", gson.toJson(vnfmInfo));
+		if(isVnfmInfoValid(vnfmId, vnfmInfo))
+		{
+			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
+		}
+		
+		EsrSystemInfo systemInfo = vnfmInfo.getEsrSystemInfoList().get(0);
+		
+		String urlHead = systemInfo.getProtocal() + "://" + systemInfo.getIp() + ":" + systemInfo.getPort();
+		adaptorEnv.setCbamApiUriFront(urlHead);
+		return urlHead;
+	}
+
+	private boolean isVnfmInfoValid(String vnfmId, AaiVnfmInfo vnfmInfo) {
+		return vnfmInfo == null || !vnfmId.equalsIgnoreCase(vnfmInfo.getVnfmId()) || vnfmInfo.getEsrSystemInfoList() == null || vnfmInfo.getEsrSystemInfoList().isEmpty();
+	}
+
+	public void setRequestConverter(Driver2CbamRequestConverter requestConverter) {
+		this.requestConverter = requestConverter;
+	}
+
+	public void setResponseConverter(Cbam2DriverResponseConverter responseConverter) {
+		this.responseConverter = responseConverter;
 	}
 
 }

@@ -34,8 +34,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>  
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>  
+        <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.itReportPath>  
+        <sonar.language>java</sonar.language> 
 	</properties>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -61,7 +65,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
-
+<!-- 
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+ -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
@@ -108,7 +123,60 @@
        </dependency>
 	</dependencies>
     <build>
+ <!-- 
+        <pluginManagement>  
+      <plugins>  
+        <plugin>  
+          <groupId>org.jacoco</groupId>  
+          <artifactId>jacoco-maven-plugin</artifactId>  
+          <version>0.7.9</version>
+        </plugin>  
+      </plugins>  
+    </pluginManagement>
+-->    
         <plugins>
+            <!-- 
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>  
+                    <includes>org.onap.vfc.nfvo.driver.vnfm.svnfm.*</includes>  
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report-integration</id>
+                        <goals>
+                            <goal>report-integration</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+             -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -123,6 +191,42 @@
                  <target>1.8</target>
              </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <!-- 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                    <id>default-integration-test</id>
+                    <goals>
+                        <goal>integration-test</goal>
+                    </goals>
+                    </execution>
+                </executions>
+            </plugin>
+             -->
         </plugins>
     </build>
+ <!--
+    <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+ 
+  -->
 </project>

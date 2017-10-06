@@ -16,23 +16,19 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.impl;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.onap.msb.sdk.discovery.common.RouteException;
 import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
 import org.onap.msb.sdk.discovery.entity.MicroServiceInfo;
 import org.onap.msb.sdk.discovery.entity.RouteResult;
 import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util.CommonUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.inf.IMsbMgmr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -41,25 +37,18 @@ import com.google.gson.Gson;
 public class MsbMgmrImpl implements IMsbMgmr {
 	private static final Logger logger = LoggerFactory.getLogger(MsbMgmrImpl.class);
 	
+	@Autowired
+	AdaptorEnv adaptorEnv;
+	
 	private Gson gson = new Gson();
-	
-	private String msb_ip;
-	
-	private int msb_port;
 	
 	@Override
 	public void register() {
 		try {
-			String msbInfoJsonStr = readMsbInfoFromJsonFile();
-			JSONObject totalJsonObj = new JSONObject(msbInfoJsonStr);
-			JSONObject serverJsonObj = totalJsonObj.getJSONObject("defaultServer");
-			msb_ip = serverJsonObj.getString("host");
-			msb_port = serverJsonObj.getInt("port");
-			
 			String vfcAdaptorInfoJsonStr = readVfcAdaptorInfoFromJsonFile();
 			MicroServiceInfo msinfo = gson.fromJson(vfcAdaptorInfoJsonStr, MicroServiceInfo.class);
 			
-			MSBServiceClient msbClient = new MSBServiceClient(msb_ip, msb_port);
+			MSBServiceClient msbClient = new MSBServiceClient(adaptorEnv.getMsbIp(), adaptorEnv.getMsbPort());
 			MicroServiceFullInfo microServiceInfo = msbClient.registerMicroServiceInfo(msinfo);
 			logger.info("Registered service response info is " + microServiceInfo.toString());
 			
@@ -67,54 +56,16 @@ public class MsbMgmrImpl implements IMsbMgmr {
 			logger.error("Failed to read vfcadaptor info! ", e);
 		} catch (RouteException e) {
 			logger.error("Failed to register nokia vnfm driver! ", e);
-		} catch (JSONException e) {
-			logger.error("Failed to retrieve json info! ", e);
 		}
 			
 	}
 	
-	private String readMsbInfoFromJsonFile() throws IOException {
-		String filePath = "/etc/conf/restclient.json";
-		String fileContent = getJsonStrFromFile(filePath);
-
-        return fileContent;
-	}
-
 	private String readVfcAdaptorInfoFromJsonFile() throws IOException {
         String filePath = "/etc/adapterInfo/vnfmadapterinfo.json";
-		String fileContent = getJsonStrFromFile(filePath);
+		String fileContent = CommonUtil.getJsonStrFromFile(filePath);
 
         return fileContent;
     }
-
-	public String getJsonStrFromFile(String filePath) throws IOException {
-		InputStream ins = null;
-        BufferedInputStream bins = null;
-        String fileContent = "";
-        String fileName = getAppRoot() + filePath;
-
-        try {
-            ins = new FileInputStream(fileName);
-            bins = new BufferedInputStream(ins);
-
-            byte[] contentByte = new byte[ins.available()];
-            int num = bins.read(contentByte);
-
-            if(num > 0) {
-                fileContent = new String(contentByte);
-            }
-        } catch(FileNotFoundException e) {
-        	logger.error(fileName + "is not found!", e);
-        } finally {
-            if(ins != null) {
-                ins.close();
-            }
-            if(bins != null) {
-                bins.close();
-            }
-        }
-		return fileContent;
-	}
 
 	@Override
 	public void unregister() {
@@ -122,7 +73,7 @@ public class MsbMgmrImpl implements IMsbMgmr {
 			String jsonStr = readVfcAdaptorInfoFromJsonFile();
 			MicroServiceInfo msinfo = gson.fromJson(jsonStr, MicroServiceInfo.class);
 			
-			MSBServiceClient msbClient = new MSBServiceClient(msb_ip, msb_port);
+			MSBServiceClient msbClient = new MSBServiceClient(adaptorEnv.getMsbIp(), adaptorEnv.getMsbPort());
 			RouteResult routeResult = msbClient.cancelMicroServiceInfo(msinfo.getServiceName(), msinfo.getVersion());
 			logger.info("unregistered service response info is " + routeResult.toString());
 			
@@ -133,26 +84,24 @@ public class MsbMgmrImpl implements IMsbMgmr {
 		}
 	}
 	
-    public String getAppRoot() {
-        String appRoot = null;
-        appRoot = System.getProperty("catalina.base");
-        if(appRoot != null) {
-            appRoot = getCanonicalPath(appRoot);
-        }
-        return appRoot;
-    }
+   public String getServiceUrlInMsbBySeriveNameAndPort(String serviceName, String version) throws RouteException
+   {
+	   MSBServiceClient msbClient = new MSBServiceClient(adaptorEnv.getMsbIp(), adaptorEnv.getMsbPort());
+	   MicroServiceFullInfo microServiceInfo = msbClient.queryMicroServiceInfo(serviceName, version);
+	   if(null == microServiceInfo)
+	   {
+		   logger.error("There is no service in MSB for serviceName = {} and version = {}", serviceName, version);
+	   }
+	   
+	   String serviceUrl = microServiceInfo.getUrl();
+		logger.info("Service Url in MSB for serviceName = {} and version = {} is {}", serviceName, version, serviceUrl);
+		
+		return serviceUrl;
+		
+   }
 
-    private String getCanonicalPath(final String inPath) {
-        String path = null;
-        try {
-            if(inPath != null) {
-                final File file = new File(inPath);
-                path = file.getCanonicalPath();
-            }
-        } catch(final IOException e) {
-            logger.error("file.getCanonicalPath() IOException:", e);
-        }
-        return path;
-    }
+	public void setAdaptorEnv(AdaptorEnv env) {
+		this.adaptorEnv = env;
+	}
 
 }

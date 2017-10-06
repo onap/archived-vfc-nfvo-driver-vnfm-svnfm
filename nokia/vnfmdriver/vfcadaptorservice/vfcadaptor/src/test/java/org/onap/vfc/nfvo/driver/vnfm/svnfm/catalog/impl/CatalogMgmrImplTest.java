@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.vfcadaptor;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.impl;
 
+import static org.junit.Assert.*;
+
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class CatalogMgmrImplTest {
 
-@RunWith(SpringRunner.class)
-//@SpringBootTest
-public class VfcadaptorApplicationTests {
+	@Before
+	public void setUp() throws Exception {
+	}
 
 	@Test
-	public void aapTest() {
-		assertThat("kcom").isEqualTo("kcom");
+	public void test() {
+//		fail("Not yet implemented");
 	}
 
 }

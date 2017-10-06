@@ -46,15 +46,7 @@ public class Cbam2DriverResponseConverter {
 	@Autowired
 	private VnfmJobExecutionRepository jobDbManager;
 
-	public InstantiateVnfResponse createRspConvert(CBAMCreateVnfResponse cbamResponse) {
-
-		VnfmJobExecutionInfo jobInfo = new VnfmJobExecutionInfo();
-		jobInfo.setVnfInstanceId(cbamResponse.getId());
-		jobInfo.setVnfmInterfceName(CommonConstants.NSLCM_OPERATION_INSTANTIATE);
-		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_START);
-
-		VnfmJobExecutionInfo jobInfo1 = (VnfmJobExecutionInfo) jobDbManager.save(jobInfo);
-		Long jobId = jobInfo1.getJobId();
+	public InstantiateVnfResponse createRspConvert(CBAMCreateVnfResponse cbamResponse, Long jobId) {
 
 		InstantiateVnfResponse response = new InstantiateVnfResponse();
 		response.setJobId(jobId.longValue() + "");
