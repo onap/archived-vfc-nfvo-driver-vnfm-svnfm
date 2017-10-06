@@ -123,6 +123,7 @@
        </dependency>
 	</dependencies>
     <build>
+ <!-- 
         <pluginManagement>  
       <plugins>  
         <plugin>  
@@ -132,8 +133,9 @@
         </plugin>  
       </plugins>  
     </pluginManagement>
-    
+-->    
         <plugins>
+            <!-- 
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -174,6 +176,7 @@
                     </execution>
                 </executions>
             </plugin>
+             -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -192,6 +195,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
+            <!-- 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -204,8 +208,10 @@
                     </execution>
                 </executions>
             </plugin>
+             -->
         </plugins>
     </build>
+ <!--
     <reporting>
     <plugins>
       <plugin>
@@ -214,7 +220,6 @@
         <reportSets>
           <reportSet>
             <reports>
-              <!-- select non-aggregate reports -->
               <report>report</report>
             </reports>
           </reportSet>
@@ -222,4 +227,6 @@
       </plugin>
     </plugins>
   </reporting>
+ 
+  -->
 </project>
