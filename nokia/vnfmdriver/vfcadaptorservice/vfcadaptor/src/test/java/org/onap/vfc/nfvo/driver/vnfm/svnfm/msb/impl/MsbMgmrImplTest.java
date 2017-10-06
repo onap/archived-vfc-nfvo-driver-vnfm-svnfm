@@ -16,22 +16,14 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.impl;
 
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.HashMap;
-
-import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.onap.msb.sdk.discovery.common.RouteException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.impl.NslcmMgmrImpl;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 public class MsbMgmrImplTest {
 	@InjectMocks
@@ -44,11 +36,27 @@ public class MsbMgmrImplTest {
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		AdaptorEnv env = new AdaptorEnv();
+		env.setMsbIp("127.0.0.1");
+		env.setMsbPort(80);
 		msbMgmr.setAdaptorEnv(env);
 		MockitoAnnotations.initMocks(this);
-		
-		String json = "{\"access_token\":\"1234567\"}";
-		
-		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(json);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testRegister()
+	{
+		msbMgmr.register();
+	}
+	
+	@Test(expected = RuntimeException.class)
+	public void testunRegister()
+	{
+		msbMgmr.unregister();
+	}
+	
+	@Test(expected = RouteException.class)
+	public void testGetServiceUrlInMsbBySeriveNameAndPort() throws RouteException
+	{
+		msbMgmr.getServiceUrlInMsbBySeriveNameAndPort("serviceName", "88");
 	}
 }

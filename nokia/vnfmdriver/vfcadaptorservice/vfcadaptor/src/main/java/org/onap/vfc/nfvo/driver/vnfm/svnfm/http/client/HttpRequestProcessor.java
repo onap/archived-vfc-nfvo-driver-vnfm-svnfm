@@ -41,20 +41,33 @@ public class HttpRequestProcessor {
 		httpRequest = HttpClientUtils.getHttpRequest(requestMethod);
 	}
 	
-	public String process(String url) throws ClientProtocolException, IOException
+	public HttpResult process(String url) throws ClientProtocolException, IOException
 	{
 		httpRequest.setURI(URI.create(url));
 		
 		HttpResponse response = httpClient.execute(httpRequest);
+		
+		HttpResult httpResult = buildHttpResult(response);
+		httpClient.close();
+		
+		return httpResult;
+	}
+
+	private HttpResult buildHttpResult(HttpResponse response) throws IOException {
 		HttpEntity resEntity = response.getEntity();
 		String responseContent = "";
 		if (resEntity != null) {
 			responseContent = EntityUtils.toString(resEntity, CommonConstants.UTF_8);
 			EntityUtils.consume(resEntity);
 		}
-		httpClient.close();
 		
-		return responseContent;
+		HttpResult httpResult = new HttpResult();
+		httpResult.setStatusCode(response.getStatusLine().getStatusCode());
+		httpResult.setStatusCause(response.getStatusLine().getReasonPhrase());
+		httpResult.setHeaders(response.getAllHeaders());
+		httpResult.setContent(responseContent);
+		
+		return httpResult;
 	}
 
 	public void addHdeader(String key, String value) {

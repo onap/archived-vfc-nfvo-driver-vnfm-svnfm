@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +39,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpRequestProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -68,7 +66,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		
 		String bodyPostStr = String.format(CommonConstants.RetrieveCbamTokenPostStr, adaptorEnv.getGrantType(), adaptorEnv.getClientId(), adaptorEnv.getClientSecret());
 		
-		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, map, bodyPostStr);
+		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, map, bodyPostStr).getContent();
 		
 		logger.info("CbamMgmrImpl -> retrieveToken, responseStr is " + responseStr);
 		
@@ -181,7 +179,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
 		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		
-		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj));
+		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj)).getContent();
 		
 		return responseStr;
 	}

@@ -23,6 +23,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public interface HttpClientProcessorInf {
-	public String process(String url, RequestMethod methodType, HashMap<String, String> headerMap, String bodyString) throws ClientProtocolException, IOException; 
+	public HttpResult process(String url, RequestMethod methodType, HashMap<String, String> headerMap, String bodyString) throws ClientProtocolException, IOException; 
 
 }

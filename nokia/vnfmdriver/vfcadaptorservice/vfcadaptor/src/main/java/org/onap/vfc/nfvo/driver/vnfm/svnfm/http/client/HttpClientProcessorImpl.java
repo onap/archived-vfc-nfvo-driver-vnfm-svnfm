@@ -31,7 +31,7 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
 	@Autowired
 	private HttpClientBuilder httpClientBuilder;
 	
-	public String process(String url, RequestMethod methodType, HashMap<String, String> headerMap, String bodyString) throws ClientProtocolException, IOException
+	public HttpResult process(String url, RequestMethod methodType, HashMap<String, String> headerMap, String bodyString) throws ClientProtocolException, IOException
 	{
 		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, methodType);
 		if(headerMap != null && !headerMap.isEmpty())

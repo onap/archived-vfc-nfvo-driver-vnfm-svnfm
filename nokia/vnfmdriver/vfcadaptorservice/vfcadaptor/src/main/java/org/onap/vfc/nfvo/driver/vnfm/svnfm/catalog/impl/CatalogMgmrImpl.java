@@ -17,6 +17,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -26,9 +27,11 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.CatalogQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpRequestProcessor;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VnfPackageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -44,19 +47,26 @@ public class CatalogMgmrImpl implements CatalogMgmrInf{
 	private AdaptorEnv adaptorEnv;
 	
 	@Autowired
-	private HttpClientBuilder httpClientBuilder;
+	HttpClientProcessorInf httpClientProcessor;
 	
 	public VnfPackageInfo queryVnfPackage(String vnfPackageId) throws ClientProtocolException, IOException {
-		String url=adaptorEnv.getCatalogApiUriFront() + String.format(CommonConstants.RetrieveVnfPackagePath, vnfPackageId);
-		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, RequestMethod.GET);
 		
-		String responseStr = processor.process(url);
+		String url=adaptorEnv.getCatalogApiUriFront() + String.format(CommonConstants.RetrieveVnfPackagePath, vnfPackageId);
+		HashMap<String, String> map = new HashMap<String, String>();
+		
+		String bodyPostStr = String.format(CommonConstants.RetrieveCbamTokenPostStr, adaptorEnv.getGrantType(), adaptorEnv.getClientId(), adaptorEnv.getClientSecret());
+		
+		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, map, bodyPostStr).getContent();
 		
 		logger.info("CbamMgmrImpl -> queryVnfPackage, responseStr is " + responseStr);
 		
 		CatalogQueryVnfResponse resp = gson.fromJson(responseStr, CatalogQueryVnfResponse.class);
 		
 		return resp.getPackageInfo();
+	}
+
+	public void setAdaptorEnv(AdaptorEnv env) {
+		this.adaptorEnv = env;
 	}
 
 	

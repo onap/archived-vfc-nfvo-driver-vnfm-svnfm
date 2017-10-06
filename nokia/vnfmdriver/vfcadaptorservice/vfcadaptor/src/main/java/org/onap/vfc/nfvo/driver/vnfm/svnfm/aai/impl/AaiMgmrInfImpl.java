@@ -17,6 +17,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -24,6 +25,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.inf.AaiMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpRequestProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +43,8 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 	@Autowired 
 	private AdaptorEnv adaptorEnv;
 	
-	@Autowired 
-	private HttpClientBuilder httpClientBuilder;
+	@Autowired
+	HttpClientProcessorInf httpClientProcessor;
 	
 	private Gson gson = new Gson();
 	@Override
@@ -61,14 +63,17 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 	
 	private String operateHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
 		String url=adaptorEnv.getAaiApiUriFront() + httpPath;
-		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, method);
-		processor.addHdeader(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		
-		processor.addPostEntity(gson.toJson(httpBodyObj));
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		
-		String responseStr = processor.process(url);
+		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj)).getContent();
 		
 		return responseStr;
+	}
+
+	public void setAdaptorEnv(AdaptorEnv env) {
+		this.adaptorEnv = env;
 	}
 
 }

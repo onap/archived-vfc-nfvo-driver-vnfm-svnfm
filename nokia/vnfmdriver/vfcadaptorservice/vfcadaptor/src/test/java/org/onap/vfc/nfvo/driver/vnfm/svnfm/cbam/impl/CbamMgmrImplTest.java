@@ -41,6 +41,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public class CbamMgmrImplTest {
@@ -60,8 +61,10 @@ public class CbamMgmrImplTest {
 		MockitoAnnotations.initMocks(this);
 		
 		String json = "{\"access_token\":\"1234567\"}";
+		HttpResult httpResult = new HttpResult();
+		httpResult.setContent(json);
 		
-		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(json);
+		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
 	}
 	
 	@Test

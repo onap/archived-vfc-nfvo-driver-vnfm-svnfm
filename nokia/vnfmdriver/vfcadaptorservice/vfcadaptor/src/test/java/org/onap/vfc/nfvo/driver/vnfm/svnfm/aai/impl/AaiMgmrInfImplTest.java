@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.impl;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.impl;
 
 import static org.mockito.Mockito.when;
 
@@ -28,48 +28,43 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-public class NslcmMgmrImplTest {
+public class AaiMgmrInfImplTest {
 	@InjectMocks
-	private NslcmMgmrImpl nslcmMgmr;
-	
+	private AaiMgmrInfImpl aaiMgmr;
+
 	@Mock
 	private HttpClientProcessorInf httpClientProcessor;
 	
-	private String vnfInstanceId = "vnfInstanceId_001";
+	private String vnfmId = "vnfmId_001";
 	
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		AdaptorEnv env = new AdaptorEnv();
-		nslcmMgmr.setAdaptorEnv(env);
+		aaiMgmr.setAdaptorEnv(env);
 		MockitoAnnotations.initMocks(this);
 		
-		String json = "{\"access_token\":\"1234567\"}";
+		String json = "{"
+				+ "\"vnfm-id\":\"vnfm-id_001\","
+				+ "\"esr-system-info-list\":[{\"ip\" : \"1.3.5.6\"}]"
+				+ "}"
+				+ "";
 		HttpResult httpResult = new HttpResult();
 		httpResult.setContent(json);
 		
 		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
 	}
-	
+
 	@Test
-	public void testGrantVnf() throws ClientProtocolException, IOException
+	public void testQueryVnfPackage() throws ClientProtocolException, IOException
 	{
-		NslcmGrantVnfRequest cbamRequest = new NslcmGrantVnfRequest();
-		NslcmGrantVnfResponse response = nslcmMgmr.grantVnf(cbamRequest);
-	}
-	
-	@Test
-	public void testNotifyVnf() throws ClientProtocolException, IOException
-	{
-		NslcmNotifyLCMEventsRequest cbamRequest = new NslcmNotifyLCMEventsRequest();
-		nslcmMgmr.notifyVnf(cbamRequest, vnfInstanceId);
+		AaiVnfmInfo vnfmInfo = aaiMgmr.queryVnfm(vnfmId);
+//		Assert.assertEquals("1.3.5.6", vnfmInfo.getEsrSystemInfoList().get(0).getIp());
 	}
 }

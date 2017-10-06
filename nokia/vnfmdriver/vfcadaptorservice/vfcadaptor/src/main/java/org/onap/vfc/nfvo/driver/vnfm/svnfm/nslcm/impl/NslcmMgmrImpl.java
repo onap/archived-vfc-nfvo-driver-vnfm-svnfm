@@ -92,7 +92,7 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		
-		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj));
+		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj)).getContent();
 		
 		return responseStr;
 	}
