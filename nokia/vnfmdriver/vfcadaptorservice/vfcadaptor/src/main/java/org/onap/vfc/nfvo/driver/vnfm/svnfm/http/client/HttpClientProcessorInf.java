@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.vfcadaptor;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import java.io.IOException;
+import java.util.HashMap;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.http.client.ClientProtocolException;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-@RunWith(SpringRunner.class)
-//@SpringBootTest
-public class VfcadaptorApplicationTests {
-
-	@Test
-	public void aapTest() {
-		assertThat("kcom").isEqualTo("kcom");
-	}
+public interface HttpClientProcessorInf {
+	public String process(String url, RequestMethod methodType, HashMap<String, String> headerMap, String bodyString) throws ClientProtocolException, IOException; 
 
 }

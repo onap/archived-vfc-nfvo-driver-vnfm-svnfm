@@ -17,6 +17,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpRequestProcessor;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
@@ -44,24 +46,25 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 	@Autowired 
 	private AdaptorEnv adaptorEnv;
 	
-	@Autowired 
-	private HttpClientBuilder httpClientBuilder;
+	@Autowired
+	HttpClientProcessorInf httpClientProcessor;
 	
 	private Gson gson = new Gson();
 	
-	public VnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException
-	{
-		String httpPath = String.format(CommonConstants.RetrieveNvfmListPath, vnfmId);
-		RequestMethod method = RequestMethod.GET;
-		
-		String responseStr = operateNslcmHttpTask(null, httpPath, method);
-		
-		logger.info("NslcmMgmrImpl->queryVnfm, the vnfmInfo is {}", responseStr);
-		
-		VnfmInfo response = gson.fromJson(responseStr, VnfmInfo.class);
-		
-		return response;
-	}
+//	@Deprecated
+//	public VnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException
+//	{
+//		String httpPath = String.format(CommonConstants.RetrieveVnfmListPath, vnfmId);
+//		RequestMethod method = RequestMethod.GET;
+//		
+//		String responseStr = operateNslcmHttpTask(null, httpPath, method);
+//		
+//		logger.info("NslcmMgmrImpl->queryVnfm, the vnfmInfo is {}", responseStr);
+//		
+//		VnfmInfo response = gson.fromJson(responseStr, VnfmInfo.class);
+//		
+//		return response;
+//	}
 
 	public NslcmGrantVnfResponse grantVnf(NslcmGrantVnfRequest driverRequest) throws ClientProtocolException, IOException {
 		String httpPath = CommonConstants.NslcmGrantPath;
@@ -83,16 +86,19 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 		operateNslcmHttpTask(driverRequest, httpPath, method);
 	}
 	
-	public String operateNslcmHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
-		String url=adaptorEnv.getNslcmApiUriFront() + httpPath;
-		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, method);
-		processor.addHdeader(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+	private String operateNslcmHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
+		String url=adaptorEnv.getLcmApiUriFront() + httpPath;
 		
-		processor.addPostEntity(gson.toJson(httpBodyObj));
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		
-		String responseStr = processor.process(url);
+		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj));
 		
 		return responseStr;
+	}
+
+	public void setAdaptorEnv(AdaptorEnv env) {
+		this.adaptorEnv = env;
 	}
 
 }

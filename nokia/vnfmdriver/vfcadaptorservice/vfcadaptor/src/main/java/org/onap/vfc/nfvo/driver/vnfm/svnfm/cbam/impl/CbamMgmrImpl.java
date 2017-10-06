@@ -17,6 +17,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -38,6 +39,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpRequestProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -55,19 +57,18 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 	private AdaptorEnv adaptorEnv;
 	
 	@Autowired
-	private HttpClientBuilder httpClientBuilder;// = HttpClientUtils.createHttpClientBuilder();
+	HttpClientProcessorInf httpClientProcessor;
 	
 	private String retrieveToken() throws ClientProtocolException, IOException, JSONException {
 		String result = null;
 		String url= adaptorEnv.getCbamApiUriFront() + CommonConstants.RetrieveCbamTokenPath;
-		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, RequestMethod.POST);
-		processor.addHdeader(CommonConstants.ACCEPT, "*/*");
-		processor.addHdeader(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(CommonConstants.ACCEPT, "*/*");
+		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		
 		String bodyPostStr = String.format(CommonConstants.RetrieveCbamTokenPostStr, adaptorEnv.getGrantType(), adaptorEnv.getClientId(), adaptorEnv.getClientSecret());
-		processor.addPostEntity(bodyPostStr);
 		
-		String responseStr = processor.process(url);
+		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, map, bodyPostStr);
 		
 		logger.info("CbamMgmrImpl -> retrieveToken, responseStr is " + responseStr);
 		
@@ -175,13 +176,12 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		}
 	
 		String url= adaptorEnv.getCbamApiUriFront() + httpPath;
-		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, method);
-		processor.addHdeader(CommonConstants.AUTHORIZATION, "bearer " + token);
-		processor.addHdeader(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		
-		processor.addPostEntity(gson.toJson(httpBodyObj));
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
+		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		
-		String responseStr = processor.process(url);
+		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj));
 		
 		return responseStr;
 	}
@@ -197,6 +197,10 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		CBAMQueryOperExecutionResponse response = gson.fromJson(responseStr, CBAMQueryOperExecutionResponse.class);
 		
 		return response;
+	}
+
+	public void setAdaptorEnv(AdaptorEnv adaptorEnv) {
+		this.adaptorEnv = adaptorEnv;
 	}
 	
 }

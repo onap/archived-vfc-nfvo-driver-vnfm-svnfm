@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.vfcadaptor;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.inf;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.http.client.ClientProtocolException;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 
-@RunWith(SpringRunner.class)
-//@SpringBootTest
-public class VfcadaptorApplicationTests {
-
-	@Test
-	public void aapTest() {
-		assertThat("kcom").isEqualTo("kcom");
-	}
-
+public interface AaiMgmrInf {
+	public AaiVnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException;
 }

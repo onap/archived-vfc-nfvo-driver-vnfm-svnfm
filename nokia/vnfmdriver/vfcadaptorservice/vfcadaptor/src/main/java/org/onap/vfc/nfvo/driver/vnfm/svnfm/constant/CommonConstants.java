@@ -17,6 +17,8 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.constant;
 
 public class CommonConstants {
+	public static final String SCHEMA_HTTP = "http";
+	
 	public static final String HTTP_ERROR_DESC_500 = "Internal Server Error";
 	
 	
@@ -27,13 +29,16 @@ public class CommonConstants {
 	public static final String AUTHORIZATION = "Authorization";
 	public static final String UTF_8 = "utf-8";
 	
+	//AAI path get vnfm
+	// /external-system/esr-vnfm-list/esr-vnfm/{vnfm-id}
+	public static final String RetrieveVnfmListPath = "/external-system/esr-vnfm-list/esr-vnfm/%s";
+	
 	//Nslcm path
-	public static final String RetrieveNvfmListPath = "/nslcm/vl/vnfms/%s";
-	public static final String NslcmGrantPath = "/nslcm/v1/ns/grantvnf";
-	public static final String NslcmNotifyPath = "/nslcm/v1/vnfs/%s/Notify";
+	public static final String NslcmGrantPath = "/ns/grantvnf";
+	public static final String NslcmNotifyPath = "/vnfs/%s/Notify";
 	
 	//Catalog path
-	public static final String RetrieveVnfPackagePath = "/catalog/v1/vnfpackages/%s";
+	public static final String RetrieveVnfPackagePath = "/vnfpackages/%s";
 	
 	//CBAM -- Nokia VNFM path
 	public static final String CBAM_TOKEN_KEY = "access_token";
