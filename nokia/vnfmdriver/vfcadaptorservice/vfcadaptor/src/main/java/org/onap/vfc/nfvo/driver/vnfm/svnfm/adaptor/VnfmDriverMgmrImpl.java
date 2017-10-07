@@ -107,6 +107,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			vnfContinueProcessorInf.continueInstantiateVnf(driverRequest, vnfInstanceId, jobId.toString(), nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager);
 			
 		} catch (Exception e) {
+			logger.error("error VnfmDriverMgmrImpl --> instantiateVnf. ", e);
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
 		}
 		
@@ -133,6 +134,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			vnfContinueProcessorInf.continueTerminateVnf(driverRequest, vnfInstanceId, jobId, nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
 			
 		} catch (Exception e) {
+			logger.error("error VnfmDriverMgmrImpl --> terminateVnf. ", e);
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
 		}
 		
@@ -160,6 +162,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			CBAMQueryVnfResponse cbamResponse = cbamMgmr.queryVnf(vnfInstanceId);
 			driverResponse = responseConverter.queryRspConvert(cbamResponse);
 		} catch (Exception e) {
+			logger.error("error VnfmDriverMgmrImpl --> queryVnf. ", e);
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
 		}
 		
@@ -177,6 +180,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			String execId = jobInfo.getVnfmExecutionId();
 			cbamResponse = cbamMgmr.queryOperExecution(execId);
 		} catch (Exception e) {
+			logger.error("error VnfmDriverMgmrImpl --> getOperStatus. ", e);
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
 		}
 		
@@ -193,6 +197,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			CBAMScaleVnfResponse cbamResponse = cbamMgmr.scaleVnf(cbamRequest, vnfInstanceId);
 			driverResponse = responseConverter.scaleRspConvert(cbamResponse);
 		} catch (Exception e) {
+			logger.error("error VnfmDriverMgmrImpl --> scaleVnf. ", e);
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
 		}
 		
@@ -207,6 +212,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			CBAMHealVnfResponse cbamResponse = cbamMgmr.healVnf(cbamRequest, vnfInstanceId);
 			driverResponse = responseConverter.healRspConvert(cbamResponse);
 		} catch (Exception e) {
+			logger.error("error VnfmDriverMgmrImpl --> healVnf. ", e);
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
 		}
 		

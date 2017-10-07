@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -52,7 +53,7 @@ public class AaiMgmrInfImplTest {
 		
 		String json = "{"
 				+ "\"vnfm-id\":\"vnfm-id_001\","
-				+ "\"esr-system-info-list\":[{\"ip\" : \"1.3.5.6\"}]"
+				+ "\"esr-system-info-list\":[{\"ip-address\" : \"1.3.5.6\"}]"
 				+ "}"
 				+ "";
 		HttpResult httpResult = new HttpResult();
@@ -65,6 +66,6 @@ public class AaiMgmrInfImplTest {
 	public void testQueryVnfPackage() throws ClientProtocolException, IOException
 	{
 		AaiVnfmInfo vnfmInfo = aaiMgmr.queryVnfm(vnfmId);
-//		Assert.assertEquals("1.3.5.6", vnfmInfo.getEsrSystemInfoList().get(0).getIp());
+		Assert.assertEquals("1.3.5.6", vnfmInfo.getEsrSystemInfoList().get(0).getIp());
 	}
 }

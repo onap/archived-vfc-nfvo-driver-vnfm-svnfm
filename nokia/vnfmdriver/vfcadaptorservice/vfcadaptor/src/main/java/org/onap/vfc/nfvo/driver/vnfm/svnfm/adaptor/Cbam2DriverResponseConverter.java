@@ -80,8 +80,7 @@ public class Cbam2DriverResponseConverter {
 	}
 
 	public QueryVnfResponse queryRspConvert(CBAMQueryVnfResponse cbamResponse) {
-		QueryVnfResponse response = new QueryVnfResponse();
-		VnfInfo vnf = new VnfInfo();
+		QueryVnfResponse vnf = new QueryVnfResponse();
 		vnf.setVnfdId(cbamResponse.getVnfdId());
 		vnf.setVersion(cbamResponse.getVnfdVersion());
 		vnf.setVnfInstanceId(cbamResponse.getId());
@@ -91,7 +90,7 @@ public class Cbam2DriverResponseConverter {
 		vnf.setVnfProvider(cbamResponse.getVnfProvider());
 		vnf.setVnfStatus(cbamResponse.getInstantiationState());
 		vnf.setVnfType(cbamResponse.getVnfSoftwareVersion());
-		return response;
+		return vnf;
 	}
 
 	public OperStatusVnfResponse operRspConvert(OperationExecution oper) {

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -61,10 +62,12 @@ public class CatalogMgmrImplTest {
 		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
 	}
 
+	
 	@Test
 	public void testQueryVnfPackage() throws ClientProtocolException, IOException
 	{
-		VnfPackageInfo response = catalogMgmr.queryVnfPackage(vnfPackageId);
+		VnfPackageInfo packageInfo = catalogMgmr.queryVnfPackage(vnfPackageId);
+		Assert.assertEquals("1.3.5.6", packageInfo.getDownloadUri());
 	}
 
 }

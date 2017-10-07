@@ -16,52 +16,52 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 public class EsrSystemInfo {
-	@JsonProperty("esr-system-info-id")
+	@SerializedName("esr-system-info-id")
 	private String esrSystemId;
 	
-	@JsonProperty("system-name")
+	@SerializedName("system-name")
 	private String esrSystemName;
 	
-	@JsonProperty("type")
+	@SerializedName("type")
 	private String type;
 	
-	@JsonProperty("vendor")
+	@SerializedName("vendor")
 	private String vendor;
 	
-	@JsonProperty("version")
+	@SerializedName("version")
 	private String version;
 	
-	@JsonProperty("service-url")
+	@SerializedName("service-url")
 	private String serviceUrl;
 	
-	@JsonProperty("user-name")
+	@SerializedName("user-name")
 	private String userName;
 	
-	@JsonProperty("password")
+	@SerializedName("password")
 	private String password;
 	
-	@JsonProperty("protocal")
+	@SerializedName("protocal")
 	private String protocal;
 	
-	@JsonProperty("ssl-cacert")
+	@SerializedName("ssl-cacert")
 	private String sslCacert;
 	
-	@JsonProperty("ssl-insecure")
+	@SerializedName("ssl-insecure")
 	private String sslInsecure;
 	
-	@JsonProperty("ip-address")
+	@SerializedName("ip-address")
 	private String ip;
 	
-	@JsonProperty("port")
+	@SerializedName("port")
 	private String port;
 	
-	@JsonProperty("cloud-domain")
+	@SerializedName("cloud-domain")
 	private String cloudDomain;
 	
-	@JsonProperty("default-tenant")
+	@SerializedName("default-tenant")
 	private String defaultTenant;
 
 	public String getEsrSystemId() {

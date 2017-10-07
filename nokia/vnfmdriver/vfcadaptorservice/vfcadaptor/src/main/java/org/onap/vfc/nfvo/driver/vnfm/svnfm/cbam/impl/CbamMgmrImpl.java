@@ -60,7 +60,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 	private String retrieveToken() throws ClientProtocolException, IOException, JSONException {
 		String result = null;
 		String url= adaptorEnv.getCbamApiUriFront() + CommonConstants.RetrieveCbamTokenPath;
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put(CommonConstants.ACCEPT, "*/*");
 		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		
@@ -175,7 +175,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 	
 		String url= adaptorEnv.getCbamApiUriFront() + httpPath;
 		
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
 		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		

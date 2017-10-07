@@ -180,11 +180,10 @@ public class VnfmDriverMgmrImplTest {
 	public void testQueryVnf() throws ClientProtocolException, IOException {
 		CBAMQueryVnfResponse mockCbamResponse = new CBAMQueryVnfResponse();
 		mockCbamResponse.setId("executionId_001");
-		
+		mockCbamResponse.setVnfdId(vnfInstanceId);
 		when(cbamMgmr.queryVnf(Mockito.anyString())).thenReturn(mockCbamResponse);
-		ScaleVnfRequest request = new ScaleVnfRequest();
-		request.setType(CommonEnum.ScaleType.SCALE_IN);
 		QueryVnfResponse response = vnfmDriverMgmr.queryVnf(vnfmId, vnfInstanceId);
+		Assert.assertEquals(vnfInstanceId, response.getVnfdId());
 	}
 	
 	@Test
@@ -201,8 +200,9 @@ public class VnfmDriverMgmrImplTest {
 		cbamResponse.setGrantId("001002001");
 		
 		when(cbamMgmr.queryOperExecution(Mockito.anyString())).thenReturn(cbamResponse);
-		ScaleVnfRequest request = new ScaleVnfRequest();
 		OperStatusVnfResponse response = vnfmDriverMgmr.getOperStatus(vnfmId, "1");
+		
+		Assert.assertEquals("executionId_001", response.getJobId());
 	}
 
 }

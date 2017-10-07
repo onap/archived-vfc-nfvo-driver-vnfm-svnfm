@@ -89,7 +89,7 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 	private String operateNslcmHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
 		String url=adaptorEnv.getLcmApiUriFront() + httpPath;
 		
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		
 		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj)).getContent();

@@ -21,20 +21,26 @@ import java.util.List;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.entity.EsrSystemInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 public class AaiVnfmInfo {
+	@SerializedName("vnfm-id")
 	@JsonProperty("vnfm-id")
 	private String vnfmId;
 	
+	@SerializedName("vim-id")
 	@JsonProperty("vim-id")
 	private String vimId;
 	
+	@SerializedName("certificate-url")
 	@JsonProperty("certificate-url")
 	private String certificateUrl;
 	
+	@SerializedName("resource-version")
 	@JsonProperty("resource-version")
 	private String resourceVersion;
 	
+	@SerializedName("esr-system-info-list")
 	@JsonProperty("esr-system-info-list")
 	private List<EsrSystemInfo> esrSystemInfoList;
 

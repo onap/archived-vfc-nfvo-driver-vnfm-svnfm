@@ -86,17 +86,19 @@ public class MsbMgmrImpl implements IMsbMgmr {
 	
    public String getServiceUrlInMsbBySeriveNameAndPort(String serviceName, String version) throws RouteException
    {
+	   String serviceUrl = null;
 	   MSBServiceClient msbClient = new MSBServiceClient(adaptorEnv.getMsbIp(), adaptorEnv.getMsbPort());
 	   MicroServiceFullInfo microServiceInfo = msbClient.queryMicroServiceInfo(serviceName, version);
 	   if(null == microServiceInfo)
 	   {
 		   logger.error("There is no service in MSB for serviceName = {} and version = {}", serviceName, version);
 	   }
-	   
-	   String serviceUrl = microServiceInfo.getUrl();
-		logger.info("Service Url in MSB for serviceName = {} and version = {} is {}", serviceName, version, serviceUrl);
-		
-		return serviceUrl;
+	   else
+	   {
+		   serviceUrl = microServiceInfo.getUrl();
+		   logger.info("Service Url in MSB for serviceName = {} and version = {} is {}", serviceName, version, serviceUrl);
+	   }
+	   return serviceUrl;
 		
    }
 

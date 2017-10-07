@@ -52,7 +52,7 @@ public class CatalogMgmrImpl implements CatalogMgmrInf{
 	public VnfPackageInfo queryVnfPackage(String vnfPackageId) throws ClientProtocolException, IOException {
 		
 		String url=adaptorEnv.getCatalogApiUriFront() + String.format(CommonConstants.RetrieveVnfPackagePath, vnfPackageId);
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		
 		String bodyPostStr = String.format(CommonConstants.RetrieveCbamTokenPostStr, adaptorEnv.getGrantType(), adaptorEnv.getClientId(), adaptorEnv.getClientSecret());
 		
