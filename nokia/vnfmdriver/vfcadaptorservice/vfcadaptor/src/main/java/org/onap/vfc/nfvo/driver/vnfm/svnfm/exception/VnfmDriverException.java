@@ -24,7 +24,7 @@ public class VnfmDriverException extends RuntimeException{
 	public VnfmDriverException(int httpStatus, String message)
 	{
 		super(message);
-		this.httpStatus = httpStatus;
+		setHttpStatus(httpStatus);
 	}
 	
 	public int getHttpStatus() {

@@ -20,12 +20,12 @@ import java.util.List;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
@@ -36,7 +36,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.ResponseDescriptor;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.ResponseHistoryList;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.VnfInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,17 +51,6 @@ public class Cbam2DriverResponseConverter {
 		response.setJobId(jobId.longValue() + "");
 		response.setVnfInstanceId(cbamResponse.getId());
 
-		return response;
-	}
-
-	public InstantiateVnfResponse instantiateRspConvert(CBAMInstantiateVnfResponse cbamResponse) {
-		InstantiateVnfResponse response = new InstantiateVnfResponse();
-
-		VnfmJobExecutionInfo jobInfo = jobDbManager.findOne(Long.getLong(cbamResponse.getId()));
-
-		response.setJobId("1");
-
-		response.setVnfInstanceId("");
 		return response;
 	}
 
@@ -100,13 +88,13 @@ public class Cbam2DriverResponseConverter {
 		response.setJobId(oper.getId());
 		ResponseDescriptor er = new ResponseDescriptor();
 		// TODO er.setProgress(i);
-		if (oper.getStatus().equals("STARTED")) {
+		if (oper.getStatus() == CommonEnum.OperationStatus.STARTED ) {
 			er.setStatus("started");
-		} else if (oper.getStatus().equals("FINISHED")) {
+		} else if (oper.getStatus() == CommonEnum.OperationStatus.FINISHED) {
 			er.setStatus("finished");
-		} else if (oper.getStatus().equals("FAILED")) {
+		} else if (oper.getStatus() == CommonEnum.OperationStatus.FAILED) {
 			er.setStatus("error");
-		} else if (oper.getStatus().equals("OTHER")) {
+		} else if (oper.getStatus() == CommonEnum.OperationStatus.OTHER) {
 			er.setStatus("processing");
 		} else {
 			er.setStatus("error");

@@ -17,28 +17,41 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OTHER_VIM_INFO {
+public class OpenstackV2Info {
+
 	@JsonProperty("vimInfoType")
 	private VimInfoType vimInfoType;
-	
+	@JsonProperty("interfaceInfo")
+	private EndpointInfo interfaceInfo;
 	@JsonProperty("id")
 	private String id;
-
+	@JsonProperty("accessInfo")
+	private OpenStackAccessInfoV2 accessInfo;
 	public VimInfoType getVimInfoType() {
 		return vimInfoType;
 	}
-
 	public void setVimInfoType(VimInfoType vimInfoType) {
 		this.vimInfoType = vimInfoType;
 	}
-
+	public EndpointInfo getInterfaceInfo() {
+		return interfaceInfo;
+	}
+	public void setInterfaceInfo(EndpointInfo interfaceInfo) {
+		this.interfaceInfo = interfaceInfo;
+	}
 	public String getId() {
 		return id;
 	}
-
 	public void setId(String id) {
 		this.id = id;
 	}
+	public OpenStackAccessInfoV2 getAccessInfo() {
+		return accessInfo;
+	}
+	public void setAccessInfo(OpenStackAccessInfoV2 accessInfo) {
+		this.accessInfo = accessInfo;
+	}
+	
 	
 	
 

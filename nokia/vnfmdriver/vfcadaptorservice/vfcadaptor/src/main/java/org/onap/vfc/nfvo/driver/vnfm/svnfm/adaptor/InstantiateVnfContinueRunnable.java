@@ -139,6 +139,9 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.getLong(jobId));
 		
 		jobInfo.setVnfmExecutionId(cbamInstantiateResponse.getId());
+		if(CommonEnum.OperationStatus.FAILED == cbamInstantiateResponse.getStatus()){
+			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_ERROR);
+		}
 		jobDbMgmr.save(jobInfo);
 	}
 

@@ -62,6 +62,7 @@ public class CommonConstants {
 	
 	public static final String CBAM_OPERATION_STATUS_START = "start";
 	public static final String CBAM_OPERATION_STATUS_FINISH = "finished";
+	public static final String CBAM_OPERATION_STATUS_ERROR = "error";
 	
 	//MSB
 	public static final String MSB_REGISTER_SERVICE_PATH = "/api/microservices/v1/services";

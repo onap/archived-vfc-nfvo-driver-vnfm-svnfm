@@ -53,6 +53,9 @@ public class AaiMgmrInfImplTest {
 		
 		String json = "{"
 				+ "\"vnfm-id\":\"vnfm-id_001\","
+				+ "\"vim-id\":\"vim-id_001\","
+				+ "\"certificate-url\":\"certificate-url_001\","
+				+ "\"resource-version\":\"resource-version_001\","
 				+ "\"esr-system-info-list\":[{\"ip-address\" : \"1.3.5.6\"}]"
 				+ "}"
 				+ "";

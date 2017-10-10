@@ -15,37 +15,22 @@
 */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
-public class VimInfoType {
+public enum VimInfoType {
 	
-	public  OPENSTACK_V2_INFO  OPENSTACK_V2_INFO;
-	public OPENSTACK_V3_INFO  OPENSTACK_V3_INFO;
-	public VMWARE_VCLOUD_INFO VMWARE_VCLOUD_INFO;
-	public OTHER_VIM_INFO OTHER_VIM_INFO;
-	public OPENSTACK_V2_INFO getOPENSTACK_V2_INFO() {
-		return OPENSTACK_V2_INFO;
-	}
-	public void setOPENSTACK_V2_INFO(OPENSTACK_V2_INFO oPENSTACK_V2_INFO) {
-		OPENSTACK_V2_INFO = oPENSTACK_V2_INFO;
-	}
-	public OPENSTACK_V3_INFO getOPENSTACK_V3_INFO() {
-		return OPENSTACK_V3_INFO;
-	}
-	public void setOPENSTACK_V3_INFO(OPENSTACK_V3_INFO oPENSTACK_V3_INFO) {
-		OPENSTACK_V3_INFO = oPENSTACK_V3_INFO;
-	}
-	public VMWARE_VCLOUD_INFO getVMWARE_VCLOUD_INFO() {
-		return VMWARE_VCLOUD_INFO;
-	}
-	public void setVMWARE_VCLOUD_INFO(VMWARE_VCLOUD_INFO vMWARE_VCLOUD_INFO) {
-		VMWARE_VCLOUD_INFO = vMWARE_VCLOUD_INFO;
-	}
-	public OTHER_VIM_INFO getOTHER_VIM_INFO() {
-		return OTHER_VIM_INFO;
-	}
-	public void setOTHER_VIM_INFO(OTHER_VIM_INFO oTHER_VIM_INFO) {
-		OTHER_VIM_INFO = oTHER_VIM_INFO;
-	}
-		 
+	  OPENSTACK_V2_INFO  {
+		private OpenstackV2Info openstackv2;
+		
+	  },
+      OPENSTACK_V3_INFO{
+		  private OpenstackV3Info openstackv3;
+	  },
+	 VMWARE_VCLOUD_INFO{
+		  private VmwareVcloudInfo vmwareInfo;
+	  },
+	 OTHER_VIM_INFO{
+		  private OtherVimInfo other;
+	  }
+	
 		 
 		
 	 	

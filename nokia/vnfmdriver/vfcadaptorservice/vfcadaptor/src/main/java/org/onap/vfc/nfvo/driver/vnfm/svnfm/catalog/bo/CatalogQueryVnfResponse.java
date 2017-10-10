@@ -44,8 +44,6 @@ public class CatalogQueryVnfResponse {
 		this.csarId = csarId;
 	}
 
-	
-
 	public VnfPackageInfo getPackageInfo() {
 		return packageInfo;
 	}
@@ -69,11 +67,4 @@ public class CatalogQueryVnfResponse {
 	public void setVnfInstanceInfo(List<VnfInstanceInfo> vnfInstanceInfo) {
 		this.vnfInstanceInfo = vnfInstanceInfo;
 	}
-
-
-	
-	
-	
-	
-	
 }

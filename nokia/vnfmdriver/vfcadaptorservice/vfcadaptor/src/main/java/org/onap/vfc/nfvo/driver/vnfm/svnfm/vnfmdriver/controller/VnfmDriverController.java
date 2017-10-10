@@ -84,12 +84,7 @@ public class VnfmDriverController {
 		}
 		catch(VnfmDriverException e)
 		{
-			try {
-				httpResponse.setStatus(HttpStatus.SC_BAD_REQUEST);
-				httpResponse.sendError(e.getHttpStatus(), e.getMessage());
-			} catch (IOException e1) {
-				
-			}
+			processControllerException(httpResponse, e);
 		}
 		
 		return null;
@@ -109,12 +104,7 @@ public class VnfmDriverController {
 		}
 		catch(VnfmDriverException e)
 		{
-			try {
-				httpResponse.setStatus(HttpStatus.SC_BAD_REQUEST);
-				httpResponse.sendError(e.getHttpStatus(), e.getMessage());
-			} catch (IOException e1) {
-				
-			}
+			processControllerException(httpResponse, e);
 		}
 		
 		return null;
@@ -132,11 +122,7 @@ public class VnfmDriverController {
 		}
 		catch(VnfmDriverException e)
 		{
-			try {
-				httpResponse.sendError(e.getHttpStatus(), e.getMessage());
-			} catch (IOException e1) {
-				
-			}
+			processControllerException(httpResponse, e);
 		}
 		
 		return null;
@@ -157,11 +143,7 @@ public class VnfmDriverController {
 		}
 		catch(VnfmDriverException e)
 		{
-			try {
-				httpResponse.sendError(e.getHttpStatus(), e.getMessage());
-			} catch (IOException e1) {
-				
-			}
+			processControllerException(httpResponse, e);
 		}
 		
 		return null;
@@ -182,15 +164,21 @@ public class VnfmDriverController {
 		}
 		catch(VnfmDriverException e)
 		{
-			try {
-				httpResponse.sendError(e.getHttpStatus(), e.getMessage());
-			} catch (IOException e1) {
-				
-			}
+			processControllerException(httpResponse, e);
 		}
 		
 		return null;
     }
+
+	private void processControllerException(HttpServletResponse httpResponse, VnfmDriverException e) {
+		try {
+			logger.error(" VnfmDriverController --> processControllerException", e);
+			httpResponse.setStatus(HttpStatus.SC_BAD_REQUEST);
+			httpResponse.sendError(e.getHttpStatus(), e.getMessage());
+		} catch (IOException e1) {
+			logger.error("VnfmDriverController --> processControllerException error to sendError ", e1);
+		}
+	}
 
 
 }

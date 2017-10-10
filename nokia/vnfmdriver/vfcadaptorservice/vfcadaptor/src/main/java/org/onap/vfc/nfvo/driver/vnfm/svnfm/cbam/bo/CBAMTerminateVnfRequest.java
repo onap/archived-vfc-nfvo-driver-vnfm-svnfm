@@ -37,109 +37,49 @@ public class CBAMTerminateVnfRequest {
 	
 	@JsonProperty("additionalParams")
 	private Object additionalParams;
-	
-	
 
 	public String getName() {
 		return name;
 	}
 
-
-
-
-
-
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
-
-
-
-
-
 
 	public String getDescription() {
 		return description;
 	}
 
-
-
-
-
-
-
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
-
-
 
 	public CommonEnum.TerminationType getTerminationType() {
 		return terminationType;
 	}
 
-
-
-
-
-
-
 	public void setTerminationType(CommonEnum.TerminationType terminationType) {
 		this.terminationType = terminationType;
 	}
-
-
-
-
-
-
 
 	public Integer getGracefulTerminationTimeout() {
 		return gracefulTerminationTimeout;
 	}
 
-
-
-
-
-
-
 	public void setGracefulTerminationTimeout(Integer gracefulTerminationTimeout) {
 		this.gracefulTerminationTimeout = gracefulTerminationTimeout;
 	}
-
-
-
-
-
-
 
 	public Object getAdditionalParams() {
 		return additionalParams;
 	}
 
-
-
-
-
-
-
 	public void setAdditionalParams(Object additionalParams) {
 		this.additionalParams = additionalParams;
 	}
 
-
-
-
-
-
-
 	public enum TerminationType{
 		GRACEFUL, FORCEFUL
-		
 	}
 
 }

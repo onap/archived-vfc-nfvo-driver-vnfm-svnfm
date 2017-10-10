@@ -73,11 +73,12 @@ public class TerminateVnfContinueRunnable implements Runnable {
 			
 			CBAMTerminateVnfRequest cbamRequest = requestConverter.terminateReqConvert(driverRequest);
 			CBAMTerminateVnfResponse cbamResponse = cbamMgmr.terminateVnf(cbamRequest, vnfInstanceId);
-			handleCbamInstantiateResponse(cbamResponse, jobId);
+			handleCbamTerminateResponse(cbamResponse, jobId);
 			
 			cbamMgmr.deleteVnf(vnfInstanceId);
 			
 			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(cbamResponse);
+			
 			nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfInstanceId);
 			
 		} catch (ClientProtocolException e) {
@@ -88,10 +89,13 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		
 	}
 	
-	private void handleCbamInstantiateResponse(CBAMTerminateVnfResponse cbamResponse, String jobId) {
+	private void handleCbamTerminateResponse(CBAMTerminateVnfResponse cbamResponse, String jobId) {
 		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.getLong(jobId));
 		
 		jobInfo.setVnfmExecutionId(cbamResponse.getId());
+		if(CommonEnum.OperationStatus.FAILED ==cbamResponse.getStatus()) {
+			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_ERROR);
+		}
 		jobDbMgmr.save(jobInfo);
 	}
 	

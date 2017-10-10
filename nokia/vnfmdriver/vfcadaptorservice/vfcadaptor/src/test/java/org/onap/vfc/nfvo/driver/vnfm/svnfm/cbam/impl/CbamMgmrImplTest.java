@@ -58,7 +58,6 @@ public class CbamMgmrImplTest {
 		MockitoAnnotations.initMocks(this);
 		AdaptorEnv env = new AdaptorEnv();
 		cbamMgmr.setAdaptorEnv(env);
-		MockitoAnnotations.initMocks(this);
 		
 		String json = "{\"access_token\":\"1234567\"}";
 		HttpResult httpResult = new HttpResult();

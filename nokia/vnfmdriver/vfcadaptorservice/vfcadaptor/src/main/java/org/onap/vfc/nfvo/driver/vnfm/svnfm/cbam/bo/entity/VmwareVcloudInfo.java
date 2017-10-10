@@ -17,7 +17,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OPENSTACK_V3_INFO {
+public class VmwareVcloudInfo {
 	
 	@JsonProperty("vimInfoType")
 	private VimInfoType vimInfoType;
@@ -26,7 +26,7 @@ public class OPENSTACK_V3_INFO {
 	@JsonProperty("id")
 	private String id;
 	@JsonProperty("accessInfo")
-	private OpenStackAccessInfoV3 accessInfo;
+	private VCloudAccessInfo accessInfo;
 	public VimInfoType getVimInfoType() {
 		return vimInfoType;
 	}
@@ -45,12 +45,13 @@ public class OPENSTACK_V3_INFO {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public OpenStackAccessInfoV3 getAccessInfo() {
+	public VCloudAccessInfo getAccessInfo() {
 		return accessInfo;
 	}
-	public void setAccessInfo(OpenStackAccessInfoV3 accessInfo) {
+	public void setAccessInfo(VCloudAccessInfo accessInfo) {
 		this.accessInfo = accessInfo;
 	}
+	
 	
 	
 

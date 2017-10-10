@@ -16,12 +16,9 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity;
 
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ResponseHistoryList {
-
 	
 	@JsonProperty("status")
 	private String  status;//started;processing;finished;error
@@ -38,8 +35,6 @@ public class ResponseHistoryList {
 	@JsonProperty("responseId")
 	private Integer responseId;
 	
-	
-
 	public String getStatus() {
 		return status;
 	}
@@ -48,7 +43,6 @@ public class ResponseHistoryList {
 		this.status = status;
 	}
 
-	
 	public Integer getProgress() {
 		return progress;
 	}
@@ -80,12 +74,4 @@ public class ResponseHistoryList {
 	public void setResponseId(Integer responseId) {
 		this.responseId = responseId;
 	}
-
-	
-
-	
-	
-	
-	
-	
 }

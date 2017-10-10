@@ -39,6 +39,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -81,10 +82,16 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		String httpPath = CommonConstants.CbamCreateVnfPath;
 		RequestMethod method = RequestMethod.POST;
 			
-		String responseStr = operateCbamHttpTask(cbamRequest, httpPath, method);
+		HttpResult httpResult = operateCbamHttpTask(cbamRequest, httpPath, method);
+		String responseStr = httpResult.getContent();
 		
 		logger.info("CbamMgmrImpl -> createVnf, responseStr is " + responseStr);
-		
+		int code = httpResult.getStatusCode();
+		if(code == 201) {
+			logger.info("CbamMgmrImpl -> createVnf success");
+		}else {
+			logger.error("CbamMgmrImpl -> createVnf error ");
+		}
 		CBAMCreateVnfResponse response = gson.fromJson(responseStr, CBAMCreateVnfResponse.class);
 		
 		return response;
@@ -97,10 +104,16 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		String httpPath = String.format(CommonConstants.CbamInstantiateVnfPath, vnfInstanceId);
 		RequestMethod method = RequestMethod.POST;
 			
-		String responseStr = operateCbamHttpTask(cbamRequest, httpPath, method);
+		HttpResult httpResult = operateCbamHttpTask(cbamRequest, httpPath, method);
+		String responseStr = httpResult.getContent();
 		
 		logger.info("CbamMgmrImpl -> instantiateVnf, responseStr is " + responseStr);
-		
+		int code = httpResult.getStatusCode();
+		if(code == 202) {
+			logger.info("CbamMgmrImpl -> instantiateVnf success " );
+		}else {
+			logger.error("CbamMgmrImpl -> instantiateVnf error " );
+		}
 		CBAMInstantiateVnfResponse response = gson.fromJson(responseStr, CBAMInstantiateVnfResponse.class);
 		
 		return response;
@@ -110,10 +123,16 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		String httpPath = String.format(CommonConstants.CbamTerminateVnfPath, vnfInstanceId);
 		RequestMethod method = RequestMethod.POST;
 		
-		String responseStr = operateCbamHttpTask(cbamRequest, httpPath, method);
+		HttpResult httpResult = operateCbamHttpTask(cbamRequest, httpPath, method);
+		String responseStr = httpResult.getContent();
 		
 		logger.info("CbamMgmrImpl -> terminateVnf, responseStr is " + responseStr);
-		
+		int code = httpResult.getStatusCode();
+		if(code == 202) {
+			logger.info("CbamMgmrImpl -> terminateVnf  sucess " );
+		}else {
+			logger.error("CbamMgmrImpl -> terminateVnf error " );
+		}
 		CBAMTerminateVnfResponse response = gson.fromJson(responseStr, CBAMTerminateVnfResponse.class);
 		
 		return response;
@@ -122,18 +141,29 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 	public void deleteVnf(String vnfInstanceId) throws ClientProtocolException, IOException {
 		String httpPath = String.format(CommonConstants.CbamDeleteVnfPath, vnfInstanceId);
 		RequestMethod method = RequestMethod.DELETE;
+		HttpResult httpResult = operateCbamHttpTask(null, httpPath, method);
 		
-		operateCbamHttpTask(null, httpPath, method);
+		int code = httpResult.getStatusCode();
+		if(code == 204) {
+			logger.info("CbamMgmrImpl -> deleteVnf success.");
+		}else {
+		    logger.error("CbamMgmrImpl -> deleteVnf error. detail info is " + httpResult.getContent());
+		}
 		
-		logger.info("CbamMgmrImpl -> deleteVnf.");
 	}
 	
 	public CBAMScaleVnfResponse scaleVnf(CBAMScaleVnfRequest cbamRequest, String vnfInstanceId) throws ClientProtocolException, IOException {
 		String httpPath = String.format(CommonConstants.CbamScaleVnfPath, vnfInstanceId);
 		RequestMethod method = RequestMethod.POST;
 			
-		String responseStr = operateCbamHttpTask(cbamRequest, httpPath, method);
-		
+		HttpResult httpResult = operateCbamHttpTask(cbamRequest, httpPath, method);
+		String responseStr = httpResult.getContent();
+		int code = httpResult.getStatusCode();
+		if(code == 202) {
+			logger.info("CbamMgmrImpl -> scaleVnf success.");
+		}else {
+		    logger.error("CbamMgmrImpl -> scaleVnf error. " );
+		}
 		CBAMScaleVnfResponse response = gson.fromJson(responseStr, CBAMScaleVnfResponse.class);
 		
 		return response;
@@ -143,10 +173,16 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		String httpPath = String.format(CommonConstants.CbamHealVnfPath, vnfInstanceId);
 		RequestMethod method = RequestMethod.POST;
 			
-		String responseStr = operateCbamHttpTask(cbamRequest, httpPath, method);
+		HttpResult httpResult = operateCbamHttpTask(cbamRequest, httpPath, method);
+		String responseStr = httpResult.getContent();
 		
 		logger.info("CbamMgmrImpl -> healVnf, responseStr is " + responseStr);
-		
+		int code = httpResult.getStatusCode();
+		if(code == 202) {
+			logger.info("CbamMgmrImpl -> healVnf success.");
+		}else {
+		    logger.error("CbamMgmrImpl -> healVnf error. " );
+		}
 		CBAMHealVnfResponse response = gson.fromJson(responseStr, CBAMHealVnfResponse.class);
 		
 		return response;
@@ -156,16 +192,23 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		String httpPath = String.format(CommonConstants.CbamQueryVnfPath, vnfInstanceId);
 		RequestMethod method = RequestMethod.GET;
 		
-		String responseStr = operateCbamHttpTask(null, httpPath, method);
+		HttpResult httpResult = operateCbamHttpTask(null, httpPath, method);
+		String responseStr = httpResult.getContent();
 		
 		logger.info("CbamMgmrImpl -> queryVnf, responseStr is " + responseStr);
+		int code = httpResult.getStatusCode();
+		if(code == 200) {
+			logger.info("CbamMgmrImpl -> queryVnf success.");
+		}else {
+		    logger.error("CbamMgmrImpl -> queryVnf error. " );
+		}
 		
 		CBAMQueryVnfResponse response = gson.fromJson(responseStr, CBAMQueryVnfResponse.class);
 		
 		return response;
 	}
 
-	public String operateCbamHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
+	public HttpResult operateCbamHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
 		String token = null;
 		try {
 			token = retrieveToken();
@@ -179,18 +222,27 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
 		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		
-		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj)).getContent();
-		
-		return responseStr;
+		return httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj));
 	}
 
 	public CBAMQueryOperExecutionResponse queryOperExecution(String execId) throws ClientProtocolException, IOException{
 		String httpPath = String.format(CommonConstants.CbamGetOperStatusPath, execId);
 		RequestMethod method = RequestMethod.GET;
 		
-		String responseStr = operateCbamHttpTask(null, httpPath, method);
+		HttpResult httpResult = operateCbamHttpTask(null, httpPath, method);
+		String responseStr = httpResult.getContent();
 		
 		logger.info("CbamMgmrImpl -> CBAMQueryOperExecutionResponse, responseStr is " + responseStr);
+		
+		int code = httpResult.getStatusCode();
+		if(code == 200) {
+			logger.info("CbamMgmrImpl -> CBAMQueryOperExecutionResponse, success" );
+		}else if(code == 202) {
+			logger.info("CbamMgmrImpl -> CBAMQueryOperExecutionResponse, ongoing" );
+		}else {
+			logger.error("CbamMgmrImpl -> CBAMQueryOperExecutionResponse, error" );
+		}
+		
 		
 		CBAMQueryOperExecutionResponse response = gson.fromJson(responseStr, CBAMQueryOperExecutionResponse.class);
 		

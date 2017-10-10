@@ -40,10 +40,4 @@ public class VnfInstanceInfo {
 	public void setVnfInstanceName(String vnfInstanceName) {
 		this.vnfInstanceName = vnfInstanceName;
 	}
-	
-	
-	
-	
-	
-
 }

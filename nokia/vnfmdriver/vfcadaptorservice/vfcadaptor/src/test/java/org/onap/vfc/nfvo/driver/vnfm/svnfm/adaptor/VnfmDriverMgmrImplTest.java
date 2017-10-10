@@ -108,11 +108,25 @@ public class VnfmDriverMgmrImplTest {
 		esrSystemInfo.setProtocal(protocol);
 		esrSystemInfo.setIp(ip);
 		esrSystemInfo.setPort(port);
+		esrSystemInfo.setCloudDomain("cloudDomain");
+		esrSystemInfo.setDefaultTenant("defaultTenant");
+		esrSystemInfo.setEsrSystemId("esrSystemId");
+		esrSystemInfo.setPassword("password");
+		esrSystemInfo.setServiceUrl("serviceUrl");
+		esrSystemInfo.setSslCacert("sslCacert");
+		esrSystemInfo.setSslInsecure("sslInsecure");
+		esrSystemInfo.setType("type");
+		esrSystemInfo.setUserName("userName");
+		esrSystemInfo.setVendor("vendor");
+		esrSystemInfo.setVersion("version");
 		
 		List<EsrSystemInfo> esrSystemInfoList = new ArrayList<EsrSystemInfo>();
 		esrSystemInfoList.add(esrSystemInfo);
 		AaiVnfmInfo mockVnfmInfo = new AaiVnfmInfo();
 		mockVnfmInfo.setVnfmId(vnfmId);
+		mockVnfmInfo.setVimId("vimId");
+		mockVnfmInfo.setResourceVersion("resourceVersion");
+		mockVnfmInfo.setCertificateUrl("certificateUrl");
 		mockVnfmInfo.setEsrSystemInfoList(esrSystemInfoList);
 		
 		Driver2CbamRequestConverter reqConverter = new Driver2CbamRequestConverter();

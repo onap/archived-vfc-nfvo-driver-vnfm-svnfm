@@ -25,10 +25,13 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 @SpringBootApplication
-//@ComponentScan(basePackages= {"org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.controller"})
 @ComponentScan
 public class VfcadaptorApplication {
 
+	private VfcadaptorApplication() {
+		
+	}
+	
 	public final static void main(String[] args) {
 		SpringApplication.run(VfcadaptorApplication.class, args);
 	}

@@ -22,7 +22,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.VnfmInfo;
 
 public interface NslcmMgmrInf {
 //	public VnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException;
