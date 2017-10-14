@@ -3,7 +3,7 @@
         "driverName": "nokiavnfmdriver",
         "instanceID": "nokiavnfm-0-1",
         "ip": "127.0.0.1",
-        "port": "8485",
+        "port": "8486",
         "protocol": "http",
         "services": [{
                 "service_url": "/api/nokiavnfmdriver/v1",
