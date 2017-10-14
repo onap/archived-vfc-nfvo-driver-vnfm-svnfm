@@ -31,7 +31,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
+
+import net.minidev.json.JSONObject;
 
 @Component
 public class MsbMgmrImpl implements IMsbMgmr {
@@ -46,16 +49,19 @@ public class MsbMgmrImpl implements IMsbMgmr {
 	public void register() {
 		try {
 			String vfcAdaptorInfoJsonStr = readVfcAdaptorInfoFromJsonFile();
-			MicroServiceInfo msinfo = gson.fromJson(vfcAdaptorInfoJsonStr, MicroServiceInfo.class);
+//			MicroServiceInfo msinfo = gson.fromJson(vfcAdaptorInfoJsonStr, MicroServiceInfo.class);
+			
+			JSON json = com.alibaba.fastjson.JSON.parseObject(vfcAdaptorInfoJsonStr);
+			MicroServiceInfo msinfo = com.alibaba.fastjson.JSON.toJavaObject(json , MicroServiceInfo.class);
 			
 			MSBServiceClient msbClient = new MSBServiceClient(adaptorEnv.getMsbIp(), adaptorEnv.getMsbPort());
 			MicroServiceFullInfo microServiceInfo = msbClient.registerMicroServiceInfo(msinfo);
 			logger.info("Registered service response info is " + microServiceInfo.toString());
 			
-		} catch (IOException e) {
-			logger.error("Failed to read vfcadaptor info! ", e);
 		} catch (RouteException e) {
-			logger.error("Failed to register nokia vnfm driver! ", e);
+			logger.error("RouteException Failed to register nokia vnfm driver! ", e);
+		} catch (IOException e) {
+			logger.error("IOException Failed to register nokia vnfm driver! ", e);
 		}
 			
 	}
@@ -104,6 +110,11 @@ public class MsbMgmrImpl implements IMsbMgmr {
 
 	public void setAdaptorEnv(AdaptorEnv env) {
 		this.adaptorEnv = env;
+	}
+	
+	public static final void main(String[] args) {
+		MsbMgmrImpl impl = new MsbMgmrImpl();
+		impl.register();
 	}
 
 }
