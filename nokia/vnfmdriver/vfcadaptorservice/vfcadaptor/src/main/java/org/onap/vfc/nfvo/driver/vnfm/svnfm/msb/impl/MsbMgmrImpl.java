@@ -47,7 +47,6 @@ public class MsbMgmrImpl implements IMsbMgmr {
 	public void register() {
 		try {
 			String vfcAdaptorInfoJsonStr = readVfcAdaptorInfoFromJsonFile();
-//			MicroServiceInfo msinfo = gson.fromJson(vfcAdaptorInfoJsonStr, MicroServiceInfo.class);
 			
 			JSON json = com.alibaba.fastjson.JSON.parseObject(vfcAdaptorInfoJsonStr);
 			MicroServiceInfo msinfo = com.alibaba.fastjson.JSON.toJavaObject(json , MicroServiceInfo.class);

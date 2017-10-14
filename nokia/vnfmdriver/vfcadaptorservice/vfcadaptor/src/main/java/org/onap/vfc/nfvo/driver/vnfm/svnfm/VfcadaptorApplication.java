@@ -26,6 +26,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @Configuration
 @SpringBootApplication
 @ComponentScan
+@SuppressWarnings(value="all")
 public class VfcadaptorApplication {
 
 	public final static void main(String[] args) {
