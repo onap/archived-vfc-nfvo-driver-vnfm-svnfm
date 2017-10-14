@@ -28,10 +28,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @ComponentScan
 public class VfcadaptorApplication {
 
-	private VfcadaptorApplication() {
-		
-	}
-	
 	public final static void main(String[] args) {
 		SpringApplication.run(VfcadaptorApplication.class, args);
 	}

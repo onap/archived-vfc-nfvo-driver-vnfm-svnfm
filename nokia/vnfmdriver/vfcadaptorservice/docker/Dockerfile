@@ -41,7 +41,7 @@ RUN wget -q -O nfvo-driver-vnfm-nokia-1.0.0-SNAPSHOT.zip "https://nexus.onap.org
 # Set permissions
 RUN find . -type d -exec chmod o-w {} \;
 RUN find . -name "*.sh" -exec chmod +x {} \;
-EXPOSE 8485
+EXPOSE 8486
 RUN echo ONAP nfvo-driver-vnfm-nokia 1.0.0-SNAPSHOT "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip" > ONAP_VERSION
 
 
