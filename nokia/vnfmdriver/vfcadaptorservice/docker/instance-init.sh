@@ -18,4 +18,4 @@
 
 # Initialize MySQL schema
 cd bin
-./init_db.sh vnfm vnfmpass 127.0.0.1 3306
+./init_db.sh root rootpass 127.0.0.1 3306
