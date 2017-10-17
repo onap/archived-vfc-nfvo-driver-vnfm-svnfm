@@ -18,7 +18,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.impl;
 
 import java.util.concurrent.Executors;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.Cbam2DriverResponseConverter;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.Driver2CbamRequestConverter;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.InstantiateVnfContinueRunnable;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.TerminateVnfContinueRunnable;
@@ -29,7 +28,9 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.inf.VnfContinueProcessorInf;
+import org.springframework.stereotype.Component;
 
+@Component
 public class VnfContinueProcessorImpl implements VnfContinueProcessorInf{
 
 	@Override

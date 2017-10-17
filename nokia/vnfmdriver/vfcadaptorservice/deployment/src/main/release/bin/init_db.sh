@@ -44,10 +44,11 @@ fi
 echo
 echo "DB-INIT [vnfm_db] : START"
 
-mysql -u$1 -p$2 -h$3 -P$4 <$(cd `dirname $0`; pwd)/db/mysql/db-schema.sql
+mysql -u$1 -p$2 -h$3 -P$4 <$(cd `dirname $0`; pwd)/db/mysql/db-schema.sql > myout_init_db.file 2>&1
 
 if [ $? != 0 ] ; then
    echo "DB-INIT [vnfm_db] : FAILED !"
+   cat myout_init_db.file
    exit 1
 fi
 
