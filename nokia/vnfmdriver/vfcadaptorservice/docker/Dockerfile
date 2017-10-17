@@ -24,7 +24,6 @@ WORKDIR /service
 RUN wget -q http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm && rpm -ivh mysql-community-release-el7-5.noarch.rpm && rm -f mysql-community-release-el7-5.noarch.rpm
 RUN yum -y update
 RUN yum -y install -y mysql-server
-RUN yum -y install -y mysql-client
 RUN mysql_install_db --user=mysql --datadir=/var/lib/mysql
 EXPOSE 3306
 RUN sed -i "s|bind-address.*|# bind-address = 127.0.0.1|" /etc/mysql/my.cnf
