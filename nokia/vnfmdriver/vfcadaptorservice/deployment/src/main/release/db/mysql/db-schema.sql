@@ -17,7 +17,7 @@
 
 /******************drop old database and user***************************/
 use mysql;
-drop database IF  EXISTS vnfm_db;
+drop database IF EXISTS vnfm_db;
 delete from user where User='vnfm';
 FLUSH PRIVILEGES;
 
