@@ -131,8 +131,8 @@ def instantiate_vnf(request, *args, **kwargs):
         vnfm_ip = urlparse(ignorcase_get(vnfm_info, "url")).netloc.split(':')[0]
         VNFS = ["SPGW", "MME"]
         if vnfdId in VNFS:
-            data["VNFD"] = "ftp://VMVERSION:vmversion@" + vnfm_ip + ":21/" + vnfdId
-            data["VNFURL"] = "ftp://VMVERSION:vmversion@" + vnfm_ip + ":21/" + vnfdId
+            data["VNFD"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + vnfdId
+            data["VNFURL"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + vnfdId
         else:
             data["VNFD"] = ignorcase_get(packageInfo, "downloadUri")
             data["VNFURL"] = ignorcase_get(packageInfo, "downloadUri")
