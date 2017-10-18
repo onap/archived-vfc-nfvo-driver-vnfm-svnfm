@@ -44,6 +44,7 @@ fi
 echo
 echo "DB-INIT [vnfm_db] : START"
 
+echo "start to create database and tables ... "
 mysql -u$1 -p$2 -h$3 -P$4 <$(cd `dirname $0`; pwd)/db/mysql/db-schema.sql > myout_init_db.file 2>&1
 
 if [ $? != 0 ] ; then
