@@ -1,7 +1,7 @@
 {
   "serviceName": "hwvnfm",
   "version": "v1",
-  "url": "/api/hwvnfm/v1",
+  "url": "/api/huaweivnfmdriver/v1",
   "protocol": "REST",
   "visualRange": "1",
   "nodes": [
