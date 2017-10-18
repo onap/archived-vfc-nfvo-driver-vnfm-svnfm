@@ -31,18 +31,20 @@ import org.apache.commons.io.IOUtils;
  * @author
  * @version VFC 1.0 Oct 24, 2016
  */
-@Path("/api/hwvnfm/v1")
+@Path("/api/huaweivnfmdriver/v1")
 @Produces({MediaType.APPLICATION_JSON})
 public class SwaggerRoa {
+
     /**
      * API doc.
+     * 
      * @param filename
      * @return
      * @throws IOException
      */
     @GET
     @Path("/swagger.json")
-    public String apidoc() throws IOException{
+    public String apidoc() throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         return IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
     }

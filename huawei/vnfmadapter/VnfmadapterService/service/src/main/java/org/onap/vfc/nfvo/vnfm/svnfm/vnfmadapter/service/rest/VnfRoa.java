@@ -51,7 +51,7 @@ import net.sf.json.JSONObject;
  * @version VFC 1.0 Aug 24, 2016
  */
 @SuppressWarnings("unchecked")
-@Path("/api/hwvnfm/v1")
+@Path("/api/huaweivnfmdriver/v1")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class VnfRoa {
