@@ -32,7 +32,10 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfExtCpData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AccessInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.GrantInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.NslcmVimInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VimAssets;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VimComputeResourceFlavour;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
@@ -59,15 +62,21 @@ public class Driver2CbamRequestConverter {
 		VimInfo vim = new VimInfo();
 		EndpointInfo inter = new EndpointInfo();
 		OpenstackV3Info openstackV3 = new OpenstackV3Info();
-		
-		vim.setId(nslc.getVim().getVimId());
-		openstackV3.setId(nslc.getVim().getVimId());
-		inter.setEndpoint(nslc.getVim().getInterfaceEndpoint());
+		List<NslcmVimInfo>  nslcmVim=nslc.getVim();
+		for(int i=0;i<=nslcmVim.size();i++) {
+		vim.setId(nslcmVim.get(i).getVimInfoId());
+		openstackV3.setId(nslcmVim.get(i).getVimId());
+		inter.setEndpoint(nslcmVim.get(i).getInterfaceEndpoint());
 		openstackV3.setInterfaceInfo(inter);
 		OpenStackAccessInfoV3 v3 = new OpenStackAccessInfoV3();
-		v3.setUsername(nslc.getVim().getAccessInfo().getUsername());
-		v3.setPassword(nslc.getVim().getAccessInfo().getPassword());
+		List<AccessInfo> accessInfo=nslcmVim.get(i).getAccessInfo();
+		for(int j=0;j<=accessInfo.size();j++) {
+		v3.setUsername(accessInfo.get(j).getUsername());
+		v3.setPassword(accessInfo.get(j).getPassword());
+		}
 		openstackV3.setAccessInfo(v3);
+		}
+		
 		vims.add(vim);
 		List<ExtVirtualLinkData> list = new ArrayList<ExtVirtualLinkData>();
 		ExtVirtualLinkData ext = new ExtVirtualLinkData();

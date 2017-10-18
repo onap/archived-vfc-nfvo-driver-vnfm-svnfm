@@ -16,22 +16,24 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.impl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 
-import org.onap.msb.sdk.discovery.common.RouteException;
-import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
-import org.onap.msb.sdk.discovery.entity.MicroServiceInfo;
-import org.onap.msb.sdk.discovery.entity.RouteResult;
-import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
+import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util.CommonUtil;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.bo.MsbServiceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.inf.IMsbMgmr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 
 @Component
@@ -41,25 +43,28 @@ public class MsbMgmrImpl implements IMsbMgmr {
 	@Autowired
 	AdaptorEnv adaptorEnv;
 	
+	@Autowired
+	HttpClientProcessorInf httpClientProcessor;
+	
 	private Gson gson = new Gson();
 	
 	@Override
 	public void register() {
+		
 		try {
-			String vfcAdaptorInfoJsonStr = readVfcAdaptorInfoFromJsonFile();
+			String url = adaptorEnv.getMsbApiUriFront() + CommonConstants.MSB_REGISTER_SERVICE_PATH;
+			HashMap<String, String> map = new HashMap<>();
+			map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 			
-			JSON json = com.alibaba.fastjson.JSON.parseObject(vfcAdaptorInfoJsonStr);
-			MicroServiceInfo msinfo = com.alibaba.fastjson.JSON.toJavaObject(json , MicroServiceInfo.class);
+			String bodyPostStr = readVfcAdaptorInfoFromJsonFile();;
 			
-			MSBServiceClient msbClient = new MSBServiceClient(adaptorEnv.getMsbIp(), adaptorEnv.getMsbPort());
-			MicroServiceFullInfo microServiceInfo = msbClient.registerMicroServiceInfo(msinfo);
-			logger.info("Registered service response info is " + microServiceInfo.toString());
+			String responseStr = httpClientProcessor.process(url, RequestMethod.POST, map, bodyPostStr).getContent();
 			
-		} catch (RouteException e) {
-			logger.error("RouteException Failed to register nokia vnfm driver! ", e);
-		} catch (IOException e) {
+			logger.info("MsbMgmrImpl -> register, responseStr is " + responseStr);
+			
+		}  catch (IOException e) {
 			logger.error("IOException Failed to register nokia vnfm driver! ", e);
-		}
+		} 
 			
 	}
 	
@@ -73,36 +78,35 @@ public class MsbMgmrImpl implements IMsbMgmr {
 	@Override
 	public void unregister() {
 		try {
-			String jsonStr = readVfcAdaptorInfoFromJsonFile();
-			MicroServiceInfo msinfo = gson.fromJson(jsonStr, MicroServiceInfo.class);
+			String url = adaptorEnv.getMsbApiUriFront() + String.format(CommonConstants.MSB_UNREGISTER_SERVICE_PATH);
 			
-			MSBServiceClient msbClient = new MSBServiceClient(adaptorEnv.getMsbIp(), adaptorEnv.getMsbPort());
-			RouteResult routeResult = msbClient.cancelMicroServiceInfo(msinfo.getServiceName(), msinfo.getVersion());
-			logger.info("unregistered service response info is " + routeResult.toString());
+			String responseStr = httpClientProcessor.process(url, RequestMethod.DELETE, null, null).getContent();
 			
-		} catch (IOException e) {
-			logger.error("Failed to read vfcadaptor info! ", e);
-		} catch (RouteException e) {
-			logger.error("Failed to register nokia vnfm driver! ", e);
+			logger.info("MsbMgmrImpl -> unregister, responseStr is " + responseStr);
+			
+		}  catch (Exception e) {
+			logger.error("IOException Failed to unregister nokia vnfm driver! ", e);
 		}
+		
 	}
 	
-   public String getServiceUrlInMsbBySeriveNameAndPort(String serviceName, String version) throws RouteException
+   public String getServiceUrlInMsbBySeriveNameAndVersion(String serviceName, String version) throws ClientProtocolException, IOException
    {
-	   String serviceUrl = null;
-	   MSBServiceClient msbClient = new MSBServiceClient(adaptorEnv.getMsbIp(), adaptorEnv.getMsbPort());
-	   MicroServiceFullInfo microServiceInfo = msbClient.queryMicroServiceInfo(serviceName, version);
-	   if(null == microServiceInfo)
-	   {
-		   logger.error("There is no service in MSB for serviceName = {} and version = {}", serviceName, version);
-	   }
-	   else
-	   {
-		   serviceUrl = microServiceInfo.getUrl();
-		   logger.info("Service Url in MSB for serviceName = {} and version = {} is {}", serviceName, version, serviceUrl);
-	   }
-	   return serviceUrl;
+	   String url=adaptorEnv.getMsbApiUriFront() + String.format(CommonConstants.MSB_QUERY_SERVICE_PATH, serviceName, version);
 		
+		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, null, null).getContent();
+		logger.info("MsbMgmrImpl -> getServiceUrlInMsbBySeriveNameAndVersion, responseStr is " + responseStr);
+		
+		MsbServiceInfo serviceInfo = gson.fromJson(responseStr, MsbServiceInfo.class);
+		if(null == serviceInfo)
+		{
+			   logger.error("There is no service in MSB for serviceName = {} and version = {}", serviceName, version);
+		}
+		
+		String serviceUrl = serviceInfo.getUrl();
+		logger.info("Service Url in MSB for serviceName = {} and version = {} is {}", serviceName, version, serviceUrl);
+		
+		return serviceUrl;
    }
 
 	public void setAdaptorEnv(AdaptorEnv env) {

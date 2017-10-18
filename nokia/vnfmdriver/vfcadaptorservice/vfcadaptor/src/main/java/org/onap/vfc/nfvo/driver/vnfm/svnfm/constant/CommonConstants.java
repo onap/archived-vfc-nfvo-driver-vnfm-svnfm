@@ -68,4 +68,5 @@ public class CommonConstants {
 	public static final String MSB_REGISTER_SERVICE_PATH = "/api/microservices/v1/services";
 //	public static final String MSB_REGISTER_SERVICE_PATH = "/api/microservices/v1/services/{serviceName}/version/{version}/nodes/{ip}/{port}";
 	public static final String MSB_UNREGISTER_SERVICE_PATH = "/api/microservices/v1/services/%s/version/%s/nodes/%s/%s";
+	public static final String MSB_QUERY_SERVICE_PATH = "/api/microservices/v1/services/%s/version/%s";
 }

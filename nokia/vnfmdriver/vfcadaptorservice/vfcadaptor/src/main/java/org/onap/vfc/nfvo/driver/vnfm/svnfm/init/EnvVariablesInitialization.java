@@ -18,6 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.init;
 
 import java.io.IOException;
 
+import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.onap.msb.sdk.discovery.common.RouteException;
@@ -53,42 +54,47 @@ public class EnvVariablesInitialization implements ApplicationRunner {
 		
 		try {
 			handleAaiMsbServiceInfo();
-		} catch (RouteException e) {
+		} catch (Exception e) {
 			logger.error("handleAaiMsbServiceInfo error", e);
 		}
 		
 		try {
 			handLcmMsbServiceInfo();
-		} catch (RouteException e) {
+		} catch (Exception e) {
 			logger.error("handLcmMsbServiceInfo error", e);
 		}
 		
 		try {
 			handCatalogMsbServiceInfo();
-		} catch (RouteException e) {
+		} catch (Exception e) {
 			logger.error("handCatalogMsbServiceInfo error", e);
 		}
 		
 	}
 
-	private void handleAaiMsbServiceInfo() throws RouteException {
-		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndPort(adaptorEnv.getAaiServiceNameInMsb(), adaptorEnv.getAaiVersionInMsb());
+	private void handleAaiMsbServiceInfo() throws RouteException, ClientProtocolException, IOException {
+		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion(adaptorEnv.getAaiServiceNameInMsb(), adaptorEnv.getAaiVersionInMsb());
 		adaptorEnv.setAaiUrlInMsb(urlInMsb);
 		adaptorEnv.setAaiApiUriFront(generateApiUriFront(urlInMsb));
 	}
 
 	private String generateApiUriFront(String urlInMsb) {
-		return CommonConstants.SCHEMA_HTTP + "://" + adaptorEnv.getMsbIp() + ":" + adaptorEnv.getMsbPort() + urlInMsb;
+		return generateMsbApiUriFront() + urlInMsb;
 	}
 	
-	private void handLcmMsbServiceInfo() throws RouteException {
-		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndPort(adaptorEnv.getLcmServiceNameInMsb(), adaptorEnv.getLcmVersionInMsb());
+	private String generateMsbApiUriFront()
+	{
+		return CommonConstants.SCHEMA_HTTP + "://" + adaptorEnv.getMsbIp() + ":" + adaptorEnv.getMsbPort();
+	}
+	
+	private void handLcmMsbServiceInfo() throws RouteException, ClientProtocolException, IOException {
+		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion(adaptorEnv.getLcmServiceNameInMsb(), adaptorEnv.getLcmVersionInMsb());
 		adaptorEnv.setLcmUrlInMsb(urlInMsb);
 		adaptorEnv.setLcmApiUriFront(generateApiUriFront(urlInMsb));
 	}
 	
-	private void handCatalogMsbServiceInfo() throws RouteException {
-		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndPort(adaptorEnv.getCatalogServiceNameInMsb(), adaptorEnv.getCatalogVersionInMsb());
+	private void handCatalogMsbServiceInfo() throws RouteException, ClientProtocolException, IOException {
+		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion(adaptorEnv.getCatalogServiceNameInMsb(), adaptorEnv.getCatalogVersionInMsb());
 		adaptorEnv.setCatalogUrlInMsb(urlInMsb);
 		adaptorEnv.setCatalogApiUriFront(generateApiUriFront(urlInMsb));
 	}
@@ -102,6 +108,7 @@ public class EnvVariablesInitialization implements ApplicationRunner {
 		
 		adaptorEnv.setMsbIp(msb_ip);
 		adaptorEnv.setMsbPort(msb_port);
+		adaptorEnv.setMsbApiUriFront(generateMsbApiUriFront());
 	}
 	
 	private String readMsbInfoFromJsonFile() throws IOException {

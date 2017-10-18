@@ -45,7 +45,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.InterfaceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.ResourceDefinition;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VimAssets;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VimInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.NslcmVimInfo;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.gson.Gson;
@@ -87,18 +87,21 @@ public class NslcmMgmrImplTest {
 		additionalParam2.add(resource);
 		gresponse.setAdditionalParam(additionalParam2);
 		
-		VimInfo vim = new VimInfo();
-		vim.setInterfaceEndpoint("interfaceEndpoint");
-		vim.setVimId("vimId");
-		AccessInfo accessInfo = null;
-		vim.setAccessInfo(accessInfo );
-		InterfaceInfo interfaceInfo = null;
-		vim.setInterfaceInfo(interfaceInfo);
+		List<NslcmVimInfo> vim = new ArrayList<NslcmVimInfo>();
+		NslcmVimInfo vims=new NslcmVimInfo();
 		
+		vims.setInterfaceEndpoint("interfaceEndpoint");
+		vims.setVimId("vimId");
+		List<AccessInfo> accessInfo = null;
+		vims.setAccessInfo(accessInfo);
+		List<InterfaceInfo> interfaceInfo = null;
+		vims.setInterfaceInfo(interfaceInfo);
+		
+		vim.add(vims);
 		VimAssets vimAssets = null;
 		gresponse.setVimAssets(vimAssets);
 		
-		gresponse.setVim(vim );
+		gresponse.setVim(vim);
 		String json = gson.toJson(gresponse);
 		HttpResult httpResult = new HttpResult();
 		httpResult.setContent(json);
@@ -139,9 +142,9 @@ public class NslcmMgmrImplTest {
 		cbamRequest.setJobId("jobId");
 		cbamRequest.setOperation("operation");
 		cbamRequest.setVnfInstanceId(vnfInstanceId);
-		AffectedVirtualStorage affectedVirtualStorage = new AffectedVirtualStorage();
+		List<AffectedVirtualStorage> affectedVirtualStorage = new ArrayList<AffectedVirtualStorage>();
 		cbamRequest.setAffectedVirtualStorage(affectedVirtualStorage );
-		AffectedVnfc affectedVnfc = new AffectedVnfc();
+		List<AffectedVnfc> affectedVnfc = new ArrayList<AffectedVnfc>();
 		cbamRequest.setAffectedVnfc(affectedVnfc );
 		nslcmMgmr.notifyVnf(cbamRequest, vnfInstanceId);
 	}

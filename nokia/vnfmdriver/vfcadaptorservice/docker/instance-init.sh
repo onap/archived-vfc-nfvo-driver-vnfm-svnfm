@@ -17,6 +17,7 @@
 # Config mysql credentials
 
 function start_mysql {
+    echo "start mysql ... "
     service mysql start
     sleep 1
 }

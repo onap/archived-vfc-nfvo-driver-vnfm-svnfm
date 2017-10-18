@@ -56,6 +56,8 @@ public class AdaptorEnv {
 	
 	//cbamApiFront is from aai query
 	private String cbamApiUriFront;
+	
+	private String msbApiUriFront;
 
 	// for retrieving token from CBAM, configured in application.properties
 	@Value("${grantType}")
@@ -209,6 +211,14 @@ public class AdaptorEnv {
 
 	public void setLcmApiUriFront(String lcmApiUriFront) {
 		this.lcmApiUriFront = lcmApiUriFront;
+	}
+
+	public String getMsbApiUriFront() {
+		return msbApiUriFront;
+	}
+
+	public void setMsbApiUriFront(String msbApiUriFront) {
+		this.msbApiUriFront = msbApiUriFront;
 	}
 
 

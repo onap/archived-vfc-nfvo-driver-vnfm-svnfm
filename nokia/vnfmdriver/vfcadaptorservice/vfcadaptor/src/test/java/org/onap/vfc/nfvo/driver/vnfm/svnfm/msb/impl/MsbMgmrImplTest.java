@@ -16,14 +16,22 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.impl;
 
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.onap.msb.sdk.discovery.common.RouteException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 public class MsbMgmrImplTest {
 	@InjectMocks
@@ -40,23 +48,29 @@ public class MsbMgmrImplTest {
 		env.setMsbPort(80);
 		msbMgmr.setAdaptorEnv(env);
 		MockitoAnnotations.initMocks(this);
+		
+		String json = "{\"serviceName\":\"catalog\", \"url\":\"/api/catalog/v1\"}";
+		HttpResult httpResult = new HttpResult();
+		httpResult.setContent(json);
+		
+		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void testRegister()
 	{
 		msbMgmr.register();
 	}
 	
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void testunRegister()
 	{
 		msbMgmr.unregister();
 	}
 	
-	@Test(expected = RouteException.class)
-	public void testGetServiceUrlInMsbBySeriveNameAndPort() throws RouteException
+	@Test
+	public void testGetServiceUrlInMsbBySeriveNameAndPort() throws ClientProtocolException, IOException
 	{
-		msbMgmr.getServiceUrlInMsbBySeriveNameAndPort("serviceName", "88");
+		msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion("serviceName", "88");
 	}
 }

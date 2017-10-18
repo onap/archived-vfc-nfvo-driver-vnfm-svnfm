@@ -15,6 +15,8 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo;
 
+import java.util.List;
+
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVirtualLink;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVirtualStorage;
@@ -34,11 +36,11 @@ public class NslcmNotifyLCMEventsRequest {
 	@JsonProperty("jobId")
 	private String jobId;
 	@JsonProperty("affectedVnfc")
-	private AffectedVnfc affectedVnfc;
+	private List<AffectedVnfc> affectedVnfc;
 	@JsonProperty("affectedVl")
-	private AffectedVirtualLink affectedVl;
+	private List<AffectedVirtualLink> affectedVl;
 	@JsonProperty("affectedVirtualStorage")
-	private AffectedVirtualStorage affectedVirtualStorage;
+	private List<AffectedVirtualStorage> affectedVirtualStorage;
 	public CommonEnum.status getStatus() {
 		return status;
 	}
@@ -63,25 +65,24 @@ public class NslcmNotifyLCMEventsRequest {
 	public void setJobId(String jobId) {
 		this.jobId = jobId;
 	}
-	public AffectedVnfc getAffectedVnfc() {
+	public List<AffectedVnfc> getAffectedVnfc() {
 		return affectedVnfc;
 	}
-	public void setAffectedVnfc(AffectedVnfc affectedVnfc) {
+	public void setAffectedVnfc(List<AffectedVnfc> affectedVnfc) {
 		this.affectedVnfc = affectedVnfc;
 	}
-	public AffectedVirtualLink getAffectedVl() {
+	public List<AffectedVirtualLink> getAffectedVl() {
 		return affectedVl;
 	}
-	public void setAffectedVl(AffectedVirtualLink affectedVl) {
+	public void setAffectedVl(List<AffectedVirtualLink> affectedVl) {
 		this.affectedVl = affectedVl;
 	}
-	public AffectedVirtualStorage getAffectedVirtualStorage() {
+	public List<AffectedVirtualStorage> getAffectedVirtualStorage() {
 		return affectedVirtualStorage;
 	}
-	public void setAffectedVirtualStorage(AffectedVirtualStorage affectedVirtualStorage) {
+	public void setAffectedVirtualStorage(List<AffectedVirtualStorage> affectedVirtualStorage) {
 		this.affectedVirtualStorage = affectedVirtualStorage;
 	}
-	
 	
 	
 	

@@ -19,25 +19,27 @@ import java.util.List;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.ResourceDefinition;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VimAssets;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VimInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.NslcmVimInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NslcmGrantVnfResponse {
 	
 	@JsonProperty("vim")
-	private VimInfo vim;
+	private List<NslcmVimInfo> vim;
 	@JsonProperty("vimAssets")
 	private VimAssets vimAssets;
 	
 	@JsonProperty("additionalParam")
 	private List<ResourceDefinition> additionalParam;
 
-	public VimInfo getVim() {
+	
+
+	public List<NslcmVimInfo> getVim() {
 		return vim;
 	}
 
-	public void setVim(VimInfo vim) {
+	public void setVim(List<NslcmVimInfo> vim) {
 		this.vim = vim;
 	}
 

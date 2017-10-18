@@ -15,9 +15,11 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class VimInfo {
+public class NslcmVimInfo {
 	
 	@JsonProperty("vimInfoId")
 	private String vimInfoId;
@@ -25,9 +27,9 @@ public class VimInfo {
 	@JsonProperty("vimId")
 	private String vimId;
 	@JsonProperty("interfaceInfo")
-	private InterfaceInfo interfaceInfo;
+	private List<InterfaceInfo> interfaceInfo;
 	@JsonProperty("accessInfo")
-	private AccessInfo accessInfo;
+	private List<AccessInfo> accessInfo;
 	
 	@JsonProperty("interfaceEndpoint")
 	private String interfaceEndpoint;
@@ -47,20 +49,23 @@ public class VimInfo {
 	public void setVimId(String vimId) {
 		this.vimId = vimId;
 	}
-
-	public InterfaceInfo getInterfaceInfo() {
+     
+	
+	
+	
+	public List<InterfaceInfo> getInterfaceInfo() {
 		return interfaceInfo;
 	}
 
-	public void setInterfaceInfo(InterfaceInfo interfaceInfo) {
+	public void setInterfaceInfo(List<InterfaceInfo> interfaceInfo) {
 		this.interfaceInfo = interfaceInfo;
 	}
 
-	public AccessInfo getAccessInfo() {
+	public List<AccessInfo> getAccessInfo() {
 		return accessInfo;
 	}
 
-	public void setAccessInfo(AccessInfo accessInfo) {
+	public void setAccessInfo(List<AccessInfo> accessInfo) {
 		this.accessInfo = accessInfo;
 	}
 

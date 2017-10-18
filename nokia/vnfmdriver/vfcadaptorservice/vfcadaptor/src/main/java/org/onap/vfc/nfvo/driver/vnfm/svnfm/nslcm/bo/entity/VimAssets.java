@@ -15,20 +15,24 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class VimAssets {
 	
 	@JsonProperty("softwareImage")
-	private VimSoftwareImage softwareImage;
+	private List<VimSoftwareImage> softwareImage;
 
-	public VimSoftwareImage getSoftwareImage() {
+	public List<VimSoftwareImage> getSoftwareImage() {
 		return softwareImage;
 	}
 
-	public void setSoftwareImage(VimSoftwareImage softwareImage) {
+	public void setSoftwareImage(List<VimSoftwareImage> softwareImage) {
 		this.softwareImage = softwareImage;
-	} 
+	}
+
+	
 	
 	
 
