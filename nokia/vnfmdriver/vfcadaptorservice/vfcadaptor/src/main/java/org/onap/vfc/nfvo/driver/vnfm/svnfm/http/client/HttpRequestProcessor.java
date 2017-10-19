@@ -48,7 +48,6 @@ public class HttpRequestProcessor {
 		HttpResponse response = httpClient.execute(httpRequest);
 		
 		HttpResult httpResult = buildHttpResult(response);
-		httpClient.close();
 		
 		return httpResult;
 	}
