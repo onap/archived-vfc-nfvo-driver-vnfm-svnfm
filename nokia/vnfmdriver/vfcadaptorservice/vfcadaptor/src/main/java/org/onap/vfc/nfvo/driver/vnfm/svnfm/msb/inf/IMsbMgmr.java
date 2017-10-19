@@ -19,10 +19,9 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.inf;
 import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
-import org.onap.msb.sdk.discovery.common.RouteException;
 
 public interface IMsbMgmr {
 	public void register();
 	public void unregister();
-	public String getServiceUrlInMsbBySeriveNameAndVersion(String serviceName, String version) throws RouteException, ClientProtocolException, IOException;
+	public String getServiceUrlInMsbBySeriveNameAndVersion(String serviceName, String version) throws ClientProtocolException, IOException;
 }

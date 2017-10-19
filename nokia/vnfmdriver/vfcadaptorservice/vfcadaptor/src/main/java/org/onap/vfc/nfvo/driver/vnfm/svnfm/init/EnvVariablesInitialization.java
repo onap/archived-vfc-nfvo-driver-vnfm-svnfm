@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.onap.msb.sdk.discovery.common.RouteException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util.CommonUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
@@ -72,7 +71,7 @@ public class EnvVariablesInitialization implements ApplicationRunner {
 		
 	}
 
-	private void handleAaiMsbServiceInfo() throws RouteException, ClientProtocolException, IOException {
+	private void handleAaiMsbServiceInfo() throws ClientProtocolException, IOException {
 		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion(adaptorEnv.getAaiServiceNameInMsb(), adaptorEnv.getAaiVersionInMsb());
 		adaptorEnv.setAaiUrlInMsb(urlInMsb);
 		adaptorEnv.setAaiApiUriFront(generateApiUriFront(urlInMsb));
@@ -87,13 +86,13 @@ public class EnvVariablesInitialization implements ApplicationRunner {
 		return CommonConstants.SCHEMA_HTTP + "://" + adaptorEnv.getMsbIp() + ":" + adaptorEnv.getMsbPort();
 	}
 	
-	private void handLcmMsbServiceInfo() throws RouteException, ClientProtocolException, IOException {
+	private void handLcmMsbServiceInfo() throws ClientProtocolException, IOException {
 		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion(adaptorEnv.getLcmServiceNameInMsb(), adaptorEnv.getLcmVersionInMsb());
 		adaptorEnv.setLcmUrlInMsb(urlInMsb);
 		adaptorEnv.setLcmApiUriFront(generateApiUriFront(urlInMsb));
 	}
 	
-	private void handCatalogMsbServiceInfo() throws RouteException, ClientProtocolException, IOException {
+	private void handCatalogMsbServiceInfo() throws ClientProtocolException, IOException {
 		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion(adaptorEnv.getCatalogServiceNameInMsb(), adaptorEnv.getCatalogVersionInMsb());
 		adaptorEnv.setCatalogUrlInMsb(urlInMsb);
 		adaptorEnv.setCatalogApiUriFront(generateApiUriFront(urlInMsb));
