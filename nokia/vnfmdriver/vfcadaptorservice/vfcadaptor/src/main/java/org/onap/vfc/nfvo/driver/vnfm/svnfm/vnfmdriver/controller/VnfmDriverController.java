@@ -31,6 +31,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.OperStatusVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.QueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.SwaggerInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.inf.VnfmDriverMgmrInf;
@@ -58,9 +59,18 @@ public class VnfmDriverController {
 	private Gson gson = new Gson();
 	
 	@RequestMapping(value = "/swagger.json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String apidoc() throws IOException {
+	@ResponseBody
+	public SwaggerInfo apidoc() {
         ClassLoader classLoader = getClass().getClassLoader();
-        return IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
+        SwaggerInfo info = null;
+		try {
+			String json = IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
+			info = gson.fromJson(json, SwaggerInfo.class);
+		} catch (IOException e) {
+			logger.error("", e);
+		}
+        
+        return info;
     }
 	
 	@RequestMapping(value = "/{vnfmId}/vnfs", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
