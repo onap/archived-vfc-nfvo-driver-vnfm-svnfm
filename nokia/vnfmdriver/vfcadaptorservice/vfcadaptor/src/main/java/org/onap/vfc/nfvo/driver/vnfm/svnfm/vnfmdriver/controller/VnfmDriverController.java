@@ -21,6 +21,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpStatus;
+import org.apache.commons.io.IOUtils;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
@@ -55,6 +56,12 @@ public class VnfmDriverController {
 	private VnfmDriverMgmrInf vnfmDriverMgmr;
 	
 	private Gson gson = new Gson();
+	
+	@RequestMapping(value = "/swagger.json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String apidoc() throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        return IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
+    }
 	
 	@RequestMapping(value = "/{vnfmId}/vnfs", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
