@@ -49,4 +49,8 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
 		}
 		return processor.process(url);
 	}
+
+	public void setHttpClientBuilder(HttpClientBuilder httpClientBuilder) {
+		this.httpClientBuilder = httpClientBuilder;
+	}
 }

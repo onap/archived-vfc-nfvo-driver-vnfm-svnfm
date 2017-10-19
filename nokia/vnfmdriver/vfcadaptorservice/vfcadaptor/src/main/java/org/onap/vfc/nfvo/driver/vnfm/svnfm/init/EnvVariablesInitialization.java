@@ -58,15 +58,15 @@ public class EnvVariablesInitialization implements ApplicationRunner {
 		}
 		
 		try {
-			handLcmMsbServiceInfo();
+			handleLcmMsbServiceInfo();
 		} catch (Exception e) {
-			logger.error("handLcmMsbServiceInfo error", e);
+			logger.error("handleLcmMsbServiceInfo error", e);
 		}
 		
 		try {
-			handCatalogMsbServiceInfo();
+			handleCatalogMsbServiceInfo();
 		} catch (Exception e) {
-			logger.error("handCatalogMsbServiceInfo error", e);
+			logger.error("handleCatalogMsbServiceInfo error", e);
 		}
 		
 	}
@@ -86,13 +86,13 @@ public class EnvVariablesInitialization implements ApplicationRunner {
 		return CommonConstants.SCHEMA_HTTP + "://" + adaptorEnv.getMsbIp() + ":" + adaptorEnv.getMsbPort();
 	}
 	
-	private void handLcmMsbServiceInfo() throws ClientProtocolException, IOException {
+	private void handleLcmMsbServiceInfo() throws ClientProtocolException, IOException {
 		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion(adaptorEnv.getLcmServiceNameInMsb(), adaptorEnv.getLcmVersionInMsb());
 		adaptorEnv.setLcmUrlInMsb(urlInMsb);
 		adaptorEnv.setLcmApiUriFront(generateApiUriFront(urlInMsb));
 	}
 	
-	private void handCatalogMsbServiceInfo() throws ClientProtocolException, IOException {
+	private void handleCatalogMsbServiceInfo() throws ClientProtocolException, IOException {
 		String urlInMsb = msbMgmr.getServiceUrlInMsbBySeriveNameAndVersion(adaptorEnv.getCatalogServiceNameInMsb(), adaptorEnv.getCatalogVersionInMsb());
 		adaptorEnv.setCatalogUrlInMsb(urlInMsb);
 		adaptorEnv.setCatalogApiUriFront(generateApiUriFront(urlInMsb));
