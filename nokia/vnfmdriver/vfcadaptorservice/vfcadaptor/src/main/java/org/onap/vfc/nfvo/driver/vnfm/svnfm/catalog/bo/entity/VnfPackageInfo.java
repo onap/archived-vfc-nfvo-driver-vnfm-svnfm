@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 

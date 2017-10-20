@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.ImageInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.VnfInstanceInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VnfPackageInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.VnfPackageInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -31,7 +31,7 @@ public class CatalogQueryVnfResponse {
 	private VnfPackageInfo packageInfo;
 	
 	@JsonProperty("imageInfo")
-	private List<ImageInfo> imageInfo;
+	private ImageInfo imageInfo;
 	
 	@JsonProperty("vnfInstanceInfo")
 	private List<VnfInstanceInfo> vnfInstanceInfo;
@@ -52,11 +52,13 @@ public class CatalogQueryVnfResponse {
 		this.packageInfo = packageInfo;
 	}
 
-	public List<ImageInfo> getImageInfo() {
+	
+
+	public ImageInfo getImageInfo() {
 		return imageInfo;
 	}
 
-	public void setImageInfo(List<ImageInfo> imageInfo) {
+	public void setImageInfo(ImageInfo imageInfo) {
 		this.imageInfo = imageInfo;
 	}
 
