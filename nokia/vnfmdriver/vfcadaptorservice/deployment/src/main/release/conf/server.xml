@@ -30,7 +30,7 @@
             name="UserDatabase" pathname="conf/tomcat-users.xml" type="org.apache.catalina.UserDatabase" />
     </GlobalNamingResources>
     <Service name="Catalina">
-        <Connector connectionTimeout="20000" port="8482" protocol="HTTP/1.1" redirectPort="8443" />
+        <Connector connectionTimeout="20000" port="8486" protocol="HTTP/1.1" redirectPort="8443" />
         <Connector port="8821" protocol="AJP/1.3" redirectPort="8443" />
         <Connector port="8443" protocol="org.apache.coyote.http11.Http11Protocol"
             SSLEnabled="true" maxThreads="150" scheme="https" secure="true" clientAuth="true" 

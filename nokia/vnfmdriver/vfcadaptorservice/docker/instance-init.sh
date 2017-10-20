@@ -18,8 +18,8 @@
 
 function start_mysql {
     echo "start mysql ... "
-    /usr/bin/systemctl start mysql.service || /usr/sbin/service mysql start
-    sleep 1
+    /usr/bin/mysqld_safe &
+    sleep 5
 }
 
 start_mysql

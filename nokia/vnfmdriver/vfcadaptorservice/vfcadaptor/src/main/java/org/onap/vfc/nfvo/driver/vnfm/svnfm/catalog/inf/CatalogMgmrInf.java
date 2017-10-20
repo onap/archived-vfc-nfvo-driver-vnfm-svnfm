@@ -19,7 +19,8 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf;
 import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VnfPackageInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.VnfPackageInfo;
+
 
 public interface CatalogMgmrInf {
 	public VnfPackageInfo queryVnfPackage(String vnfPackageId) throws ClientProtocolException, IOException;
