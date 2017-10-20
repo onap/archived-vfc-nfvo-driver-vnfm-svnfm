@@ -16,7 +16,16 @@
 #
 # Config MSB address
 MSB_IP=`echo $MSB_ADDR | cut -d: -f 1`
-sed -i "s|127\.0\.0\.1|${MSB_IP}|" etc/conf/restclient.json
+MSB_PORT=`echo $MSB_ADDR | cut -d: -f 2`
+
+if [ $MSB_PORT ]; then
+  sed -i "s|127\.0\.0\.1|${MSB_IP}|" etc/conf/restclient.json
+fi
+
+if [ $MSB_PORT ]; then
+  sed -i "s|80|${$MSB_PORT}|" etc/conf/restclient.json
+fi
+
 cat etc/conf/restclient.json
 
 # Set self IP
