@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright 2017, Nokia Corporation
 #
@@ -43,7 +43,8 @@ echo
 ./instance-config.sh
 
 # Start mysql
-/usr/bin/mysqld_safe & 
+# su mysql -c /usr/bin/mysqld_safe &
+service mysql start
 
 # Perform one-time config
 if [ ! -e init.log ]; then

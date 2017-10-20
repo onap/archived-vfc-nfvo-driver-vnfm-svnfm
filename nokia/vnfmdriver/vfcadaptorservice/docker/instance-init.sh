@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright 2017, Nokia Corporation
 #
@@ -18,7 +18,7 @@
 
 function start_mysql {
     echo "start mysql ... "
-    /usr/bin/mysqld_safe &
+    service mysql start
     sleep 5
 }
 
