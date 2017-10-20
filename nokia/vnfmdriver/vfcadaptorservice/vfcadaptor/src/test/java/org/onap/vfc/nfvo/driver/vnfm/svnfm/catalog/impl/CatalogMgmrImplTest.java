@@ -34,12 +34,12 @@ import org.mockito.MockitoAnnotations;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.CatalogQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.ImageInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.VnfInstanceInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.VnfPackageInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum.Deletionpending;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VnfPackageInfo;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.gson.Gson;
@@ -77,7 +77,6 @@ public class CatalogMgmrImplTest {
 		response.setVnfInstanceInfo(vnfInstanceInfos);
 		
 		response.setCsarId("csarId");
-		List<ImageInfo> imageInfos = new ArrayList<ImageInfo>();
 		ImageInfo imageInfo = new ImageInfo();
 		imageInfo.setFileName("fileName");
 		imageInfo.setImageId("imageId");
@@ -86,9 +85,7 @@ public class CatalogMgmrImplTest {
 		imageInfo.setTenant("tenant");
 		imageInfo.setVimId("vimId");
 		imageInfo.setVimUser("vimUser");
-		
-		imageInfos.add(imageInfo);
-		response.setImageInfo(imageInfos);
+		response.setImageInfo(imageInfo);
 		
 		VnfPackageInfo packageInfo = new VnfPackageInfo();
 		packageInfo.setDownloadUri("1.3.5.6");
