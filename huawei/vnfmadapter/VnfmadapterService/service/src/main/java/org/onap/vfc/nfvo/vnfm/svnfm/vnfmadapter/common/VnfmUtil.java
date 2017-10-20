@@ -59,19 +59,99 @@ public final class VnfmUtil {
             LOGGER.error("funtion=getVnfmById, status={}", rsp.getStatus());
             return null;
         }
-        return JSONObject.fromObject(rsp.getResponseContent());
+        JSONObject esrVnfm = JSONObject.fromObject(rsp.getResponseContent());
+        LOGGER.info("esrVnfm: {}", esrVnfm);
+        JSONObject vnfmJson = parseEsrVnfm(esrVnfm);
+        LOGGER.info("vnfmJson: {}", esrVnfm);
+        return vnfmJson;
+    }
+
+    /**
+     * <br>
+     * 
+     * @param
+     *            esrVnfm
+     *            {
+     *            "vnfm-id": "",
+     *            "vim-id": "",
+     *            "certificate-url": "",
+     *            "resource-version": "",
+     *            "esr-system-info-list": [{
+     *            "esr-system-info-id": "",
+     *            "system-name": "",
+     *            "type": "",
+     *            "vendor": "",
+     *            "version": "",
+     *            "service-url": "",
+     *            "user-name": "",
+     *            "password": "",
+     *            "system-type": "",
+     *            "protocal": "",
+     *            "ssl-cacert": "",
+     *            "ssl-insecure": "",
+     *            "ip-address": "",
+     *            "port": "",
+     *            "cloud-domain": "",
+     *            "default-tenant": "",
+     *            "resource-version": "",
+     *            "relationship-list": [
+     *            ]
+     *            }
+     *            ],
+     *            "relationship-list": [{
+     *            "related-to": "",
+     *            "related-link": "",
+     *            "relationship-data": [],
+     *            "related-to-property": []
+     *            }
+     *            ]
+     *            }
+     * @return
+     *         vnfmJson
+     *         {
+     *         "vnfmId": "1234",
+     *         "name": "vnfm",
+     *         "type": "Tacker",
+     *         "vimId": "",
+     *         "vendor": "huawei",
+     *         "version": "v1.0",
+     *         "description": "vnfm",
+     *         "certificateUrl": "",
+     *         "url": "https://192.168.44.126:30001",
+     *         "userName": "manoadmin",
+     *         "password": "User@12345",
+     *         "createTime": "2016-07-06 15:33:18"
+     *         }
+     * @since VFC 1.0
+     */
+    private static JSONObject parseEsrVnfm(JSONObject esrVnfm) {
+        JSONObject vnfmObj = new JSONObject();
+        JSONObject esrSysInfo = esrVnfm.getJSONArray("esr-system-info-list").getJSONObject(0);
+        vnfmObj.put(Constant.VNFMID, esrSysInfo.getString("esr-system-info-id"));
+        vnfmObj.put("name", esrSysInfo.getString("system-name"));
+        vnfmObj.put("type", esrSysInfo.getString("type"));
+        vnfmObj.put("vimId", esrVnfm.getString("vim-id"));
+        vnfmObj.put("vendor", esrSysInfo.getString("vendor"));
+        vnfmObj.put("version", esrSysInfo.getString("version"));
+        vnfmObj.put("description", "");
+        vnfmObj.put("certificateUrl", esrVnfm.getString("certificate-url"));
+        vnfmObj.put("url", esrSysInfo.getString("service-url"));
+        vnfmObj.put("userName", esrSysInfo.getString("user-name"));
+        vnfmObj.put("password", esrSysInfo.getString("password"));
+        vnfmObj.put("createTime", "");
+        return vnfmObj;
     }
 
     public static JSONObject mockForTest(String vnfmId) {
         String vInfo =
                 "{\"vnfmId\":\"1234\", \"name\":\"vnfm\", \"type\":\"Tacker\", \"vimId\":\"\", \"vendor\":\"huawei\", \"version\":\"v1.0\", \"description\":\"vnfm\", \"certificateUrl\":\"\", \"url\":\"https://192.168.44.126:30001\", \"userName\":\"manoadmin\", \"password\":\"User@12345\", \"createTime\":\"2016-07-06 15:33:18\"}";
         JSONObject json = JSONObject.fromObject(vInfo);
-        json.put("vnfmId", vnfmId);
+        json.put(Constant.VNFMID, vnfmId);
         return json;
     }
 
     /**
-     * Get vnfmInfo by id
+     * Get vnfmInfo by ip
      * <br/>
      *
      * @param ip
@@ -89,7 +169,7 @@ public final class VnfmUtil {
         LOGGER.info("vnfm ip: {}, vnfmList: {}", ip, vnfmList);
         for(int i = 0; i < vnfmList.size(); i++) {
             if(vnfmList.getJSONObject(i).getString("url").contains(ip)) {
-                return vnfmList.getJSONObject(i).getString("vnfmId");
+                return vnfmList.getJSONObject(i).getString(Constant.VNFMID);
             }
         }
 
