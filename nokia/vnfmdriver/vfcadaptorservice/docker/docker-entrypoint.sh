@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright 2017, Nokia Corporation
 #
@@ -42,8 +42,19 @@ echo
 # Configure service based on docker environment variables
 ./instance-config.sh
 
+function start_mysql {
+    echo "start mysql ... "
+    systemctl start mysql.service  > myout_docker_enctrypoint.file 2>&1
+    cat myout_docker_enctrypoint.file
+    systemctl status mysql.service > myout_docker_enctrypoint_mysql_status.file 2>&1
+    cat myout_docker_enctrypoint_mysql_status.file
+    sleep 5
+}
+
 # Start mysql
-su mysql -c /usr/bin/mysqld_safe &
+# su mysql -c /usr/bin/mysqld_safe &
+#service mysql start
+start_mysql
 
 # Perform one-time config
 if [ ! -e init.log ]; then

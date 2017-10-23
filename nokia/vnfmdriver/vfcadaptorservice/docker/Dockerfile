@@ -25,6 +25,7 @@ RUN wget -q http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm && rp
 RUN yum -y update
 RUN yum -y install -y mysql-server
 RUN mysql_install_db --user=mysql --datadir=/var/lib/mysql
+RUN chown mysql:mysql /var/lib/mysql -R
 EXPOSE 3306
 RUN sed -i "s|bind-address.*|# bind-address = 127.0.0.1|" /etc/my.cnf
 COPY init-mysql.sh .
