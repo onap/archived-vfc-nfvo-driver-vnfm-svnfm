@@ -32,6 +32,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.DownloadCsarManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.SystemEnvVariablesFactory;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VNFRestfulUtil;
@@ -140,19 +141,17 @@ public class AdapterResourceManager implements IResourceManager {
         JSONObject uploadResJson = uploadCsar(csarTempObj, csarfilepath);
         LOG.info("upload Csar result: {}.", uploadResJson);
 
-        Map<String, String> vnfmMap = new HashMap<>();
-        vnfmMap.put("url", String.format(UrlConstant.REST_VNFMINFO_GET, vnfmid));
-        vnfmMap.put("methodType", Constant.GET);
+        // return values
+        resultObj.put("csarTempObj", csarTempObj);
+        resultObj.put("vnfpkg", vnfpkg);
+        LOG.info("resultObj:" + resultObj.toString());
 
+        return resultObj;
+    }
+
+    public JSONObject operateVnfm(String vnfmid, JSONObject csarTempObj, JSONObject vnfpkg, String vnfDescriptorId) {
         // get VNFM connection info
-        JSONObject vnfmObject = getVnfmConnInfo(vnfmMap);
-        if(Integer.valueOf(vnfmObject.get(Constant.RETCODE).toString()) != Constant.HTTP_OK) {
-            LOG.error("get Vnfm Connection Info fail.", vnfmObject.get(Constant.RETCODE));
-            resultObj.put(Constant.REASON, vnfmObject.get(Constant.REASON).toString());
-            resultObj.put(Constant.RETCODE, vnfmObject.get(Constant.RETCODE).toString());
-            return resultObj;
-        }
-        LOG.info("get Vnfm Connection Info successful.", vnfmObject.get(Constant.RETCODE));
+        JSONObject vnfmObject = VnfmUtil.getVnfmById(vnfmid);
 
         String vnfmUrl = vnfmObject.getString("url");
         String userName = vnfmObject.getString(Constant.USERNAME);
@@ -165,6 +164,8 @@ public class AdapterResourceManager implements IResourceManager {
         connObject.put("url", vnfmUrl);
         connObject.put(Constant.USERNAME, userName);
         connObject.put(Constant.PASSWORD, password);
+
+        JSONObject resultObj = new JSONObject();
         if(Constant.HTTP_OK != mgrVcmm.connect(vnfmObject, Constant.CERTIFICATE)) {
             LOG.error("get Access Session fail.");
             resultObj.put(Constant.RETCODE, Constant.HTTP_INNERERROR);
@@ -193,6 +194,7 @@ public class AdapterResourceManager implements IResourceManager {
 
         JSONObject uploadPkgObject = upload(vnfpkg, vnfmUrl, connToken);
         LOG.info("uploadPkgObject:" + uploadPkgObject);
+        String vnfdid = "";
         if(!uploadPkgObject.isEmpty() && uploadPkgObject.get(Constant.RETCODE).equals(HttpStatus.SC_OK)) {
             LOG.info("upload vnf package info successful.", uploadPkgObject.get(Constant.RETCODE));
             vnfdid = uploadPkgObject.getString("id");
@@ -263,7 +265,6 @@ public class AdapterResourceManager implements IResourceManager {
             return vnfdPlanInfo;
         }
 
-        // return values
         resultObj.put(Constant.RETCODE, Constant.HTTP_OK);
         resultObj.put("vnfdId", vnfdid);
         resultObj.put("vnfdVersion", vnfdVersion);
@@ -271,7 +272,6 @@ public class AdapterResourceManager implements IResourceManager {
         resultObj.put("planId", planId);
         resultObj.put("parameters", inputsObj);
         LOG.info("resultObj:" + resultObj.toString());
-
         return resultObj;
     }
 

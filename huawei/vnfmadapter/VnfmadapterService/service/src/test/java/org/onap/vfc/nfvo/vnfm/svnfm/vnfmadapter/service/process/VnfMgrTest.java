@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.junit.Before;
@@ -53,7 +54,7 @@ public class VnfMgrTest {
     }
 
     @Test
-    public void testAddVnfByInvalidateDataVnfInfoNull() {
+    public void testAddVnfByInvalidateDataVnfInfoNull() throws IOException, InterruptedException {
         String data = "{}";
         JSONObject subJsonObject = JSONObject.fromObject(data);
         VnfMgr vnfMgr = new VnfMgr();
@@ -65,7 +66,7 @@ public class VnfMgrTest {
     }
 
     @Test
-    public void testAddVnfByInvalidateDataVnfInfoEmpty() {
+    public void testAddVnfByInvalidateDataVnfInfoEmpty() throws IOException, InterruptedException {
         String data = "{}";
         JSONObject subJsonObject = JSONObject.fromObject(data);
         VnfMgr vnfMgr = new VnfMgr();
@@ -77,7 +78,7 @@ public class VnfMgrTest {
     }
 
     @Test
-    public void testAddVnfByVnfmObjcetIsNullObject() {
+    public void testAddVnfByVnfmObjcetIsNullObject() throws IOException, InterruptedException {
         new MockUp<VnfmUtil>() {
 
             @Mock
@@ -97,7 +98,7 @@ public class VnfMgrTest {
     }
 
     @Test
-    public void testAddVnfByVnfmObjcetTypeEmpty() {
+    public void testAddVnfByVnfmObjcetTypeEmpty() throws IOException, InterruptedException {
         new MockUp<VnfmUtil>() {
 
             @Mock
@@ -119,7 +120,7 @@ public class VnfMgrTest {
     }
 
     @Test
-    public void testAddVnf() {
+    public void testAddVnf() throws IOException, InterruptedException {
         new MockUp<VnfmUtil>() {
 
             @Mock
