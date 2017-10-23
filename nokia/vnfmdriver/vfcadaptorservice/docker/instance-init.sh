@@ -18,7 +18,10 @@
 
 function start_mysql {
     echo "start mysql ... "
-    service mysql start
+    systemctl start mysql.service  > myout_instance_init.file 2>&1
+    cat myout_instance_init.file
+    systemctl status mysql.service > myout_instance_init_mysql_status.file 2>&1
+    cat myout_instance_init_mysql_status.file
     sleep 5
 }
 
