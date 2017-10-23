@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -93,9 +94,11 @@ public class VnfMgr {
      * @param vnfObject
      * @param vnfmId
      * @return
+     * @throws IOException
+     * @throws InterruptedException
      * @since VFC 1.0
      */
-    public JSONObject addVnf(JSONObject vnfObject, String vnfmId) {
+    public JSONObject addVnf(JSONObject vnfObject, String vnfmId) throws IOException, InterruptedException {
         JSONObject restJson = new JSONObject();
         restJson.put(Constant.RETCODE, Constant.REST_FAIL);
         try {
@@ -109,26 +112,75 @@ public class VnfMgr {
             if(vnfmObjcet.isNullObject()) {
                 return restJson;
             }
-
+            String vnfDescriptorId = vnfObject.getString("vnfDescriptorId");
             Map<String, String> conMap = new ConcurrentHashMap<>(Constant.DEFAULT_COLLECTION_SIZE);
             conMap.put("csarid", vnfObject.getString("vnfPackageId"));
             conMap.put("vnfmid", vnfmId);
-            conMap.put("vnfDescriptorId", vnfObject.getString("vnfDescriptorId"));
-
-            JSONObject resObjcet = (new AdapterResourceManager()).uploadVNFPackage(null, conMap);
-
+            conMap.put("vnfDescriptorId", vnfDescriptorId);
+            AdapterResourceManager adapterResourceManager = new AdapterResourceManager();
+            JSONObject uploadPkg = adapterResourceManager.uploadVNFPackage(null, conMap);
+            JSONObject resObjcet = adapterResourceManager.operateVnfm(vnfmId, uploadPkg.getJSONObject("csarTempObj"),
+                    uploadPkg.getJSONObject("vnfpkg"), vnfDescriptorId);
             if(resObjcet.getInt(Constant.RETCODE) == Constant.REST_FAIL) {
                 return restJson;
             }
-
             JSONObject csmBody = transferVnfBody(vnfObject, resObjcet, vnfmId);
             restJson = (new VnfMgrVnfm()).createVnf(csmBody, vnfmObjcet);
+            if(vnfDescriptorId.contains("HSS")) {
+                if(waitForCgpFinished(vnfmObjcet, restJson)) {
+                    createChildVnf("HSS1", vnfmId, vnfmObjcet);
+                    createChildVnf("HSS2", vnfmId, vnfmObjcet);
+                    createChildVnf("HSS3", vnfmId, vnfmObjcet);
+                } else {
+                    restJson.put(Constant.ERRORMSG, "create VNF failed.");
+                }
+            }
+            if(vnfDescriptorId.contains("PCRF")) {
+                if(waitForCgpFinished(vnfmObjcet, restJson)) {
+                    createChildVnf("PCRF1", vnfmId, vnfmObjcet);
+                } else {
+                    restJson.put(Constant.ERRORMSG, "create VNF failed.");
+                }
+            }
+            if(vnfDescriptorId.contains("SBC")) {
+                if(waitForCgpFinished(vnfmObjcet, restJson)) {
+                    createChildVnf("PCRF1", vnfmId, vnfmObjcet);
+                } else {
+                    restJson.put(Constant.ERRORMSG, "create VNF failed.");
+                }
+            }
             saveVnfInfo(restJson, resObjcet);
         } catch(JSONException e) {
             LOG.error("function=addVnf, msg=JSONException occurs, e={}.", e);
         }
 
         return restJson;
+    }
+
+    private boolean waitForCgpFinished(JSONObject vnfmObjcet, JSONObject restJson) throws InterruptedException {
+        JSONObject queryVnf = (new VnfMgrVnfm()).getJob(vnfmObjcet, restJson.getString(Constant.JOBID));
+        LOG.info("queryVnf: {}", queryVnf);
+        String status = queryVnf.getJSONArray("data").getJSONObject(0).getString(Constant.STATUS);
+        if("Active".equals(status.trim())) {
+            return true;
+        } else if("Building".equals(status.trim())) {
+            Thread.sleep(Constant.REPEAT_REG_TIME);
+            waitForCgpFinished(vnfmObjcet, restJson);
+        }
+        return false;
+    }
+
+    private void createChildVnf(String vnfdId, String vnfmId, JSONObject vnfmObjcet) throws IOException {
+        AdapterResourceManager adapterResourceManager = new AdapterResourceManager();
+        JSONObject vfnPkgInfoFromFile = JSONObject.fromObject(AdapterResourceManager.readVfnPkgInfoFromJson());
+        JSONObject csarTempObj = vfnPkgInfoFromFile.getJSONObject(vnfdId).getJSONObject("template");
+        JSONObject upload = adapterResourceManager.operateVnfm(vnfmId, csarTempObj, new JSONObject(), "HSS1");
+        LOG.info("createChildVnf upload: {}", upload);
+        JSONObject vnfObject = new JSONObject();
+        vnfObject.put("vnfInstanceName", csarTempObj.getString("name"));
+        JSONObject requestBody = transferVnfBody(vnfObject, upload, vnfmId);
+        LOG.info("createChildVnf requestBody: {}", requestBody);
+        (new VnfMgrVnfm()).createVnf(requestBody, vnfmObjcet);
     }
 
     /**

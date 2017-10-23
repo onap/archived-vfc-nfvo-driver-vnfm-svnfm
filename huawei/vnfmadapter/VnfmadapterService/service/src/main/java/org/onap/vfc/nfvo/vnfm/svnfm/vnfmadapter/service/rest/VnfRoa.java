@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -138,12 +139,14 @@ public class VnfRoa {
      * @param vnfmId
      * @return
      * @throws ServiceException
+     * @throws IOException
+     * @throws InterruptedException
      * @since VFC 1.0
      */
     @POST
     @Path("/{vnfmId}/vnfs")
     public String addVnf(@Context HttpServletRequest context, @Context HttpServletResponse resp,
-            @PathParam("vnfmId") String vnfmId) throws ServiceException {
+            @PathParam("vnfmId") String vnfmId) throws ServiceException, IOException, InterruptedException {
         LOG.warn("function=addVnf, msg=enter to add a vnf");
         JSONObject subJsonObject = VnfmJsonUtil.getJsonFromContexts(context);
         JSONObject restJson = new JSONObject();
