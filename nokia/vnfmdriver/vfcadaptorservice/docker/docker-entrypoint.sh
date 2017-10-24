@@ -43,10 +43,10 @@ echo
 ./instance-config.sh
 
 function start_mysql {
-    echo "start mysql ... "
-    systemctl start mysql.service  > myout_docker_enctrypoint.file 2>&1
+    echo "start mysql in entry point ... "
+    service mysql start  > myout_docker_enctrypoint.file 2>&1
     cat myout_docker_enctrypoint.file
-    systemctl status mysql.service > myout_docker_enctrypoint_mysql_status.file 2>&1
+    service mysql status > myout_docker_enctrypoint_mysql_status.file 2>&1
     cat myout_docker_enctrypoint_mysql_status.file
     sleep 5
 }
