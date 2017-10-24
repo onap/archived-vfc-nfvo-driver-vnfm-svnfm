@@ -44,9 +44,9 @@ echo
 
 function start_mysql {
     echo "start mysql in entry point ... "
-    service mysql start  > myout_docker_enctrypoint.file 2>&1
+    systemctl start mysql.service  > myout_docker_enctrypoint.file 2>&1
     cat myout_docker_enctrypoint.file
-    service mysql status > myout_docker_enctrypoint_mysql_status.file 2>&1
+    systemctl status mysql.service > myout_docker_enctrypoint_mysql_status.file 2>&1
     cat myout_docker_enctrypoint_mysql_status.file
     sleep 5
 }
