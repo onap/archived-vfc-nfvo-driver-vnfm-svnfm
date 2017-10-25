@@ -42,19 +42,8 @@ echo
 # Configure service based on docker environment variables
 ./instance-config.sh
 
-function start_mysql {
-    echo "start mysql in entry point ... "
-    service mysql start  > myout_docker_enctrypoint.file 2>&1
-    cat myout_docker_enctrypoint.file
-    service mysql status > myout_docker_enctrypoint_mysql_status.file 2>&1
-    cat myout_docker_enctrypoint_mysql_status.file
-    sleep 5
-}
-
 # Start mysql
-# su mysql -c /usr/bin/mysqld_safe &
-#service mysql start
-start_mysql
+su mysql -c /usr/bin/mysqld_safe &
 
 # Perform one-time config
 if [ ! -e init.log ]; then
