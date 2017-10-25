@@ -6,13 +6,12 @@
 
 # 10-basebuild.txt
 
-FROM centos:7.2.1511
+FROM centos:7
 
 RUN sed -i 's/enabled=1/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf
 RUN sed -i 's|#baseurl=http://mirror.centos.org/centos|baseurl=http://mirrors.ocf.berkeley.edu/centos|' /etc/yum.repos.d/*.repo
 
 RUN rpm --rebuilddb && \
-yum -y swap -- remove fakesystemd -- install systemd systemd-libs 
 RUN yum clean all
 
 RUN yum update -y
