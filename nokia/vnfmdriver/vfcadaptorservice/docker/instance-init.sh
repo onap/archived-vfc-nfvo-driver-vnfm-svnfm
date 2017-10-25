@@ -17,13 +17,10 @@
 # Config mysql credentials
 
 function start_mysql {
-    sudo docker run --privileged -i -t  -p 10080:80 centos /usr/sbin/init
-    sudo docker run --privileged  -ti -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup  centos  /usr/sbin/init
-    
     echo "start mysql in instance_init ... "
-    systemctl start mysql.service  > myout_instance_init.file 2>&1
+    service mysql start  > myout_instance_init.file 2>&1
     cat myout_instance_init.file
-    systemctl status mysql.service > myout_instance_init_mysql_status.file 2>&1
+    service mysql status > myout_instance_init_mysql_status.file 2>&1
     cat myout_instance_init_mysql_status.file
     sleep 5
 }
