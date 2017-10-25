@@ -69,16 +69,12 @@
                                 "${deployUnzip}/logs")
                                 
                                 System.out.println("******** start copying from ${basedir}/src/main/release to ${deployUnzip}. ************")
-                                
+
                                 ant.copy(todir: "${deployUnzip}") {
                                 fileset(dir: "${basedir}/src/main/release"){
                                 exclude(name: "**/.gitignore")
                                 }
-                                }
-                                ant.copy(todir: "${deployUnzip}/docker") {
-                                fileset(dir: "${basedir}/../docker"){
-                                exclude(name: "**/.gitignore")
-                                }
+                    
                                 }
                                 
                                 System.out.println("******** start copying from ${project.build.directory}/../../vfcadaptor/target/${package.name}-${project.version} to ${deployUnzip}/webapps/ROOT. ************")
@@ -99,6 +95,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

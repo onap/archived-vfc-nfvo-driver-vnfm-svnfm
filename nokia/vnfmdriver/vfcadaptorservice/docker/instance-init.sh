@@ -17,12 +17,9 @@
 # Config mysql credentials
 
 function start_mysql {
-    echo "start mysql in instance_init ... "
-    service mysql start  > myout_instance_init.file 2>&1
-    cat myout_instance_init.file
-    service mysql status > myout_instance_init_mysql_status.file 2>&1
-    cat myout_instance_init_mysql_status.file
-    sleep 5
+    echo "start mysql ... "
+    service mysql start
+    sleep 1
 }
 
 start_mysql

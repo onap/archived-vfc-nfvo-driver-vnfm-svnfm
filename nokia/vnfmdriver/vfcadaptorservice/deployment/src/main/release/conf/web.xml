@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
@@ -238,6 +238,9 @@
   <!--                       attribute values, should the rules in JSP.1.6  -->
   <!--                       for the escaping of quote characters be        -->
   <!--                       strictly applied? [true]                       -->
+  <!--                       The default can be changed with the            -->
+  <!--                       org.apache.jasper.compiler.Parser.             -->
+  <!--                       STRICT_QUOTE_ESCAPING system property.         -->
   <!--                                                                      -->
   <!--   quoteAttributeEL    When EL is used in an attribute value on a     -->
   <!--                       JSP page should the rules for quoting of       -->
