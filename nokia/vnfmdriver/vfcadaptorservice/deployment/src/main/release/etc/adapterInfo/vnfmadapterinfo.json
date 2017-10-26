@@ -1,5 +1,5 @@
 {
-  "serviceName": "nokia-vnfm-driver",
+  "serviceName": "nokiavnfmdriver",
   "version": "v1",
   "url": "/api/nokiavnfmdriver/v1",
   "protocol": "REST",
