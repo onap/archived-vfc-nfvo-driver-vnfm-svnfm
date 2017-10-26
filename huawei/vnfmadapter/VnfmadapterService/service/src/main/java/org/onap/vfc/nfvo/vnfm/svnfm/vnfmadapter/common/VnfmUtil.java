@@ -16,6 +16,10 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.codec.binary.Base64;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VnfmRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
@@ -49,8 +53,19 @@ public final class VnfmUtil {
      * @since VFC 1.0
      */
     public static JSONObject getVnfmById(String vnfmId) {
+        Map<String, String> headerMap = new HashMap<>(5);
+        headerMap.put("Content-Type", "application/json");
+        headerMap.put("Accept", "application/json");
+        headerMap.put("X-TransactionId", "9999");
+        headerMap.put("X-FromAppId", "esr-server");
+
+        Base64 token = new Base64();
+        String authen = new String(token.encode(("AAI:AAI").getBytes()));
+        headerMap.put("Authorization", "Basic " + authen);
+        LOGGER.info("getVimById headerMap: {}", headerMap.toString());
+
         RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(String.format(ParamConstants.ESR_GET_VNFM_URL, vnfmId),
-                VnfmRestfulUtil.TYPE_GET, null);
+                VnfmRestfulUtil.TYPE_GET, headerMap, null);
         if(rsp == null) {
             LOGGER.error("funtion=getVnfmById, response is null.");
             return null;
@@ -61,7 +76,7 @@ public final class VnfmUtil {
         }
         JSONObject esrVnfm = JSONObject.fromObject(rsp.getResponseContent());
         LOGGER.info("esrVnfm: {}", esrVnfm);
-        JSONObject vnfmJson = parseEsrVnfm(esrVnfm);
+        JSONObject vnfmJson = parseEsrVnfm(vnfmId, esrVnfm);
         LOGGER.info("vnfmJson: {}", esrVnfm);
         return vnfmJson;
     }
@@ -69,40 +84,23 @@ public final class VnfmUtil {
     /**
      * <br>
      * 
+     * @param vnfmId
      * @param
      *            esrVnfm
+     *            http://172.30.3.34:80/aai/v11/external-system/esr-vnfm-list/esr-vnfm/6f78d29e-3c4b-4d41-a200-6d3b518fb874/esr-system-info-list
      *            {
-     *            "vnfm-id": "",
-     *            "vim-id": "",
-     *            "certificate-url": "",
-     *            "resource-version": "",
-     *            "esr-system-info-list": [{
-     *            "esr-system-info-id": "",
-     *            "system-name": "",
-     *            "type": "",
-     *            "vendor": "",
-     *            "version": "",
-     *            "service-url": "",
-     *            "user-name": "",
-     *            "password": "",
-     *            "system-type": "",
-     *            "protocal": "",
-     *            "ssl-cacert": "",
-     *            "ssl-insecure": "",
-     *            "ip-address": "",
-     *            "port": "",
-     *            "cloud-domain": "",
-     *            "default-tenant": "",
-     *            "resource-version": "",
-     *            "relationship-list": [
-     *            ]
-     *            }
-     *            ],
-     *            "relationship-list": [{
-     *            "related-to": "",
-     *            "related-link": "",
-     *            "relationship-data": [],
-     *            "related-to-property": []
+     *            "esr-system-info": [
+     *            {
+     *            "esr-system-info-id": "2b0c1a80-1b95-4d28-b206-f9cb6d7f8d3a",
+     *            "system-name": "hwvnfm",
+     *            "type": "vnfm",
+     *            "vendor": "huawei",
+     *            "version": "v1.0",
+     *            "service-url": "http://172.30.20.5:30001",
+     *            "user-name": "admin",
+     *            "password": "Huawei12#$",
+     *            "system-type": "VNFM",
+     *            "resource-version": "1508828777218"
      *            }
      *            ]
      *            }
@@ -124,17 +122,17 @@ public final class VnfmUtil {
      *         }
      * @since VFC 1.0
      */
-    private static JSONObject parseEsrVnfm(JSONObject esrVnfm) {
+    private static JSONObject parseEsrVnfm(String vnfmId, JSONObject esrVnfm) {
         JSONObject vnfmObj = new JSONObject();
-        JSONObject esrSysInfo = esrVnfm.getJSONArray("esr-system-info-list").getJSONObject(0);
-        vnfmObj.put(Constant.VNFMID, esrSysInfo.getString("esr-system-info-id"));
+        JSONObject esrSysInfo = esrVnfm.getJSONArray("esr-system-info").getJSONObject(0);
+        vnfmObj.put(Constant.VNFMID, vnfmId);
         vnfmObj.put("name", esrSysInfo.getString("system-name"));
         vnfmObj.put("type", esrSysInfo.getString("type"));
-        vnfmObj.put("vimId", esrVnfm.getString("vim-id"));
+        vnfmObj.put("vimId", "");
         vnfmObj.put("vendor", esrSysInfo.getString("vendor"));
         vnfmObj.put("version", esrSysInfo.getString("version"));
         vnfmObj.put("description", "");
-        vnfmObj.put("certificateUrl", esrVnfm.getString("certificate-url"));
+        vnfmObj.put("certificateUrl", "");
         vnfmObj.put("url", esrSysInfo.getString("service-url"));
         vnfmObj.put("userName", esrSysInfo.getString("user-name"));
         vnfmObj.put("password", esrSysInfo.getString("password"));

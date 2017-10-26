@@ -35,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
@@ -234,6 +235,23 @@ public class VnfRoa {
 
         restJson.remove(Constant.RETCODE);
         return restJson.toString();
+    }
+
+    /**
+     * <br>
+     * 
+     * @param vnfmId
+     * @param resp
+     * @return
+     * @throws ServiceException
+     * @since VFC 1.0
+     */
+    @GET
+    @Path("/{vnfmId}")
+    public String getVnfmById(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp)
+            throws ServiceException {
+        LOG.warn("function=getVnfmById, vnfmId: {}", vnfmId);
+        return VnfmUtil.getVnfmById(vnfmId).toString();
     }
 
     /**

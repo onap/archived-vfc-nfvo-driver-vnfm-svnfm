@@ -382,6 +382,35 @@ public final class VnfmRestfulUtil {
         return rsp;
     }
 
+    public static RestfulResponse getRemoteResponse(String url, String methodType, Map<String, String> headerMap,
+            String params) {
+        RestfulResponse rsp = null;
+        Restful rest = RestfulFactory.getRestInstance(RestfulFactory.PROTO_HTTP);
+        try {
+
+            RestfulParametes restfulParametes = new RestfulParametes();
+            restfulParametes.setHeaderMap(headerMap);
+            if(params != null) {
+                restfulParametes.setRawData(params);
+            }
+
+            if(rest != null) {
+                if(TYPE_GET.equalsIgnoreCase(methodType)) {
+                    rsp = rest.get(url, restfulParametes);
+                } else if(TYPE_POST.equalsIgnoreCase(methodType)) {
+                    rsp = rest.post(url, restfulParametes);
+                } else if(TYPE_PUT.equalsIgnoreCase(methodType)) {
+                    rsp = rest.put(url, restfulParametes);
+                } else if(TYPE_DEL.equalsIgnoreCase(methodType)) {
+                    rsp = rest.delete(url, restfulParametes);
+                }
+            }
+        } catch(ServiceException e) {
+            LOG.error("function=getRemoteResponse, get restful response catch exception {}", e);
+        }
+        return rsp;
+    }
+
     /**
      * Make Params map<br>
      *
