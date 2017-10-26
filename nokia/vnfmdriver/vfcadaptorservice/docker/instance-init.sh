@@ -16,14 +16,6 @@
 #
 # Config mysql credentials
 
-function start_mysql {
-    echo "start mysql ... "
-    su /sbin/service mysql restart
-    sleep 1
-}
-
-start_mysql
-
 # Initialize MySQL schema
 cd bin
 ./init_db.sh root rootpass 127.0.0.1 3306
