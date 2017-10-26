@@ -105,16 +105,9 @@ public class VnfmDriverMgmrImplTest {
 		cbamHttpHead = protocol + "://" + ip + ":" + port;
 		
 		EsrSystemInfo esrSystemInfo = new EsrSystemInfo();
-		esrSystemInfo.setProtocal(protocol);
-		esrSystemInfo.setIp(ip);
-		esrSystemInfo.setPort(port);
-		esrSystemInfo.setCloudDomain("cloudDomain");
-		esrSystemInfo.setDefaultTenant("defaultTenant");
 		esrSystemInfo.setEsrSystemId("esrSystemId");
 		esrSystemInfo.setPassword("password");
-		esrSystemInfo.setServiceUrl("serviceUrl");
-		esrSystemInfo.setSslCacert("sslCacert");
-		esrSystemInfo.setSslInsecure("sslInsecure");
+		esrSystemInfo.setServiceUrl(cbamHttpHead);
 		esrSystemInfo.setType("type");
 		esrSystemInfo.setUserName("userName");
 		esrSystemInfo.setVendor("vendor");

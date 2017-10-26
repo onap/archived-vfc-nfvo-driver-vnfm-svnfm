@@ -229,7 +229,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 		
 		EsrSystemInfo systemInfo = vnfmInfo.getEsrSystemInfoList().get(0);
 		
-		String urlHead = systemInfo.getProtocal() + "://" + systemInfo.getIp() + ":" + systemInfo.getPort();
+		String urlHead = systemInfo.getServiceUrl();
 		adaptorEnv.setCbamApiUriFront(urlHead);
 		return urlHead;
 	}

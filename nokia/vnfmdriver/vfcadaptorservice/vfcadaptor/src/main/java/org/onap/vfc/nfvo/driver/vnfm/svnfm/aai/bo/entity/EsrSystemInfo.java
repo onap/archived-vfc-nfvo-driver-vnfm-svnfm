@@ -16,54 +16,50 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 public class EsrSystemInfo {
+	@JsonProperty("esr-system-info-id")
 	@SerializedName("esr-system-info-id")
 	private String esrSystemId;
 	
+	@JsonProperty("system-name")
 	@SerializedName("system-name")
 	private String esrSystemName;
 	
+	@JsonProperty("type")
 	@SerializedName("type")
 	private String type;
 	
+	@JsonProperty("vendor")
 	@SerializedName("vendor")
 	private String vendor;
 	
+	@JsonProperty("version")
 	@SerializedName("version")
 	private String version;
 	
+	@JsonProperty("service-url")
 	@SerializedName("service-url")
 	private String serviceUrl;
 	
+	@JsonProperty("user-name")
 	@SerializedName("user-name")
 	private String userName;
 	
+	@JsonProperty("password")
 	@SerializedName("password")
 	private String password;
 	
-	@SerializedName("protocal")
-	private String protocal;
+	@JsonProperty("system-type")
+	@SerializedName("system-type")
+	private String systemType;
 	
-	@SerializedName("ssl-cacert")
-	private String sslCacert;
+	@JsonProperty("resource-version")
+	@SerializedName("resource-version")
+	private String resourceVersion;
 	
-	@SerializedName("ssl-insecure")
-	private String sslInsecure;
-	
-	@SerializedName("ip-address")
-	private String ip;
-	
-	@SerializedName("port")
-	private String port;
-	
-	@SerializedName("cloud-domain")
-	private String cloudDomain;
-	
-	@SerializedName("default-tenant")
-	private String defaultTenant;
-
 	public String getEsrSystemId() {
 		return esrSystemId;
 	}
@@ -128,60 +124,19 @@ public class EsrSystemInfo {
 		this.password = password;
 	}
 
-	public String getProtocal() {
-		return protocal;
+	public String getSystemType() {
+		return systemType;
 	}
 
-	public void setProtocal(String protocal) {
-		this.protocal = protocal;
+	public void setSystemType(String systemType) {
+		this.systemType = systemType;
 	}
 
-	public String getSslCacert() {
-		return sslCacert;
+	public String getResourceVersion() {
+		return resourceVersion;
 	}
 
-	public void setSslCacert(String sslCacert) {
-		this.sslCacert = sslCacert;
+	public void setResourceVersion(String resourceVersion) {
+		this.resourceVersion = resourceVersion;
 	}
-
-	public String getSslInsecure() {
-		return sslInsecure;
-	}
-
-	public void setSslInsecure(String sslInsecure) {
-		this.sslInsecure = sslInsecure;
-	}
-
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
-
-	public String getPort() {
-		return port;
-	}
-
-	public void setPort(String port) {
-		this.port = port;
-	}
-
-	public String getCloudDomain() {
-		return cloudDomain;
-	}
-
-	public void setCloudDomain(String cloudDomain) {
-		this.cloudDomain = cloudDomain;
-	}
-
-	public String getDefaultTenant() {
-		return defaultTenant;
-	}
-
-	public void setDefaultTenant(String defaultTenant) {
-		this.defaultTenant = defaultTenant;
-	}
-	
 }

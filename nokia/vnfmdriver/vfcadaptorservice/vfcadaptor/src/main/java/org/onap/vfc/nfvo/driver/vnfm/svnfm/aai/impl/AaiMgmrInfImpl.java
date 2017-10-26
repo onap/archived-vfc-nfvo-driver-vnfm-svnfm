@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.impl;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.inf.AaiMgmrInf;
@@ -28,7 +29,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -62,10 +62,19 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 	private String operateHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
 		String url=adaptorEnv.getAaiApiUriFront() + httpPath;
 		
-		HashMap<String, String> map = new HashMap<>();
-		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+		HashMap<String, String> headerMap = new HashMap<>();
+		headerMap.put("Content-Type", "application/json");
+        headerMap.put("Accept", "application/json");
+        headerMap.put("X-TransactionId", "9999");
+        headerMap.put("X-FromAppId", "esr-server");
+
+        Base64 token = new Base64();
+        String authen = new String(token.encode(("AAI:AAI").getBytes()));
+        headerMap.put("Authorization", "Basic " + authen);
+        logger.info("getVimById headerMap: {}", headerMap.toString());
+        
 		
-		String responseStr = httpClientProcessor.process(url, method, map, gson.toJson(httpBodyObj)).getContent();
+		String responseStr = httpClientProcessor.process(url, method, headerMap, gson.toJson(httpBodyObj)).getContent();
 		
 		return responseStr;
 	}

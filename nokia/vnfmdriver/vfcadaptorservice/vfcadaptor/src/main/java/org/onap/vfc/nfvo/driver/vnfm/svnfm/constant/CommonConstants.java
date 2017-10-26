@@ -31,7 +31,7 @@ public class CommonConstants {
 	
 	//AAI path get vnfm
 	// /external-system/esr-vnfm-list/esr-vnfm/{vnfm-id}
-	public static final String RetrieveVnfmListPath = "/external-system/esr-vnfm-list/esr-vnfm/%s";
+	public static final String RetrieveVnfmListPath = "/external-system/esr-vnfm-list/esr-vnfm/%s/esr-system-info-list";
 	
 	//Nslcm path
 	public static final String NslcmGrantPath = "/ns/grantvnf";
@@ -43,7 +43,7 @@ public class CommonConstants {
 	//CBAM -- Nokia VNFM path
 	public static final String CBAM_TOKEN_KEY = "access_token";
 	public static final String RetrieveCbamTokenPath="/auth/realms/cbam/protocol/openid-connect/token";
-	public static final String RetrieveCbamTokenPostStr="grant_type=%s&client_id=%s&client_secret=%s";
+	public static final String RetrieveCbamTokenPostStr="grant_type=%s&client_id=%s&client_secret=%s&usernmae=%s&password=%s";
 	public static final String CbamCreateVnfPath="/vnfs";
 	public static final String CbamInstantiateVnfPath="/vnfs/%s/instantiate";
 	public static final String CbamQueryVnfPath="/vnfs/%s";

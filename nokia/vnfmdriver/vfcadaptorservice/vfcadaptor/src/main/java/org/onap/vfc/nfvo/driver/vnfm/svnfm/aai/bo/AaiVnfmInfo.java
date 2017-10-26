@@ -40,8 +40,8 @@ public class AaiVnfmInfo {
 	@JsonProperty("resource-version")
 	private String resourceVersion;
 	
-	@SerializedName("esr-system-info-list")
-	@JsonProperty("esr-system-info-list")
+	@SerializedName("esr-system-info")
+	@JsonProperty("esr-system-info")
 	private List<EsrSystemInfo> esrSystemInfoList;
 
 	public String getVnfmId() {

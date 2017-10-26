@@ -56,7 +56,7 @@ public class AaiMgmrInfImplTest {
 				+ "\"vim-id\":\"vim-id_001\","
 				+ "\"certificate-url\":\"certificate-url_001\","
 				+ "\"resource-version\":\"resource-version_001\","
-				+ "\"esr-system-info-list\":[{\"ip-address\" : \"1.3.5.6\"}]"
+				+ "\"esr-system-info\":[{\"type\" : \"vnfm\"}]"
 				+ "}"
 				+ "";
 		HttpResult httpResult = new HttpResult();
@@ -69,6 +69,6 @@ public class AaiMgmrInfImplTest {
 	public void testQueryVnfPackage() throws ClientProtocolException, IOException
 	{
 		AaiVnfmInfo vnfmInfo = aaiMgmr.queryVnfm(vnfmId);
-		Assert.assertEquals("1.3.5.6", vnfmInfo.getEsrSystemInfoList().get(0).getIp());
+		Assert.assertEquals("vnfm", vnfmInfo.getEsrSystemInfoList().get(0).getType());
 	}
 }
