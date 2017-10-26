@@ -32,6 +32,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.DownloadCsarManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.SystemEnvVariablesFactory;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VNFRestfulUtil;
@@ -145,7 +146,8 @@ public class AdapterResourceManager implements IResourceManager {
         vnfmMap.put("methodType", Constant.GET);
 
         // get VNFM connection info
-        JSONObject vnfmObject = getVnfmConnInfo(vnfmMap);
+        // getVnfmConnInfo(vnfmMap)
+        JSONObject vnfmObject = VnfmUtil.getVnfmById(vnfmid);
         if(Integer.valueOf(vnfmObject.get(Constant.RETCODE).toString()) != Constant.HTTP_OK) {
             LOG.error("get Vnfm Connection Info fail.", vnfmObject.get(Constant.RETCODE));
             resultObj.put(Constant.REASON, vnfmObject.get(Constant.REASON).toString());
@@ -297,7 +299,7 @@ public class AdapterResourceManager implements IResourceManager {
             LOG.info("makeDirectory: " + ftpClient.makeDirectory(vnfpkg.getString(VNFD_FILE_PATH)));
             ftpClient.changeWorkingDirectory(vnfpkg.getString(VNFD_FILE_PATH));
             LOG.info("changeWorkingDirectory: " + ftpClient.changeWorkingDirectory(vnfpkg.getString(VNFD_FILE_PATH)));
-            String vnfdPath = csarfilepath + "Artifacts/Other/";
+            String vnfdPath = csarfilepath + "Artifacts/Deployment/OTHER/";
             LOG.info("vnfd_file_name: " + vnfdPath + vnfpkg.getString("vnfd_file_name"));
             InputStream inputStream = new FileInputStream(new File(vnfdPath + vnfpkg.getString("vnfd_file_name")));
             flag = ftpClient.storeFile(vnfpkg.getString("vnfd_file_name"), inputStream);
