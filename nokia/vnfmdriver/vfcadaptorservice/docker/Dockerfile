@@ -21,6 +21,7 @@ WORKDIR /service
 # 20-mysq.txt
 
 # Set up mysql
+RUN yum install initscripts
 RUN wget -q http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm && rpm -ivh mysql-community-release-el7-5.noarch.rpm && rm -f mysql-community-release-el7-5.noarch.rpm
 RUN yum -y update
 RUN yum -y install -y mysql-server
