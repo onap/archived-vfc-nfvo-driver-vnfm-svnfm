@@ -16,17 +16,26 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Component
 public class HttpClientProcessorImpl implements HttpClientProcessorInf{
+	private static final Logger logger = LoggerFactory.getLogger(HttpClientProcessorImpl.class);
 
 	@Autowired
 	private HttpClientBuilder httpClientBuilder;
@@ -41,7 +50,7 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
 				processor.addHdeader(key, headerMap.get(key));
 			}
 			
-			if(null != bodyString && bodyString.length() > 0)
+			if(null != bodyString && bodyString.length() > 0 && !bodyString.equalsIgnoreCase("null"))
 			{
 				processor.addPostEntity(bodyString);
 			}
@@ -49,8 +58,72 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
 		}
 		return processor.process(url);
 	}
-
+	
+	public HttpResult processBytes(String url, RequestMethod methodType, HashMap<String, String> headerMap, byte[] byteArray) throws ClientProtocolException, IOException
+	{
+		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, methodType);
+		if(headerMap != null && !headerMap.isEmpty())
+		{
+			for(String key : headerMap.keySet())
+			{
+				processor.addHdeader(key, headerMap.get(key));
+			}
+			
+			if(null != byteArray && byteArray.length > 0)
+			{
+				processor.addBytesPostEntity(byteArray);
+			}
+			
+		}
+		return processor.process(url);
+	}
+	
 	public void setHttpClientBuilder(HttpClientBuilder httpClientBuilder) {
 		this.httpClientBuilder = httpClientBuilder;
 	}
+	
+	public static boolean downLoadFromUrl(String urlStr, String fileName, String savePath) 
+	{
+		try 
+		{
+	        URL url = new URL(urlStr);  
+	        HttpURLConnection conn = (HttpURLConnection)url.openConnection();  
+	        conn.setConnectTimeout(10*1000);
+	        conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+	        InputStream inputStream = conn.getInputStream();  
+	        byte[] getData = readInputStream(inputStream);    
+	        File saveDir = new File(savePath);
+	        if(!saveDir.exists()){
+	            saveDir.mkdir();
+	        }	   
+	        File file = new File(saveDir+File.separator+fileName);    
+	        FileOutputStream fos = new FileOutputStream(file);     
+	        fos.write(getData); 
+	        if(fos!=null){
+	            fos.close();  
+	        }
+	        if(inputStream!=null){
+	            inputStream.close();
+	        }
+		}
+		catch ( IOException e ) {
+			logger.info("write file fail", e);  
+			return false;
+		}
+        
+        logger.info("info: "+ urlStr + " download success"); 
+        return true;
+    }
+
+
+    public static byte[] readInputStream(InputStream inputStream) throws IOException {  
+        byte[] buffer = new byte[1024];  
+        int len = 0;  
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();  
+        while((len = inputStream.read(buffer)) != -1) {  
+            bos.write(buffer, 0, len);  
+        }  
+        bos.close();  
+        return bos.toByteArray();  
+    }
 }

@@ -56,6 +56,9 @@ public class AdaptorEnv {
 	
 	//cbamApiFront is from aai query
 	private String cbamApiUriFront;
+	private String cbamUserName;
+	private String cbamPassword;
+	
 	
 	private String msbApiUriFront;
 
@@ -219,6 +222,22 @@ public class AdaptorEnv {
 
 	public void setMsbApiUriFront(String msbApiUriFront) {
 		this.msbApiUriFront = msbApiUriFront;
+	}
+
+	public String getCbamUserName() {
+		return cbamUserName;
+	}
+
+	public void setCbamUserName(String cbamUserName) {
+		this.cbamUserName = cbamUserName;
+	}
+
+	public String getCbamPassword() {
+		return cbamPassword;
+	}
+
+	public void setCbamPassword(String cbamPassword) {
+		this.cbamPassword = cbamPassword;
 	}
 
 

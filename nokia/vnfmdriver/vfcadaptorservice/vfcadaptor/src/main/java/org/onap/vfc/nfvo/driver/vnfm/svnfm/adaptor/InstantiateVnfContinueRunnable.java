@@ -16,9 +16,11 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.VnfPackageInfo;
@@ -31,6 +33,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum.LifecycleOperation;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorImpl;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
@@ -39,6 +42,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zeroturnaround.zip.ZipUtil;
 
 
 public class InstantiateVnfContinueRunnable implements Runnable {
@@ -70,12 +74,13 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 	
 	public void run() {
 		try {
+			//step 1 handle vnf package
+			handleVnfPackage();
+			
 			NslcmGrantVnfRequest grantRequest = buildNslcmGrantVnfRequest();
 			NslcmGrantVnfResponse grantResponse = nslcmMgmr.grantVnf(grantRequest);
 			handleNslcmGrantResponse(grantResponse);
 			
-			//step 2: query vnfPackage uri
-			VnfPackageInfo vnfPackageInfo = catalogMgmr.queryVnfPackage(driverRequest.getVnfPackageId());
 			
 			//step 5: instantiate vnf
 			CBAMInstantiateVnfRequest  instantiateReq = requestConverter.InstantiateReqConvert(driverRequest, grantResponse, null, null);
@@ -91,6 +96,36 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 			logger.error("InstantiateVnfContinueRunnable run error IOException", e);
 		}
 		
+	}
+
+	private void handleVnfPackage() {
+		Executors.newSingleThreadExecutor().execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					//step 1: query vnfPackage uri -- download package -- extract it -- upload CBAM package to CBAM
+					VnfPackageInfo vnfPackageInfo = catalogMgmr.queryVnfPackage(driverRequest.getVnfPackageId());
+					String packageUrl = vnfPackageInfo.getDownloadUri();
+					String saveDir = "/service/vnfPackage";
+					String packageFileName = packageUrl.substring(packageUrl.lastIndexOf("/"));
+					Process process = Runtime.getRuntime().exec("mkdir " + saveDir);
+					process.waitFor();
+					
+					if (HttpClientProcessorImpl.downLoadFromUrl(packageUrl, packageFileName, saveDir)) {
+						//extract package
+						ZipUtil.unpack(new File(saveDir + "/" + packageFileName), new File(saveDir));
+						//upload package
+						String cbamPackageDirName = saveDir + "/"
+								+ packageFileName.substring(0, packageFileName.length() - 4) + "/Artifacts";
+						String cbamPackageName = new File(cbamPackageDirName).list()[0];
+						cbamMgmr.uploadVnfPackage(cbamPackageName);
+					} 
+				} catch (Exception e) {
+					logger.error("Error to handleVnfPackage", e);
+				}
+			}
+			
+		});
 	}
 	
 	private NslcmNotifyLCMEventsRequest buildNslcmNotifyLCMEventsRequest(CBAMInstantiateVnfResponse cbamInstantiateResponse) {

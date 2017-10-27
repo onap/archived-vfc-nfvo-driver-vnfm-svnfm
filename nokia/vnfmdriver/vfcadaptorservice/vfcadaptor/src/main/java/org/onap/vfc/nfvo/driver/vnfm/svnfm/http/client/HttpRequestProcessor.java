@@ -25,6 +25,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -76,6 +77,9 @@ public class HttpRequestProcessor {
 
 	public void addPostEntity(String bodyStr) {
 		((HttpPost)httpRequest).setEntity(new StringEntity(bodyStr, CommonConstants.UTF_8));
-		
+	}
+	
+	public void addBytesPostEntity(byte[] byteArray) {
+		((HttpPost)httpRequest).setEntity(new ByteArrayEntity(byteArray));
 	}
 }

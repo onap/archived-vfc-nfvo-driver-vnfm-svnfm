@@ -37,6 +37,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util.CommonUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
@@ -60,14 +61,14 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 	
 	private String retrieveToken() throws ClientProtocolException, IOException, JSONException {
 		String result = null;
-		String url= adaptorEnv.getCbamApiUriFront() + CommonConstants.RetrieveCbamTokenPath;
+		String url= adaptorEnv.getCbamApiUriFront() + CommonConstants.CbamRetrieveTokenPath;
 		HashMap<String, String> map = new HashMap<>();
 		map.put(CommonConstants.ACCEPT, "*/*");
 		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		
-		String bodyPostStr = String.format(CommonConstants.RetrieveCbamTokenPostStr, adaptorEnv.getGrantType(), adaptorEnv.getClientId(), adaptorEnv.getClientSecret());
+		String bodyPostStr = String.format(CommonConstants.CbamRetrieveTokenPostStr, adaptorEnv.getGrantType(), adaptorEnv.getClientId(), adaptorEnv.getClientSecret(), adaptorEnv.getCbamUserName(), adaptorEnv.getCbamPassword());
 		
-		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, map, bodyPostStr).getContent();
+		String responseStr = httpClientProcessor.process(url, RequestMethod.POST, map, bodyPostStr).getContent();
 		
 		logger.info("CbamMgmrImpl -> retrieveToken, responseStr is " + responseStr);
 		
@@ -252,5 +253,40 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 	public void setAdaptorEnv(AdaptorEnv adaptorEnv) {
 		this.adaptorEnv = adaptorEnv;
 	}
+
+	@Override
+	public void uploadVnfPackage(String cbamPackageFilePath) throws ClientProtocolException, IOException {
+		String httpPath = CommonConstants.CbamUploadVnfPackagePath;
+		RequestMethod method = RequestMethod.POST;
+		
+		HttpResult httpResult = operateCbamHttpUploadTask(cbamPackageFilePath, httpPath, method);
+		String responseStr = httpResult.getContent();
+		
+		logger.info("CbamMgmrImpl -> uploadVnfPackage, responseStr is " + responseStr);
+		
+		int code = httpResult.getStatusCode();
+		if(code == 200) {
+			logger.info("CbamMgmrImpl -> uploadVnfPackage, success" );
+			logger.info("Upload vnf package " + cbamPackageFilePath + " to CBAM is successful.");
+		}else {
+			logger.error("CbamMgmrImpl -> uploadVnfPackage, error" );
+		}
+	}
+
+	private HttpResult operateCbamHttpUploadTask(String filePath, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
+		String token = null;
+		try {
+			token = retrieveToken();
+		} catch (JSONException e) {
+			logger.error("retrieveTokenError ", e);
+		}
 	
+		String url = adaptorEnv.getCbamApiUriFront() + httpPath;
+		
+		HashMap<String, String> map = new HashMap<>();
+		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
+		map.put(CommonConstants.CONTENT_TYPE, "multipart/form-data, boundary=--fsgdsfgjgjdsgdfjgjgj");
+		byte[] fileBytes = CommonUtil.getBytes(filePath);
+		return httpClientProcessor.processBytes(url, method, map, fileBytes);
+	}
 }

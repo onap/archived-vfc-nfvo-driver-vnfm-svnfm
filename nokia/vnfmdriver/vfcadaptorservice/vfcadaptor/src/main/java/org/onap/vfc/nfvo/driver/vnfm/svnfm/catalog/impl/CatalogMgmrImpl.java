@@ -17,7 +17,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.impl;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.CatalogQueryVnfResponse;
@@ -49,11 +48,8 @@ public class CatalogMgmrImpl implements CatalogMgmrInf{
 	public VnfPackageInfo queryVnfPackage(String vnfPackageId) throws ClientProtocolException, IOException {
 		
 		String url=adaptorEnv.getCatalogApiUriFront() + String.format(CommonConstants.RetrieveVnfPackagePath, vnfPackageId);
-		HashMap<String, String> map = new HashMap<>();
 		
-		String bodyPostStr = String.format(CommonConstants.RetrieveCbamTokenPostStr, adaptorEnv.getGrantType(), adaptorEnv.getClientId(), adaptorEnv.getClientSecret());
-		
-		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, map, bodyPostStr).getContent();
+		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, null, null).getContent();
 		
 		logger.info("CbamMgmrImpl -> queryVnfPackage, responseStr is " + responseStr);
 		

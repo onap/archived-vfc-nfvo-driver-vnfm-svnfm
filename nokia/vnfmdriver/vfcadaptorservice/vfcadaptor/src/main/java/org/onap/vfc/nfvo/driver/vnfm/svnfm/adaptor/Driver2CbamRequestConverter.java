@@ -49,7 +49,7 @@ public class Driver2CbamRequestConverter {
 	public CBAMCreateVnfRequest createReqConvert(InstantiateVnfRequest driverRequest) {
 		CBAMCreateVnfRequest request = new CBAMCreateVnfRequest();
 
-		request.setVnfdId("vnfd_001");
+		request.setVnfdId(driverRequest.getVnfDescriptorId());
 		request.setName(driverRequest.getVnfInstanceName());
 		request.setDescription(driverRequest.getVnfInstanceDescription());
 		return request;

@@ -231,6 +231,9 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 		
 		String urlHead = systemInfo.getServiceUrl();
 		adaptorEnv.setCbamApiUriFront(urlHead);
+		adaptorEnv.setCbamUserName(systemInfo.getUserName());
+		adaptorEnv.setCbamPassword(systemInfo.getPassword());
+		
 		return urlHead;
 	}
 
