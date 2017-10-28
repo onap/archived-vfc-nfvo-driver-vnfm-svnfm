@@ -30,7 +30,7 @@ public class CommonConstants {
 	public static final String UTF_8 = "utf-8";
 	
 	//AAI path get vnfm
-	// /external-system/esr-vnfm-list/esr-vnfm/{vnfm-id}
+	// /external-system/esr-vnfm-list/esr-vnfm/{vnfm-id}/esr-system-info-list
 	public static final String RetrieveVnfmListPath = "/external-system/esr-vnfm-list/esr-vnfm/%s/esr-system-info-list";
 	
 	//Nslcm path
@@ -38,12 +38,12 @@ public class CommonConstants {
 	public static final String NslcmNotifyPath = "/vnfs/%s/Notify";
 	
 	//Catalog path
-	public static final String RetrieveVnfPackagePath = "/vnfpackages/%s";
+	public static final String RetrieveVnfPackagePath = "/catalog/v1/vnfpackages/%s";
 	
 	//CBAM -- Nokia VNFM path
 	public static final String CBAM_TOKEN_KEY = "access_token";
-	public static final String RetrieveCbamTokenPath="/auth/realms/cbam/protocol/openid-connect/token";
-	public static final String RetrieveCbamTokenPostStr="grant_type=%s&client_id=%s&client_secret=%s&usernmae=%s&password=%s";
+	public static final String CbamRetrieveTokenPath="/auth/realms/cbam/protocol/openid-connect/token";
+	public static final String CbamRetrieveTokenPostStr="grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s";
 	public static final String CbamCreateVnfPath="/vnfs";
 	public static final String CbamInstantiateVnfPath="/vnfs/%s/instantiate";
 	public static final String CbamQueryVnfPath="/vnfs/%s";
@@ -52,6 +52,9 @@ public class CommonConstants {
 	public static final String CbamGetOperStatusPath="/operation_executions/%s";
 	public static final String CbamScaleVnfPath = "/vnfs/%s/scale";
 	public static final String CbamHealVnfPath="/vnfs/%s/heal";
+	
+	public static final String CbamUploadVnfPackagePath="/api/catalog/vnfpackages";
+	
 	
 	public static final String NSLCM_OPERATION_INSTANTIATE = "Instantiate";
 	public static final String NSLCM_OPERATION_TERMINATE = "Terminal";
@@ -66,7 +69,6 @@ public class CommonConstants {
 	
 	//MSB
 	public static final String MSB_REGISTER_SERVICE_PATH = "/api/microservices/v1/services";
-//	public static final String MSB_REGISTER_SERVICE_PATH = "/api/microservices/v1/services/{serviceName}/version/{version}/nodes/{ip}/{port}";
 	public static final String MSB_UNREGISTER_SERVICE_PATH = "/api/microservices/v1/services/%s/version/%s/nodes/%s/%s";
 	public static final String MSB_QUERY_SERVICE_PATH = "/api/microservices/v1/services/%s/version/%s";
 }

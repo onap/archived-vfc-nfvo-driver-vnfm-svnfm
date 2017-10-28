@@ -53,4 +53,7 @@ public interface CbamMgmrInf {
 	public void deleteVnf(String vnfInstanceId) throws ClientProtocolException, IOException;
 
 	public CBAMQueryOperExecutionResponse queryOperExecution(String execId) throws ClientProtocolException, IOException;
+
+	public void uploadVnfPackage(String cbamPackageName) throws ClientProtocolException, IOException;
+
 }

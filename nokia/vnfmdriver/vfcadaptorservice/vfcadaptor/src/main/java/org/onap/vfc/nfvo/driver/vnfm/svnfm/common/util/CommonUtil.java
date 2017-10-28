@@ -17,6 +17,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -78,4 +79,27 @@ public final class CommonUtil {
         }
         return path;
     }
+    
+    public static byte[] getBytes(String filePath){  
+        byte[] buffer = null;  
+        try {  
+            File file = new File(filePath);  
+            FileInputStream fis = new FileInputStream(file);  
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);  
+            byte[] b = new byte[1000];  
+            int n;  
+            while ((n = fis.read(b)) != -1) {  
+                bos.write(b, 0, n);  
+            }  
+            fis.close();  
+            bos.close();  
+            buffer = bos.toByteArray();  
+        } catch (FileNotFoundException e) {  
+        	logger.error("file " + filePath + " is not found.", e);
+        } catch (IOException e) {  
+        	logger.error("file " + filePath + " IOException.", e); 
+        }  
+        return buffer;  
+    }  
+ 
 }
