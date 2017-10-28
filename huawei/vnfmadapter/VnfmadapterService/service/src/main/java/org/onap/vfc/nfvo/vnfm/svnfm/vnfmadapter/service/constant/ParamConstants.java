@@ -110,10 +110,11 @@ public class ParamConstants {
     public static final String MSB_UNREGISTER_URL = "/api/microservices/v1/services/hw-vnfm";
 
     // /api/extsys/v1/vnfms/%s
-    public static final String ESR_GET_VNFM_URL = "/external-system/esr-vnfm-list/esr-vnfm/%s/esr-system-info-list";
+    public static final String ESR_GET_VNFM_URL =
+            "/aai/v11/external-system/esr-vnfm-list/esr-vnfm/%s/esr-system-info-list";
 
     // /api/extsys/v1/vnfms
-    public static final String ESR_GET_VNFMS_URL = "/external-system/esr-vnfm-list";
+    public static final String ESR_GET_VNFMS_URL = "/aai/v11/external-system/esr-vnfm-list";
 
     public static final String GRANT_RES_URL = "/api/resmgr/v1/resource/grant";
 
