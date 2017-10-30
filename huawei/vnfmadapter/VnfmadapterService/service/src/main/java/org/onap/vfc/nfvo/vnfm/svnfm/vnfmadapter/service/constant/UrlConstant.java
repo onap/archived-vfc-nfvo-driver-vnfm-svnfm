@@ -28,7 +28,7 @@ public class UrlConstant {
 
     public static final String REST_DRIVERMGR_REGISTER = "/api/drivermgr/v1/drivers";
 
-    public static final String REST_CSARINFO_GET = "/api/catalog/v1/csars/%s";
+    public static final String REST_CSARINFO_GET = "/api/catalog/v1/vnfpackages/%s";
 
     public static final String REST_VNFMINFO_GET = "/api/extsys/v1/vnfms/%s";
 
