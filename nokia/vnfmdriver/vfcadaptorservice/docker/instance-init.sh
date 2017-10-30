@@ -17,6 +17,6 @@
 # Config mysql credentials
 
 # Initialize MySQL schema
-/usr/bin/mysqld_safe &
+# /usr/bin/mysqld_safe &
 cd bin
 ./init_db.sh root rootpass 127.0.0.1 3306

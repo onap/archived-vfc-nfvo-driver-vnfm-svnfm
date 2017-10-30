@@ -79,8 +79,6 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 			
 			NslcmGrantVnfRequest grantRequest = buildNslcmGrantVnfRequest();
 			NslcmGrantVnfResponse grantResponse = nslcmMgmr.grantVnf(grantRequest);
-			handleNslcmGrantResponse(grantResponse);
-			
 			
 			//step 5: instantiate vnf
 			CBAMInstantiateVnfRequest  instantiateReq = requestConverter.InstantiateReqConvert(driverRequest, grantResponse, null, null);
@@ -108,15 +106,15 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 					String packageUrl = vnfPackageInfo.getDownloadUri();
 					String saveDir = "/service/vnfPackage";
 					String packageFileName = packageUrl.substring(packageUrl.lastIndexOf("/"));
-					Process process = Runtime.getRuntime().exec("mkdir " + saveDir);
+					Process process = Runtime.getRuntime().exec("mkdir -p " + saveDir);
 					process.waitFor();
 					
 					if (HttpClientProcessorImpl.downLoadFromUrl(packageUrl, packageFileName, saveDir)) {
+						File csarFile = new File(saveDir + "/" + packageFileName);
 						//extract package
-						ZipUtil.unpack(new File(saveDir + "/" + packageFileName), new File(saveDir));
-						//upload package
-						String cbamPackageDirName = saveDir + "/"
-								+ packageFileName.substring(0, packageFileName.length() - 4) + "/Artifacts";
+						ZipUtil.explode(csarFile);
+						csarFile.delete();
+						String cbamPackageDirName = saveDir + "/" + packageFileName + "/Artifacts";
 						String cbamPackageName = new File(cbamPackageDirName).list()[0];
 						cbamMgmr.uploadVnfPackage(cbamPackageName);
 					} 
@@ -180,8 +178,15 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		jobDbMgmr.save(jobInfo);
 	}
 
-	private void handleNslcmGrantResponse(NslcmGrantVnfResponse grantResponse) {
-		// TODO Auto-generated method stub
+	public static void main(String[] argv) {
+		String saveDir = "D:/tmp/20170926/data";
+		String packageFileName = "vCSCF_v3.0.csar";
+		File csarFile = new File(saveDir + "/" + packageFileName);
+		ZipUtil.explode(csarFile);
+		csarFile.delete();
+		String cbamPackageDirName = saveDir + "/" + packageFileName + "/Artifacts";
+		String cbamPackageName = new File(cbamPackageDirName).list()[0];
+		System.out.println(cbamPackageName);
 		
 	}
 

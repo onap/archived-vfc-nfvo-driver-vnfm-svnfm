@@ -53,7 +53,7 @@ public class CommonConstants {
 	public static final String CbamScaleVnfPath = "/vnfs/%s/scale";
 	public static final String CbamHealVnfPath="/vnfs/%s/heal";
 	
-	public static final String CbamUploadVnfPackagePath="/api/catalog/vnfpackages";
+	public static final String CbamUploadVnfPackagePath="/api/catalog/adapter/vnfpackages";
 	
 	
 	public static final String NSLCM_OPERATION_INSTANTIATE = "Instantiate";

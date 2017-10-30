@@ -72,10 +72,11 @@ public class HttpClientUtils {
 				.register("https", sslSocketFactory)
 				.build();
 		
-		PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager( socketFactoryRegistry);
+		PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
 		connMgr.setMaxTotal(200);
 		connMgr.setDefaultMaxPerRoute(50);
 		httpClientBuilder.setConnectionManager(connMgr);
+		
 		return httpClientBuilder;
 	}
 	

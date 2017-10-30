@@ -88,7 +88,7 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
 		{
 	        URL url = new URL(urlStr);  
 	        HttpURLConnection conn = (HttpURLConnection)url.openConnection();  
-	        conn.setConnectTimeout(10*1000);
+	        conn.setConnectTimeout(20*1000);
 	        conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
 	        InputStream inputStream = conn.getInputStream();  
 	        byte[] getData = readInputStream(inputStream);    

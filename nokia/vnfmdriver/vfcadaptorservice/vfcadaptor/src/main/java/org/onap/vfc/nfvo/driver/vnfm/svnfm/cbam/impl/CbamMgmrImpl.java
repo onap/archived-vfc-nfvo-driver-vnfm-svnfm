@@ -59,14 +59,17 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 	@Autowired
 	HttpClientProcessorInf httpClientProcessor;
 	
-	private String retrieveToken() throws ClientProtocolException, IOException, JSONException {
+	public String retrieveToken() throws ClientProtocolException, IOException, JSONException {
 		String result = null;
 		String url= adaptorEnv.getCbamApiUriFront() + CommonConstants.CbamRetrieveTokenPath;
 		HashMap<String, String> map = new HashMap<>();
 		map.put(CommonConstants.ACCEPT, "*/*");
 		map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		
-		String bodyPostStr = String.format(CommonConstants.CbamRetrieveTokenPostStr, adaptorEnv.getGrantType(), adaptorEnv.getClientId(), adaptorEnv.getClientSecret(), adaptorEnv.getCbamUserName(), adaptorEnv.getCbamPassword());
+		String bodyPostStr = String.format(CommonConstants.CbamRetrieveTokenPostStr, adaptorEnv.getClientId(), adaptorEnv.getClientSecret(), adaptorEnv.getCbamUserName(), adaptorEnv.getCbamPassword());
+		
+		logger.debug("CbamMgmrImpl -> retrieveToken, url is " + url);
+		logger.debug("CbamMgmrImpl -> retrieveToken, bodyPostStr is " + bodyPostStr);
 		
 		String responseStr = httpClientProcessor.process(url, RequestMethod.POST, map, bodyPostStr).getContent();
 		
@@ -262,7 +265,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		HttpResult httpResult = operateCbamHttpUploadTask(cbamPackageFilePath, httpPath, method);
 		String responseStr = httpResult.getContent();
 		
-		logger.info("CbamMgmrImpl -> uploadVnfPackage, responseStr is " + responseStr);
+		logger.info("CbamMgmrImpl -> uploadVnfPackage, statusCode is " + httpResult.getStatusCode() + ", cause is " + httpResult.getStatusCause() + ". responseStr is " + responseStr);
 		
 		int code = httpResult.getStatusCode();
 		if(code == 200) {
@@ -273,7 +276,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		}
 	}
 
-	private HttpResult operateCbamHttpUploadTask(String filePath, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
+	public HttpResult operateCbamHttpUploadTask(String filePath, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
 		String token = null;
 		try {
 			token = retrieveToken();
@@ -287,6 +290,18 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
 		map.put(CommonConstants.CONTENT_TYPE, "multipart/form-data, boundary=--fsgdsfgjgjdsgdfjgjgj");
 		byte[] fileBytes = CommonUtil.getBytes(filePath);
+		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, url is " + url);
+		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, token is " + token);
+		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, bodyPostStr byte lenth is " + fileBytes.length);
+		
 		return httpClientProcessor.processBytes(url, method, map, fileBytes);
+	}
+
+	public HttpClientProcessorInf getHttpClientProcessor() {
+		return httpClientProcessor;
+	}
+
+	public void setHttpClientProcessor(HttpClientProcessorInf httpClientProcessor) {
+		this.httpClientProcessor = httpClientProcessor;
 	}
 }
