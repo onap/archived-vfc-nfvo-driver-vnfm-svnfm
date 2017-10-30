@@ -148,13 +148,7 @@ public class AdapterResourceManager implements IResourceManager {
         // get VNFM connection info
         // getVnfmConnInfo(vnfmMap)
         JSONObject vnfmObject = VnfmUtil.getVnfmById(vnfmid);
-        if(Integer.valueOf(vnfmObject.get(Constant.RETCODE).toString()) != Constant.HTTP_OK) {
-            LOG.error("get Vnfm Connection Info fail.", vnfmObject.get(Constant.RETCODE));
-            resultObj.put(Constant.REASON, vnfmObject.get(Constant.REASON).toString());
-            resultObj.put(Constant.RETCODE, vnfmObject.get(Constant.RETCODE).toString());
-            return resultObj;
-        }
-        LOG.info("get Vnfm Connection Info successful.", vnfmObject.get(Constant.RETCODE));
+        LOG.info("get Vnfm Connection Info successful.");
 
         String vnfmUrl = vnfmObject.getString("url");
         String userName = vnfmObject.getString(Constant.USERNAME);
