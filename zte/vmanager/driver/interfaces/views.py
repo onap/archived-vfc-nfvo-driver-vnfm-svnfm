@@ -125,14 +125,17 @@ def instantiate_vnf(request, *args, **kwargs):
         data = {}
         data["NFVOID"] = 1
         data["VNFMID"] = vnfm_id
-        vnfdId = ignorcase_get(packageInfo, "vnfdId")
+        # vnfdId = ignorcase_get(packageInfo, "vnfdId")
+        vnfd_name = ignorcase_get(packageInfo, "name")
         # TODO  convert sdc vnf package to vnf vender package
         from urlparse import urlparse
         vnfm_ip = urlparse(ignorcase_get(vnfm_info, "url")).netloc.split(':')[0]
-        VNFS = ["SPGW", "MME"]
-        if vnfdId in VNFS:
-            data["VNFD"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + vnfdId
-            data["VNFURL"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + vnfdId
+        if "SPGW" in vnfd_name.upper():
+            data["VNFD"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "SPGW"
+            data["VNFURL"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "SPGW"
+        elif "MME" in vnfd_name.upper():
+            data["VNFD"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "MME"
+            data["VNFURL"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "MME"
         else:
             data["VNFD"] = ignorcase_get(packageInfo, "downloadUri")
             data["VNFURL"] = ignorcase_get(packageInfo, "downloadUri")
