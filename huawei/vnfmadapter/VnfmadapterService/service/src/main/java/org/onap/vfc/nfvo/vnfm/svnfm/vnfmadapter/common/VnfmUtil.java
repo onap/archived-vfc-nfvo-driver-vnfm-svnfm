@@ -62,7 +62,7 @@ public final class VnfmUtil {
         Base64 token = new Base64();
         String authen = new String(token.encode(("AAI:AAI").getBytes()));
         headerMap.put("Authorization", "Basic " + authen);
-        LOGGER.info("getVimById headerMap: {}", headerMap.toString());
+        LOGGER.info("getVnfmById headerMap: {}", headerMap.toString());
 
         RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(String.format(ParamConstants.ESR_GET_VNFM_URL, vnfmId),
                 VnfmRestfulUtil.TYPE_GET, headerMap, null);
@@ -77,7 +77,7 @@ public final class VnfmUtil {
         JSONObject esrVnfm = JSONObject.fromObject(rsp.getResponseContent());
         LOGGER.info("esrVnfm: {}", esrVnfm);
         JSONObject vnfmJson = parseEsrVnfm(vnfmId, esrVnfm);
-        LOGGER.info("vnfmJson: {}", esrVnfm);
+        LOGGER.info("vnfmJson: {}", vnfmJson);
         return vnfmJson;
     }
 
