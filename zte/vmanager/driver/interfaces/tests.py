@@ -80,22 +80,28 @@ class InterfacesTest(TestCase):
                                       u'operationalState': u'Disabled',
                                       u'createTime': u'2016-10-31 16:21:11',
                                       u'size': u'12.1 MB'}}
-        packageInfo = {u'usageState': u'NotInUse',
-                       u'onBoardState': u'onBoarded',
-                       u'name': u'VFW',
-                       u'format': u'yaml',
-                       u'provider': u'ZTE',
-                       u'vnfdProvider': u'zte',
-                       u'vnfdId': u'vcpe_vfw_zte_1_0',
-                       u'deletionPending': False,
-                       u'version': u'v1.0',
-                       u'vnfVersion': u'1.0',
-                       u'vnfdVersion': u'1.0.0',
-                       u'processState': u'normal',
-                       u'modifyTime': u'2016-10-31 16:21:32',
-                       u'downloadUri': u'http://192.168.233.226:80/files/catalog-http/NFAR/ZTE/VFW/v1.0/VFW.csar',
-                       u'operationalState': u'Disabled',
-                       u'createTime': u'2016-10-31 16:21:11', u'size': u'12.1 MB'}
+        packageInfo = {
+            "size": "12.1 MB",
+            "usageState": "NotInUse",
+            "onBoardState": "onBoarded",
+            "name": "VFW",
+            "format": "yaml",
+            "packageInfo": {
+                "vnfdModel": json.dumps({"metadata": {"name": "ZTE-MME-FIX-VL"}})
+            },
+            "modifyTime": "2016-10-31 16:21:32",
+            "vnfdProvider": "zte",
+            "vnfdId": "vcpe_vfw_zte_1_0",
+            "deletionPending": False,
+            "version": "v1.0",
+            "vnfVersion": "1.0",
+            "vnfdVersion": "1.0.0",
+            "processState": "normal",
+            "provider": "ZTE",
+            "operationalState": "Disabled",
+            "createTime": "2016-10-31 16:21:11",
+            "downloadUri": "http://192.168.233.226:80/files/catalog-http/NFAR/ZTE/VFW/v1.0/VFW.csar"
+        }
 
         inst_response = {
             u'vnfInstanceId': u'8',
