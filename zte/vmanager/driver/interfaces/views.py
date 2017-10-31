@@ -126,7 +126,9 @@ def instantiate_vnf(request, *args, **kwargs):
         data["NFVOID"] = 1
         data["VNFMID"] = vnfm_id
         # vnfdId = ignorcase_get(packageInfo, "vnfdId")
-        vnfd_name = ignorcase_get(packageInfo, "name")
+        vnfdModel = json.loads(ignorcase_get(packageInfo, "vnfdModel"))
+        metadata = ignorcase_get(vnfdModel, "metadata")
+        vnfd_name = ignorcase_get(metadata, "name")
         # TODO  convert sdc vnf package to vnf vender package
         from urlparse import urlparse
         vnfm_ip = urlparse(ignorcase_get(vnfm_info, "url")).netloc.split(':')[0]
