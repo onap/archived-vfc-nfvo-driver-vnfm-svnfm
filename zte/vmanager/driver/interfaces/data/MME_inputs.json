@@ -27,7 +27,7 @@
         "name": "vnf.networkadvancedConfig.VIM_TYPE",
         "value": "OPENSTACK"
     },
-	    {
+    {
         "name": "vnf.availabilityzone.cmp_zone",
         "value": ""
     },
@@ -55,7 +55,7 @@
         "name": "vnf.ommmasterip.MstBigNetGateWay",
         "value": "172.30.23.1"
     },
-	  {
+    {
         "name": "vnf.loadsharevmservergroup.SMP_SG_Num",
         "value": "2"
     },
@@ -83,7 +83,7 @@
         "name": "vnf.appvmcap.PreemptiveCMPNumber",
         "value": "1"
     },
-	{
+    {
         "name": "vnf.networkCommConfig.AllocIPFromPool",
         "value": "YES"
     },
@@ -111,7 +111,7 @@
         "name": "vnf.networkCommConfig.VNFMNetworkCommFalg",
         "value": ""
     },
-	{
+    {
         "name": "vnf.ommbasic.HAlic",
         "value": "newstartha.lic"
     },
@@ -139,7 +139,7 @@
         "name": "vnf.supportsriovConfig.isSriov_external_3",
         "value": "NO"
     },
-	{
+    {
         "name": "vnf.supportsriovConfig.isSriov_external_2",
         "value": "NO"
     },
@@ -167,7 +167,7 @@
         "name": "vnf.supportsriovConfig.isSriov_external_8",
         "value": "NO"
     },
-	{
+    {
         "name": "vnf.ommbasic.DualOMM",
         "value": "NO"
     },
@@ -195,7 +195,7 @@
         "name": "vnf.appvmcap.PreemptiveUSUPNumber",
         "value": "1"
     },
-	{
+    {
         "name": "vnf.networkCommConfig.VNFNetworkCommFalg",
         "value": ""
     },
@@ -223,7 +223,7 @@
         "name": "vnf.availabilityzone.omm_zone",
         "value": ""
     },
-	{
+    {
         "name": "vnf.ommmasterip.OMMOMPMask",
         "value": "255.255.255.0"
     },
