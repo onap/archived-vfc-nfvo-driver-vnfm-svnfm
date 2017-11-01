@@ -1,0 +1,10 @@
+[
+    {
+        "name": "vnf.availabilityzone.cdb_zone",
+        "value": ""
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_external_7",
+        "value": "NO"
+    }
+]

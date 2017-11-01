@@ -1,0 +1,246 @@
+[
+    {
+        "name": "vnf.availabilityzone.cdb_zone",
+        "value": ""
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_external_7",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.networkadvancedConfig.MAC_MODE",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.networkadvancedConfig.SRIOV_BOND_MODE",
+        "value": "0"
+    },
+    {
+        "name": "vnf.appvmcap.PreemptiveCDBNumber",
+        "value": "2"
+    },
+    {
+        "name": "vnf.availabilityzone.omp_zone",
+        "value": ""
+    },
+    {
+        "name": "vnf.networkadvancedConfig.VIM_TYPE",
+        "value": "OPENSTACK"
+    },
+	    {
+        "name": "vnf.availabilityzone.cmp_zone",
+        "value": ""
+    },
+    {
+        "name": "vnf.umacinfo.BureauType",
+        "value": "2"
+    },
+    {
+        "name": "vnf.appvmcap.IPBMaxNumber",
+        "value": "0"
+    },
+    {
+        "name": "vnf.networkSGConfig.PortSecurityEnable",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_inner_base",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.ommmasterip.MstOMMOMPIP",
+        "value": "129.128.50.133"
+    },
+    {
+        "name": "vnf.ommmasterip.MstBigNetGateWay",
+        "value": "172.30.23.1"
+    },
+	  {
+        "name": "vnf.loadsharevmservergroup.SMP_SG_Num",
+        "value": "2"
+    },
+    {
+        "name": "vnf.specialconfig.AutoFormatDisk",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_inner_fabric",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.deploy.VMBVersionFile",
+        "value": "VMB_X86_64_64_R_CE_V5.17.10_NFV.pkg"
+    },
+    {
+        "name": "vnf.networkadvancedConfig.SAME_MAC_BOND",
+        "value": "YES"
+    },
+    {
+        "name": "vnf.loadsharevmservergroup.IPB_SG_Num",
+        "value": "2"
+    },
+    {
+        "name": "vnf.appvmcap.PreemptiveCMPNumber",
+        "value": "1"
+    },
+	{
+        "name": "vnf.networkCommConfig.AllocIPFromPool",
+        "value": "YES"
+    },
+    {
+        "name": "vnf.loadsharevmservergroup.USUP_SG_Num",
+        "value": "2"
+    },
+    {
+        "name": "vnf.ommmasterip.MstBigNetIP",
+        "value": "172.30.23.51"
+    },
+    {
+        "name": "vnf.loadsharevmservergroup.UP_LP_SG_Switch",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.appother.RACKNO",
+        "value": "1"
+    },
+    {
+        "name": "vnf.appvmcap.PreemptiveIPBNumber",
+        "value": "1"
+    },
+    {
+        "name": "vnf.networkCommConfig.VNFMNetworkCommFalg",
+        "value": ""
+    },
+	{
+        "name": "vnf.ommbasic.HAlic",
+        "value": "newstartha.lic"
+    },
+    {
+        "name": "vnf.availabilityzone.smp_zone",
+        "value": ""
+    },
+    {
+        "name": "vnf.globalconfig.VMNamePrefix",
+        "value": ""
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_external_6",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_external_5",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_external_4",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_external_3",
+        "value": "NO"
+    },
+	{
+        "name": "vnf.supportsriovConfig.isSriov_external_2",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_external_1",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.availabilityzone.usup_zone",
+        "value": ""
+    },
+    {
+        "name": "vnf.networkCommConfig.OmpCtlNetMask",
+        "value": "255.0.0.0"
+    },
+    {
+        "name": "vnf.umacinfo.NEName",
+        "value": ""
+    },
+    {
+        "name": "vnf.appreliability.OMPOnePlusOneBK",
+        "value": "YES"
+    },
+    {
+        "name": "vnf.supportsriovConfig.isSriov_external_8",
+        "value": "NO"
+    },
+	{
+        "name": "vnf.ommbasic.DualOMM",
+        "value": "NO"
+    },
+    {
+        "name": "vnf.ommbasic.Clustertype",
+        "value": "HA"
+    },
+    {
+        "name": "vnf.loadsharevmservergroup.CMP_SG_Num",
+        "value": "2"
+    },
+    {
+        "name": "vnf.availabilityzone.ipb_zone",
+        "value": ""
+    },
+    {
+        "name": "vnf.ommbasic.HAkey",
+        "value": "newstartha.key"
+    },
+    {
+        "name": "vnf.appvmcap.PreemptiveSMPNumber",
+        "value": "1"
+    },
+    {
+        "name": "vnf.appvmcap.PreemptiveUSUPNumber",
+        "value": "1"
+    },
+	{
+        "name": "vnf.networkCommConfig.VNFNetworkCommFalg",
+        "value": ""
+    },
+    {
+        "name": "vnf.ommmasterip.BigNetMask",
+        "value": "255.255.255.0"
+    },
+    {
+        "name": "vnf.networkCommConfig.RightOmpCtrlIp",
+        "value": "128.129.17.162"
+    },
+    {
+        "name": "vnf.umacinfo.NEID",
+        "value": "50"
+    },
+    {
+        "name": "vnf.ommmasterip.OMP2OMMFloatIP",
+        "value": "129.128.50.1"
+    },
+    {
+        "name": "vnf.ommbasic.TimeZone",
+        "value": "Asia/Shanghai"
+    },
+    {
+        "name": "vnf.availabilityzone.omm_zone",
+        "value": ""
+    },
+	{
+        "name": "vnf.ommmasterip.OMMOMPMask",
+        "value": "255.255.255.0"
+    },
+    {
+        "name": "vnf.networkCommConfig.LeftOmpCtrlIp",
+        "value": "128.129.17.161"
+    },
+    {
+        "name": "vnf.loadsharevmservergroup.OMP_LP_SG_Switch",
+        "value": "NO"
+    },
+    {
+        "name": "NSInstanceID",
+        "value": ""
+    },
+    {
+        "name": "NSInstanceName",
+        "value": ""
+    }
+]

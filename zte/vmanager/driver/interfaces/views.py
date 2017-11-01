@@ -16,6 +16,7 @@ import inspect
 import json
 import logging
 import traceback
+import os
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -24,6 +25,14 @@ from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb, call_aai
 
 logger = logging.getLogger(__name__)
+
+
+def load_json_file(file_name):
+    json_file = os.path.join(os.path.dirname(__file__), "data/" + file_name)
+    f = open(json_file)
+    json_data = json.JSONDecoder().decode(f.read())
+    f.close()
+    return json_data
 
 
 def fun_name():
@@ -132,18 +141,21 @@ def instantiate_vnf(request, *args, **kwargs):
         # TODO  convert sdc vnf package to vnf vender package
         from urlparse import urlparse
         vnfm_ip = urlparse(ignorcase_get(vnfm_info, "url")).netloc.split(':')[0]
+
+        inputs = []
         if "SPGW" in vnfd_name.upper():
             data["VNFD"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "SPGW"
             data["VNFURL"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "SPGW"
+            inputs = load_json_file("SPGW" + "_inputs.json")
         elif "MME" in vnfd_name.upper():
             data["VNFD"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "MME"
             data["VNFURL"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "MME"
+            inputs = load_json_file("MME" + "_inputs.json")
         else:
             data["VNFD"] = ignorcase_get(packageInfo, "downloadUri")
             data["VNFURL"] = ignorcase_get(packageInfo, "downloadUri")
 
         data["extension"] = {}
-        inputs = []
         for name, value in ignorcase_get(ignorcase_get(request.data, "additionalParam"), "inputs").items():
             inputs.append({"name": name, "value": value})
 
