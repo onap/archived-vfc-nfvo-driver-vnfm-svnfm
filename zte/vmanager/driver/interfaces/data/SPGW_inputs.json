@@ -1,10 +1,230 @@
 [
     {
-        "name": "vnf.availabilityzone.cdb_zone",
+        "name": "ZTE_VGW_SIG_NET_virtualLink.startip",
         "value": ""
     },
     {
-        "name": "vnf.supportsriovConfig.isSriov_external_7",
-        "value": "NO"
+        "name": "vm_name_prefix",
+        "value": "ZTE_xGW_60_"
+    },
+    {
+        "name": "ZTE_VGW_SIG_NET_virtualLink.subnetname",
+        "value": "ZTE_VGW_SIG_NET_su"
+    },
+    {
+        "name": "ZTE_VGW_RAN_NET_virtualLink.endip",
+        "value": ""
+    },
+    {
+        "name": "provider-zte_virtualLink.endip",
+        "value": "172.30.21.200"
+    },
+    {
+        "name": "ZTE_VGW_SGI_NET_virtualLink.gatewayip",
+        "value": "10.8.12.97"
+    },
+    {
+        "name": "SLB_VMInitNumber",
+        "value": 1
+    },
+    {
+        "name": "op_emslink_floatip",
+        "value": ""
+    },
+    {
+        "name": "ZTE_VGW_SIG_NET_virtualLink.networkname",
+        "value": "ZTE_VGW_SIG_NET"
+    },
+    {
+        "name": "PFU_VMInitNumber",
+        "value": 1
+    },
+    {
+        "name": "ZTE_VGW_RAN_NET_virtualLink.subnetname",
+        "value": "ZTE_VGW_RAN_NET_su"
+    },
+    {
+        "name": "provider-zte.VLANID",
+        "value": "221"
+    },
+    {
+        "name": "ZTE_VGW_SGI_NET_virtualLink.startip",
+        "value": ""
+    },
+    {
+        "name": "azone",
+        "value": ""
+    },
+    {
+        "name": "ZTE_VGW_SGI_NET_virtualLink.cidr",
+        "value": "10.8.12.96/27"
+    },
+    {
+        "name": "ZTE_VGW_SGI_NET_virtualLink.subnetname",
+        "value": "ZTE_VGW_SGI_NET_su"
+    },
+    {
+        "name": "ZTE_VGW_SIG_NET_virtualLink.cidr",
+        "value": "10.8.12.64/27"
+    },
+    {
+        "name": "ZTE_VGW_SERVICE_NET.VLANID",
+        "value": "128"
+    },
+    {
+        "name": "ZTE_VGW_SIG_NET_virtualLink.endip",
+        "value": ""
+    },
+    {
+        "name": "ZTE_VGW_SGI_NET_virtualLink.networkname",
+        "value": "ZTE_VGW_SGI_NET"
+    },
+    {
+        "name": "ZTE_VGW_GTP_NET.VLANID",
+        "value": "206"
+    },
+    {
+        "name": "ZTE_VGW_SIG_NET.VLANID",
+        "value": "167"
+    },
+    {
+        "name": "ZTE_VGW_SGI_NET.VLANID",
+        "value": "115"
+    },
+    {
+        "name": "ZTE_VGW_RAN_NET.VLANID",
+        "value": "126"
+    },
+    {
+        "name": "ZTE_VGW_GTP_NET_virtualLink.networkname",
+        "value": "ZTE_VGW_GTP_NET"
+    },
+    {
+        "name": "GSU_VMInitNumber",
+        "value": 1
+    },
+    {
+        "name": "ems_ip",
+        "value": ""
+    },
+    {
+        "name": "provider-zte_virtualLink.gatewayip",
+        "value": "172.30.21.1"
+    },
+    {
+        "name": "GSU_VMMaxNumber",
+        "value": 2
+    },
+    {
+        "name": "ZTE_VGW_RAN_NET_virtualLink.startip",
+        "value": ""
+    },
+    {
+        "name": "ZTE_VGW_GTP_NET_virtualLink.endip",
+        "value": ""
+    },
+    {
+        "name": "ZTE_VGW_RAN_NET_virtualLink.cidr",
+        "value": "10.8.12.0/27"
+    },
+    {
+        "name": "ZTE_VGW_SIG_NET_virtualLink.gatewayip",
+        "value": "10.8.12.65"
+    },
+    {
+        "name": "ZTE_VGW_SGI_NET_virtualLink.endip",
+        "value": ""
+    },
+    {
+        "name": "ZTE_VGW_GTP_NET_virtualLink.gatewayip",
+        "value": "160.230.6.33"
+    },
+    {
+        "name": "CDB_VMMaxNumber",
+        "value": 2
+    },
+    {
+        "name": "ZTE_VGW_GTP_NET_virtualLink.cidr",
+        "value": "160.230.6.32/27"
+    },
+    {
+        "name": "PFU_VMMaxNumber",
+        "value": 2
+    },
+    {
+        "name": "provider-zte_virtualLink.startip",
+        "value": "172.30.21.100"
+    },
+    {
+        "name": "MPU_VMInitNumber",
+        "value": 1
+    },
+    {
+        "name": "SLB_VMMaxNumber",
+        "value": 2
+    },
+    {
+        "name": "provider-zte_virtualLink.cidr",
+        "value": "172.30.21.0/24"
+    },
+    {
+        "name": "ZTE_VGW_MGT_NET.VLANID",
+        "value": "142"
+    },
+    {
+        "name": "provider-zte_virtualLink.subnetname",
+        "value": "provider-zte-subnet"
+    },
+    {
+        "name": "MPU_VMMaxNumber",
+        "value": 1
+    },
+    {
+        "name": "time_zone",
+        "value": "UTC+8"
+    },
+    {
+        "name": "ZTE_VGW_RAN_NET_virtualLink.networkname",
+        "value": "ZTE_VGW_RAN_NET"
+    },
+    {
+        "name": "ZTE_VGW_RAN_NET_virtualLink.gatewayip",
+        "value": "10.8.12.1"
+    },
+    {
+        "name": "ems_lang_env",
+        "value": "zh_CN"
+    },
+    {
+        "name": "bureau_size",
+        "value": ""
+    },
+    {
+        "name": "vnf_instance_mode",
+        "value": "fast"
+    },
+    {
+        "name": "provider-zte_virtualLink.networkname",
+        "value": "provider-zte"
+    },
+    {
+        "name": "ZTE_VGW_GTP_NET_virtualLink.subnetname",
+        "value": "ZTE_VGW_GTP_NET_su"
+    },
+    {
+        "name": "ZTE_VGW_GTP_NET_virtualLink.startip",
+        "value": ""
+    },
+    {
+        "name": "CDB_VMInitNumber",
+        "value": 1
+    },
+    {
+        "name": "NSInstanceID",
+        "value": ""
+    },
+    {
+        "name": "NSInstanceName",
+        "value": ""
     }
 ]
