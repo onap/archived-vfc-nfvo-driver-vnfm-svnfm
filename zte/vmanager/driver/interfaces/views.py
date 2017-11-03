@@ -23,6 +23,7 @@ from rest_framework.response import Response
 
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb, call_aai
+from driver.pub.config.config import VNF_FTP
 
 logger = logging.getLogger(__name__)
 
@@ -139,17 +140,15 @@ def instantiate_vnf(request, *args, **kwargs):
         metadata = ignorcase_get(vnfdModel, "metadata")
         vnfd_name = ignorcase_get(metadata, "name")
         # TODO  convert sdc vnf package to vnf vender package
-        from urlparse import urlparse
-        vnfm_ip = urlparse(ignorcase_get(vnfm_info, "url")).netloc.split(':')[0]
 
         inputs = []
         if "SPGW" in vnfd_name.upper():
-            data["VNFD"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "SPGW"
-            data["VNFURL"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "SPGW"
+            data["VNFD"] = VNF_FTP + "SPGW"
+            data["VNFURL"] = data["VNFD"]
             inputs = load_json_file("SPGW" + "_inputs.json")
         elif "MME" in vnfd_name.upper():
-            data["VNFD"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "MME"
-            data["VNFURL"] = "ftp://VMVNFM:Vnfm_1g3T@" + vnfm_ip + ":21/" + "MME"
+            data["VNFD"] = VNF_FTP + "MME"
+            data["VNFURL"] = data["VNFD"]
             inputs = load_json_file("MME" + "_inputs.json")
         else:
             data["VNFD"] = ignorcase_get(packageInfo, "downloadUri")
