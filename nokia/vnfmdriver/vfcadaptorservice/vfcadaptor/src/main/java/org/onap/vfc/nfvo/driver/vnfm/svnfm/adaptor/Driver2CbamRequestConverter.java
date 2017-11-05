@@ -26,15 +26,19 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.EndpointInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.ExtVirtualLinkData;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OpenStackAccessInfoV2;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OpenStackAccessInfoV3;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OpenstackV2Info;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OpenstackV3Info;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OtherVimInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VCloudAccessInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimInfoType;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VmwareVcloudInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfExtCpData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AccessInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.GrantInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.NslcmVimInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VimComputeResourceFlavour;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
@@ -57,39 +61,116 @@ public class Driver2CbamRequestConverter {
 	public CBAMInstantiateVnfRequest InstantiateReqConvert(InstantiateVnfRequest driverRequest,
 			NslcmGrantVnfResponse nslc, GrantInfo grant, VimComputeResourceFlavour vimco) {
 		CBAMInstantiateVnfRequest request = new CBAMInstantiateVnfRequest();
+		
 		List<VimInfo> vims = new ArrayList<VimInfo>();
 		VimInfo vim = new VimInfo();
 		EndpointInfo inter = new EndpointInfo();
-		OpenstackV3Info openstackV3 = new OpenstackV3Info();
-		List<NslcmVimInfo>  nslcmVim=nslc.getVim();
-		for(int i=0;i<=nslcmVim.size();i++) {
-		vim.setId(nslcmVim.get(i).getVimInfoId());
-		openstackV3.setId(nslcmVim.get(i).getVimId());
-		inter.setEndpoint(nslcmVim.get(i).getInterfaceEndpoint());
-		openstackV3.setInterfaceInfo(inter);
-		OpenStackAccessInfoV3 v3 = new OpenStackAccessInfoV3();
-		List<AccessInfo> accessInfo=nslcmVim.get(i).getAccessInfo();
-		for(int j=0;j<=accessInfo.size();j++) {
-		v3.setUsername(accessInfo.get(j).getUsername());
-		v3.setPassword(accessInfo.get(j).getPassword());
-		}
-		openstackV3.setAccessInfo(v3);
-		}
-		
-		vims.add(vim);
 		List<ExtVirtualLinkData> list = new ArrayList<ExtVirtualLinkData>();
 		ExtVirtualLinkData ext = new ExtVirtualLinkData();
-
-		ext.setResourceId(grant.getResourceDefinitionId());
-		ext.setVimId(grant.getVimId());
 		List<VnfExtCpData> cps = new ArrayList<VnfExtCpData>();
 		VnfExtCpData cp = new VnfExtCpData();
-		cp.setCpdId(vimco.getVduId());
-		ext.setExtCps(cps);
-		request.setVims(vims);
+		OpenStackAccessInfoV3 v3 = new OpenStackAccessInfoV3();
+		OpenStackAccessInfoV2 v2 = new OpenStackAccessInfoV2();
+		VCloudAccessInfo vcloudInfo = new VCloudAccessInfo();
+		if(vim.getVimInfoType().equals(VimInfoType.OPENSTACK_V2_INFO)) {
+			OpenstackV2Info openstackV2=new OpenstackV2Info();
+			List<org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.ExtVirtualLinkData>  link=driverRequest.getExtVirtualLink();
+			for(int i=0;i<link.size();i++) {
+				vim.setId(link.get(i).getVim().getVimId());
+				inter.setEndpoint(link.get(i).getVim().getInterfaceEndpoint());
+				openstackV2.setId(link.get(i).getVim().getVimId());
+				openstackV2.setInterfaceInfo(inter);
+				
+				ext.setResourceId(link.get(i).getNetworkId());// todo resourceId
+				
+				cp.setCpdId(link.get(i).getCpdId());
+				cps.add(cp);
+				ext.setExtCps(cps);
+				
+				List<org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.AccessInfo> accessInfo=link.get(i).getVim().getAccessInfo();
+				for(int j=0;j<=accessInfo.size();j++) {
+				v2.setUsername(accessInfo.get(j).getUsername());
+				v2.setPassword(accessInfo.get(j).getPassword());
+				v2.setTenant(accessInfo.get(j).getTenant());
+				//todo region
+				}
+				openstackV2.setAccessInfo(v2);
+				vims.add(vim);
+				list.add(ext);
+				}
+		}else if(vim.getVimInfoType().equals(VimInfoType.OPENSTACK_V3_INFO)) {
+			OpenstackV3Info openstackV3=new OpenstackV3Info();
+			List<org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.ExtVirtualLinkData>  link=driverRequest.getExtVirtualLink();
+			for(int i=0;i<link.size();i++) {
+				vim.setId(link.get(i).getVim().getVimId());
+				inter.setEndpoint(link.get(i).getVim().getInterfaceEndpoint());
+				openstackV3.setId(link.get(i).getVim().getVimId());
+				openstackV3.setInterfaceInfo(inter);
+				
+                ext.setResourceId(link.get(i).getNetworkId());// todo resourceId
+				
+				cp.setCpdId(link.get(i).getCpdId());
+				cps.add(cp);
+				ext.setExtCps(cps);
+					
+				List<org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.AccessInfo> accessInfo=link.get(i).getVim().getAccessInfo();
+				for(int j=0;j<=accessInfo.size();j++) {
+				v3.setUsername(accessInfo.get(j).getUsername());
+				v3.setPassword(accessInfo.get(j).getPassword());
+				//todo region project domain
+				}
+				openstackV3.setAccessInfo(v3);
+				vims.add(vim);
+				list.add(ext);
+				}
+				
+		}else if(vim.getVimInfoType().equals(VimInfoType.OTHER_VIM_INFO)) {
+			OtherVimInfo other=new OtherVimInfo();
+			List<org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.ExtVirtualLinkData>  link=driverRequest.getExtVirtualLink();
+			for(int i=0;i<link.size();i++) {
+				vim.setId(link.get(i).getVim().getVimId());
+				inter.setEndpoint(link.get(i).getVim().getInterfaceEndpoint());
+				other.setId(link.get(i).getVim().getVimId());
+				
+                ext.setResourceId(link.get(i).getNetworkId());// todo resourceId
+				
+				cp.setCpdId(link.get(i).getCpdId());
+				cps.add(cp);
+				ext.setExtCps(cps);
+				vims.add(vim);
+				list.add(ext);
+				}
+			
+		}else if(vim.getVimInfoType().equals(VimInfoType.VMWARE_VCLOUD_INFO)) {
+			VmwareVcloudInfo vcloud=new VmwareVcloudInfo();
+			List<org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.ExtVirtualLinkData>  link=driverRequest.getExtVirtualLink();
+			for(int i=0;i<link.size();i++) {
+				vim.setId(link.get(i).getVim().getVimId());
+				inter.setEndpoint(link.get(i).getVim().getInterfaceEndpoint());
+				vcloud.setId(link.get(i).getVim().getVimId());
+				vcloud.setInterfaceInfo(inter);
+				
+                ext.setResourceId(link.get(i).getNetworkId());// todo resourceId
+				
+				cp.setCpdId(link.get(i).getCpdId());
+				cps.add(cp);
+				ext.setExtCps(cps);
+				
+				
+				List<org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.AccessInfo> accessInfo=link.get(i).getVim().getAccessInfo();
+				for(int j=0;j<=accessInfo.size();j++) {
+				vcloudInfo.setUsername(accessInfo.get(j).getUsername());
+				vcloudInfo.setPassword(accessInfo.get(j).getPassword());
+				}
+				vcloud.setAccessInfo(vcloudInfo);
+				vims.add(vim);
+				list.add(ext);
+				}
+				
+		}
 		request.setFlavourId(driverRequest.getFlavourId());
+		request.setVims(vims);
 		request.setExtVirtualLinks(list);
-		// resquest.setVnfInstanceId(driverRequest.getExtVirtualLink().get(0).getVlInstanceId());
 		return request;
 	}
 

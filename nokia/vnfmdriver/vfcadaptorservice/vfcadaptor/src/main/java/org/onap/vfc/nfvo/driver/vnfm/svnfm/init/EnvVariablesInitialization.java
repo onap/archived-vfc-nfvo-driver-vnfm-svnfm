@@ -51,23 +51,27 @@ public class EnvVariablesInitialization implements ApplicationRunner {
 			return;
 		}
 		
-		try {
-			handleAaiMsbServiceInfo();
-		} catch (Exception e) {
-			logger.error("handleAaiMsbServiceInfo error", e);
-		}
+		adaptorEnv.setAaiApiUriFront(adaptorEnv.getMsbApiUriFront());
+		adaptorEnv.setLcmApiUriFront(adaptorEnv.getMsbApiUriFront());
+		adaptorEnv.setCatalogApiUriFront(adaptorEnv.getMsbApiUriFront());
 		
-		try {
-			handleLcmMsbServiceInfo();
-		} catch (Exception e) {
-			logger.error("handleLcmMsbServiceInfo error", e);
-		}
-		
-		try {
-			handleCatalogMsbServiceInfo();
-		} catch (Exception e) {
-			logger.error("handleCatalogMsbServiceInfo error", e);
-		}
+//		try {
+//			handleAaiMsbServiceInfo();
+//		} catch (Exception e) {
+//			logger.error("handleAaiMsbServiceInfo error", e);
+//		}
+//		
+//		try {
+//			handleLcmMsbServiceInfo();
+//		} catch (Exception e) {
+//			logger.error("handleLcmMsbServiceInfo error", e);
+//		}
+//		
+//		try {
+//			handleCatalogMsbServiceInfo();
+//		} catch (Exception e) {
+//			logger.error("handleCatalogMsbServiceInfo error", e);
+//		}
 		
 	}
 

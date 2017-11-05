@@ -31,27 +31,27 @@ public class CommonConstants {
 	
 	//AAI path get vnfm
 	// /external-system/esr-vnfm-list/esr-vnfm/{vnfm-id}/esr-system-info-list
-	public static final String RetrieveVnfmListPath = "/external-system/esr-vnfm-list/esr-vnfm/%s/esr-system-info-list";
+	public static final String RetrieveVnfmListPath = "/aai/v11/external-system/esr-vnfm-list/esr-vnfm/%s/esr-system-info-list";
 	
 	//Nslcm path
-	public static final String NslcmGrantPath = "/ns/grantvnf";
-	public static final String NslcmNotifyPath = "/vnfs/%s/Notify";
+	public static final String NslcmGrantPath = "/api/vnflcm/v1//ns/grantvnf";
+	public static final String NslcmNotifyPath = "/api/vnflcm/v1/vnfs/%s/Notify";
 	
 	//Catalog path
-	public static final String RetrieveVnfPackagePath = "/catalog/v1/vnfpackages/%s";
+	public static final String RetrieveVnfPackagePath = "/api/catalog/v1/vnfpackages/%s";
 	
 	//CBAM -- Nokia VNFM path
 	public static final String CBAM_TOKEN_KEY = "access_token";
 	public static final String CbamRetrieveTokenPath="/auth/realms/cbam/protocol/openid-connect/token";
 	public static final String CbamRetrieveTokenPostStr="grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s";
-	public static final String CbamCreateVnfPath="/vnfs";
-	public static final String CbamInstantiateVnfPath="/vnfs/%s/instantiate";
-	public static final String CbamQueryVnfPath="/vnfs/%s";
-	public static final String CbamDeleteVnfPath="/vnfs/%s";
-	public static final String CbamTerminateVnfPath="/vnfs/%s/terminate";
-	public static final String CbamGetOperStatusPath="/operation_executions/%s";
-	public static final String CbamScaleVnfPath = "/vnfs/%s/scale";
-	public static final String CbamHealVnfPath="/vnfs/%s/heal";
+	public static final String CbamCreateVnfPath="/vnfm/lcm/v3/vnfs";
+	public static final String CbamInstantiateVnfPath="/vnfm/lcm/v3/vnfs/%s/instantiate";
+	public static final String CbamQueryVnfPath="/vnfm/lcm/v3/vnfs/%s";
+	public static final String CbamDeleteVnfPath="/vnfm/lcm/v3/vnfs/%s";
+	public static final String CbamTerminateVnfPath="/vnfm/lcm/v3/vnfs/%s/terminate";
+	public static final String CbamGetOperStatusPath="/vnfm/lcm/v3/operation_executions/%s";
+	public static final String CbamScaleVnfPath = "/vnfm/lcm/v3/vnfs/%s/scale";
+	public static final String CbamHealVnfPath="/vnfm/lcm/v3/vnfs/%s/heal";
 	
 	public static final String CbamUploadVnfPackagePath="/api/catalog/adapter/vnfpackages";
 	

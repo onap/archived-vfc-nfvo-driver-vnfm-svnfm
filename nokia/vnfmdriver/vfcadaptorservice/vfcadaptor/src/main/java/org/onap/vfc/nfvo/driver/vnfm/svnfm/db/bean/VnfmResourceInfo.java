@@ -16,16 +16,19 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean;
 
-import javax.persistence.Entity;
+import java.io.Serializable;
+
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "vnfm_resource_record")
-public class VnfmResourceInfo {
+@Table(name="vnfm_resource_info")
+public class VnfmResourceInfo implements Serializable {
+	private static final long serialVersionUID = -288015953900428312L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
@@ -33,7 +36,7 @@ public class VnfmResourceInfo {
 	@Column(name = "type")
 	private ResourceType type;
 	
-	@Column(name = "resourceDefinitionId")
+	@Column(name = "resource_definition_id")
 	private String resourceDefinitionId;
 	
 	@Column(name = "vdu")

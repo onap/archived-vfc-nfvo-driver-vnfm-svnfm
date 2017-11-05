@@ -55,13 +55,18 @@ public class AdaptorEnv {
 	private String catalogApiUriFront;
 	
 	//cbamApiFront is from aai query
+	@Value("${cbamApiUriFront}")
 	private String cbamApiUriFront;
+	
+	@Value("${cbamUserName}")
 	private String cbamUserName;
+	
+	@Value("${cbamPassword}")
 	private String cbamPassword;
 	
 	
 	private String msbApiUriFront;
-
+	
 	// for retrieving token from CBAM, configured in application.properties
 	@Value("${grantType}")
 	private String grantType;
@@ -71,6 +76,19 @@ public class AdaptorEnv {
 
 	@Value("${clientSecret}")
 	private String clientSecret;
+	
+	// for granting
+	@Value("${type}")
+	private String type;
+	
+	@Value("${sizeOfStorage}")
+	private String sizeOfStorage;
+	
+	@Value("${virtualMemSize}")
+	private String virtualMemSize;
+	
+	@Value("${numVirtualCpu}")
+	private String numVirtualCpu;
 
 	public String getAaiServiceNameInMsb() {
 		return aaiServiceNameInMsb;
@@ -238,6 +256,38 @@ public class AdaptorEnv {
 
 	public void setCbamPassword(String cbamPassword) {
 		this.cbamPassword = cbamPassword;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getSizeOfStorage() {
+		return sizeOfStorage;
+	}
+
+	public void setSizeOfStorage(String sizeOfStorage) {
+		this.sizeOfStorage = sizeOfStorage;
+	}
+
+	public String getVirtualMemSize() {
+		return virtualMemSize;
+	}
+
+	public void setVirtualMemSize(String virtualMemSize) {
+		this.virtualMemSize = virtualMemSize;
+	}
+
+	public String getNumVirtualCpu() {
+		return numVirtualCpu;
+	}
+
+	public void setNumVirtualCpu(String numVirtualCpu) {
+		this.numVirtualCpu = numVirtualCpu;
 	}
 
 

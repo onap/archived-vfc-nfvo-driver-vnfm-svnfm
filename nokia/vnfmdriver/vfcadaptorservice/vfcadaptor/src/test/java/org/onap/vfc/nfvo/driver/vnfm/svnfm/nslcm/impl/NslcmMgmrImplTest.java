@@ -40,11 +40,18 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AccessInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AddResource;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AdditionalParam;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVirtualStorage;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.InterfaceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.ResourceDefinition;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.ResourceTemplate;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VimAssets;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VirtualComputeDescriptor;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VirtualCpu;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VirtualMemory;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.VirtualStorageDescriptor;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.NslcmVimInfo;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -73,8 +80,35 @@ public class NslcmMgmrImplTest {
 	public void testGrantVnf() throws ClientProtocolException, IOException
 	{
 		ResourceDefinition resource = new ResourceDefinition();
-		resource.setResourceDefinitionId("resourceDefinitionId");
-		resource.setVdu("vdu");
+		resource.setVimId("vimId");
+		resource.setVnfInstanceId("vnfInstanceId");
+		
+		List<AddResource> addresources=new ArrayList<AddResource>();
+		AddResource addresource=new AddResource();
+		addresource.setResourceDefinitionId(1);
+		addresource.setType("type");
+		addresource.setVdu("vdu");
+		ResourceTemplate temp=new ResourceTemplate();
+		VirtualComputeDescriptor compute=new VirtualComputeDescriptor();
+		VirtualCpu cpu=new VirtualCpu();
+	    cpu.setNumVirtualCpu(1);
+	    VirtualMemory memory=new VirtualMemory();
+		compute.setVirtualCpu(cpu);
+		compute.setVirtualMemory(memory);
+		VirtualStorageDescriptor storage=new VirtualStorageDescriptor();
+		storage.setSizeOfStorage(1);
+		storage.setSwImageDescriptor("swImageDescriptor");
+		storage.setSizeOfStorage(1);
+		temp.setVirtualComputeDescriptor(compute);
+		temp.setVirtualStorageDescriptor(storage);
+		addresources.add(addresource);
+		AdditionalParam param=new AdditionalParam();
+		param.setTenant("tenant");
+		param.setVimid("vimid");
+		param.setVnfmid("vnfmid");
+		
+		resource.setAdditionalParam(param);
+		resource.setAddResource(addresources);
 		
 		NslcmGrantVnfResponse gresponse = new NslcmGrantVnfResponse();
 		List<KeyValuePair> additionalParam1 = new ArrayList<KeyValuePair>();

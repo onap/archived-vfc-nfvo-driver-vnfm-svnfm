@@ -59,7 +59,7 @@ public final class CommonUtil {
 		return fileContent;
 	}
 	
-	private static String getAppRoot() {
+	public static String getAppRoot() {
         String appRoot = System.getProperty("catalina.base");
         if(appRoot != null) {
             appRoot = getCanonicalPath(appRoot);

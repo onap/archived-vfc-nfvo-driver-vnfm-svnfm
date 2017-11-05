@@ -18,6 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo;
 import java.util.List;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedCp;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVirtualLink;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVirtualStorage;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVnfc;
@@ -28,7 +29,6 @@ public class NslcmNotifyLCMEventsRequest {
 	
 	@JsonProperty("status")
 	private CommonEnum.status status;
-	
 	@JsonProperty("vnfInstanceId")
 	private String vnfInstanceId;
 	@JsonProperty("operation")
@@ -37,10 +37,14 @@ public class NslcmNotifyLCMEventsRequest {
 	private String jobId;
 	@JsonProperty("affectedVnfc")
 	private List<AffectedVnfc> affectedVnfc;
+	@JsonProperty("affectedCp")
+	private List<AffectedCp> affectedCp;
 	@JsonProperty("affectedVl")
 	private List<AffectedVirtualLink> affectedVl;
 	@JsonProperty("affectedVirtualStorage")
 	private List<AffectedVirtualStorage> affectedVirtualStorage;
+
+	
 	public CommonEnum.status getStatus() {
 		return status;
 	}

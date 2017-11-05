@@ -15,22 +15,63 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ResourceDefinition {
 	
-	@JsonProperty("type")
+	@JsonProperty("vnfInstanceId")
+	private String vnfInstanceId;
+	@JsonProperty("addResource")
+	private List<AddResource> addResource;
+	@JsonProperty("vimId")
+	private String vimId;
+	@JsonProperty("additionalParam")
+	private AdditionalParam additionalParam;
+
+	public String getVnfInstanceId() {
+		return vnfInstanceId;
+	}
+
+	public void setVnfInstanceId(String vnfInstanceId) {
+		this.vnfInstanceId = vnfInstanceId;
+	}
+
+	public List<AddResource> getAddResource() {
+		return addResource;
+	}
+
+	public void setAddResource(List<AddResource> addResource) {
+		this.addResource = addResource;
+	}
+
+	public String getVimId() {
+		return vimId;
+	}
+
+	public void setVimId(String vimId) {
+		this.vimId = vimId;
+	}
+
+	public AdditionalParam getAdditionalParam() {
+		return additionalParam;
+	}
+
+	public void setAdditionalParam(AdditionalParam additionalParam) {
+		this.additionalParam = additionalParam;
+	}
+	
+	/*@JsonProperty("type")
 	private CommonEnum.type type;
 	
 	@JsonProperty("resourceDefinitionId")
 	private String resourceDefinitionId;
 	
 	@JsonProperty("vdu")
-	private String vdu;
+	private String vdu;*/
 
-	public CommonEnum.type getType() {
+	/*public CommonEnum.type getType() {
 		return type;
 	}
 
@@ -53,7 +94,7 @@ public class ResourceDefinition {
 	public void setVdu(String vdu) {
 		this.vdu = vdu;
 	}
-	
+	*/
 	
 	
 

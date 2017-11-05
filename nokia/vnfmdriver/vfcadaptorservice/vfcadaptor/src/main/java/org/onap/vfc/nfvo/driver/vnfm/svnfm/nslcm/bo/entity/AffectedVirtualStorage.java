@@ -19,38 +19,44 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AffectedVirtualStorage {
 	@JsonProperty("vsInstanceId")
-   private String vsInstanceId;
+	private String vsInstanceId;
 	@JsonProperty("vsdId")
-   private String vsdId;
-	
+	private String vsdId;
 	@JsonProperty("changeType")
-   private String changeType;
+	private String changeType;
 	@JsonProperty("storageResource")
-   private String storageResource;
+	private String storageResource;
+
 	public String getVsInstanceId() {
 		return vsInstanceId;
 	}
+
 	public void setVsInstanceId(String vsInstanceId) {
 		this.vsInstanceId = vsInstanceId;
 	}
+
 	public String getVsdId() {
 		return vsdId;
 	}
+
 	public void setVsdId(String vsdId) {
 		this.vsdId = vsdId;
 	}
+
 	public String getChangeType() {
 		return changeType;
 	}
+
 	public void setChangeType(String changeType) {
 		this.changeType = changeType;
 	}
+
 	public String getStorageResource() {
 		return storageResource;
 	}
+
 	public void setStorageResource(String storageResource) {
 		this.storageResource = storageResource;
 	}
-   
-   
+
 }

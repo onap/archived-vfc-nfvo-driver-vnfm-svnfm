@@ -51,7 +51,7 @@ public class CatalogMgmrImpl implements CatalogMgmrInf{
 		
 		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, null, null).getContent();
 		
-		logger.info("CbamMgmrImpl -> queryVnfPackage, responseStr is " + responseStr);
+		logger.info("CatalogMgmrImpl -> queryVnfPackage, responseStr is " + responseStr);
 		
 		CatalogQueryVnfResponse resp = gson.fromJson(responseStr, CatalogQueryVnfResponse.class);
 		
