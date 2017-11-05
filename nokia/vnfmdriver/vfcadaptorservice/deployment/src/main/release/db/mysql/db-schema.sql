@@ -36,21 +36,21 @@ set Names 'utf8';
 
 /******************drop old table and create new***************************/
 
-DROP TABLE IF EXISTS  vnfm_job_execution_record;
-CREATE TABLE `vnfm_job_execution_record` (
-  `jobId` int(11) auto_increment primary key,
-  `vnfInstanceId` varchar(60) DEFAULT NULL,
-  `vnfmExecutionId` varchar(60) DEFAULT NULL,
-  `vnfmInterfceName` varchar(60) DEFAULT NULL,
+DROP TABLE IF EXISTS  vnfm_job_execution_info;
+CREATE TABLE `vnfm_job_execution_info` (
+  `job_id` int(11) auto_increment primary key,
+  `vnf_instance_id` varchar(60) DEFAULT NULL,
+  `vnfm_execution_id` varchar(60) DEFAULT NULL,
+  `vnfm_interface_name` varchar(60) DEFAULT NULL,
   `status` varchar(24) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-DROP TABLE IF EXISTS vnfm_resource_record;
-CREATE TABLE `vnfm_resource_record` (
+DROP TABLE IF EXISTS vnfm_resource_info;
+CREATE TABLE `vnfm_resource_info` (
   `id` int(11) auto_increment primary key,
   `type` enum ('VDU','VL','CP','Storage') DEFAULT NULL,
-  `resourceDefinitionId` varchar(60) DEFAULT NULL,
+  `resource_definition_id` varchar(60) DEFAULT NULL,
   `vdu` varchar(60) DEFAULT NULL,
   `status` varchar(24) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

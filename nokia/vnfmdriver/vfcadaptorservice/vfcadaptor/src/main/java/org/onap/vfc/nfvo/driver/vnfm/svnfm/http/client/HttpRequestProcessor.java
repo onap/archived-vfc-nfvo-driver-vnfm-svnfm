@@ -30,9 +30,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public class HttpRequestProcessor {
+	private static final Logger logger = LoggerFactory.getLogger(HttpRequestProcessor.class);
 	private CloseableHttpClient httpClient;
 	private HttpRequestBase httpRequest;
 	
@@ -47,6 +50,8 @@ public class HttpRequestProcessor {
 		httpRequest.setURI(URI.create(url));
 		
 		HttpResponse response = httpClient.execute(httpRequest);
+		httpRequest.releaseConnection();
+//		httpClient.close();
 		HttpResult httpResult = buildHttpResult(response);
 		
 		return httpResult;

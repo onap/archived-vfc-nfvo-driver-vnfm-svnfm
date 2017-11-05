@@ -16,12 +16,15 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -30,12 +33,10 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.TrustStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -50,35 +51,53 @@ public class HttpClientUtils {
 	
 	@Bean
 	public static HttpClientBuilder createHttpClientBuilder() {
-		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-
-        SSLContext sslContext = null;
+		org.apache.commons.httpclient.protocol.Protocol.unregisterProtocol("https"); 
+		SSLContext sslcontext = null;
 		try {
-			sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-			    public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-			        return true;
-			    }
-			}).build();
-		} catch (Exception e) {
-			logger.error("Error to createHttpClientBuilder", e);
-		}
-		httpClientBuilder.setSSLContext(sslContext);
-		
-		HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
-		
-		SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
-		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-				.register("http", PlainConnectionSocketFactory.getSocketFactory())
-				.register("https", sslSocketFactory)
-				.build();
-		
-		PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-		connMgr.setMaxTotal(200);
-		connMgr.setDefaultMaxPerRoute(50);
-		httpClientBuilder.setConnectionManager(connMgr);
+			sslcontext = createIgnoreVerifySSL();
+		} catch (KeyManagementException | NoSuchAlgorithmException e) {
+			logger.error("HttpRequestProcessor -> generateHttpClient exception. ", e);
+		}  
+        
+        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()  
+            .register("http", PlainConnectionSocketFactory.INSTANCE)  
+            .register("https", new SSLConnectionSocketFactory(sslcontext))  
+            .build();  
+        
+        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);  
+        connManager.setMaxTotal(200);
+        connManager.setDefaultMaxPerRoute(50);
+        
+        HttpClientBuilder httpClientBuilder = HttpClients.custom().setConnectionManager(connManager);
 		
 		return httpClientBuilder;
 	}
+	
+	private static SSLContext createIgnoreVerifySSL() throws NoSuchAlgorithmException, KeyManagementException {  
+        SSLContext sc = SSLContext.getInstance("TLSv1.2");  
+      
+        X509TrustManager trustManager = new X509TrustManager() {  
+            @Override  
+            public void checkClientTrusted(  
+                    java.security.cert.X509Certificate[] paramArrayOfX509Certificate,  
+                    String paramString) throws CertificateException {  
+            }  
+      
+            @Override  
+            public void checkServerTrusted(  
+                    java.security.cert.X509Certificate[] paramArrayOfX509Certificate,  
+                    String paramString) throws CertificateException {  
+            }  
+      
+            @Override  
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {  
+                return null;  
+            }  
+        };  
+      
+        sc.init(null, new TrustManager[] { trustManager }, null);  
+        return sc;  
+    }  
 	
 	public static HttpRequestBase getHttpRequest(RequestMethod requestMethod) {
 		HttpRequestBase base = null;
@@ -93,6 +112,8 @@ public class HttpClientUtils {
 				base = new HttpPost();
 				break;
 		}
+		RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(20000).setConnectTimeout(20000).setConnectionRequestTimeout(20000).build();
+		base.setConfig(requestConfig);
 		return base;
 	}
 }

@@ -16,7 +16,10 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
@@ -37,7 +40,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util.CommonUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
@@ -283,19 +285,93 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		} catch (JSONException e) {
 			logger.error("retrieveTokenError ", e);
 		}
-	
 		String url = adaptorEnv.getCbamApiUriFront() + httpPath;
+		String command =  "curl --insecure -X POST -H \"Authorization: bearer " + token + "\" --form content=@" + filePath + " " + url;
+		StringBuffer respStr = new StringBuffer();
+		try {
+			logger.info("start to upload file.");
+			String os = System.getProperty("os.name"); 
+			String[] cmd = {"cmd", "/C", command};
+			if(!os.toLowerCase().startsWith("win")){
+				cmd = new String[]{"/bin/sh"," -c ", command};
+			}  
+			Process process = Runtime.getRuntime().exec(cmd);
+             InputStream fis=process.getInputStream();    
+             InputStreamReader isr=new InputStreamReader(fis);    
+             BufferedReader br=new BufferedReader(isr);    
+             String line=null;    
+            while((line = br.readLine())!=null)    
+             {    
+            	respStr.append(line);    
+             }    
+			
+		} catch (Exception e) {
+			logger.error("operateCbamHttpUploadTask error", e);
+		}
 		
-		HashMap<String, String> map = new HashMap<>();
-		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
-		map.put(CommonConstants.CONTENT_TYPE, "multipart/form-data, boundary=--fsgdsfgjgjdsgdfjgjgj");
-		byte[] fileBytes = CommonUtil.getBytes(filePath);
-		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, url is " + url);
-		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, token is " + token);
-		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, bodyPostStr byte lenth is " + fileBytes.length);
+//		HashMap<String, String> map = new HashMap<>();
+//		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
+//		map.put(CommonConstants.CONTENT_TYPE, "multipart/form-data, boundary=---CFSGSSGGSGdssdfsdhd---");
+//		byte[] fileBytes = CommonUtil.getBytes(filePath);
+//		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, url is " + url);
+//		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, token is " + token);
+//		logger.info("CbamMgmrImpl -> operateCbamHttpUploadTask, bodyPostStr byte lenth is " + fileBytes.length);
 		
-		return httpClientProcessor.processBytes(url, method, map, fileBytes);
+//		return httpClientProcessor.processBytes(url, method, map, fileBytes);
+		
+		HttpResult hResult = new HttpResult();
+		hResult.setContent(respStr.toString());
+		hResult.setStatusCode(200);
+		return hResult;
+		
+//		String charset = "UTF-8";
+//        File uploadFile1 = new File(filePath);
+//        String requestURL = url;
+//        HttpResult result = new HttpResult();
+// 
+//        try {
+//            MultipartUtility multipart = new MultipartUtility(requestURL, charset);
+//             
+//            multipart.addHeaderField("User-Agent", "CodeJava");
+//            multipart.addHeaderField(CommonConstants.AUTHORIZATION, "bearer " + token);
+//             
+//            multipart.addFilePart("fileUpload", uploadFile1);
+// 
+//            List<String> response = multipart.finish();
+//             
+//            result.setContent(Arrays.deepToString(response.toArray(new String[0])));
+//            result.setStatusCode(200);
+//        } catch (Exception ex) {
+//        	logger.error("CbamMgmrImpl -> operateCbamHttpUploadTask, error ", ex);
+//            result.setStatusCode(500);
+//        }
+//        
+//        return result;
 	}
+	
+//	public static String postByHttps(String url, String body, Object contentType) {
+//	    String result = "";
+//	    Protocol https = new Protocol("https", new HTTPSSecureProtocolSocketFactory(), 443);
+//	    Protocol.registerProtocol("https", https);
+//	    PostMethod post = new PostMethod(url);
+//	    HttpClient client = new HttpClient();
+//	    try {
+//	        post.setRequestHeader("Content-Type", contentType);
+//	        post.setRequestBody(body);
+//	        client.executeMethod(post);
+//	        result = post.getResponseBodyAsString();
+//	        Protocol.unregisterProtocol("https");
+//	        return result;
+//	    } catch (HttpException e) {
+//	        e.printStackTrace();
+//	    } catch (IOException e) {
+//	        e.printStackTrace();
+//	    } catch(Exception e) {
+//	        e.printStackTrace();
+//	    }
+//	 
+//	    return "error";
+//	}
 
 	public HttpClientProcessorInf getHttpClientProcessor() {
 		return httpClientProcessor;

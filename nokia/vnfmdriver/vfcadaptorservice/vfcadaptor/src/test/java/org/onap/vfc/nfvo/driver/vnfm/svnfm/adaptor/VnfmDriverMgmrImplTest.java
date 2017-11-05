@@ -139,13 +139,13 @@ public class VnfmDriverMgmrImplTest {
 	
 	@Test
 	public void testBuildVnfmHttpPathById() throws ClientProtocolException, IOException {
-		String vnfmHttpPathHead = vnfmDriverMgmr.buildVnfmHttpPathById(vnfmId);
+		String vnfmHttpPathHead = vnfmDriverMgmr.buildVnfmHttpPathByRealId(vnfmId);
 		Assert.assertEquals("result is ", cbamHttpHead, vnfmHttpPathHead);
 	}
 	
 	@Test(expected = VnfmDriverException.class)
 	public void testBuildVnfmHttpPathByIdException() throws ClientProtocolException, IOException{
-		vnfmDriverMgmr.buildVnfmHttpPathById(vnfmId + "001");
+		vnfmDriverMgmr.buildVnfmHttpPathByRealId(vnfmId + "001");
 	}
 	
 	@Test

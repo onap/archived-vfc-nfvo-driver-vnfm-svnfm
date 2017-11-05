@@ -16,6 +16,8 @@
  
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,21 +27,22 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "vnfm_job_execution_record")
-public class VnfmJobExecutionInfo{
-	private static final long serialVersionUID = -2880159539002942812L;
+@Table(name = "vnfm_job_execution_info")
+public class VnfmJobExecutionInfo implements Serializable {
+	private static final long serialVersionUID = -288015953900428312L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name = "job_id")
 	private long jobId;
 	
-	@Column(name = "vnfmExecutionId")
+	@Column(name = "vnfm_execution_id")
 	private String vnfmExecutionId;
 	
-	@Column(name = "vnfInstanceId")
+	@Column(name = "vnf_instance_id")
 	private String vnfInstanceId;
 	
-	@Column(name = "vnfmInterfceName")
+	@Column(name = "vnfm_interface_name")
 	private String vnfmInterfceName;
 	
 	@Column(name = "status")

@@ -20,8 +20,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpStatus;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
@@ -31,7 +31,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.OperStatusVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.QueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.SwaggerInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.inf.VnfmDriverMgmrInf;
@@ -60,17 +59,9 @@ public class VnfmDriverController {
 	
 	@RequestMapping(value = "/swagger.json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public SwaggerInfo apidoc() {
+	public String apidoc() throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
-        SwaggerInfo info = null;
-		try {
-			String json = IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
-			info = gson.fromJson(json, SwaggerInfo.class);
-		} catch (IOException e) {
-			logger.error("", e);
-		}
-        
-        return info;
+        return IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
     }
 	
 	@RequestMapping(value = "/{vnfmId}/vnfs", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -81,6 +72,8 @@ public class VnfmDriverController {
 		logger.info("instantiateVnf request: vnfmId = " + vnfmId + ", bodyMessage is " + jsonString);
 		
 		InstantiateVnfResponse response = vnfmDriverMgmr.instantiateVnf(request, vnfmId);
+		
+		logger.info("InstantiateVnfResponse is " + gson.toJson(response));
 		
 		httpResponse.setStatus(HttpStatus.SC_CREATED);
 		

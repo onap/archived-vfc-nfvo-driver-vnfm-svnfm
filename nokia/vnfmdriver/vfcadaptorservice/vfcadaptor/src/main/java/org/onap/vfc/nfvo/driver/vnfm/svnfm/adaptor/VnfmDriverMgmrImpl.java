@@ -101,6 +101,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			CBAMCreateVnfRequest cbamRequest = requestConverter.createReqConvert(driverRequest);
 			CBAMCreateVnfResponse cbamResponse = cbamMgmr.createVnf(cbamRequest);
 			String vnfInstanceId = cbamResponse.getId();
+			
 			Long jobId = saveCreateVnfJob(vnfInstanceId);
 			driverResponse = responseConverter.createRspConvert(cbamResponse, jobId);
 			
@@ -220,6 +221,11 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 	}
 
 	public String buildVnfmHttpPathById(String vnfmId) throws ClientProtocolException, IOException, VnfmDriverException {
+		
+		return null;
+	}
+	
+	public String buildVnfmHttpPathByRealId(String vnfmId) throws ClientProtocolException, IOException, VnfmDriverException {
 		AaiVnfmInfo vnfmInfo = aaiMgmr.queryVnfm(vnfmId);
 		logger.info("vnfmInfo in AAI is {}", gson.toJson(vnfmInfo));
 		if(isVnfmInfoValid(vnfmId, vnfmInfo))
@@ -238,7 +244,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 	}
 
 	private boolean isVnfmInfoValid(String vnfmId, AaiVnfmInfo vnfmInfo) {
-		return vnfmInfo == null || !vnfmId.equalsIgnoreCase(vnfmInfo.getVnfmId()) || vnfmInfo.getEsrSystemInfoList() == null || vnfmInfo.getEsrSystemInfoList().isEmpty();
+		return vnfmInfo == null || vnfmInfo.getEsrSystemInfoList() == null || vnfmInfo.getEsrSystemInfoList().isEmpty();
 	}
 
 	public void setRequestConverter(Driver2CbamRequestConverter requestConverter) {
