@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
+
+import java.util.ArrayList;
+
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfProperty;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class VnfProperty {
+public class CBAMModifyVnfRequest {
 	@JsonProperty("name")
 	private String name;
 	
-	@JsonProperty("value")
-	private Object value;
+	@JsonProperty("description")
+	private String description;
+	
+	@JsonProperty("metadata")
+	private String metadata;
+	
+	@JsonProperty("extensions")
+	private ArrayList<VnfProperty> extensions;
 
 	public String getName() {
 		return name;
@@ -33,11 +43,28 @@ public class VnfProperty {
 		this.name = name;
 	}
 
-	public Object getValue() {
-		return value;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setValue(Object value) {
-		this.value = value;
+	public void setDescription(String description) {
+		this.description = description;
 	}
+
+	public String getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(String metadata) {
+		this.metadata = metadata;
+	}
+
+	public ArrayList<VnfProperty> getExtensions() {
+		return extensions;
+	}
+
+	public void setExtensions(ArrayList<VnfProperty> extensions) {
+		this.extensions = extensions;
+	}
+	
 }

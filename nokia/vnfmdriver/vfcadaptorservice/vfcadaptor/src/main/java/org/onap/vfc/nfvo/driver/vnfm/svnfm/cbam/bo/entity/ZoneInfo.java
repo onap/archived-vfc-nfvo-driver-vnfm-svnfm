@@ -20,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ZoneInfo {
 	
-	@JsonProperty("vimId")
-	private String vimId;
+/*	@JsonProperty("vimId")
+	private String vimId;*/
 	
 	@JsonProperty("resourceId")
 	private String resourceId;
@@ -29,13 +29,13 @@ public class ZoneInfo {
 	@JsonProperty("id")
 	private String id;
 
-	public String getVimId() {
+/*	public String getVimId() {
 		return vimId;
 	}
 
 	public void setVimId(String vimId) {
 		this.vimId = vimId;
-	}
+	}*/
 
 	public String getResourceId() {
 		return resourceId;

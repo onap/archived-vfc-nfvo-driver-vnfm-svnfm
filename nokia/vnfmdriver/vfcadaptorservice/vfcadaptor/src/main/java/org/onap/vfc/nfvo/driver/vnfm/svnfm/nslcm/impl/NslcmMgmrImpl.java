@@ -76,8 +76,8 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 		return response;
 	}
 
-	public void notifyVnf(NslcmNotifyLCMEventsRequest driverRequest, String vnfInstanceId) throws ClientProtocolException, IOException {
-		String httpPath = String.format(CommonConstants.NslcmNotifyPath, vnfInstanceId);
+	public void notifyVnf(NslcmNotifyLCMEventsRequest driverRequest, String vnfmId, String vnfInstanceId) throws ClientProtocolException, IOException {
+		String httpPath = String.format(CommonConstants.NslcmNotifyPath, vnfmId, vnfInstanceId);
 		RequestMethod method = RequestMethod.POST;
 			
 		operateNslcmHttpTask(driverRequest, httpPath, method);

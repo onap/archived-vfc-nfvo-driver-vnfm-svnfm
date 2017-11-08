@@ -38,10 +38,6 @@ public class CommonEnum {
 		OUT, IN
 	}
 
-	public enum ScaleType {
-		SCALE_OUT, SCALE_IN
-	}
-
 	public enum Deletionpending {
 		TRUR, fALSE
 	}

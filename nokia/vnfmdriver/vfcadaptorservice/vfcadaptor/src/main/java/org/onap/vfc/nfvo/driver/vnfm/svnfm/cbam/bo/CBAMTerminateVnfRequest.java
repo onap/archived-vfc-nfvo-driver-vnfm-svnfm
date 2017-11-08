@@ -17,7 +17,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.TerminationType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -30,13 +30,16 @@ public class CBAMTerminateVnfRequest {
 	private String description;
 
 	@JsonProperty("terminationType")
-	private CommonEnum.TerminationType terminationType;
+	private TerminationType terminationType;
 	
 	@JsonProperty("gracefulTerminationTimeout")
 	private Integer gracefulTerminationTimeout;
 	
 	@JsonProperty("additionalParams")
 	private Object additionalParams;
+    
+	
+
 
 	public String getName() {
 		return name;
@@ -54,13 +57,7 @@ public class CBAMTerminateVnfRequest {
 		this.description = description;
 	}
 
-	public CommonEnum.TerminationType getTerminationType() {
-		return terminationType;
-	}
-
-	public void setTerminationType(CommonEnum.TerminationType terminationType) {
-		this.terminationType = terminationType;
-	}
+	
 
 	public Integer getGracefulTerminationTimeout() {
 		return gracefulTerminationTimeout;
@@ -77,9 +74,15 @@ public class CBAMTerminateVnfRequest {
 	public void setAdditionalParams(Object additionalParams) {
 		this.additionalParams = additionalParams;
 	}
-
-	public enum TerminationType{
-		GRACEFUL, FORCEFUL
+   
+	public TerminationType getTerminationType() {
+		return terminationType;
 	}
+
+	public void setTerminationType(TerminationType terminationType) {
+		this.terminationType = terminationType;
+	}
+
+	
 
 }

@@ -16,11 +16,9 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
@@ -32,13 +30,12 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionReposit
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AddResource;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.ResourceDefinition;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 public class TerminateVnfContinueRunnable implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(TerminateVnfContinueRunnable.class);
@@ -49,11 +46,12 @@ public class TerminateVnfContinueRunnable implements Runnable {
 	private TerminateVnfRequest driverRequest;
 	private String vnfInstanceId;
 	private String jobId;
+	private String vnfmId;
 	private VnfmJobExecutionRepository jobDbMgmr;
 	
 	private Driver2CbamRequestConverter requestConverter;
 	
-	public TerminateVnfContinueRunnable(TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId,
+	public TerminateVnfContinueRunnable(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId,
 			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository dbManager)
 	{
 		this.driverRequest = driverRequest;
@@ -63,38 +61,62 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		this.requestConverter = requestConverter;
 		this.jobId = jobId;
 		this.jobDbMgmr = dbManager;
+		this.vnfmId = vnfmId;
+	}
+	
+	private void handleGrant(){
+		try {
+			NslcmGrantVnfRequest grantRequest = buildNslcmGrantVnfRequest();
+			nslcmMgmr.grantVnf(grantRequest);
+		} catch (Exception e) {
+			logger.error("TerminateVnfContinueRunnable --> handleGrant error.", e);
+		}
 	}
 	
 	public void run() {
-		try {
-			NslcmGrantVnfRequest grantRequest = buildNslcmGrantVnfRequest();
-			NslcmGrantVnfResponse grantResponse = nslcmMgmr.grantVnf(grantRequest);
-			handleNslcmGrantResponse(grantResponse);
-			
-			CBAMTerminateVnfRequest cbamRequest = requestConverter.terminateReqConvert(driverRequest);
-			CBAMTerminateVnfResponse cbamResponse = cbamMgmr.terminateVnf(cbamRequest, vnfInstanceId);
-			handleCbamTerminateResponse(cbamResponse, jobId);
-			
-			cbamMgmr.deleteVnf(vnfInstanceId);
-			
-			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(cbamResponse);
-			
-			nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfInstanceId);
-			
-		} catch (ClientProtocolException e) {
-			logger.error("TerminateVnfContinueRunnable run error ClientProtocolException", e);
-		} catch (IOException e) {
-			logger.error("TerminateVnfContinueRunnable run error IOException", e);
-		}
-		
+		handleGrant();
+		handleTerminate();
+		handleDelete();
 	}
 	
+	private void handleDelete() {
+		try {
+			cbamMgmr.deleteVnf(vnfInstanceId);
+		} catch (Exception e) {
+			logger.error("TerminateVnfContinueRunnable --> handleDelete error.", e);
+		}
+	}
+
+	private CBAMTerminateVnfResponse handleTerminate() {
+		CBAMTerminateVnfResponse cbamResponse = null;
+		try {
+			CBAMTerminateVnfRequest  modifyReq = requestConverter.terminateReqConvert(driverRequest);
+			cbamResponse = cbamMgmr.terminateVnf(modifyReq, vnfInstanceId);
+			handleCbamTerminateResponse(cbamResponse, jobId);
+		} catch (Exception e) {
+			logger.error("TerminateVnfContinueRunnable --> handleTerminate error.", e);
+		}
+		
+		try {
+			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(cbamResponse);
+			nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
+		} catch (Exception e) {
+			logger.error("TerminateVnfContinueRunnable --> handleNotify error.", e);
+		}
+		
+		
+		return cbamResponse;
+	}
+
 	private void handleCbamTerminateResponse(CBAMTerminateVnfResponse cbamResponse, String jobId) {
-		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.getLong(jobId));
+		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.parseLong(jobId));
 		
 		jobInfo.setVnfmExecutionId(cbamResponse.getId());
-		if(CommonEnum.OperationStatus.FAILED ==cbamResponse.getStatus()) {
+		if(CommonEnum.OperationStatus.FAILED == cbamResponse.getStatus()) {
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_ERROR);
+		}
+		else {
+			jobInfo.setStatus(cbamResponse.getStatus().toString());
 		}
 		jobDbMgmr.save(jobInfo);
 	}
@@ -103,7 +125,7 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		NslcmGrantVnfRequest request = new NslcmGrantVnfRequest();
 		
 		request.setVnfInstanceId(vnfInstanceId);
-		request.setLifecycleOperation(LifecycleOperation.Instantiate);
+		request.setLifecycleOperation(LifecycleOperation.Terminal);
 		request.setJobId(jobId);
 		
 		ResourceDefinition resource = getFreeVnfResource();
@@ -115,8 +137,17 @@ public class TerminateVnfContinueRunnable implements Runnable {
 	}
 	
 	private ResourceDefinition getFreeVnfResource() {
-		// TODO Auto-generated method stub
-		return null;
+		ResourceDefinition def = new ResourceDefinition();
+		def.setVnfInstanceId(vnfInstanceId);
+		def.setVimId("001");
+		List<AddResource> resources = new ArrayList<>();
+		AddResource res = new AddResource();
+		res.setVdu("1");
+		res.setType("vdu");
+		res.setResourceDefinitionId(2);
+		resources.add(res);
+		def.setAddResource(resources);
+		return def;
 	}
 
 	private NslcmNotifyLCMEventsRequest buildNslcmNotifyLCMEventsRequest(CBAMTerminateVnfResponse cbamResponse) {

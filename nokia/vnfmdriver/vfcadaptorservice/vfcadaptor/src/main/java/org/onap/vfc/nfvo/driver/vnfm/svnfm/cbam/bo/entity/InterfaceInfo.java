@@ -16,28 +16,15 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class InterfaceInfo {
+	private String region;
 
-public class VnfProperty {
-	@JsonProperty("name")
-	private String name;
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
 	
-	@JsonProperty("value")
-	private Object value;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
 }

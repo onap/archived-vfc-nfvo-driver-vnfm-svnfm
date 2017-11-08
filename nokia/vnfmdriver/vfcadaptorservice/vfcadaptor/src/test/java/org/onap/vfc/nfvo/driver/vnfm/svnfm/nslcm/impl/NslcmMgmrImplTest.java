@@ -65,6 +65,7 @@ public class NslcmMgmrImplTest {
 	private HttpClientProcessorInf httpClientProcessor;
 	
 	private String vnfInstanceId = "vnfInstanceId_001";
+	private String vnfmId = "vnfmId_001";
 	
 	private Gson gson = new Gson();
 	
@@ -180,6 +181,6 @@ public class NslcmMgmrImplTest {
 		cbamRequest.setAffectedVirtualStorage(affectedVirtualStorage );
 		List<AffectedVnfc> affectedVnfc = new ArrayList<AffectedVnfc>();
 		cbamRequest.setAffectedVnfc(affectedVnfc );
-		nslcmMgmr.notifyVnf(cbamRequest, vnfInstanceId);
+		nslcmMgmr.notifyVnf(cbamRequest, vnfmId, vnfInstanceId);
 	}
 }

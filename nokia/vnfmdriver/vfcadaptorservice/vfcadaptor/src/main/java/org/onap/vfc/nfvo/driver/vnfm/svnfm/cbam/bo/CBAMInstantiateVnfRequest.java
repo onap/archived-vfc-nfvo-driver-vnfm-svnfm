@@ -21,11 +21,16 @@ import java.util.List;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.ExtManagedVirtualLinkData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.ExtVirtualLinkData;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimComputeResourceFlavour;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimSoftwareImage;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.ZoneInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CBAMInstantiateVnfRequest {
+	@JsonProperty("instantiationLevelId")
+	private String instantiationLevelId;
 	
 	@JsonProperty("flavourId")
 	private String flavourId;
@@ -38,6 +43,21 @@ public class CBAMInstantiateVnfRequest {
 	
 	@JsonProperty("extManagedVirtualLinks")
 	private List<ExtManagedVirtualLinkData> extManagedVirtualLinks;
+	
+	@JsonProperty("grantlessMode")
+	private boolean grantlessMode;
+	
+	@JsonProperty("softwareImages")
+	private List<VimSoftwareImage> softwareImages;
+	
+	@JsonProperty("additionalParams")
+	private Object additionalParams;
+	
+	@JsonProperty("computeResourceFlavours")
+	private List<VimComputeResourceFlavour> computeResourceFlavours;
+	
+	@JsonProperty("zones")
+	private List<ZoneInfo> zones;
 
 	public String getFlavourId() {
 		return flavourId;
@@ -72,6 +92,58 @@ public class CBAMInstantiateVnfRequest {
 	public void setExtManagedVirtualLinks(List<ExtManagedVirtualLinkData> extManagedVirtualLinks) {
 		this.extManagedVirtualLinks = extManagedVirtualLinks;
 	}
+
+	public boolean isGrantlessMode() {
+		return grantlessMode;
+	}
+
+	public void setGrantlessMode(boolean grantlessMode) {
+		this.grantlessMode = grantlessMode;
+	}
+
+	public List<VimSoftwareImage> getSoftwareImages() {
+		return softwareImages;
+	}
+
+	public void setSoftwareImages(List<VimSoftwareImage> softwareImages) {
+		this.softwareImages = softwareImages;
+	}
+
+	public Object getAdditionalParams() {
+		return additionalParams;
+	}
+
+	public void setAdditionalParams(Object additionalParams) {
+		this.additionalParams = additionalParams;
+	}
+
+	public List<VimComputeResourceFlavour> getComputeResourceFlavours() {
+		return computeResourceFlavours;
+	}
+
+	public void setComputeResourceFlavours(List<VimComputeResourceFlavour> computeResourceFlavours) {
+		this.computeResourceFlavours = computeResourceFlavours;
+	}
+
+	public List<ZoneInfo> getZones() {
+		return zones;
+	}
+
+	public void setZones(List<ZoneInfo> zones) {
+		this.zones = zones;
+	}
+
+	public String getInstantiationLevelId() {
+		return instantiationLevelId;
+	}
+
+	public void setInstantiationLevelId(String instantiationLevelId) {
+		this.instantiationLevelId = instantiationLevelId;
+	}
+	
+	
+	
+	
 	
 	
 

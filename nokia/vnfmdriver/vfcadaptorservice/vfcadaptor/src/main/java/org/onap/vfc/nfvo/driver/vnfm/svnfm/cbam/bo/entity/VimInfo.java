@@ -21,10 +21,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class VimInfo {
 	@JsonProperty("id")
 	private String id;
-	@JsonProperty("vimInfoType")
-	private VimInfoType vimInfoType;
 	
+	@JsonProperty("interfaceInfo")
+	private InterfaceInfo interfaceInfo;
 	
+	@JsonProperty("interfaceEndpoint")
+	private String interfaceEndpoint;
+	
+	@JsonProperty("accessInfo")
+	private OpenStackAccessInfoV2 accessInfo;
+
 	public String getId() {
 		return id;
 	}
@@ -33,16 +39,28 @@ public class VimInfo {
 		this.id = id;
 	}
 
-	public VimInfoType getVimInfoType() {
-		return vimInfoType;
+	public InterfaceInfo getInterfaceInfo() {
+		return interfaceInfo;
 	}
 
-	public void setVimInfoType(VimInfoType vimInfoType) {
-		this.vimInfoType = vimInfoType;
+	public void setInterfaceInfo(InterfaceInfo interfaceInfo) {
+		this.interfaceInfo = interfaceInfo;
 	}
 
-	
+	public String getInterfaceEndpoint() {
+		return interfaceEndpoint;
+	}
 
-	
+	public void setInterfaceEndpoint(String interfaceEndpoint) {
+		this.interfaceEndpoint = interfaceEndpoint;
+	}
+
+	public OpenStackAccessInfoV2 getAccessInfo() {
+		return accessInfo;
+	}
+
+	public void setAccessInfo(OpenStackAccessInfoV2 accessInfo) {
+		this.accessInfo = accessInfo;
+	}
 	
 }

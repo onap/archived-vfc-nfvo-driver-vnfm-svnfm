@@ -16,13 +16,13 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleDirection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CBAMScaleVnfRequest {
 	@JsonProperty("type")
-	private CommonEnum.ScaleDirection type;
+	private ScaleDirection type;
 	
 	@JsonProperty("aspectId")
 	private String aspectId;
@@ -35,15 +35,16 @@ public class CBAMScaleVnfRequest {
 	private Object additionalParams;
 	
 
-	public CommonEnum.ScaleDirection getType() {
+  
+
+	public ScaleDirection getType() {
 		return type;
 	}
 
 
-	public void setType(CommonEnum.ScaleDirection type) {
+	public void setType(ScaleDirection type) {
 		this.type = type;
 	}
-
 
 
 	public String getAspectId() {

@@ -47,6 +47,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
@@ -179,7 +180,7 @@ public class VnfmDriverMgmrImplTest {
 		mockCbamResponse.setId("executionId_001");
 		when(cbamMgmr.scaleVnf(Mockito.any(CBAMScaleVnfRequest.class), Mockito.anyString())).thenReturn(mockCbamResponse);
 		ScaleVnfRequest request = new ScaleVnfRequest();
-		request.setType(CommonEnum.ScaleType.SCALE_IN);
+		request.setType(ScaleType.SCALE_IN);
 		ScaleVnfResponse response = vnfmDriverMgmr.scaleVnf(request, vnfmId, vnfInstanceId);
 	}
 	

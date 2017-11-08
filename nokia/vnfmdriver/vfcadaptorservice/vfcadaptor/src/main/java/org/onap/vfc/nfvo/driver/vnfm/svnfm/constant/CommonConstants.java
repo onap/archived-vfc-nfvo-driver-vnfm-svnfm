@@ -34,8 +34,8 @@ public class CommonConstants {
 	public static final String RetrieveVnfmListPath = "/aai/v11/external-system/esr-vnfm-list/esr-vnfm/%s/esr-system-info-list";
 	
 	//Nslcm path
-	public static final String NslcmGrantPath = "/api/vnflcm/v1//ns/grantvnf";
-	public static final String NslcmNotifyPath = "/api/vnflcm/v1/vnfs/%s/Notify";
+	public static final String NslcmGrantPath = "/api/nslcm/v1/ns/grantvnf";
+	public static final String NslcmNotifyPath = "/api/nslcm/v1/ns/%s/vnfs/%s/Notify";
 	
 	//Catalog path
 	public static final String RetrieveVnfPackagePath = "/api/catalog/v1/vnfpackages/%s";
@@ -45,6 +45,7 @@ public class CommonConstants {
 	public static final String CbamRetrieveTokenPath="/auth/realms/cbam/protocol/openid-connect/token";
 	public static final String CbamRetrieveTokenPostStr="grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s";
 	public static final String CbamCreateVnfPath="/vnfm/lcm/v3/vnfs";
+	public static final String CbamModifyVnfPath="/vnfm/lcm/v3/vnfs/%s";
 	public static final String CbamInstantiateVnfPath="/vnfm/lcm/v3/vnfs/%s/instantiate";
 	public static final String CbamQueryVnfPath="/vnfm/lcm/v3/vnfs/%s";
 	public static final String CbamDeleteVnfPath="/vnfm/lcm/v3/vnfs/%s";

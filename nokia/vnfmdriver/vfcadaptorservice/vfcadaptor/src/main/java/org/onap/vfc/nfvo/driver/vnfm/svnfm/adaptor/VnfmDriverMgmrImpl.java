@@ -95,7 +95,14 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 	public InstantiateVnfResponse instantiateVnf(InstantiateVnfRequest driverRequest, String vnfmId) throws VnfmDriverException {
 		InstantiateVnfResponse driverResponse;
 		try {
+			driverRequest.setVnfdId(adaptorEnv.getVnfdId());
 			buildVnfmHttpPathById(vnfmId);
+			
+//			String dirPath = "/etc/vnfmpkg";
+//			String cbamDirName = CommonUtil.getAppRoot() + dirPath;
+//			File cbamDirFile = new File(cbamDirName);
+//			String cbamPackageName = cbamDirFile.listFiles()[0].getAbsolutePath();
+//			cbamMgmr.uploadVnfPackage(cbamPackageName);
 			
 			//step 3: create vnf
 			CBAMCreateVnfRequest cbamRequest = requestConverter.createReqConvert(driverRequest);
@@ -105,7 +112,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			Long jobId = saveCreateVnfJob(vnfInstanceId);
 			driverResponse = responseConverter.createRspConvert(cbamResponse, jobId);
 			
-			vnfContinueProcessorInf.continueInstantiateVnf(driverRequest, vnfInstanceId, jobId.toString(), nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager);
+			vnfContinueProcessorInf.continueInstantiateVnf(vnfmId, driverRequest, vnfInstanceId, jobId.toString(), nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager);
 			
 		} catch (Exception e) {
 			logger.error("error VnfmDriverMgmrImpl --> instantiateVnf. ", e);
@@ -132,7 +139,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			buildVnfmHttpPathById(vnfmId);
 			driverResponse = generateTerminateVnfResponse(vnfInstanceId);
 			String jobId = driverResponse.getJobId();
-			vnfContinueProcessorInf.continueTerminateVnf(driverRequest, vnfInstanceId, jobId, nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
+			vnfContinueProcessorInf.continueTerminateVnf(vnfmId, driverRequest, vnfInstanceId, jobId, nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
 			
 		} catch (Exception e) {
 			logger.error("error VnfmDriverMgmrImpl --> terminateVnf. ", e);
@@ -177,8 +184,9 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 		try {
 			buildVnfmHttpPathById(vnfmId);
 			
-			VnfmJobExecutionInfo jobInfo = jobDbManager.findOne(Long.getLong(jobId));
+			VnfmJobExecutionInfo jobInfo = jobDbManager.findOne(Long.parseLong(jobId));
 			String execId = jobInfo.getVnfmExecutionId();
+			logger.info(" VnfmDriverMgmrImpl --> getOperStatus execId is " + execId);
 			cbamResponse = cbamMgmr.queryOperExecution(execId);
 		} catch (Exception e) {
 			logger.error("error VnfmDriverMgmrImpl --> getOperStatus. ", e);
@@ -222,7 +230,7 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 
 	public String buildVnfmHttpPathById(String vnfmId) throws ClientProtocolException, IOException, VnfmDriverException {
 		
-		return null;
+		return buildVnfmHttpPathByRealId(vnfmId);
 	}
 	
 	public String buildVnfmHttpPathByRealId(String vnfmId) throws ClientProtocolException, IOException, VnfmDriverException {
@@ -236,9 +244,9 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 		EsrSystemInfo systemInfo = vnfmInfo.getEsrSystemInfoList().get(0);
 		
 		String urlHead = systemInfo.getServiceUrl();
-		adaptorEnv.setCbamApiUriFront(urlHead);
-		adaptorEnv.setCbamUserName(systemInfo.getUserName());
-		adaptorEnv.setCbamPassword(systemInfo.getPassword());
+//		adaptorEnv.setCbamApiUriFront(urlHead);
+//		adaptorEnv.setCbamUserName(systemInfo.getUserName());
+//		adaptorEnv.setCbamPassword(systemInfo.getPassword());
 		
 		return urlHead;
 	}

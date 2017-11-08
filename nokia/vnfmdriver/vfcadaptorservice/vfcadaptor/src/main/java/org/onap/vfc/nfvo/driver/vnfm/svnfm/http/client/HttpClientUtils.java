@@ -27,6 +27,7 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.config.Registry;
@@ -107,6 +108,9 @@ public class HttpClientUtils {
 				break;
 			case DELETE:
 				base = new HttpDelete();
+				break;
+			case PATCH:
+				base = new HttpPatch();
 				break;
 			default:
 				base = new HttpPost();

@@ -14,30 +14,10 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution;
 
-public class VnfProperty {
-	@JsonProperty("name")
-	private String name;
+public class CBAMModifyVnfResponse extends OperationExecution{
 	
-	@JsonProperty("value")
-	private Object value;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
 }

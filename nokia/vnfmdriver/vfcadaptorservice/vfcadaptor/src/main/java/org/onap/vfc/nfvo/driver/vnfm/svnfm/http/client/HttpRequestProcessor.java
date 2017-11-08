@@ -22,6 +22,7 @@ import java.net.URI;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
@@ -80,7 +81,11 @@ public class HttpRequestProcessor {
 	}
 
 	public void addPostEntity(String bodyStr) {
-		((HttpPost)httpRequest).setEntity(new StringEntity(bodyStr, CommonConstants.UTF_8));
+		if(httpRequest instanceof HttpPost) {
+			((HttpPost)httpRequest).setEntity(new StringEntity(bodyStr, CommonConstants.UTF_8));
+		} else if(httpRequest instanceof HttpPatch) {
+			((HttpPatch)httpRequest).setEntity(new StringEntity(bodyStr, CommonConstants.UTF_8));
+		}
 	}
 	
 	public void addBytesPostEntity(byte[] byteArray) {

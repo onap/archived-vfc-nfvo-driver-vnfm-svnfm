@@ -13,31 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class VnfProperty {
-	@JsonProperty("name")
-	private String name;
-	
-	@JsonProperty("value")
-	private Object value;
+public class Link {
+	@JsonProperty("href")
+	private String href;
 
-	public String getName() {
-		return name;
+	public String getHref() {
+		return href;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setHref(String href) {
+		this.href = href;
 	}
 
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
 }

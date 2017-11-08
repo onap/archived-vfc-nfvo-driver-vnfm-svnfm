@@ -32,6 +32,8 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMModifyVnfRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMModifyVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryOperExecutionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
@@ -100,6 +102,26 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		}
 		CBAMCreateVnfResponse response = gson.fromJson(responseStr, CBAMCreateVnfResponse.class);
 		
+		return response;
+	}
+	
+	public CBAMModifyVnfResponse modifyVnf(CBAMModifyVnfRequest cbamRequest, String vnfInstanceId)
+			throws ClientProtocolException, IOException {
+		String httpPath = String.format(CommonConstants.CbamModifyVnfPath, vnfInstanceId);
+		
+		RequestMethod method = RequestMethod.PATCH;
+			
+		HttpResult httpResult = operateCbamHttpTask(cbamRequest, httpPath, method);
+		String responseStr = httpResult.getContent();
+		
+		logger.info("CbamMgmrImpl -> modifyVnf, responseStr is " + responseStr);
+		int code = httpResult.getStatusCode();
+		if(code == 201) {
+			logger.info("CbamMgmrImpl -> modifyVnf success");
+		}else {
+			logger.error("CbamMgmrImpl -> modifyVnf error ");
+		}
+		CBAMModifyVnfResponse response = gson.fromJson(responseStr, CBAMModifyVnfResponse.class);
 		return response;
 	}
 	
@@ -249,7 +271,6 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 			logger.error("CbamMgmrImpl -> CBAMQueryOperExecutionResponse, error" );
 		}
 		
-		
 		CBAMQueryOperExecutionResponse response = gson.fromJson(responseStr, CBAMQueryOperExecutionResponse.class);
 		
 		return response;
@@ -286,28 +307,9 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 			logger.error("retrieveTokenError ", e);
 		}
 		String url = adaptorEnv.getCbamApiUriFront() + httpPath;
-		String command =  "curl --insecure -X POST -H \"Authorization: bearer " + token + "\" --form content=@" + filePath + " " + url;
-		StringBuffer respStr = new StringBuffer();
-		try {
-			logger.info("start to upload file.");
-			String os = System.getProperty("os.name"); 
-			String[] cmd = {"cmd", "/C", command};
-			if(!os.toLowerCase().startsWith("win")){
-				cmd = new String[]{"/bin/sh"," -c ", command};
-			}  
-			Process process = Runtime.getRuntime().exec(cmd);
-             InputStream fis=process.getInputStream();    
-             InputStreamReader isr=new InputStreamReader(fis);    
-             BufferedReader br=new BufferedReader(isr);    
-             String line=null;    
-            while((line = br.readLine())!=null)    
-             {    
-            	respStr.append(line);    
-             }    
-			
-		} catch (Exception e) {
-			logger.error("operateCbamHttpUploadTask error", e);
-		}
+		logger.info("start to upload file.");
+		String command =  "/usr/bin/curl --insecure -X POST -H \"Authorization: bearer " + token + "\" --form content=@" + filePath + " " + url;
+		StringBuffer respStr = execCommand(command);
 		
 //		HashMap<String, String> map = new HashMap<>();
 //		map.put(CommonConstants.AUTHORIZATION, "bearer " + token);
@@ -320,6 +322,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 //		return httpClientProcessor.processBytes(url, method, map, fileBytes);
 		
 		HttpResult hResult = new HttpResult();
+		hResult.setStatusCause(respStr.toString());
 		hResult.setContent(respStr.toString());
 		hResult.setStatusCode(200);
 		return hResult;
@@ -347,6 +350,40 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 //        }
 //        
 //        return result;
+	}
+
+	private StringBuffer execCommand(String command) {
+		logger.info("CbamMgmrImpl -> execCommand, command is " + command);
+		StringBuffer respStr = new StringBuffer("\r\n");
+		try {
+			String os = System.getProperty("os.name"); 
+			String[] cmd = {"cmd", "/c", command};
+			if(!os.toLowerCase().startsWith("win")){
+				cmd = new String[]{"/bin/sh","-c", command};
+			}  
+			Process process = Runtime.getRuntime().exec(cmd);
+			Thread t=new Thread(new InputStreamRunnable(process.getErrorStream(),"ErrorStream"));  
+            t.start(); 
+            Thread.sleep(3000);
+             InputStream fis=process.getInputStream();    
+             InputStreamReader isr=new InputStreamReader(fis);  
+             
+             BufferedReader br=new BufferedReader(isr);    
+             String line = null;
+            while((line = br.readLine())!=null)    
+             {    
+            	respStr.append(line + "\r\n");    
+             }
+            respStr.append("\r\n");
+            process.waitFor();
+            fis.close();
+            isr.close();
+            process.destroy();
+            logger.info("operateCbamHttpUploadTask respStr is: " + respStr);
+		} catch (Exception e) {
+			logger.error("operateCbamHttpUploadTask error", e);
+		}
+		return respStr;
 	}
 	
 //	public static String postByHttps(String url, String body, Object contentType) {

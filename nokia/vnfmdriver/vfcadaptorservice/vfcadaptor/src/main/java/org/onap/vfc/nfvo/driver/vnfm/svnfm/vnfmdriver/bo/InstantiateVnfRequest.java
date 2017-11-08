@@ -32,8 +32,11 @@ public class InstantiateVnfRequest {
 	@JsonProperty("vnfPackageId")
 	private String vnfPackageId;
 	
+	//this id is irrelevant to the CBAM vnfdid
 	@JsonProperty("vnfDescriptorId")
 	private String vnfDescriptorId;
+	
+	private String vnfdId;
 	
 	@JsonProperty("flavourId")
 	private String flavourId;
@@ -105,6 +108,14 @@ public class InstantiateVnfRequest {
 
 	public void setExtVirtualLink(List<ExtVirtualLinkData> extVirtualLink) {
 		this.extVirtualLink = extVirtualLink;
+	}
+
+	public String getVnfdId() {
+		return vnfdId;
+	}
+
+	public void setVnfdId(String vnfdId) {
+		this.vnfdId = vnfdId;
 	}
 
 }

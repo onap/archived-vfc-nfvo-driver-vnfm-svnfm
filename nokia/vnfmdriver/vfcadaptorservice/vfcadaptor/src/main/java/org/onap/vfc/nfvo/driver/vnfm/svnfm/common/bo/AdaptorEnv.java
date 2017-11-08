@@ -89,6 +89,9 @@ public class AdaptorEnv {
 	
 	@Value("${numVirtualCpu}")
 	private String numVirtualCpu;
+	
+	@Value("${vnfdId}")
+	private String vnfdId;
 
 	public String getAaiServiceNameInMsb() {
 		return aaiServiceNameInMsb;
@@ -288,6 +291,14 @@ public class AdaptorEnv {
 
 	public void setNumVirtualCpu(String numVirtualCpu) {
 		this.numVirtualCpu = numVirtualCpu;
+	}
+
+	public String getVnfdId() {
+		return vnfdId;
+	}
+
+	public void setVnfdId(String vnfdId) {
+		this.vnfdId = vnfdId;
 	}
 
 

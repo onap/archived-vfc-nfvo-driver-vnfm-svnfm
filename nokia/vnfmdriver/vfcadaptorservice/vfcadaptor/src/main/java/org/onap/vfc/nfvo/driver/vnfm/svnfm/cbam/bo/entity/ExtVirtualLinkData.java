@@ -22,14 +22,14 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ExtVirtualLinkData {
-	@JsonProperty("flavourId")
+	@JsonProperty("resourceId")
 	private String resourceId;
-	@JsonProperty("flavourId")
+	@JsonProperty("vimId")
 	private String vimId;
-	@JsonProperty("flavourId")
+	@JsonProperty("extVirtualLinkId")
 	private String extVirtualLinkId;
 	
-	@JsonProperty("extVirtualLink")
+	@JsonProperty("extCps")
 	private List<VnfExtCpData> extCps=new ArrayList<VnfExtCpData>();
 
 	public String getResourceId() {

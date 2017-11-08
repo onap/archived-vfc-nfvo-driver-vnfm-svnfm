@@ -25,9 +25,6 @@ public class OpenStackAccessInfoV2 {
 	@JsonProperty("password")
 	private String password;
 	
-	@JsonProperty("region")
-	private String region;
-	
 	@JsonProperty("tenant")
 	private String tenant;
 
@@ -46,14 +43,6 @@ public class OpenStackAccessInfoV2 {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public String getRegion() {
-		return region;
-	}
-
-	public void setRegion(String region) {
-		this.region = region;
 	}
 
 	public String getTenant() {

@@ -47,7 +47,7 @@ public final class CommonUtil {
                 fileContent = new String(contentByte);
             }
         } catch(FileNotFoundException e) {
-        	logger.error(fileName + "is not found!", e);
+        	logger.error(fileName + " is not found!", e);
         } finally {
             if(ins != null) {
                 ins.close();

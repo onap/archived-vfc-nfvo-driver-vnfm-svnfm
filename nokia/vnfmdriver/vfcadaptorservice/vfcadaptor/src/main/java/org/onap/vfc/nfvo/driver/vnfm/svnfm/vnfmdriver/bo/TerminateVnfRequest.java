@@ -16,7 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.TerminationType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -26,30 +26,19 @@ public class TerminateVnfRequest {
 	private String vnfInstanceId;
 	
 	@JsonProperty("terminationType")
-	private CommonEnum.TerminationType terminationType;
+	private TerminationType terminationType;
 
 	@JsonProperty("gracefulTerminationTimeout")
 	private Integer gracefulTerminationTimeout;
-	
-	public enum TerminationType{
-		
-		GRACEFUL, FORCEFUL;
-	}
-   
-	
-  
-
 
 	
-
-	public CommonEnum.TerminationType getTerminationType() {
+	public TerminationType getTerminationType() {
 		return terminationType;
 	}
 
-	public void setTerminationType(CommonEnum.TerminationType terminationType) {
+	public void setTerminationType(TerminationType terminationType) {
 		this.terminationType = terminationType;
 	}
-
 
 	public Integer getGracefulTerminationTimeout() {
 		return gracefulTerminationTimeout;

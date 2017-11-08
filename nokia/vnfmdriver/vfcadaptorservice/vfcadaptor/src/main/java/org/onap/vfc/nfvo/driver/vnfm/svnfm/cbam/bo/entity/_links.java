@@ -20,61 +20,62 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class _links {
 	@JsonProperty("cancel")
-	private String cancel;
+	private Link cancel;
 	@JsonProperty("operationParams")
-	private String operationParams;
+	private Link operationParams;
 	@JsonProperty("endNotification")
-	private String endNotification;
+	private Link endNotification;
 	@JsonProperty("self")
-	private String self;
+	private Link self;
 	@JsonProperty("additionalData")
-	private String additionalData;
+	private Link additionalData;
 	@JsonProperty("list")
-	private String list;
+	private Link list;
 	@JsonProperty("vnf") 
-	private String vnf;
-	public String getCancel() {
+	private Link vnf;
+	public Link getCancel() {
 		return cancel;
 	}
-	public void setCancel(String cancel) {
+	public void setCancel(Link cancel) {
 		this.cancel = cancel;
 	}
-	public String getOperationParams() {
+	public Link getOperationParams() {
 		return operationParams;
 	}
-	public void setOperationParams(String operationParams) {
+	public void setOperationParams(Link operationParams) {
 		this.operationParams = operationParams;
 	}
-	public String getEndNotification() {
+	public Link getEndNotification() {
 		return endNotification;
 	}
-	public void setEndNotification(String endNotification) {
+	public void setEndNotification(Link endNotification) {
 		this.endNotification = endNotification;
 	}
-	public String getSelf() {
+	public Link getSelf() {
 		return self;
 	}
-	public void setSelf(String self) {
+	public void setSelf(Link self) {
 		this.self = self;
 	}
-	public String getAdditionalData() {
+	public Link getAdditionalData() {
 		return additionalData;
 	}
-	public void setAdditionalData(String additionalData) {
+	public void setAdditionalData(Link additionalData) {
 		this.additionalData = additionalData;
 	}
-	public String getList() {
+	public Link getList() {
 		return list;
 	}
-	public void setList(String list) {
+	public void setList(Link list) {
 		this.list = list;
 	}
-	public String getVnf() {
+	public Link getVnf() {
 		return vnf;
 	}
-	public void setVnf(String vnf) {
+	public void setVnf(Link vnf) {
 		this.vnf = vnf;
 	}
+	
 	
 	
 	

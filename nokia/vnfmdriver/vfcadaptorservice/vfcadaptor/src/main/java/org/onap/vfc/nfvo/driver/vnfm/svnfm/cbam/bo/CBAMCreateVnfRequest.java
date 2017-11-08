@@ -51,7 +51,5 @@ public class CBAMCreateVnfRequest {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-	
 
 }

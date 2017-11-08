@@ -49,9 +49,6 @@ public class OperationExecution {
 	@JsonProperty("startTime")
 	private String startTime;
 	
-	@JsonProperty("finishTime")
-	private String finishTime;
-	
 	@JsonProperty("grantId")
 	private String grantId;
 	
@@ -156,13 +153,6 @@ public class OperationExecution {
 		this.startTime = startTime;
 	}
 
-	public String getFinishTime() {
-		return finishTime;
-	}
-
-	public void setFinishTime(String finishTime) {
-		this.finishTime = finishTime;
-	}
 
 	public String getGrantId() {
 		return grantId;

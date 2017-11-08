@@ -28,5 +28,5 @@ public interface NslcmMgmrInf {
 	
 	public NslcmGrantVnfResponse grantVnf(NslcmGrantVnfRequest driverRequest) throws ClientProtocolException, IOException;
 	
-	public void notifyVnf(NslcmNotifyLCMEventsRequest driverRequest, String vnfInstanceId) throws ClientProtocolException, IOException;
+	public void notifyVnf(NslcmNotifyLCMEventsRequest driverRequest, String vnfmId, String vnfInstanceId) throws ClientProtocolException, IOException;
 }

@@ -16,7 +16,8 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.AdditionalParam;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,7 +27,7 @@ public class ScaleVnfRequest {
 	private String vnfInstanceId;
 	
 	@JsonProperty("type")
-	private CommonEnum.ScaleType type;
+	private ScaleType type;
 	
 	@JsonProperty("aspectId")
 	private String aspectId;
@@ -70,15 +71,19 @@ public class ScaleVnfRequest {
 		this.vnfInstanceId = vnfInstanceId;
 	}
 
-	public CommonEnum.ScaleType getType() {
+	public ScaleType getType() {
 		return type;
 	}
 
-	public void setType(CommonEnum.ScaleType type) {
+	public void setType(ScaleType type) {
 		this.type = type;
 	}
 
 	
+
+	
+
+
 	
 	
 	

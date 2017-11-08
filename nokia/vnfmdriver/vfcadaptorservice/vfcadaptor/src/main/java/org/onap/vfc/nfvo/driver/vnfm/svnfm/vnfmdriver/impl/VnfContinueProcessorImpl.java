@@ -34,16 +34,16 @@ import org.springframework.stereotype.Component;
 public class VnfContinueProcessorImpl implements VnfContinueProcessorInf{
 
 	@Override
-	public void continueInstantiateVnf(InstantiateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository jobDbManager) {
-		InstantiateVnfContinueRunnable task = new InstantiateVnfContinueRunnable(driverRequest, vnfInstanceId, jobId,
+	public void continueInstantiateVnf(String vnfmId, InstantiateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository jobDbManager) {
+		InstantiateVnfContinueRunnable task = new InstantiateVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
 				nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager);
 		
 		Executors.newSingleThreadExecutor().submit(task);
 	}
 
 	@Override
-	public void continueTerminateVnf(TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository jobDbManager) {
-		TerminateVnfContinueRunnable task = new TerminateVnfContinueRunnable(driverRequest, vnfInstanceId, jobId,
+	public void continueTerminateVnf(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository jobDbManager) {
+		TerminateVnfContinueRunnable task = new TerminateVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
 				nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
 		
 		Executors.newSingleThreadExecutor().submit(task);
