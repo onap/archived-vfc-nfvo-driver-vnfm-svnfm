@@ -6,7 +6,7 @@ cd ${DOCKER_BUILD_DIR}
 
 BUILD_ARGS="--no-cache"
 ORG="onap"
-VERSION="1.0.0"
+VERSION="1.0.1"
 PROJECT="vfc"
 IMAGE="ztevmanagerdriver"
 DOCKER_REPOSITORY="nexus3.onap.org:10003"
