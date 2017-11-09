@@ -17,8 +17,6 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.TerminationType;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CBAMTerminateVnfRequest {
@@ -30,7 +28,7 @@ public class CBAMTerminateVnfRequest {
 	private String description;
 
 	@JsonProperty("terminationType")
-	private TerminationType terminationType;
+	private String terminationType;
 	
 	@JsonProperty("gracefulTerminationTimeout")
 	private Integer gracefulTerminationTimeout;
@@ -75,11 +73,11 @@ public class CBAMTerminateVnfRequest {
 		this.additionalParams = additionalParams;
 	}
    
-	public TerminationType getTerminationType() {
+	public String getTerminationType() {
 		return terminationType;
 	}
 
-	public void setTerminationType(TerminationType terminationType) {
+	public void setTerminationType(String terminationType) {
 		this.terminationType = terminationType;
 	}
 

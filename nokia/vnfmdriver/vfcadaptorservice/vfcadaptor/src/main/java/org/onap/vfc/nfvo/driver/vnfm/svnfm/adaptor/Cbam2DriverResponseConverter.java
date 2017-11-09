@@ -87,30 +87,42 @@ public class Cbam2DriverResponseConverter {
 
 		response.setJobId(oper.getId());
 		ResponseDescriptor er = new ResponseDescriptor();
-		// TODO er.setProgress(i);
+		er.setProgress("1");
+		response.setProgress("1");
+		
 		if (oper.getStatus() == CommonEnum.OperationStatus.STARTED ) {
 			er.setStatus("started");
+			response.setStatus("started");
 		} else if (oper.getStatus() == CommonEnum.OperationStatus.FINISHED) {
 			er.setStatus("finished");
+			response.setStatus("finished");
 		} else if (oper.getStatus() == CommonEnum.OperationStatus.FAILED) {
 			er.setStatus("error");
+			response.setStatus("error");
 		} else if (oper.getStatus() == CommonEnum.OperationStatus.OTHER) {
 			er.setStatus("processing");
+			response.setStatus("processing");
 		} else {
 			er.setStatus("error");
+			response.setStatus("error");
 		}
-		er.setStatusDescription("");
-		er.setErrorCode(null);
-		er.setResponseId(oper.getGrantId().hashCode());
-		List<ResponseHistoryList> list = new ArrayList<ResponseHistoryList>();
-		ResponseHistoryList relist = new ResponseHistoryList();
-		// TODO relist.setProgress(i);
-		relist.setStatus(er.getStatus());
-		relist.setStatusDescription("");
-		relist.setErrorCode(null);
-		relist.setResponseId(er.getResponseId());
-		list.add(relist);
-		er.setResponseHistoryList(list);
+		er.setStatusDescription(er.getStatus());
+		er.setErrorCode("1");
+		er.setResponseId("1");
+		
+		response.setStatusDescription(er.getStatus());
+		response.setErrorCode("1");
+		response.setResponseId("1");
+		
+//		List<ResponseHistoryList> list = new ArrayList<ResponseHistoryList>();
+//		ResponseHistoryList relist = new ResponseHistoryList();
+//		// TODO relist.setProgress(i);
+//		relist.setStatus(er.getStatus());
+//		relist.setStatusDescription("");
+//		relist.setErrorCode(null);
+//		relist.setResponseId(er.getResponseId());
+//		list.add(relist);
+//		er.setResponseHistoryList(list);
 		response.setResponseDescriptor(er);
 		return response;
 	}

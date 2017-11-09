@@ -228,14 +228,19 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
         return driverResponse;
 	}
 
-	public String buildVnfmHttpPathById(String vnfmId) throws ClientProtocolException, IOException, VnfmDriverException {
-		
-		return buildVnfmHttpPathByRealId(vnfmId);
+	public String buildVnfmHttpPathById(String vnfmId) {
+		String result = "";
+		try {
+			result = buildVnfmHttpPathByRealId(vnfmId);
+		} catch (Exception e) {
+			logger.error("buildVnfmHttpPathById Error.", e);
+		}
+		return result;
 	}
 	
 	public String buildVnfmHttpPathByRealId(String vnfmId) throws ClientProtocolException, IOException, VnfmDriverException {
 		AaiVnfmInfo vnfmInfo = aaiMgmr.queryVnfm(vnfmId);
-		logger.info("vnfmInfo in AAI is {}", gson.toJson(vnfmInfo));
+		logger.info("vnfmInfo in AAI is " + gson.toJson(vnfmInfo));
 		if(isVnfmInfoValid(vnfmId, vnfmInfo))
 		{
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);

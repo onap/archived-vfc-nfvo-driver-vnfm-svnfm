@@ -96,8 +96,10 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 
 	private void handleNotify(CBAMInstantiateVnfResponse cbamInstantiateResponse) {
 		try {
+			logger.info("Start to notify LCM the instantiation result");
 			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(cbamInstantiateResponse);
 			nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
+			logger.info("End to notify LCM the instantiation result");
 		} catch (Exception e) {
 			logger.error("InstantiateVnfContinueRunnable --> handleNotify error.", e);
 		}

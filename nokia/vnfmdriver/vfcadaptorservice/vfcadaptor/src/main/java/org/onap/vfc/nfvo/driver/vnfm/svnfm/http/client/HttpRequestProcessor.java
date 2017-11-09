@@ -51,9 +51,9 @@ public class HttpRequestProcessor {
 		httpRequest.setURI(URI.create(url));
 		
 		HttpResponse response = httpClient.execute(httpRequest);
+		HttpResult httpResult = buildHttpResult(response);
 		httpRequest.releaseConnection();
 //		httpClient.close();
-		HttpResult httpResult = buildHttpResult(response);
 		
 		return httpResult;
 	}

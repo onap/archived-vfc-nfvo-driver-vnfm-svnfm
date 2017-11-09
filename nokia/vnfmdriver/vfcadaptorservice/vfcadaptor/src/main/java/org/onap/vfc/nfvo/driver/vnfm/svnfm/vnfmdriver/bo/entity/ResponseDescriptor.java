@@ -27,16 +27,16 @@ public class ResponseDescriptor {
 	private String  status;//started;processing;finished;error
 	
 	@JsonProperty("progress")
-	private Integer  progress;//progress (1-100)
+	private String  progress;//progress (1-100)
 	
 	@JsonProperty("statusDescription")
 	private String  statusDescription;
 	
 	@JsonProperty("errorCode")
-	private Integer errorCode;
+	private String errorCode;
 	
 	@JsonProperty("responseId")
-	private Integer responseId;
+	private String responseId;
 	
 	@JsonProperty("responseHistoryList")
 	private List<ResponseHistoryList> responseHistoryList;
@@ -49,17 +49,13 @@ public class ResponseDescriptor {
 		this.status = status;
 	}
 
-	
-
-	public Integer getProgress() {
+	public String getProgress() {
 		return progress;
 	}
 
 
-	public void setProgress(Integer progr) {
-		if(progr>0 && progr<100) {
+	public void setProgress(String progr) {
 		  progress = progr;
-		}
 	}
 
 	public String getStatusDescription() {
@@ -70,19 +66,19 @@ public class ResponseDescriptor {
 		this.statusDescription = statusDescription;
 	}
 
-	public Integer getErrorCode() {
+	public String getErrorCode() {
 		return errorCode;
 	}
 
-	public void setErrorCode(Integer errorCode) {
+	public void setErrorCode(String errorCode) {
 		this.errorCode = errorCode;
 	}
 
-	public Integer getResponseId() {
+	public String getResponseId() {
 		return responseId;
 	}
 
-	public void setResponseId(Integer responseId) {
+	public void setResponseId(String responseId) {
 		this.responseId = responseId;
 	}
 

@@ -16,5 +16,5 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.constant;
 
 public enum TerminationType {
-	GRACEFUL, FORCEFUL
+	graceful, forceful
 }

@@ -26,17 +26,17 @@ public class TerminateVnfRequest {
 	private String vnfInstanceId;
 	
 	@JsonProperty("terminationType")
-	private TerminationType terminationType;
+	private String terminationType;
 
 	@JsonProperty("gracefulTerminationTimeout")
 	private Integer gracefulTerminationTimeout;
 
 	
-	public TerminationType getTerminationType() {
+	public String getTerminationType() {
 		return terminationType;
 	}
 
-	public void setTerminationType(TerminationType terminationType) {
+	public void setTerminationType(String terminationType) {
 		this.terminationType = terminationType;
 	}
 

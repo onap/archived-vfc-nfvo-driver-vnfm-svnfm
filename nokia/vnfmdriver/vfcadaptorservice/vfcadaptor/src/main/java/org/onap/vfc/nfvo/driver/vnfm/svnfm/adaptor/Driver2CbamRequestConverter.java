@@ -71,7 +71,8 @@ public class Driver2CbamRequestConverter {
 
 	public CBAMTerminateVnfRequest terminateReqConvert(TerminateVnfRequest driverRequest) {
 		CBAMTerminateVnfRequest request = new CBAMTerminateVnfRequest();
-		request.setTerminationType(driverRequest.getTerminationType());
+//		request.setTerminationType(driverRequest.getTerminationType().toUpperCase());
+		request.setTerminationType("GRACEFUL");
 		request.setGracefulTerminationTimeout(driverRequest.getGracefulTerminationTimeout());
 		return request;
 	}
