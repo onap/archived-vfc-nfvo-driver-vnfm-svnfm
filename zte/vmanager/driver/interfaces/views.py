@@ -530,7 +530,14 @@ def heal(request, *args, **kwargs):
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
-        data = request.data
+        data = {}
+        data['action'] = ignorcase_get(request.data, 'action')
+        affectedvm = ignorcase_get(request.data, 'affectedvm')
+        data['affectedvm'] = []
+        if isinstance(affectedvm, list):
+            data['affectedvm'] = affectedvm
+        else:
+            data['affectedvm'].append(affectedvm)
         data['lifecycleoperation'] = 'operate'
         data['isgrace'] = 'force'
 
