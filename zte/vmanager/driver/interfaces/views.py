@@ -406,7 +406,13 @@ def notify(request, *args, **kwargs):
         data["affectedVirtualStorage"] = []
         data["affectedCp"] = []
 
-        affectedvnfcs = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvnfc")
+        extension = ignorcase_get(request.data, "extension")
+        openo_notification = ignorcase_get(extension, "openo_notification")
+        if openo_notification:
+            affectedvnfcs = ignorcase_get(openo_notification, "affectedVnfc")
+        else:
+            affectedvnfcs = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvnfc")
+
         affectedvls = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvl")
         affectedcps = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedcp")
         vnfdmodule = ignorcase_get(ignorcase_get(request.data, "extension"), "vnfdmodule")
@@ -415,12 +421,12 @@ def notify(request, *args, **kwargs):
 
         for affectedvnfc in affectedvnfcs:
             data["affectedVnfc"].append({
-                "vnfcInstanceId": ignorcase_get(affectedvnfc, "vnfcinstanceid"),
+                "vnfcInstanceId": ignorcase_get(affectedvnfc, "vnfcInstanceId"),
                 "vduId": ignorcase_get(affectedvnfc, "vduId"),
                 "changeType": ignorcase_get(affectedvnfc, "changeType"),
-                "vimid": ignorcase_get(ignorcase_get(affectedvnfc, "computeresource"), "vimid"),
-                "vmId": ignorcase_get(ignorcase_get(affectedvnfc, "computeresource"), "resourceid"),
-                "vmName": ignorcase_get(ignorcase_get(affectedvnfc, "computeresource"), "resourcename")
+                "vimid": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "vimId"),
+                "vmId": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "resourceId"),
+                "vmName": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "resourceName")
             })
 
         for affectedvl in affectedvls:
@@ -448,6 +454,7 @@ def notify(request, *args, **kwargs):
             return Response(data={'error': ret[1]}, status=ret[2])
     except Exception as e:
         logger.error("Error occurred in LCM notification.")
+        logger.error(traceback.format_exc())
         raise e
     return Response(data=None, status=ret[2])
 
