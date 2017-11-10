@@ -530,7 +530,14 @@ def heal(request, *args, **kwargs):
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
-        data = request.data
+        data = {}
+        data['action'] = ignorcase_get(request.data, 'action')
+        affectedvm = ignorcase_get(request.data, 'affectedvm')
+        data['affectedvm'] = []
+        if isinstance(affectedvm, list):
+            data['affectedvm'] = affectedvm
+        else:
+            data['affectedvm'].append(affectedvm)
         data['lifecycleoperation'] = 'operate'
         data['isgrace'] = 'force'
 
@@ -541,7 +548,7 @@ def heal(request, *args, **kwargs):
             passwd=ignorcase_get(vnfm_info, "password"),
             auth_type=restcall.rest_no_auth,
             resource=nf_healing_url.format(vnfInstanceID=nf_instance_id),
-            method='put',  # POST
+            method='post',
             content=json.JSONEncoder().encode(data))
         logger.info("ret=%s", ret)
         if ret[0] != 0:
