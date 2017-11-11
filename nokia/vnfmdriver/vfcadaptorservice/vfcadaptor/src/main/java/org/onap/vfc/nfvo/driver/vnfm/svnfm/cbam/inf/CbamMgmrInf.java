@@ -17,6 +17,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
@@ -33,6 +34,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfcResourceInfo;
 
 public interface CbamMgmrInf {
 
@@ -59,5 +61,7 @@ public interface CbamMgmrInf {
 	public CBAMQueryOperExecutionResponse queryOperExecution(String execId) throws ClientProtocolException, IOException;
 
 	public void uploadVnfPackage(String cbamPackageName) throws ClientProtocolException, IOException;
+	
+	public List<VnfcResourceInfo> queryVnfcResource(String vnfInstanceId) throws ClientProtocolException, IOException;
 
 }

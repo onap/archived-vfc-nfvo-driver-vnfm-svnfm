@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.Logger;
@@ -40,6 +41,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfcResourceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
@@ -50,6 +52,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
 @Component
@@ -232,6 +235,25 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		}
 		
 		CBAMQueryVnfResponse response = gson.fromJson(responseStr, CBAMQueryVnfResponse.class);
+		
+		return response;
+	}
+	
+	public List<VnfcResourceInfo> queryVnfcResource(String vnfInstanceId) throws ClientProtocolException, IOException {
+		String httpPath = String.format(CommonConstants.CbamQueryVnfcResourcePath, vnfInstanceId);
+		RequestMethod method = RequestMethod.GET;
+		
+		HttpResult httpResult = operateCbamHttpTask(null, httpPath, method);
+		String responseStr = httpResult.getContent();
+		
+		logger.info("CbamMgmrImpl -> queryVnfcResource, responseStr is " + responseStr);
+		int code = httpResult.getStatusCode();
+		if(code == 200) {
+			logger.info("CbamMgmrImpl -> queryVnfcResource success.");
+		}else {
+			logger.error("CbamMgmrImpl -> queryVnfcResource error. " );
+		}
+		List<VnfcResourceInfo> response = gson.fromJson(responseStr, new TypeToken<List<VnfcResourceInfo>>(){}.getType());;
 		
 		return response;
 	}

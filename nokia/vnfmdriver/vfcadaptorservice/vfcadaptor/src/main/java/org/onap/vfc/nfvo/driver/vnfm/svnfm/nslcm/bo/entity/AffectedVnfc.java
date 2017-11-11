@@ -22,35 +22,57 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class AffectedVnfc {
 	@JsonProperty("vnfcInstanceId")
 	private String vnfcInstanceId;
+	
 	@JsonProperty("vduId")
 	private String vduId;
+	
 	@JsonProperty("changeType")
-	private CommonEnum.AffectchangeType   changeType;
-	@JsonProperty("storageResource")
-	private ResourceHandle storageResource;
+	private CommonEnum.AffectchangeType changeType;
+	
+	@JsonProperty("vimid")
+	private String vimid;
+	
+	@JsonProperty("vmid")
+	private String vmid;
+
 	public String getVnfcInstanceId() {
 		return vnfcInstanceId;
 	}
+
 	public void setVnfcInstanceId(String vnfcInstanceId) {
 		this.vnfcInstanceId = vnfcInstanceId;
 	}
+
 	public String getVduId() {
 		return vduId;
 	}
+
 	public void setVduId(String vduId) {
 		this.vduId = vduId;
 	}
+
 	public CommonEnum.AffectchangeType getChangeType() {
 		return changeType;
 	}
+
 	public void setChangeType(CommonEnum.AffectchangeType changeType) {
 		this.changeType = changeType;
 	}
-	public ResourceHandle getStorageResource() {
-		return storageResource;
+
+	public String getVimid() {
+		return vimid;
 	}
-	public void setStorageResource(ResourceHandle storageResource) {
-		this.storageResource = storageResource;
+
+	public void setVimid(String vimid) {
+		this.vimid = vimid;
+	}
+
+	public String getVmid() {
+		return vmid;
+	}
+
+	public void setVmid(String vmid) {
+		this.vmid = vmid;
 	}
 	
 	

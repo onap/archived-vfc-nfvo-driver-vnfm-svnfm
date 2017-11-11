@@ -28,13 +28,15 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryOperExecutionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution.OperationType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
@@ -112,6 +114,9 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			Long jobId = saveCreateVnfJob(vnfInstanceId);
 			driverResponse = responseConverter.createRspConvert(cbamResponse, jobId);
 			
+			//start the timer
+			OperateTaskProgress.startInstantiateTimerTask();
+			
 			vnfContinueProcessorInf.continueInstantiateVnf(vnfmId, driverRequest, vnfInstanceId, jobId.toString(), nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager);
 			
 		} catch (Exception e) {
@@ -139,6 +144,9 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 			buildVnfmHttpPathById(vnfmId);
 			driverResponse = generateTerminateVnfResponse(vnfInstanceId);
 			String jobId = driverResponse.getJobId();
+			
+			//start the timer
+			OperateTaskProgress.startTerminateTimerTask();
 			vnfContinueProcessorInf.continueTerminateVnf(vnfmId, driverRequest, vnfInstanceId, jobId, nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
 			
 		} catch (Exception e) {
@@ -179,21 +187,44 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 
 	public OperStatusVnfResponse getOperStatus(String vnfmId, String jobId)  throws VnfmDriverException {
 		
-		CBAMQueryOperExecutionResponse cbamResponse;
+		OperationExecution cbamResponse = null;
 		
 		try {
 			buildVnfmHttpPathById(vnfmId);
 			
 			VnfmJobExecutionInfo jobInfo = jobDbManager.findOne(Long.parseLong(jobId));
-			String execId = jobInfo.getVnfmExecutionId();
-			logger.info(" VnfmDriverMgmrImpl --> getOperStatus execId is " + execId);
-			cbamResponse = cbamMgmr.queryOperExecution(execId);
+			cbamResponse = new OperationExecution();
+			
+			if("Instantiate".equalsIgnoreCase(jobInfo.getVnfmInterfceName())) {
+				cbamResponse.setOperationType(OperationType.INSTANTIATE);
+			}
+			else
+			{
+				cbamResponse.setOperationType(OperationType.TERMINATE);
+			}
+			
+			if(jobInfo.getStatus().equalsIgnoreCase(CommonConstants.CBAM_OPERATION_STATUS_FINISH))
+			{
+				cbamResponse.setStatus(CommonEnum.OperationStatus.FINISHED);
+			} else if(jobInfo.getStatus().equalsIgnoreCase(CommonConstants.CBAM_OPERATION_STATUS_ERROR))
+			{
+				cbamResponse.setStatus(CommonEnum.OperationStatus.FINISHED);
+			}
+			else
+			{
+				cbamResponse.setStatus(CommonEnum.OperationStatus.OTHER);
+//				String execId = jobInfo.getVnfmExecutionId();
+//				logger.info(" VnfmDriverMgmrImpl --> getOperStatus execId is " + execId);
+//				cbamResponse = cbamMgmr.queryOperExecution(execId);
+			}
+			
 		} catch (Exception e) {
 			logger.error("error VnfmDriverMgmrImpl --> getOperStatus. ", e);
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
 		}
 		
 		OperStatusVnfResponse response = responseConverter.operRspConvert(cbamResponse);
+		response.setJobId(jobId);
 		
 		return response;
 	}
@@ -267,5 +298,5 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf{
 	public void setResponseConverter(Cbam2DriverResponseConverter responseConverter) {
 		this.responseConverter = responseConverter;
 	}
-
+	
 }

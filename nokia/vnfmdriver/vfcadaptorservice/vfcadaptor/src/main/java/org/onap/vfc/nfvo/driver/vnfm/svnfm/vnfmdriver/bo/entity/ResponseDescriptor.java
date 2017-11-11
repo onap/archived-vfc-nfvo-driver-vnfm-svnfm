@@ -38,8 +38,8 @@ public class ResponseDescriptor {
 	@JsonProperty("responseId")
 	private String responseId;
 	
-	@JsonProperty("responseHistoryList")
-	private List<ResponseHistoryList> responseHistoryList;
+//	@JsonProperty("responseHistoryList")
+//	private List<ResponseHistoryList> responseHistoryList;
 
 	public String getStatus() {
 		return status;
@@ -81,20 +81,4 @@ public class ResponseDescriptor {
 	public void setResponseId(String responseId) {
 		this.responseId = responseId;
 	}
-
-	public List<ResponseHistoryList> getResponseHistoryList() {
-		return responseHistoryList;
-	}
-
-	public void setResponseHistoryList(List<ResponseHistoryList> responseHistoryList) {
-		this.responseHistoryList = responseHistoryList;
-	}
-
-	
-
-	
-	
-	
-	
-	
 }

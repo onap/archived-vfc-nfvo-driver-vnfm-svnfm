@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
@@ -31,6 +32,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AddResource;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.ResourceDefinition;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
@@ -81,9 +83,38 @@ public class TerminateVnfContinueRunnable implements Runnable {
 	
 	private void handleDelete() {
 		try {
+			boolean vnfAllowDelete = false;
+			int i = 0;
+			while(!vnfAllowDelete) {
+				CBAMQueryVnfResponse queryResponse = cbamMgmr.queryVnf(vnfInstanceId);
+				if(CommonEnum.InstantiationState.NOT_INSTANTIATED == queryResponse.getInstantiationState())
+				{
+					vnfAllowDelete = true;
+					break;
+				}
+				i++;
+				logger.info(i + ": The vnf's current status is " + queryResponse.getInstantiationState().name() + " is not ready for deleting, please wait ... ");
+				Thread.sleep(30000);
+			}
+			prepareDelete(jobId);
 			cbamMgmr.deleteVnf(vnfInstanceId);
 		} catch (Exception e) {
 			logger.error("TerminateVnfContinueRunnable --> handleDelete error.", e);
+		}
+	}
+	
+	private void prepareDelete(String jobId) {
+		OperateTaskProgress.stopTerminateTimerTask();
+		
+		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.parseLong(jobId));
+		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_FINISH);
+		jobDbMgmr.save(jobInfo);
+		
+		try {
+			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest();
+			nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
+		} catch (Exception e) {
+			logger.error("TerminateVnfContinueRunnable --> handleNotify error.", e);
 		}
 	}
 
@@ -97,14 +128,6 @@ public class TerminateVnfContinueRunnable implements Runnable {
 			logger.error("TerminateVnfContinueRunnable --> handleTerminate error.", e);
 		}
 		
-		try {
-			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(cbamResponse);
-			nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
-		} catch (Exception e) {
-			logger.error("TerminateVnfContinueRunnable --> handleNotify error.", e);
-		}
-		
-		
 		return cbamResponse;
 	}
 
@@ -116,7 +139,7 @@ public class TerminateVnfContinueRunnable implements Runnable {
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_ERROR);
 		}
 		else {
-			jobInfo.setStatus(cbamResponse.getStatus().toString());
+			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_PROCESSING);
 		}
 		jobDbMgmr.save(jobInfo);
 	}
@@ -150,31 +173,33 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		return def;
 	}
 
-	private NslcmNotifyLCMEventsRequest buildNslcmNotifyLCMEventsRequest(CBAMTerminateVnfResponse cbamResponse) {
+	private NslcmNotifyLCMEventsRequest buildNslcmNotifyLCMEventsRequest() {
 		NslcmNotifyLCMEventsRequest request = new NslcmNotifyLCMEventsRequest();
-		if(CommonEnum.OperationStatus.STARTED == cbamResponse.getStatus())
-		{
-			request.setStatus(CommonEnum.status.start);
-		}
-		else
-		{
-			request.setStatus(CommonEnum.status.result);
-			
-			//TODO the following are for the result
-//			request.setAffectedVnfc(affectedVnfc);
-//			request.setAffectedVI(affectedVI);
-//			request.setAffectedVirtualStorage(affectedVirtualStorage);
-		}
+		request.setStatus(CommonEnum.status.result);
 		
+		List<AffectedVnfc> vnfcs = modifyResourceTypeAsRemove(OperateTaskProgress.getAffectedVnfc());
+		
+		request.setAffectedVnfc(vnfcs);
 		request.setVnfInstanceId(vnfInstanceId);
 		request.setOperation(CommonConstants.NSLCM_OPERATION_TERMINATE);
 		request.setJobId(jobId);
 		return request;
 	}
 
+	private List<AffectedVnfc> modifyResourceTypeAsRemove(List<AffectedVnfc> affectedVnfc) {
+		List<AffectedVnfc> vnfcs = affectedVnfc;
+		if(vnfcs != null && !vnfcs.isEmpty()) {
+			for(AffectedVnfc vnfc : vnfcs)
+			{
+				vnfc.setChangeType(CommonEnum.AffectchangeType.removed);
+			}
+		}
+		
+		return vnfcs;
+	}
+
 	private void handleNslcmGrantResponse(NslcmGrantVnfResponse grantResponse) {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

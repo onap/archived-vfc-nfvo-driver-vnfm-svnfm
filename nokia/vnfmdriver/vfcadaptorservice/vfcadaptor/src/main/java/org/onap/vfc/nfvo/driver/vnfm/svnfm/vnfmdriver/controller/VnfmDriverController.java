@@ -73,7 +73,7 @@ public class VnfmDriverController {
 		
 		InstantiateVnfResponse response = vnfmDriverMgmr.instantiateVnf(request, vnfmId);
 		
-		logger.info("InstantiateVnfResponse is " + gson.toJson(response));
+		logger.info("VnfmDriverController --> instantiateVnf response is " + gson.toJson(response));
 		
 		httpResponse.setStatus(HttpStatus.SC_CREATED);
 		
@@ -90,6 +90,8 @@ public class VnfmDriverController {
 		try {
 			TerminateVnfResponse response = vnfmDriverMgmr.terminateVnf(request, vnfmId, vnfInstanceId);
 			httpResponse.setStatus(HttpStatus.SC_CREATED);
+			
+			logger.info("VnfmDriverController --> terminateVnf response is " + gson.toJson(response));
 			return response;
 		}
 		catch(VnfmDriverException e)
@@ -110,6 +112,7 @@ public class VnfmDriverController {
 		try {
 			QueryVnfResponse response = vnfmDriverMgmr.queryVnf(vnfmId, vnfInstanceId);
 			httpResponse.setStatus(HttpStatus.SC_CREATED);
+			logger.info("VnfmDriverController --> queryVnf response is " + gson.toJson(response));
 			return response;
 		}
 		catch(VnfmDriverException e)
@@ -128,6 +131,8 @@ public class VnfmDriverController {
 		try {
 			OperStatusVnfResponse response = vnfmDriverMgmr.getOperStatus(vnfmId, jobId);
 			httpResponse.setStatus(HttpStatus.SC_CREATED);
+			
+			logger.info("VnfmDriverController --> getOperStatus response is " + gson.toJson(response));
 			return response;
 		}
 		catch(VnfmDriverException e)
@@ -149,6 +154,7 @@ public class VnfmDriverController {
 		try {
 			ScaleVnfResponse response = vnfmDriverMgmr.scaleVnf(request, vnfmId, vnfInstanceId);
 			httpResponse.setStatus(HttpStatus.SC_CREATED);
+			logger.info("VnfmDriverController --> scaleVnf response is " + gson.toJson(response));
 			return response;
 		}
 		catch(VnfmDriverException e)
@@ -170,6 +176,7 @@ public class VnfmDriverController {
 		try {
 			HealVnfResponse response = vnfmDriverMgmr.healVnf(request, vnfmId, vnfInstanceId);
 			httpResponse.setStatus(HttpStatus.SC_CREATED);
+			logger.info("VnfmDriverController --> healVnf response is " + gson.toJson(response));
 			return response;
 		}
 		catch(VnfmDriverException e)
@@ -189,6 +196,4 @@ public class VnfmDriverController {
 			logger.error("VnfmDriverController --> processControllerException error to sendError ", e1);
 		}
 	}
-
-
 }

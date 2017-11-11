@@ -24,6 +24,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution.OperationType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
@@ -85,44 +86,49 @@ public class Cbam2DriverResponseConverter {
 
 		OperStatusVnfResponse response = new OperStatusVnfResponse();
 
-		response.setJobId(oper.getId());
 		ResponseDescriptor er = new ResponseDescriptor();
-		er.setProgress("1");
-		response.setProgress("1");
-		
 		if (oper.getStatus() == CommonEnum.OperationStatus.STARTED ) {
+			er.setStatusDescription("Vim is processing");
 			er.setStatus("started");
-			response.setStatus("started");
+			int progress;
+			if(OperationType.INSTANTIATE == oper.getOperationType())
+			{
+				progress = OperateTaskProgress.getInstantiateProgress();
+			} else {
+				progress = OperateTaskProgress.getTerminateProgress();
+			}
+			
+			er.setProgress("" + progress);
+			er.setResponseId("" +  + progress);
 		} else if (oper.getStatus() == CommonEnum.OperationStatus.FINISHED) {
 			er.setStatus("finished");
-			response.setStatus("finished");
-		} else if (oper.getStatus() == CommonEnum.OperationStatus.FAILED) {
-			er.setStatus("error");
-			response.setStatus("error");
-		} else if (oper.getStatus() == CommonEnum.OperationStatus.OTHER) {
+			er.setProgress("100");
+			er.setResponseId("100");
+			
+		}  else if (oper.getStatus() == CommonEnum.OperationStatus.OTHER) {
 			er.setStatus("processing");
-			response.setStatus("processing");
+			er.setStatusDescription("Vim is processing");
+			
+			int progress;
+			if(OperationType.INSTANTIATE == oper.getOperationType())
+			{
+				progress = OperateTaskProgress.getInstantiateProgress();
+			} else {
+				progress = OperateTaskProgress.getTerminateProgress();
+			}
+			
+			er.setProgress("" + progress);
+			er.setResponseId("" +  + progress);
+			
 		} else {
-			er.setStatus("error");
-			response.setStatus("error");
+			er.setStatus("error"); 
+			er.setStatus("finished");
+			er.setProgress("100");
+			er.setResponseId("100");
 		}
-		er.setStatusDescription(er.getStatus());
-		er.setErrorCode("1");
-		er.setResponseId("1");
 		
-		response.setStatusDescription(er.getStatus());
-		response.setErrorCode("1");
-		response.setResponseId("1");
-		
-//		List<ResponseHistoryList> list = new ArrayList<ResponseHistoryList>();
-//		ResponseHistoryList relist = new ResponseHistoryList();
-//		// TODO relist.setProgress(i);
-//		relist.setStatus(er.getStatus());
-//		relist.setStatusDescription("");
-//		relist.setErrorCode(null);
-//		relist.setResponseId(er.getResponseId());
-//		list.add(relist);
-//		er.setResponseHistoryList(list);
+		er.setErrorCode("null");
+
 		response.setResponseDescriptor(er);
 		return response;
 	}

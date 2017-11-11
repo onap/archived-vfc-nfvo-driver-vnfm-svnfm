@@ -53,6 +53,7 @@ public class CommonConstants {
 	public static final String CbamGetOperStatusPath="/vnfm/lcm/v3/operation_executions/%s";
 	public static final String CbamScaleVnfPath = "/vnfm/lcm/v3/vnfs/%s/scale";
 	public static final String CbamHealVnfPath="/vnfm/lcm/v3/vnfs/%s/heal";
+	public static final String CbamQueryVnfcResourcePath="/vnfm/lcm/v3/vnfs/%s/vnfc_resource_info";
 	
 	public static final String CbamUploadVnfPackagePath="/api/catalog/adapter/vnfpackages";
 	
@@ -64,7 +65,8 @@ public class CommonConstants {
 	public static final String NSLCM_OPERATION_SCALE_UP = "Scaleup";
 	public static final String NSLCM_OPERATION_SCALE_DOWN = "Scaledown";
 	
-	public static final String CBAM_OPERATION_STATUS_START = "start";
+	public static final String CBAM_OPERATION_STATUS_START = "started";
+	public static final String CBAM_OPERATION_STATUS_PROCESSING = "processing";
 	public static final String CBAM_OPERATION_STATUS_FINISH = "finished";
 	public static final String CBAM_OPERATION_STATUS_ERROR = "error";
 	

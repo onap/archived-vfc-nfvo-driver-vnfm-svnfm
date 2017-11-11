@@ -26,6 +26,9 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMModifyVnfRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryOperExecutionResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfcResourceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util.CommonUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
@@ -37,6 +40,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorImpl;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AddResource;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.ResourceDefinition;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
@@ -88,21 +92,53 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 			//step 5: instantiate vnf
 			CBAMInstantiateVnfResponse cbamInstantiateResponse = handleInstantiate();
 			
-			handleNotify(cbamInstantiateResponse);
+			handleNotify(cbamInstantiateResponse.getId());
 		} catch (Exception e) {
 			logger.error("InstantiateVnfContinueRunnable --> handleInstantiate or handleNotify error.", e);
 		}
 	}
 
-	private void handleNotify(CBAMInstantiateVnfResponse cbamInstantiateResponse) {
-		try {
-			logger.info("Start to notify LCM the instantiation result");
-			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(cbamInstantiateResponse);
-			nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
-			logger.info("End to notify LCM the instantiation result");
-		} catch (Exception e) {
-			logger.error("InstantiateVnfContinueRunnable --> handleNotify error.", e);
-		}
+	private void handleNotify(String execId) {
+		boolean instantiateFinished = false;
+		
+		do {
+			try {
+				logger.info(" InstantiateVnfContinueRunnable --> handleNotify execId is " + execId);
+				CBAMQueryOperExecutionResponse exeResponse = cbamMgmr.queryOperExecution(execId);
+				if (exeResponse.getStatus() == CommonEnum.OperationStatus.FINISHED || exeResponse.getStatus() == CommonEnum.OperationStatus.FAILED)
+				{
+					instantiateFinished = true;
+					handleCbamInstantiateResponse(exeResponse, jobId);
+					OperateTaskProgress.stopInstantiateTimerTask();
+					if (exeResponse.getStatus() == CommonEnum.OperationStatus.FINISHED)
+					{
+						
+						logger.info("Start to get vnfc resource");
+						List<VnfcResourceInfo> vnfcResources = cbamMgmr.queryVnfcResource(execId);
+						logger.info("vnfc resource for execId " + execId + " is: " + gson.toJson(vnfcResources));
+						logger.info("End to get vnfc resource");
+						
+						if(vnfcResources != null && !vnfcResources.isEmpty())
+						{
+							logger.info("Start to notify LCM the instantiation result");
+							NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(vnfcResources);
+							
+							OperateTaskProgress.setAffectedVnfc(nslcmNotifyReq.getAffectedVnfc());
+							
+							nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
+							logger.info("End to notify LCM the instantiation result");
+						}
+					}
+				}
+				else {
+					Thread.sleep(60000);
+				}
+				
+			} catch (Exception e) {
+				logger.error("InstantiateVnfContinueRunnable --> handleNotify error.", e);
+			}
+		} while(!instantiateFinished);
+		
 	}
 
 	private CBAMInstantiateVnfResponse handleInstantiate() throws Exception {
@@ -167,26 +203,34 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		});
 	}
 	
-	private NslcmNotifyLCMEventsRequest buildNslcmNotifyLCMEventsRequest(CBAMInstantiateVnfResponse cbamInstantiateResponse) {
+	private NslcmNotifyLCMEventsRequest buildNslcmNotifyLCMEventsRequest(List<VnfcResourceInfo> vnfcResources) {
 		NslcmNotifyLCMEventsRequest request = new NslcmNotifyLCMEventsRequest();
-		if(CommonEnum.OperationStatus.STARTED == cbamInstantiateResponse.getStatus())
-		{
-			request.setStatus(CommonEnum.status.start);
-		}
-		else
-		{
-			request.setStatus(CommonEnum.status.result);
-			
-			//TODO the following are for the result
-//			request.setAffectedVnfc(affectedVnfc);
-//			request.setAffectedVI(affectedVI);
-//			request.setAffectedVirtualStorage(affectedVirtualStorage);
-		}
-		
+	    request.setStatus(CommonEnum.status.result);
 		request.setVnfInstanceId(vnfInstanceId);
 		request.setOperation(CommonConstants.NSLCM_OPERATION_INSTANTIATE);
 		request.setJobId(jobId);
+		
+		List<AffectedVnfc> affectedVnfcs = convertVnfcResourceToAffectecVnfc(vnfcResources);
+		request.setAffectedVnfc(affectedVnfcs);
 		return request;
+	}
+
+	private List<AffectedVnfc> convertVnfcResourceToAffectecVnfc(List<VnfcResourceInfo> vnfcResources) {
+		List<AffectedVnfc> vnfcs = new ArrayList<>();
+		for(VnfcResourceInfo resource : vnfcResources)
+		{
+			if(resource.getComputeResource() != null && "OS::Nova::Server".equalsIgnoreCase(resource.getComputeResource().getResourceType()))
+			{
+				AffectedVnfc vnfc = new AffectedVnfc();
+				vnfc.setVnfcInstanceId(resource.getId());
+				vnfc.setVduId(resource.getVduId());
+				vnfc.setVimid(resource.getComputeResource().getVimId());
+				vnfc.setVmid(resource.getComputeResource().getResourceId());
+				
+				vnfcs.add(vnfc);
+			}
+		}
+		return vnfcs;
 	}
 
 	private NslcmGrantVnfRequest buildNslcmGrantVnfRequest() {
@@ -218,13 +262,21 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		return def;
 	}
 
-	private void handleCbamInstantiateResponse(CBAMInstantiateVnfResponse cbamInstantiateResponse, String jobId) {
+	private void handleCbamInstantiateResponse(OperationExecution cbamInstantiateResponse, String jobId) {
 		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.parseLong(jobId));
 		
 		jobInfo.setVnfmExecutionId(cbamInstantiateResponse.getId());
 		if(CommonEnum.OperationStatus.FAILED == cbamInstantiateResponse.getStatus()){
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_ERROR);
+		} else if(CommonEnum.OperationStatus.OTHER == cbamInstantiateResponse.getStatus()){
+			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_PROCESSING);
+		} else if(CommonEnum.OperationStatus.FINISHED == cbamInstantiateResponse.getStatus()){
+			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_FINISH);
 		}
+		else{
+			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_START);
+		}
+			
 		jobDbMgmr.save(jobInfo);
 	}
 

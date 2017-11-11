@@ -31,10 +31,15 @@ public final class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 	
 	public static String getJsonStrFromFile(String filePath) throws IOException {
+        String fileName = getAppRoot() + filePath;
+        String fileContent = getJsonStrFromFilePath(fileName);
+		return fileContent;
+	}
+
+	public static String getJsonStrFromFilePath(String fileName) throws IOException {
 		InputStream ins = null;
         BufferedInputStream bins = null;
         String fileContent = "";
-        String fileName = getAppRoot() + filePath;
 
         try {
             ins = new FileInputStream(fileName);

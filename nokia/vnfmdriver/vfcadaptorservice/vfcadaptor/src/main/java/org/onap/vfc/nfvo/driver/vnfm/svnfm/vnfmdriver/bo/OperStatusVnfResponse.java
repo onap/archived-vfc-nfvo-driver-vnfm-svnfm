@@ -24,22 +24,7 @@ public class OperStatusVnfResponse {
 	@JsonProperty("jobId")
 	private String jobId;
 	
-	@JsonProperty("status")
-	private String status;
-	
-	@JsonProperty("progress")
-	private String progress;
-	
-	@JsonProperty("statusDescription")
-	private String  statusDescription;
-	
-	@JsonProperty("errorCode")
-	private String errorCode;
-	
-	@JsonProperty("responseId")
-	private String responseId;
-	
-	@JsonProperty("responseDescriptor")//Including:vnfStatus��statusDescription��errorCode��progress��responseHistoryList��responseId
+	@JsonProperty("responsedescriptor")//Including:vnfStatus��statusDescription��errorCode��progress��responseHistoryList��responseId
 	private ResponseDescriptor  responseDescriptor;
 
 	public String getJobId() {
@@ -56,46 +41,6 @@ public class OperStatusVnfResponse {
 
 	public void setResponseDescriptor(ResponseDescriptor responseDescriptor) {
 		this.responseDescriptor = responseDescriptor;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getProgress() {
-		return progress;
-	}
-
-	public void setProgress(String progress) {
-		this.progress = progress;
-	}
-
-	public String getStatusDescription() {
-		return statusDescription;
-	}
-
-	public void setStatusDescription(String statusDescription) {
-		this.statusDescription = statusDescription;
-	}
-
-	public String getErrorCode() {
-		return errorCode;
-	}
-
-	public void setErrorCode(String errorCode) {
-		this.errorCode = errorCode;
-	}
-
-	public String getResponseId() {
-		return responseId;
-	}
-
-	public void setResponseId(String responseId) {
-		this.responseId = responseId;
 	}
 	
 }
