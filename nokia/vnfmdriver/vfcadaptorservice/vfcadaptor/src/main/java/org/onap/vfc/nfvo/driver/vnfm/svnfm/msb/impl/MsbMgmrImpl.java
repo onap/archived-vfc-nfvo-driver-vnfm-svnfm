@@ -57,6 +57,8 @@ public class MsbMgmrImpl implements IMsbMgmr {
 			map.put(CommonConstants.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
 			String bodyPostStr = readVfcAdaptorInfoFromJsonFile();
+			
+			logger.info("MSB register content is: " + bodyPostStr);
 
 			HttpResult httpResult = httpClientProcessor.process(url, RequestMethod.POST, map, bodyPostStr);
 			String responseStr = httpResult.getContent();

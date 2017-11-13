@@ -195,6 +195,10 @@ public class TerminateVnfContinueRunnable implements Runnable {
 			}
 		}
 		
+		if(vnfcs == null) {
+			vnfcs = new ArrayList<>();
+		}
+		
 		return vnfcs;
 	}
 

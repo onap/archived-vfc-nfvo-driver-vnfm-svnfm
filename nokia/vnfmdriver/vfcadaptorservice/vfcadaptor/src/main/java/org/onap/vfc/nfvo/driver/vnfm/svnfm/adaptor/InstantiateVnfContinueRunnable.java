@@ -114,20 +114,28 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 					{
 						
 						logger.info("Start to get vnfc resource");
-						List<VnfcResourceInfo> vnfcResources = cbamMgmr.queryVnfcResource(execId);
-						logger.info("vnfc resource for execId " + execId + " is: " + gson.toJson(vnfcResources));
+						List<VnfcResourceInfo> vnfcResources = new ArrayList<>();
+								
+						try {
+							vnfcResources = cbamMgmr.queryVnfcResource(vnfInstanceId);
+						} catch (Exception e) {
+							logger.error("Error to queryVnfcResource.", e);
+						}
+						
+						logger.info("vnfc resource for vnfInstanceId " + vnfInstanceId + " is: " + gson.toJson(vnfcResources));
 						logger.info("End to get vnfc resource");
 						
-						if(vnfcResources != null && !vnfcResources.isEmpty())
+						if(vnfcResources == null)
 						{
-							logger.info("Start to notify LCM the instantiation result");
-							NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(vnfcResources);
-							
-							OperateTaskProgress.setAffectedVnfc(nslcmNotifyReq.getAffectedVnfc());
-							
-							nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
-							logger.info("End to notify LCM the instantiation result");
+							vnfcResources = new ArrayList<>();
 						}
+						logger.info("Start to notify LCM the instantiation result");
+						NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(vnfcResources);
+						
+						OperateTaskProgress.setAffectedVnfc(nslcmNotifyReq.getAffectedVnfc());
+						
+						nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
+						logger.info("End to notify LCM the instantiation result");
 					}
 				}
 				else {
@@ -268,6 +276,7 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		jobInfo.setVnfmExecutionId(cbamInstantiateResponse.getId());
 		if(CommonEnum.OperationStatus.FAILED == cbamInstantiateResponse.getStatus()){
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_ERROR);
+//			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_FINISH);
 		} else if(CommonEnum.OperationStatus.OTHER == cbamInstantiateResponse.getStatus()){
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_PROCESSING);
 		} else if(CommonEnum.OperationStatus.FINISHED == cbamInstantiateResponse.getStatus()){
