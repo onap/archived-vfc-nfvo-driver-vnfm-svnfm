@@ -16,6 +16,8 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
@@ -26,11 +28,15 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VnfmRestfulUtil;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfResourceMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 /**
@@ -96,11 +102,57 @@ public class VnfResourceRoa {
 
     @PUT
     @Path("/lifecycle_changes_notification")
-    public String notify(@Context HttpServletRequest context) {
+    public String notify(@Context HttpServletRequest context) throws IOException {
         LOG.info("function=notify, msg=enter to notify vnf resource");
+        JSONObject dataObject = VnfmJsonUtil.getJsonFromContexts(context);
+        LOG.info("function=notify, dataObject: {}", dataObject);
+        callLcmNotify(dataObject);
         JSONObject restJson = new JSONObject();
         restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
-
         return restJson.toString();
+    }
+
+    private void callLcmNotify(JSONObject dataObject) throws IOException {
+        String vnfPkgInfo = AdapterResourceManager.readVfnPkgInfoFromJson();
+        JSONObject vnfpkgJson = JSONObject.fromObject(vnfPkgInfo);
+        String vnfmId = vnfpkgJson.getString("vnfmid");
+        String vimId = vnfpkgJson.getString("vimid");
+        JSONArray affectedVnfc = new JSONArray();
+        JSONArray vmList = dataObject.getJSONArray("vm_list");
+        String changeType = "";
+        String operation = "";
+        if(1 == dataObject.getInt("event_type")) {
+            changeType = "added";
+            operation = "Instantiate";
+        } else {
+            changeType = "removed";
+            operation = "Terminal";
+        }
+        String vnfcInstanceId = dataObject.getString("vnf_id");
+        for(int i = 0; i < vmList.size(); i++) {
+            JSONObject vm = vmList.getJSONObject(i);
+            LOG.info("function=callLcmNotify, vm: {}", vm);
+            JSONObject affectedVm = new JSONObject();
+            affectedVm.put("vnfcInstanceId", vnfcInstanceId);
+            affectedVm.put("changeType", changeType);
+            affectedVm.put("vimid", vimId);
+            affectedVm.put("vmid", vm.getString("vm_id"));
+            affectedVm.put("vmname", vm.getString("vm_name"));
+            LOG.info("function=callLcmNotify, affectedVm: {}", affectedVm);
+            affectedVnfc.add(affectedVm);
+        }
+        JSONObject notification = new JSONObject();
+        notification.put("status", dataObject.getString("vnf_status"));
+        notification.put("vnfInstanceId", vnfcInstanceId);
+        notification.put("operation", operation);
+        notification.put("affectedVnfc", affectedVnfc);
+        LOG.info("function=callLcmNotify, notification: {}", notification);
+        String url = "/api/nslcm/v1/ns/" + vnfmId + "/vnfs/" + vnfcInstanceId + "/Notify";
+        LOG.info("function=callLcmNotify, url: {}", url);
+        RestfulResponse rsp =
+                VnfmRestfulUtil.getRemoteResponse(url, VnfmRestfulUtil.TYPE_POST, notification.toString());
+        if(rsp != null) {
+            LOG.info("function=callLcmNotify, status: {}, content: {}", rsp.getStatus(), rsp.getResponseContent());
+        }
     }
 }

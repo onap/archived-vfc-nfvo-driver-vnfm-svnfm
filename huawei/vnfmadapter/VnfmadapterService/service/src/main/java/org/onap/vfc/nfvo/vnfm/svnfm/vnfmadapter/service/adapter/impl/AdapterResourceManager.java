@@ -138,8 +138,8 @@ public class AdapterResourceManager implements IResourceManager {
         LOG.info("unzip CSAR successful.", unzipObject.get(Constant.RETCODE));
 
         // upload vnfd to ftps server
-        JSONObject uploadResJson = uploadCsar(csarTempObj, csarfilepath);
-        LOG.info("upload Csar result: {}.", uploadResJson);
+        // JSONObject uploadResJson = uploadCsar(csarTempObj, csarfilepath);
+        // LOG.info("upload Csar result: {}.", uploadResJson);
 
         Map<String, String> vnfmMap = new HashMap<>();
         vnfmMap.put("url", String.format(UrlConstant.REST_VNFMINFO_GET, vnfmid));
@@ -183,7 +183,7 @@ public class AdapterResourceManager implements IResourceManager {
         }
 
         // upload VNF package
-        csarTempObj.put("vim_id", vimId);
+        // csarTempObj.put("vim_id", vimId);
         vnfpkg.put("template", csarTempObj);
         LOG.info("vnfpkg: " + vnfpkg);
 

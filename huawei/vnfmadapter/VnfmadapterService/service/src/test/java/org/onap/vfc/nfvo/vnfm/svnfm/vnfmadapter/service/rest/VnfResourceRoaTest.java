@@ -18,6 +18,8 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
@@ -250,7 +252,7 @@ public class VnfResourceRoaTest {
     }
 
     @Test
-    public void testNotify() {
+    public void testNotify() throws IOException {
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
 
             @Mock
