@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -307,7 +306,7 @@ public class VnfRoa {
      * @throws ServiceException
      * @since VFC 1.0
      */
-    @PUT
+    @POST
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}/heal")
     public String healVnf(@Context HttpServletRequest context, @Context HttpServletResponse resp,
             @PathParam("vnfmId") String vnfmId, @PathParam("vnfInstanceId") String vnfInstanceId)
@@ -330,11 +329,12 @@ public class VnfRoa {
         }
 
         restJson.remove(Constant.RETCODE);
-        restJson.put("jobId", vnfInstanceId + "_put");
+        restJson.put("jobId", vnfInstanceId + "_post");
         return restJson.toString();
     }
 
     private String getJobBody(JSONObject restJson) {
+        LOG.warn("function=getJobBody, restJson: {}", restJson);
         JSONObject responseJson = new JSONObject();
         JSONObject jobInfoJson = new JSONObject();
         JSONObject retJson = restJson.getJSONArray("data").getJSONObject(0);
@@ -343,7 +343,14 @@ public class VnfRoa {
         responseJson.put("status", jobstatusItem.get(retJson.getString(Constant.STATUS)));
         responseJson.put("errorCode", "null");
         responseJson.put("responseId", progressItem.get(retJson.getString(Constant.STATUS)));
+        if(retJson.getString(Constant.STATUS) == null || retJson.getString(Constant.STATUS) == "null") {
+            responseJson.put("progress", "100");
+            responseJson.put("status", "finished");
+            responseJson.put("errorCode", "null");
+            responseJson.put("responseId", "100");
+        }
         jobInfoJson.put("responsedescriptor", responseJson);
+        LOG.warn("function=getJobBody, jobInfoJson: {}", jobInfoJson);
         return jobInfoJson.toString();
     }
 }
