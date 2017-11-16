@@ -250,7 +250,7 @@ public class VnfResourceRoaTest {
     }
 
     @Test
-    public void testNotify() {
+    public void testNotify() throws IOException {
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
 
             @Mock
