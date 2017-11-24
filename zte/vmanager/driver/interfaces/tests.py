@@ -27,59 +27,77 @@ class InterfacesTest(TestCase):
     def tearDown(self):
         pass
 
-    # @mock.patch.object(restcall, 'call_req_aai')
     @mock.patch.object(restcall, 'call_req')
     def test_instantiate_vnf_001(self, mock_call_req):
-        """
-        Initate_VNF
-        """
-        vnfm_info = {u'userName': u'admin',
-                     u'vendor': u'ZTE',
-                     u'name': u'ZTE_VNFM_237_62',
-                     u'vimId': u'516cee95-e8ca-4d26-9268-38e343c2e31e',
-                     u'url': u'http://192.168.237.165:2324',
-                     u'certificateUrl': u'',
-                     u'version': u'V1.0',
-                     u'vnfmId': u'b0797c9b-3da9-459c-b25c-3813e9d8fd70',
-                     u'password': u'admin',
-                     u'type': u'ztevmanagerdriver',
-                     u'createTime': u'2016-10-31 11:08:39',
-                     u'description': u''}
-        vnfd_info = {u'vnfInstanceInfo': [{u'vnfInstanceId': u'59b79a9f-9e37-4f6c-acaf-5f41d9cb3f76',
-                                           u'vnfInstanceName': u'VFW_59b79a9f-9e37-4f6c-acaf-5f41d9cb3f76'},
-                                          {u'vnfInstanceId': u'6c5e4bd3-e8a6-42d8-a7a4-53a8ef74c6ac',
-                                           u'vnfInstanceName': u'VFW_6c5e4bd3-e8a6-42d8-a7a4-53a8ef74c6ac'},
-                                          {u'vnfInstanceId': u'930de5c9-8043-41df-ace8-ede2262a3713',
-                                           u'vnfInstanceName': u'VFW_930de5c9-8043-41df-ace8-ede2262a3713'},
-                                          {u'vnfInstanceId': u'c677a305-a7bd-4baf-9eee-c383c588bb3c',
-                                           u'vnfInstanceName': u'VFW_c677a305-a7bd-4baf-9eee-c383c588bb3c'},
-                                          {u'vnfInstanceId': u'e708e5c5-bdf4-436a-b928-826887806d82',
-                                           u'vnfInstanceName': u'VFW_e708e5c5-bdf4-436a-b928-826887806d82'}],
-                     u'csarId': u'd852e1be-0aac-48f1-b1a4-cd825f6cdf9a',
-                     u'imageInfo': [
-                         {u'status': u'Enable', u'index': u'0',
-                          u'vimId': u'516cee95-e8ca-4d26-9268-38e343c2e31e',
-                          u'fileName': u'VFW_IMAGE_VCPE_ZTE',
-                          u'vimUser': u'admin',
-                          u'imageId': u'd2b73154-0414-466a-a1e6-51b9461b753a',
-                          u'tenant': u'admin'}],
-                     u'packageInfo': {u'usageState': u'NotInUse',
-                                      u'onBoardState': u'onBoarded',
-                                      u'name': u'VFW',
-                                      u'format': u'yaml',
-                                      u'provider': u'ZTE',
-                                      u'vnfdProvider': u'zte',
-                                      u'vnfdId': u'vcpe_vfw_zte_1_0',
-                                      u'deletionPending': False,
-                                      u'version': u'v1.0',
-                                      u'vnfVersion': u'1.0',
-                                      u'vnfdVersion': u'1.0.0',
-                                      u'processState': u'normal',
-                                      u'modifyTime': u'2016-10-31 16:21:32',
-                                      u'downloadUri': u'http://192.168.233.226:80/',
-                                      u'operationalState': u'Disabled',
-                                      u'createTime': u'2016-10-31 16:21:11',
-                                      u'size': u'12.1 MB'}}
+        vnfm_info = {
+            "userName": "admin",
+            "vendor": "ZTE",
+            "name": "ZTE_VNFM_237_62",
+            "vimId": "516cee95-e8ca-4d26-9268-38e343c2e31e",
+            "url": "http://192.168.237.165:2324",
+            "certificateUrl": "",
+            "version": "V1.0",
+            "vnfmId": "b0797c9b-3da9-459c-b25c-3813e9d8fd70",
+            "password": "admin",
+            "type": "ztevmanagerdriver",
+            "createTime": "2016-10-31 11:08:39",
+            "description": ""
+        }
+        vnfd_info = {
+            "vnfInstanceInfo": [
+                {
+                    "vnfInstanceId": "59b79a9f-9e37-4f6c-acaf-5f41d9cb3f76",
+                    "vnfInstanceName": "VFW_59b79a9f-9e37-4f6c-acaf-5f41d9cb3f76"
+                },
+                {
+                    "vnfInstanceId": "6c5e4bd3-e8a6-42d8-a7a4-53a8ef74c6ac",
+                    "vnfInstanceName": "VFW_6c5e4bd3-e8a6-42d8-a7a4-53a8ef74c6ac"
+                },
+                {
+                    "vnfInstanceId": "930de5c9-8043-41df-ace8-ede2262a3713",
+                    "vnfInstanceName": "VFW_930de5c9-8043-41df-ace8-ede2262a3713"
+                },
+                {
+                    "vnfInstanceId": "c677a305-a7bd-4baf-9eee-c383c588bb3c",
+                    "vnfInstanceName": "VFW_c677a305-a7bd-4baf-9eee-c383c588bb3c"
+                },
+                {
+                    "vnfInstanceId": "e708e5c5-bdf4-436a-b928-826887806d82",
+                    "vnfInstanceName": "VFW_e708e5c5-bdf4-436a-b928-826887806d82"
+                }
+            ],
+            "csarId": "d852e1be-0aac-48f1-b1a4-cd825f6cdf9a",
+            "imageInfo": [
+                {
+                    "status": "Enable",
+                    "index": "0",
+                    "vimId": "516cee95-e8ca-4d26-9268-38e343c2e31e",
+                    "fileName": "VFW_IMAGE_VCPE_ZTE",
+                    "vimUser": "admin",
+                    "imageId": "d2b73154-0414-466a-a1e6-51b9461b753a",
+                    "tenant": "admin"
+                }
+            ],
+            "packageInfo": {
+                "usageState": "NotInUse",
+                "onBoardState": "onBoarded",
+                "name": "VFW",
+                "format": "yaml",
+                "provider": "ZTE",
+                "vnfdProvider": "zte",
+                "vnfdId": "vcpe_vfw_zte_1_0",
+                "deletionPending": False,
+                "version": "v1.0",
+                "vnfVersion": "1.0",
+                "vnfdVersion": "1.0.0",
+                "processState": "normal",
+                "modifyTime": "2016-10-3116: 21: 32",
+                "downloadUri": "http: //192.168.233.226: 80/",
+                "operationalState": "Disabled",
+                "createTime": "2016-10-3116: 21: 11",
+                "size": "12.1MB"
+            }
+        }
         packageInfo = {
             "size": "12.1 MB",
             "usageState": "NotInUse",
@@ -104,18 +122,13 @@ class InterfacesTest(TestCase):
         }
 
         inst_response = {
-            u'vnfInstanceId': u'8',
-            u'jobid': u'NF-CREATE-8-b384535c-9f45-11e6-8749-fa163e91c2f9'
+            "vnfInstanceId": "8",
+            "jobid": "NF-CREATE-8-b384535c-9f45-11e6-8749-fa163e91c2f9"
         }
         ret = [0, json.JSONEncoder().encode(inst_response), '200']
-
         r1 = [0, json.JSONEncoder().encode(vnfm_info), "200"]
-
         r2 = [0, json.JSONEncoder().encode(vnfd_info), "200"]
-
         r3 = [0, json.JSONEncoder().encode(packageInfo), "200"]
-
-        # mock_call_req_aai.side_effect =[r1]
         mock_call_req.side_effect = [r1, r2, r3, ret]
 
         req_data = {
@@ -141,12 +154,8 @@ class InterfacesTest(TestCase):
         expect_resp_data = {"jobid": "NF-CREATE-8-b384535c-9f45-11e6-8749-fa163e91c2f9", "vnfInstanceId": "8"}
         self.assertEqual(expect_resp_data, response.data)
 
-    # @mock.patch.object(restcall, 'call_req_aai')
     @mock.patch.object(restcall, 'call_req')
     def test_terminate_vnf__002(self, mock_call_req):
-        """
-        Terminate_VNF
-        """
         r1 = [0, json.JSONEncoder().encode({
             "vnfmId": "19ecbb3a-3242-4fa3-9926-8dfb7ddc29ee",
             "name": "g_vnfm",
@@ -162,7 +171,6 @@ class InterfacesTest(TestCase):
             "createTime": "2016-07-06 15:33:18"}), "200"]
 
         r2 = [0, json.JSONEncoder().encode({"vnfInstanceId": "1", "JobId": "1"}), "200"]
-        # mock_call_req_aai.side_effect = [r1]
         mock_call_req.side_effect = [r1, r2]
 
         response = self.client.post("/api/ztevmanagerdriver/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate")
@@ -171,12 +179,8 @@ class InterfacesTest(TestCase):
         expect_resp_data = {"jobid": "1", "vnfInstanceId": "1"}
         self.assertEqual(expect_resp_data, response.data)
 
-    # @mock.patch.object(restcall, 'call_req_aai')
     @mock.patch.object(restcall, 'call_req')
     def test_query_vnf_003(self, mock_call_req):
-        """
-        Query_VNF
-        """
         r1 = [0, json.JSONEncoder().encode({
             "vnfmId": "19ecbb3a-3242-4fa3-9926-8dfb7ddc29ee",
             "name": "g_vnfm",
@@ -192,7 +196,6 @@ class InterfacesTest(TestCase):
             "createTime": "2016-07-06 15:33:18"}), "200"]
 
         r2 = [0, json.JSONEncoder().encode({"vnfinstancestatus": "1"}), "200"]
-        # mock_call_req_aai.side_effect = [r1]
         mock_call_req.side_effect = [r1, r2]
 
         response = self.client.get("/api/ztevmanagerdriver/v1/ztevnfmid/vnfs/vbras_innstance_id")
@@ -202,24 +205,22 @@ class InterfacesTest(TestCase):
         expect_resp_data = {"vnfInfo": {"vnfStatus": "1"}}
         self.assertEqual(expect_resp_data, response.data)
 
-    # @mock.patch.object(restcall, 'call_req_aai')
     @mock.patch.object(restcall, 'call_req')
     def test_operation_status_004(self, mock_call_req):
-        """
-        Operation_status
-        """
-        vnfm_info = {u'userName': u'admin',
-                     u'vendor': u'ZTE',
-                     u'name': u'ZTE_VNFM_237_62',
-                     u'vimId': u'516cee95-e8ca-4d26-9268-38e343c2e31e',
-                     u'url': u'http://192.168.237.165:2324',
-                     u'certificateUrl': u'',
-                     u'version': u'V1.0',
-                     u'vnfmId': u'b0797c9b-3da9-459c-b25c-3813e9d8fd70',
-                     u'password': u'admin',
-                     u'type': u'ztevmanagerdriver',
-                     u'createTime': u'2016-10-31 11:08:39',
-                     u'description': u''}
+        vnfm_info = {
+            "userName": "admin",
+            "vendor": "ZTE",
+            "name": "ZTE_VNFM_237_62",
+            "vimId": "516cee95-e8ca-4d26-9268-38e343c2e31e",
+            "url": "http://192.168.237.165:2324",
+            "certificateUrl": "",
+            "version": "V1.0",
+            "vnfmId": "b0797c9b-3da9-459c-b25c-3813e9d8fd70",
+            "password": "admin",
+            "type": "ztevmanagerdriver",
+            "createTime": "2016-10-31 11:08:39",
+            "description": ""
+        }
         resp_body = {
             "responsedescriptor": {
                 "status": "processing",
@@ -241,7 +242,6 @@ class InterfacesTest(TestCase):
         }
         r1 = [0, json.JSONEncoder().encode(vnfm_info), '200']
         r2 = [0, json.JSONEncoder().encode(resp_body), '200']
-        # mock_call_req_aai.side_effect = [r1]
         mock_call_req.side_effect = [r1, r2]
         response = self.client.get("/api/ztevmanagerdriver/v1/{vnfmid}/jobs/{jobid}?responseId={responseId}".format(
             vnfmid=vnfm_info["vnfmId"],
@@ -256,12 +256,15 @@ class InterfacesTest(TestCase):
 
     @mock.patch.object(restcall, 'call_req')
     def test_grantvnf_005(self, mock_call_req):
-        """
-        Grant_VNF
-        """
-        ret = [0,
-               '{"vim":{"accessinfo":{"tenant":"admin"},"vimid":"516cee95-e8ca-4d26-9268-38e343c2e31e"}}',
-               '201']
+        grant_data = {
+            "vim": {
+                "accessinfo": {
+                    "tenant": "admin"
+                },
+                "vimid": "516cee95-e8ca-4d26-9268-38e343c2e31e"
+            }
+        }
+        ret = [0, json.JSONEncoder().encode(grant_data), '201']
 
         req_data = {
             "vnfmid": "13232222",
@@ -298,9 +301,6 @@ class InterfacesTest(TestCase):
 
     @mock.patch.object(restcall, 'call_req')
     def test_notify_006(self, mock_call_req):
-        """
-        Notification
-        """
         r1 = [0, json.JSONEncoder().encode(
             {"vim":
                 {
@@ -342,26 +342,26 @@ class InterfacesTest(TestCase):
         expect_resp_data = None
         self.assertEqual(expect_resp_data, response.data)
 
-    # @mock.patch.object(restcall, 'call_req_aai')
     @mock.patch.object(restcall, 'call_req')
     def test_scale(self, mock_call_req):
         job_info = {"jobid": "801", "nfInstanceId": "101"}
-        vnfm_info = {u'userName': u'admin',
-                     u'vendor': u'ZTE',
-                     u'name': u'ZTE_VNFM_237_62',
-                     u'vimId': u'516cee95-e8ca-4d26-9268-38e343c2e31e',
-                     u'url': u'http://192.168.237.165:2324',
-                     u'certificateUrl': u'',
-                     u'version': u'V1.0',
-                     u'vnfmId': u'b0797c9b-3da9-459c-b25c-3813e9d8fd70',
-                     u'password': u'admin',
-                     u'type': u'ztevmanagerdriver',
-                     u'createTime': u'2016-10-31 11:08:39',
-                     u'description': u''}
+        vnfm_info = {
+            "userName": "admin",
+            "vendor": "ZTE",
+            "name": "ZTE_VNFM_237_62",
+            "vimId": "516cee95-e8ca-4d26-9268-38e343c2e31e",
+            "url": "http://192.168.237.165:2324",
+            "certificateUrl": "",
+            "version": "V1.0",
+            "vnfmId": "b0797c9b-3da9-459c-b25c-3813e9d8fd70",
+            "password": "admin",
+            "type": "ztevmanagerdriver",
+            "createTime": "2016-10-31 11:08:39",
+            "description": ""
+        }
 
         ret = [0, json.JSONEncoder().encode(job_info), "202"]
         ret_vnfm = [0, json.JSONEncoder().encode(vnfm_info), "200"]
-        # mock_call_req_aai.side_effect = [ret_vnfm]
         mock_call_req.side_effect = [ret_vnfm, ret]
 
         vnfd_info = {
@@ -423,26 +423,29 @@ class InterfacesTest(TestCase):
         self.assertEqual(str(status.HTTP_202_ACCEPTED), response.status_code)
         self.assertDictEqual(job_info, response.data)
 
-    # @mock.patch.object(restcall, 'call_req_aai')
     @mock.patch.object(restcall, 'call_req')
     def test_heal(self, mock_call_req):
-        job_info = {"jobid": "12234455", "nfInstanceId": "10144445666"}
-        vnfm_info = {u'userName': u'admin',
-                     u'vendor': u'ZTE',
-                     u'name': u'ZTE_VNFM_237_62',
-                     u'vimId': u'516cee95-e8ca-4d26-9268-38e343c2e31e',
-                     u'url': u'http://192.168.237.165:2324',
-                     u'certificateUrl': u'',
-                     u'version': u'V1.0',
-                     u'vnfmId': u'b0797c9b-3da9-459c-b25c-3813e9d8fd70',
-                     u'password': u'admin',
-                     u'type': u'ztevmanagerdriver',
-                     u'createTime': u'2016-10-31 11:08:39',
-                     u'description': u''}
+        job_info = {
+            "jobid": "12234455",
+            "nfInstanceId": "10144445666"
+        }
+        vnfm_info = {
+            "userName": "admin",
+            "vendor": "ZTE",
+            "name": "ZTE_VNFM_237_62",
+            "vimId": "516cee95-e8ca-4d26-9268-38e343c2e31e",
+            "url": "http://192.168.237.165:2324",
+            "certificateUrl": "",
+            "version": "V1.0",
+            "vnfmId": "b0797c9b-3da9-459c-b25c-3813e9d8fd70",
+            "password": "admin",
+            "type": "ztevmanagerdriver",
+            "createTime": "2016-10-31 11:08:39",
+            "description": ""
+        }
 
         ret = [0, json.JSONEncoder().encode(job_info), "202"]
         ret_vnfm = [0, json.JSONEncoder().encode(vnfm_info), "200"]
-        # mock_call_req_aai.side_effect = [ret_vnfm]
         mock_call_req.side_effect = [ret_vnfm, ret]
 
         heal_vnf_data = {

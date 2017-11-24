@@ -22,7 +22,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from driver.pub.utils import restcall
-from driver.pub.utils.restcall import req_by_msb, call_aai
+from driver.pub.utils.restcall import req_by_msb
 from driver.pub.config.config import VNF_FTP
 
 logger = logging.getLogger(__name__)
@@ -72,12 +72,6 @@ def get_vnfminfo_from_nslcm(vnfmid):
     return ret
 
 
-# Query vnfm_info from esr
-def vnfm_get(vnfmid):
-    ret = call_aai("api/aai-esr-server/v1/vnfms/%s" % vnfmid, "GET")
-    return ret
-
-
 # Query vnfd_info from nslcm
 def vnfd_get(vnfpackageid):
     ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % vnfpackageid, "GET")
@@ -90,7 +84,6 @@ def vnfpackage_get(csarid):
     return ret
 
 
-# ==================================================
 create_vnf_url = "v1/vnfs"
 create_vnf_param_mapping = {
     "packageUrl": "",
@@ -188,7 +181,6 @@ def instantiate_vnf(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-# ==================================================
 vnf_delete_url = "v1/vnfs/%s"
 vnf_delete_param_mapping = {
     "terminationType": "terminationType",
@@ -227,9 +219,6 @@ def terminate_vnf(request, *args, **kwargs):
         logger.error("Error occurred when terminating VNF")
         raise e
     return Response(data=resp_data, status=ret[2])
-
-
-# ==================================================
 
 
 vnf_detail_url = "v1/vnfs/%s"
@@ -442,11 +431,7 @@ def notify(request, *args, **kwargs):
 
         for affectedcp in affectedcps:
             data["affectedCp"].append(affectedcp)
-            #     {
-            #     "virtualLinkInstanceId": ignorcase_get(affectedcp, "virtuallinkinstanceid"),
-            #     "ownerId": ignorcase_get(affectedcp, "ownerId"),
-            #     "ownerType": ignorcase_get(affectedcp, "ownerType")
-            # }
+
         ret = req_by_msb(notify_url.format(vnfmid=ignorcase_get(data, 'VNFMID'),
                                            vnfInstanceId=ignorcase_get(data, 'vnfinstanceid')),
                          "POST", content=json.JSONEncoder().encode(data))
@@ -508,7 +493,6 @@ def scale(request, *args, **kwargs):
         if ret[0] != 0:
             return Response(data={'error': 'scale error'}, status=ret[2])
         resp_data = json.JSONDecoder().decode(ret[1])
-        # jobId = resp_data["jobid"]
         logger.info("resp_data=%s", resp_data)
     except Exception as e:
         logger.error("Error occurred when scaling VNF,error:%s", e.message)
@@ -556,7 +540,6 @@ def heal(request, *args, **kwargs):
         if ret[0] != 0:
             return Response(data={'error': 'heal error'}, status=ret[2])
         resp_data = json.JSONDecoder().decode(ret[1])
-        # jobId = resp_data["jobid"]
         logger.info("resp_data=%s", resp_data)
     except Exception as e:
         logger.error("Error occurred when healing VNF,error:%s", e.message)
