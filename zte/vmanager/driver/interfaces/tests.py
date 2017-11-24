@@ -333,26 +333,9 @@ class InterfacesTest(TestCase):
                 "additionalParam": ""
              }), "200"]
 
-        req_data = {
-            "nfvoid": "1",
-            "vnfmid": "876543211",
-            "vimid": "6543211",
-            "timestamp": "1234567890",
-            "vnfinstanceid": "1",
-            "eventtype": "0",
-            "vmlist":
-                [
-                    {
-                        "vmflavor": "SMP",
-                        "vmnumber": "3",
-                        "vmidlist ": ["vmuuid"]},
-                    {
-                        "vmflavor": "CMP",
-                        "vmnumber": "3",
-                        "vmidlist ": ["vmuuid"]}]}
         mock_call_req.side_effect = [r1]
         response = self.client.post("/api/ztevmanagerdriver/v1/vnfs/lifecyclechangesnotification",
-                                    data=json.dumps(req_data), content_type='application/json')
+                                    data=json.dumps(notify_req_data), content_type='application/json')
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
 
@@ -483,3 +466,725 @@ class InterfacesTest(TestCase):
 
         self.assertEqual(str(status.HTTP_202_ACCEPTED), response.status_code)
         self.assertDictEqual(job_info, response.data)
+
+
+notify_req_data = {
+    "vnfinstanceid": "1",
+    "nfvoid": "3",
+    "extension": {
+        "openo_notification": {
+            "status": "finished",
+            "affectedService": [
+
+            ],
+            "affectedVnfc": [
+                {
+                    "changeType": "added",
+                    "computeResource": {
+                        "resourceId": "e8ccc55a-3ebb-4e46-8260-dc4a1646ef4f",
+                        "tenant": "ZTE_ONAP_PRO",
+                        "vimId": "vmware_vio",
+                        "resourceName": "ZTE_xGW_39_CDB_1"
+                    },
+                    "storageResource": [
+
+                    ],
+                    "vnfcInstanceId": "17502154-c5bf-11e7-904d-fa163eee1ffe",
+                    "vduType": "CDB",
+                    "vduId": "VDU_S_CDB_51"
+                },
+                {
+                    "changeType": "added",
+                    "computeResource": {
+                        "resourceId": "a9dd6a73-76ee-4d07-9554-08f14c17261f",
+                        "tenant": "ZTE_ONAP_PRO",
+                        "vimId": "vmware_vio",
+                        "resourceName": "ZTE_xGW_39_SLB_1"
+                    },
+                    "storageResource": [
+
+                    ],
+                    "vnfcInstanceId": "1750d540-c5bf-11e7-904d-fa163eee1ffe",
+                    "vduType": "SLB",
+                    "vduId": "VDU_M_SLB_42"
+                }
+            ],
+            "nfvoInstanceId": "3",
+            "affectedVirtualLink": [
+                {
+                    "changeType": "added",
+                    "virtualLinkInstanceId": "1753b60c-c5bf-11e7-904d-fa163eee1ffe",
+                    "networkResource": {
+                        "resourceId": "c55e0788-3683-48a1-b88a-a0cb5e05bd44",
+                        "tenant": None,
+                        "vimId": "vmware_vio",
+                        "resourceName": "ZTE_VGW_MGT_NET39"
+                    },
+                    "virtualLinkDescId": "ZTE_VGW_MGT_NET39_virtualLink",
+                    "tenant": "ZTE_ONAP_PRO",
+                    "subnetworkResource": {
+                        "resourceId": "33c8a03d-00c9-4c57-a348-26dae462b473",
+                        "tenant": None,
+                        "vimId": "vmware_vio",
+                        "resourceName": "ZTE_VGW_MGT_NET39_s"
+                    }
+                },
+                {
+                    "changeType": "added",
+                    "virtualLinkInstanceId": "175472a4-c5bf-11e7-904d-fa163eee1ffe",
+                    "networkResource": {
+                        "resourceId": "2d22b6e4-340b-45a8-8757-5206aa056b92",
+                        "tenant": None,
+                        "vimId": "vmware_vio",
+                        "resourceName": "ZTE_VGW_SERVICE_NET39"
+                    },
+                    "virtualLinkDescId": "ZTE_VGW_SERVICE_NET39_virtualLink",
+                    "tenant": "ZTE_ONAP_PRO",
+                    "subnetworkResource": {
+                        "resourceId": "2ea2acc0-a4ed-44f8-9d31-9cdc9e3ebe62",
+                        "tenant": None,
+                        "vimId": "vmware_vio",
+                        "resourceName": "ZTE_VGW_SERVICE_NET39_s"
+                    }
+                }
+            ],
+            "affectedVirtualStorage": [
+
+            ],
+            "jobId": "",
+            "affectedcapacity": {
+                "vcp": "72",
+                "vm": "9",
+                "localStorage": "0",
+                "sharedStorage": "288",
+                "vMemory": "233472",
+                "port": "27"
+            },
+            "additionalParam": {
+                "vmList": [
+                    {
+                        "vmName": "ZTE_xGW_39_CDB_1",
+                        "vduId": "VDU_S_CDB_51"
+                    },
+                    {
+                        "vmName": "ZTE_xGW_39_CDB_2",
+                        "vduId": "VDU_S_CDB_51"
+                    },
+                    {
+                        "vmName": "ZTE_xGW_39_SLB_1",
+                        "vduId": "VDU_M_SLB_42"
+                    },
+                    {
+                        "vmName": "ZTE_xGW_39_SLB_2",
+                        "vduId": "VDU_M_SLB_42"
+                    },
+                    {
+                        "vmName": "ZTE_xGW_39_GSU_1",
+                        "vduId": "VDU_M_GSU_22"
+                    },
+                    {
+                        "vmName": "ZTE_xGW_39_GSU_2",
+                        "vduId": "VDU_M_GSU_22"
+                    },
+                    {
+                        "vmName": "ZTE_xGW_39_MPU_1",
+                        "vduId": "VDU_M_MPU_12"
+                    },
+                    {
+                        "vmName": "ZTE_xGW_39_PFU_1",
+                        "vduId": "VDU_M_PFU_32"
+                    },
+                    {
+                        "vmName": "ZTE_xGW_39_PFU_2",
+                        "vduId": "VDU_M_PFU_32"
+                    }
+                ]
+            },
+            "nfInstanceId": "1",
+            "affectedCp": [
+                {
+                    "changeType": "added",
+                    "cPInstanceId": "175767d4-c5bf-11e7-904d-fa163eee1ffe",
+                    "ownertype": 3,
+                    "cpdId": "CP_NO_0_CDB_ZTE_VGW_MGT_NET39",
+                    "portResource": {
+                        "resourceId": "3296b6d8-ebca-4d33-98f4-68d1bc63a3d0",
+                        "tenant": "ZTE_ONAP_PRO",
+                        "vimId": "vmware_vio",
+                        "resourceName": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_MGT_NET39_su1"
+                    },
+                    "cpInstanceName": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_MGT_NET39_su1",
+                    "ownerid": "17502154-c5bf-11e7-904d-fa163eee1ffe",
+                    "virtualLinkInstanceId": "1753b60c-c5bf-11e7-904d-fa163eee1ffe"
+                },
+                {
+                    "changeType": "added",
+                    "cPInstanceId": "1758181e-c5bf-11e7-904d-fa163eee1ffe",
+                    "ownertype": 3,
+                    "cpdId": "CP_NO_1_CDB_ZTE_VGW_SERVICE_NET39",
+                    "portResource": {
+                        "resourceId": "5e277a18-94de-469a-a336-2c01ab46387e",
+                        "tenant": "ZTE_ONAP_PRO",
+                        "vimId": "vmware_vio",
+                        "resourceName": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_SERVICE_NET39_su2"
+                    },
+                    "cpInstanceName": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_SERVICE_NET39_su2",
+                    "ownerid": "17502154-c5bf-11e7-904d-fa163eee1ffe",
+                    "virtualLinkInstanceId": "175472a4-c5bf-11e7-904d-fa163eee1ffe"
+                }
+            ],
+            "vnfdmodule": {
+                "volume_storages": [
+
+                ],
+                "inputs": {
+
+                },
+                "vdus": [
+                    {
+                        "volume_storages": [
+
+                        ],
+                        "description": "CDB",
+                        "vdu_id": "VDU_S_CDB_51",
+                        "local_storages": [
+                            "local_disk_root_10GB",
+                            "local_disk_ephemeral_14GB"
+                        ],
+                        "nfv_compute": {
+                            "flavor_extra_specs": {
+                                "hw:cpu_policy": "dedicated",
+                                "hw:mem_page_size": "large",
+                                "hw:numa_nodes": 1,
+                                "hw:cpu_max_sockets": 1
+                            },
+                            "mem_size": 8192,
+                            "num_cpus": 2
+                        },
+                        "artifacts": [
+
+                        ],
+                        "dependencies": [
+
+                        ],
+                        "vls": [
+                            "ZTE_VGW_MGT_NET39_virtualLink",
+                            "ZTE_VGW_SERVICE_NET39_virtualLink"
+                        ],
+                        "image_file": "image_51",
+                        "cps": [
+                            "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_MGT_NET39_su1",
+                            "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_SERVICE_NET39_su2"
+                        ],
+                        "properties": {
+                            "key_vd": True,
+                            "support_scaling": True,
+                            "vdu_type": "CDB",
+                            "name": "ZTE_xGW_39_CDB_1",
+                            "storage_policy": "Share_Service",
+                            "inject_network_address": True,
+                            "is_predefined": False,
+                            "location_info": {
+                                "vimid": "",
+                                "availability_zone": "",
+                                "vdc": "OG_OrganizationDC",
+                                "host": "",
+                                "tenant": "",
+                                "vapp": "xgw"
+                            },
+                            "use_shared_vm": False,
+                            "inject_data_list": [
+
+                            ],
+                            "allow_scale_updown": True,
+                            "action": "ADD",
+                            "watchdog": {
+
+                            },
+                            "template_id": 51,
+                            "manual_scale_select_vim": False,
+                            "config_drive": True
+                        }
+                    },
+                    {
+                        "volume_storages": [
+
+                        ],
+                        "description": "SLB",
+                        "vdu_id": "VDU_M_SLB_42",
+                        "local_storages": [
+                            "local_disk_root_10GB",
+                            "local_disk_ephemeral_14GB"
+                        ],
+                        "nfv_compute": {
+                            "flavor_extra_specs": {
+                                "hw:cpu_policy": "dedicated",
+                                "hw:mem_page_size": "large",
+                                "hw:numa_nodes": 1,
+                                "hw:cpu_max_sockets": 1
+                            },
+                            "mem_size": 24576,
+                            "num_cpus": 8
+                        },
+                        "artifacts": [
+
+                        ],
+                        "dependencies": [
+
+                        ],
+                        "vls": [
+                            "ZTE_VGW_MGT_NET39_virtualLink",
+                            "ZTE_VGW_SERVICE_NET39_virtualLink",
+                            "ZTE_NET39_virtualLink",
+                            "ZTE_VGW_GTP_NET39_virtualLink"
+                        ],
+                        "image_file": "image_51",
+                        "cps": [
+                            "CP_ZTE_xGW_39_SLB_1_ZTE_VGW_MGT_NET39_su1",
+                            "CP_ZTE_xGW_39_SLB_1_ZTE_VGW_SERVICE_NET39_su2",
+                            "CP_ZTE_xGW_39_SLB_1_zte-net-subnet393",
+                            "CP_ZTE_xGW_39_SLB_1_ZTE_VGW_GTP_NET39_su4"
+                        ],
+                        "properties": {
+                            "key_vd": True,
+                            "support_scaling": False,
+                            "vdu_type": "SLB",
+                            "name": "ZTE_xGW_39_SLB_1",
+                            "storage_policy": "Share_Service",
+                            "inject_network_address": True,
+                            "is_predefined": False,
+                            "location_info": {
+                                "vimid": "",
+                                "availability_zone": "",
+                                "vdc": "OG_OrganizationDC",
+                                "host": "",
+                                "tenant": "",
+                                "vapp": "xgw"
+                            },
+                            "use_shared_vm": False,
+                            "inject_data_list": [
+
+                            ],
+                            "allow_scale_updown": True,
+                            "action": "ADD",
+                            "watchdog": {
+
+                            },
+                            "template_id": 42,
+                            "manual_scale_select_vim": False,
+                            "config_drive": True
+                        }
+                    }
+                ],
+                "vcloud": [
+
+                ],
+                "extvirtuallink": "",
+                "server_groups": [
+
+                ],
+                "image_files": [
+                    {
+                        "properties": {
+                            "vendor": "zte",
+                            "name": "ZXUN_xGW_CGSL_QCOW2_OP_V6.17.10.B17.ova",
+                            "image_extra_specs": {
+
+                            },
+                            "disk_format": "vmdk",
+                            "file_url": "SoftwareImages/ZXUN-xGW-CGSL-QCOW2-V6.17.10.B17-image.tar.gz",
+                            "container_type": "bare",
+                            "version": "V6.17.10.B17.ova"
+                        },
+                        "image_file_id": "image_51",
+                        "description": "xgw image file"
+                    }
+                ],
+                "routers": [
+
+                ],
+                "local_storages": [
+                    {
+                        "local_storage_id": "local_disk_ephemeral_38GB",
+                        "description": "local_disk_ephemeral_38GB",
+                        "properties": {
+                            "disk_type": "ephemeral",
+                            "size": 38
+                        }
+                    },
+                    {
+                        "local_storage_id": "local_disk_root_10GB",
+                        "description": "local_disk_root_10GB",
+                        "properties": {
+                            "disk_type": "root",
+                            "size": 10
+                        }
+                    },
+                    {
+                        "local_storage_id": "local_disk_ephemeral_14GB",
+                        "description": "local_disk_ephemeral_14GB",
+                        "properties": {
+                            "disk_type": "ephemeral",
+                            "size": 14
+                        }
+                    }
+                ],
+                "vnf_flavours": [
+
+                ],
+                "vnf_exposed": {
+                    "external_cps": [
+                        {
+                            "key_name": "ZTE_NET39_virtualLink",
+                            "cpd_id": "CP_NO_3_PFU_ZTE_NET39"
+                        },
+                        {
+                            "key_name": "ZTE_NET39_virtualLink1",
+                            "cpd_id": "CP_NO_2_PFU_ZTE_NET39"
+                        },
+                        {
+                            "key_name": "ZTE_VGW_GTP_NET39_virtualLink",
+                            "cpd_id": "CP_NO_3_SLB_ZTE_VGW_GTP_NET39"
+                        },
+                        {
+                            "key_name": "ZTE_NET39_virtualLink2",
+                            "cpd_id": "CP_NO_2_SLB_ZTE_NET39"
+                        },
+                        {
+                            "key_name": "provider-zte_virtualLink",
+                            "cpd_id": "CP_NO_2_MPU_provider-zte"
+                        }
+                    ],
+                    "forward_cps": [
+                        {
+                            "key_name": "ZTE_VGW_GTP_NET39_forwarder",
+                            "cpd_id": "CP_NO_3_SLB_ZTE_VGW_GTP_NET39"
+                        },
+                        {
+                            "key_name": "ZTE_NET39_forwarder1",
+                            "cpd_id": "CP_NO_2_PFU_ZTE_NET39"
+                        },
+                        {
+                            "key_name": "ZTE_NET39_forwarder2",
+                            "cpd_id": "CP_NO_3_PFU_ZTE_NET39"
+                        },
+                        {
+                            "key_name": "provider-zte_forwarder",
+                            "cpd_id": "CP_NO_2_MPU_provider-zte"
+                        },
+                        {
+                            "key_name": "ZTE_NET39_forwarder",
+                            "cpd_id": "CP_NO_2_SLB_ZTE_NET39"
+                        }
+                    ]
+                },
+                "reserved_total": {
+                    "portnum": 27,
+                    "vcpunum": 72,
+                    "memorysize": 233472,
+                    "shdsize": 288,
+                    "isreserve": 0,
+                    "vmnum": 9
+                },
+                "policies": [
+                    {
+                        "scaling": [
+                            {
+                                "description": "zte vgw vnf policy",
+                                "policy_id": "Policy_1",
+                                "targets": [
+                                    "VDU_S_CDB_51",
+                                    "VDU_M_CDB_52",
+                                    "VDU_M_SLB_42",
+                                    "VDU_M_GSU_22",
+                                    "VDU_M_MPU_12",
+                                    "VDU_L_MPU_13",
+                                    "VDU_M_PFU_32",
+                                    "VDU_L_PFU_33"
+                                ],
+                                "properties": {
+                                    "policy_file": "Policies/zte-vcn-vnf-policy.xml"
+                                }
+                            }
+                        ],
+                        "healing": [
+
+                        ]
+                    }
+                ],
+                "plugins": [
+
+                ],
+                "services": [
+
+                ],
+                "vcenter": [
+
+                ],
+                "cps": [
+                    {
+                        "vl_id": "ZTE_VGW_MGT_NET39_virtualLink",
+                        "description": "ZTE_xGW_39_CDB_1_ZTE_VGW_MGT_NET39_s",
+                        "vdu_id": "VDU_S_CDB_51",
+                        "properties": {
+                            "service_port_created": False,
+                            "name": "ZTE_xGW_39_CDB_1_ZTE_VGW_MGT_NET39_s",
+                            "allowed_address_pairs": [
+
+                            ],
+                            "bandwidth": 0,
+                            "is_virtual": False,
+                            "guest_os_mt": 1400,
+                            "vnic_type": "normal",
+                            "floating_ip_address": {
+
+                            },
+                            "mac_address": "",
+                            "port_security_enabled": False,
+                            "ip_address": "192.168.39.247",
+                            "order": 1,
+                            "security_groups": [
+
+                            ],
+                            "bond": "none"
+                        },
+                        "cp_id": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_MGT_NET39_su1",
+                        "cpd_id": "CP_NO_0_CDB_ZTE_VGW_MGT_NET39"
+                    },
+                    {
+                        "vl_id": "ZTE_VGW_SERVICE_NET39_virtualLink",
+                        "description": "ZTE_xGW_39_CDB_1_ZTE_VGW_SERVICE_NET39_s",
+                        "vdu_id": "VDU_S_CDB_51",
+                        "properties": {
+                            "service_port_created": False,
+                            "name": "ZTE_xGW_39_CDB_1_ZTE_VGW_SERVICE_NET39_s",
+                            "allowed_address_pairs": [
+
+                            ],
+                            "bandwidth": 0,
+                            "is_virtual": False,
+                            "guest_os_mt": 1400,
+                            "vnic_type": "normal",
+                            "floating_ip_address": {
+
+                            },
+                            "mac_address": "",
+                            "port_security_enabled": False,
+                            "ip_address": "192.168.40.247",
+                            "order": 2,
+                            "security_groups": [
+
+                            ],
+                            "bond": "none"
+                        },
+                        "cp_id": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_SERVICE_NET39_su2",
+                        "cpd_id": "CP_NO_1_CDB_ZTE_VGW_SERVICE_NET39"
+                    }
+                ],
+                "vls": [
+                    {
+                        "route_external": False,
+                        "route_id": "",
+                        "vl_id": "ZTE_VGW_MGT_NET39_virtualLink",
+                        "description": "ZTE_VGW_MGT_NET39_s",
+                        "properties": {
+                            "gateway_ip": "",
+                            "vendor": "ZTE",
+                            "name": "ZTE_VGW_MGT_NET39_s",
+                            "location_info": {
+                                "vdc": "OG_OrganizationDC",
+                                "vimid": 1,
+                                "tenant": "",
+                                "vapp": "xgw"
+                            },
+                            "start_ip": "",
+                            "segmentation_id": "142",
+                            "dns_nameservers": [
+
+                            ],
+                            "vds_name": "",
+                            "mt": 1400,
+                            "is_predefined": True,
+                            "ip_version": 4,
+                            "netmask": "255.255.255.0",
+                            "end_ip": "",
+                            "host_routes": [
+
+                            ],
+                            "vlan_transparent": False,
+                            "physical_network": "physnet1",
+                            "cidr": "192.168.39.0/24",
+                            "dhcp_enabled": False,
+                            "network_name": "ZTE_VGW_MGT_NET39",
+                            "network_type": "vlan"
+                        }
+                    },
+                    {
+                        "route_external": False,
+                        "route_id": "",
+                        "vl_id": "ZTE_VGW_SERVICE_NET39_virtualLink",
+                        "description": "ZTE_VGW_SERVICE_NET39_s",
+                        "properties": {
+                            "gateway_ip": "",
+                            "vendor": "ZTE",
+                            "name": "ZTE_VGW_SERVICE_NET39_s",
+                            "location_info": {
+                                "vdc": "OG_OrganizationDC",
+                                "vimid": 1,
+                                "tenant": "",
+                                "vapp": "xgw"
+                            },
+                            "start_ip": "",
+                            "segmentation_id": "128",
+                            "dns_nameservers": [
+
+                            ],
+                            "vds_name": "",
+                            "mt": 1400,
+                            "is_predefined": True,
+                            "ip_version": 4,
+                            "netmask": "255.255.255.0",
+                            "end_ip": "",
+                            "host_routes": [
+
+                            ],
+                            "vlan_transparent": False,
+                            "physical_network": "physnet1",
+                            "cidr": "192.168.40.0/24",
+                            "dhcp_enabled": False,
+                            "network_name": "ZTE_VGW_SERVICE_NET39",
+                            "network_type": "vlan"
+                        }
+                    }
+                ],
+                "element_groups": [
+
+                ],
+                "metadata": {
+                    "plugin_info": "cn_plugin_3.0",
+                    "vendor": "ZTE",
+                    "is_shared": False,
+                    "adjust_vnf_capacity": True,
+                    "paas_project": "",
+                    "description": "VMware",
+                    "vnf_extend_type": "driver",
+                    "domain_type": "CN",
+                    "resview": "dync",
+                    "script_info": "",
+                    "service_category": "EPC",
+                    "version": "ZTE",
+                    "vnf_type": "SAE-GW",
+                    "cross_dc": False,
+                    "vmnumber_overquota_alarm": True,
+                    "vnfd_version": "V00000001",
+                    "id": "NFAR-ZTE-40-ZTE",
+                    "name": 40
+                }
+            },
+            "operation": "instantiate",
+            "vnfmInstanceId": "31f8934e-c785-4fa5-9205-c5f374ada982"
+        }
+    },
+    "vimid": "vmware_vio",
+    "timestamp": "20171110105828",
+    "affectedcp": [
+        {
+            "changeType": "added",
+            "cPInstanceId": "175767d4-c5bf-11e7-904d-fa163eee1ffe",
+            "ownertype": 3,
+            "cpdId": "CP_NO_0_CDB_ZTE_VGW_MGT_NET39",
+            "portResource": {
+                "resourceId": "3296b6d8-ebca-4d33-98f4-68d1bc63a3d0",
+                "tenant": "ZTE_ONAP_PRO",
+                "vimId": "vmware_vio",
+                "resourceName": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_MGT_NET39_su1"
+            },
+            "cpInstanceName": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_MGT_NET39_su1",
+            "ownerid": "17502154-c5bf-11e7-904d-fa163eee1ffe",
+            "virtualLinkInstanceId": "1753b60c-c5bf-11e7-904d-fa163eee1ffe"
+        },
+        {
+            "changeType": "added",
+            "cPInstanceId": "1758181e-c5bf-11e7-904d-fa163eee1ffe",
+            "ownertype": 3,
+            "cpdId": "CP_NO_1_CDB_ZTE_VGW_SERVICE_NET39",
+            "portResource": {
+                "resourceId": "5e277a18-94de-469a-a336-2c01ab46387e",
+                "tenant": "ZTE_ONAP_PRO",
+                "vimId": "vmware_vio",
+                "resourceName": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_SERVICE_NET39_su2"
+            },
+            "cpInstanceName": "CP_ZTE_xGW_39_CDB_1_ZTE_VGW_SERVICE_NET39_su2",
+            "ownerid": "17502154-c5bf-11e7-904d-fa163eee1ffe",
+            "virtualLinkInstanceId": "175472a4-c5bf-11e7-904d-fa163eee1ffe"
+        }
+    ],
+    "vmlist": [
+        {
+            "VMNumber": 1,
+            "vdutype": "CDB",
+            "VMFlavor": "VDU_S_CDB_51",
+            "VMIDlist": [
+                {
+                    "VMID": "e8ccc55a-3ebb-4e46-8260-dc4a1646ef4f",
+                    "VMName": "ZTE_xGW_39_CDB_1",
+                    "vimid": "vmware_vio",
+                    "tenant": "ZTE_ONAP_PRO"
+                }
+            ]
+        },
+        {
+            "VMNumber": 1,
+            "vdutype": "SLB",
+            "VMFlavor": "VDU_M_SLB_42",
+            "VMIDlist": [
+                {
+                    "VMID": "a9dd6a73-76ee-4d07-9554-08f14c17261f",
+                    "VMName": "ZTE_xGW_39_SLB_1",
+                    "vimid": "vmware_vio",
+                    "tenant": "ZTE_ONAP_PRO"
+                }
+            ]
+        }
+    ],
+    "EventType": 1,
+    "vnfmid": "31f8934e-c785-4fa5-9205-c5f374ada982",
+    "affectedvirtuallink ": [
+        {
+            "changeType": "added",
+            "virtualLinkInstanceId": "1753b60c-c5bf-11e7-904d-fa163eee1ffe",
+            "networkResource": {
+                "resourceId": "c55e0788-3683-48a1-b88a-a0cb5e05bd44",
+                "tenant": None,
+                "vimId": "vmware_vio",
+                "resourceName": "ZTE_VGW_MGT_NET39"
+            },
+            "virtualLinkDescId": "ZTE_VGW_MGT_NET39_virtualLink",
+            "tenant": "ZTE_ONAP_PRO",
+            "subnetworkResource": {
+                "resourceId": "33c8a03d-00c9-4c57-a348-26dae462b473",
+                "tenant": None,
+                "vimId": "vmware_vio",
+                "resourceName": "ZTE_VGW_MGT_NET39_s"
+            }
+        },
+        {
+            "changeType": "added",
+            "virtualLinkInstanceId": "175472a4-c5bf-11e7-904d-fa163eee1ffe",
+            "networkResource": {
+                "resourceId": "2d22b6e4-340b-45a8-8757-5206aa056b92",
+                "tenant": None,
+                "vimId": "vmware_vio",
+                "resourceName": "ZTE_VGW_SERVICE_NET39"
+            },
+            "virtualLinkDescId": "ZTE_VGW_SERVICE_NET39_virtualLink",
+            "tenant": "ZTE_ONAP_PRO",
+            "subnetworkResource": {
+                "resourceId": "2ea2acc0-a4ed-44f8-9d31-9cdc9e3ebe62",
+                "tenant": None,
+                "vimId": "vmware_vio",
+                "resourceName": "ZTE_VGW_SERVICE_NET39_s"
+            }
+        }
+    ]
+}
