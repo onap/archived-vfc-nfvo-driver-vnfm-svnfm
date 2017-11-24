@@ -410,12 +410,14 @@ def notify(request, *args, **kwargs):
         openo_notification = ignorcase_get(extension, "openo_notification")
         if openo_notification:
             affectedvnfcs = ignorcase_get(openo_notification, "affectedVnfc")
+            affectedvls = ignorcase_get(openo_notification, "affectedvirtuallink")
+            affectedcps = ignorcase_get(openo_notification, "affectedCp")
+            vnfdmodule = ignorcase_get(openo_notification, "vnfdmodule")
         else:
             affectedvnfcs = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvnfc")
-
-        affectedvls = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvl")
-        affectedcps = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedcp")
-        vnfdmodule = ignorcase_get(ignorcase_get(request.data, "extension"), "vnfdmodule")
+            affectedvls = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvl")
+            affectedcps = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedcp")
+            vnfdmodule = ignorcase_get(ignorcase_get(request.data, "extension"), "vnfdmodule")
 
         data["vnfdmodule"] = vnfdmodule
 
