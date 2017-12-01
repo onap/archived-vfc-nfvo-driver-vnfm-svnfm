@@ -39,7 +39,7 @@ class InterfacesTest(TestCase):
             "version": "V1.0",
             "vnfmId": "b0797c9b-3da9-459c-b25c-3813e9d8fd70",
             "password": "admin",
-            "type": "ztevmanagerdriver",
+            "type": "ztevnfmdriver",
             "createTime": "2016-10-31 11:08:39",
             "description": ""
         }
@@ -148,7 +148,7 @@ class InterfacesTest(TestCase):
             }
         }
 
-        response = self.client.post("/api/ztevmanagerdriver/v1/ztevnfmid/vnfs",
+        response = self.client.post("/api/ztevnfmdriver/v1/ztevnfmid/vnfs",
                                     data=json.dumps(req_data), content_type="application/json")
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
         expect_resp_data = {"jobid": "NF-CREATE-8-b384535c-9f45-11e6-8749-fa163e91c2f9", "vnfInstanceId": "8"}
@@ -173,7 +173,7 @@ class InterfacesTest(TestCase):
         r2 = [0, json.JSONEncoder().encode({"vnfInstanceId": "1", "JobId": "1"}), "200"]
         mock_call_req.side_effect = [r1, r2]
 
-        response = self.client.post("/api/ztevmanagerdriver/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate")
+        response = self.client.post("/api/ztevnfmdriver/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate")
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
         expect_resp_data = {"jobid": "1", "vnfInstanceId": "1"}
@@ -198,7 +198,7 @@ class InterfacesTest(TestCase):
         r2 = [0, json.JSONEncoder().encode({"vnfinstancestatus": "1"}), "200"]
         mock_call_req.side_effect = [r1, r2]
 
-        response = self.client.get("/api/ztevmanagerdriver/v1/ztevnfmid/vnfs/vbras_innstance_id")
+        response = self.client.get("/api/ztevnfmdriver/v1/ztevnfmid/vnfs/vbras_innstance_id")
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
 
@@ -217,7 +217,7 @@ class InterfacesTest(TestCase):
             "version": "V1.0",
             "vnfmId": "b0797c9b-3da9-459c-b25c-3813e9d8fd70",
             "password": "admin",
-            "type": "ztevmanagerdriver",
+            "type": "ztevnfmdriver",
             "createTime": "2016-10-31 11:08:39",
             "description": ""
         }
@@ -243,7 +243,7 @@ class InterfacesTest(TestCase):
         r1 = [0, json.JSONEncoder().encode(vnfm_info), '200']
         r2 = [0, json.JSONEncoder().encode(resp_body), '200']
         mock_call_req.side_effect = [r1, r2]
-        response = self.client.get("/api/ztevmanagerdriver/v1/{vnfmid}/jobs/{jobid}?responseId={responseId}".format(
+        response = self.client.get("/api/ztevnfmdriver/v1/{vnfmid}/jobs/{jobid}?responseId={responseId}".format(
             vnfmid=vnfm_info["vnfmId"],
             jobid=resp_body["jobid"],
             responseId=resp_body["responsedescriptor"]["responseid"])
@@ -289,7 +289,7 @@ class InterfacesTest(TestCase):
         }
 
         mock_call_req.return_value = ret
-        response = self.client.put("/api/ztevmanagerdriver/v1/resource/grant",
+        response = self.client.put("/api/ztevnfmdriver/v1/resource/grant",
                                    data=json.dumps(req_data), content_type='application/json')
 
         self.assertEqual(str(status.HTTP_201_CREATED), response.status_code)
@@ -334,7 +334,7 @@ class InterfacesTest(TestCase):
              }), "200"]
 
         mock_call_req.side_effect = [r1]
-        response = self.client.post("/api/ztevmanagerdriver/v1/vnfs/lifecyclechangesnotification",
+        response = self.client.post("/api/ztevnfmdriver/v1/vnfs/lifecyclechangesnotification",
                                     data=json.dumps(notify_req_data), content_type='application/json')
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
@@ -355,7 +355,7 @@ class InterfacesTest(TestCase):
             "version": "V1.0",
             "vnfmId": "b0797c9b-3da9-459c-b25c-3813e9d8fd70",
             "password": "admin",
-            "type": "ztevmanagerdriver",
+            "type": "ztevnfmdriver",
             "createTime": "2016-10-31 11:08:39",
             "description": ""
         }
@@ -418,7 +418,7 @@ class InterfacesTest(TestCase):
             }
         }
 
-        response = self.client.post("/api/ztevmanagerdriver/v1/100/vnfs/101/scale",
+        response = self.client.post("/api/ztevnfmdriver/v1/100/vnfs/101/scale",
                                     data=json.dumps(scale_vnf_data), content_type='application/json')
         self.assertEqual(str(status.HTTP_202_ACCEPTED), response.status_code)
         self.assertDictEqual(job_info, response.data)
@@ -439,7 +439,7 @@ class InterfacesTest(TestCase):
             "version": "V1.0",
             "vnfmId": "b0797c9b-3da9-459c-b25c-3813e9d8fd70",
             "password": "admin",
-            "type": "ztevmanagerdriver",
+            "type": "ztevnfmdriver",
             "createTime": "2016-10-31 11:08:39",
             "description": ""
         }
@@ -464,7 +464,7 @@ class InterfacesTest(TestCase):
             'isgrace': 'force'
         }
 
-        response = self.client.post("/api/ztevmanagerdriver/v1/200/vnfs/201/heal",
+        response = self.client.post("/api/ztevnfmdriver/v1/200/vnfs/201/heal",
                                     data=json.dumps(heal_vnf_data), content_type='application/json')
 
         self.assertEqual(str(status.HTTP_202_ACCEPTED), response.status_code)
