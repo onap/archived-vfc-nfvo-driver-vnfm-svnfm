@@ -7,7 +7,7 @@
   "basePath": "/api/{vnfmtype}/v1",
   "tags": [
     {
-      "name": "ztevmanagerdriver"
+      "name": "ztevnfmdriver"
     }
   ],
   "paths": {
