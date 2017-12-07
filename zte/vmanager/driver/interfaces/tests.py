@@ -151,7 +151,7 @@ class InterfacesTest(TestCase):
         response = self.client.post("/api/ztevnfmdriver/v1/ztevnfmid/vnfs",
                                     data=json.dumps(req_data), content_type="application/json")
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
-        expect_resp_data = {"jobid": "NF-CREATE-8-b384535c-9f45-11e6-8749-fa163e91c2f9", "vnfInstanceId": "8"}
+        expect_resp_data = {"jobId": "NF-CREATE-8-b384535c-9f45-11e6-8749-fa163e91c2f9", "vnfInstanceId": "8"}
         self.assertEqual(expect_resp_data, response.data)
 
     @mock.patch.object(restcall, 'call_req')
@@ -170,13 +170,13 @@ class InterfacesTest(TestCase):
             "password": "admin",
             "createTime": "2016-07-06 15:33:18"}), "200"]
 
-        r2 = [0, json.JSONEncoder().encode({"vnfInstanceId": "1", "JobId": "1"}), "200"]
+        r2 = [0, json.JSONEncoder().encode({"vnfInstanceId": "1", "jobId": "1"}), "200"]
         mock_call_req.side_effect = [r1, r2]
 
         response = self.client.post("/api/ztevnfmdriver/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate")
 
         self.assertEqual(str(status.HTTP_200_OK), response.status_code)
-        expect_resp_data = {"jobid": "1", "vnfInstanceId": "1"}
+        expect_resp_data = {"jobId": "1", "vnfInstanceId": "1"}
         self.assertEqual(expect_resp_data, response.data)
 
     @mock.patch.object(restcall, 'call_req')

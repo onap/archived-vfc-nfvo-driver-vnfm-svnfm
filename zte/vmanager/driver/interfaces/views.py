@@ -146,25 +146,15 @@ def instantiate_vnf(request, *args, **kwargs):
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         resp = json.JSONDecoder().decode(ret[1])
-        create_vnf_resp_mapping = {
-            "VNFInstanceID": "vnfInstanceId",
-            "JobId": "jobid"
+        resp_data = {
+            "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
+            "jobId": ignorcase_get(resp, "JobId")
         }
-        resp_data = mapping_conv(create_vnf_resp_mapping, resp)
         logger.info("[%s]resp_data=%s", fun_name(), resp_data)
     except Exception as e:
         logger.error("Error occurred when instantiating VNF")
         raise e
     return Response(data=resp_data, status=ret[2])
-
-
-vnf_delete_url = "v1/vnfs/%s"
-vnf_delete_param_mapping = {
-    "terminationType": "terminationType",
-    "gracefulTerminationTimeout": "gracefulTerminationTimeout"}
-vnf_delete_resp_mapping = {
-    "vnfInstanceId": "vnfInstanceId",
-    "JobId": "jobid"}
 
 
 @api_view(http_method_names=['POST'])
@@ -177,20 +167,21 @@ def terminate_vnf(request, *args, **kwargs):
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
         logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
-        data = {}
-        logger.debug("[%s]req_data=%s", fun_name(), data)
         ret = restcall.call_req(
             base_url=ignorcase_get(vnfm_info, "url"),
             user=ignorcase_get(vnfm_info, "userName"),
             passwd=ignorcase_get(vnfm_info, "password"),
             auth_type=restcall.rest_no_auth,
-            resource=vnf_delete_url % (ignorcase_get(kwargs, "vnfInstanceID")),
+            resource="v1/vnfs/%s" % (ignorcase_get(kwargs, "vnfInstanceID")),
             method='delete',
-            content=json.JSONEncoder().encode(data))
+            content=json.JSONEncoder().encode(request.data))
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         resp = json.JSONDecoder().decode(ret[1])
-        resp_data = mapping_conv(vnf_delete_resp_mapping, resp)
+        resp_data = {
+            "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
+            "jobId": ignorcase_get(resp, "JobId")
+        }
         logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
     except Exception as e:
         logger.error("Error occurred when terminating VNF")
