@@ -61,11 +61,6 @@ def mapping_conv(keyword_map, rest_return):
     return resp_data
 
 
-query_vnfd_url = "api/nslcm/v1/vnfpackage/%s"
-query_vnfm_url = "api/extsys/v1/vnfms/%s"
-query_package_url = "api/nslcm/v1/vnfpackage/%s"
-
-
 # Query vnfm_info from nslcm
 def get_vnfminfo_from_nslcm(vnfmid):
     ret = req_by_msb("api/nslcm/v1/vnfms/%s" % vnfmid, "GET")
@@ -82,24 +77,6 @@ def vnfd_get(vnfpackageid):
 def vnfpackage_get(csarid):
     ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % csarid, "GET")
     return ret
-
-
-create_vnf_url = "v1/vnfs"
-create_vnf_param_mapping = {
-    "packageUrl": "",
-    "instantiateUrl": "",
-    "instantiationLevel": "",
-    "vnfInstanceName": "",
-    "vnfPackageId": "",
-    "vnfDescriptorId": "",
-    "flavorId": "",
-    "vnfInstanceDescription": "",
-    "extVirtualLink": "",
-    "additionalParam": ""}
-create_vnf_resp_mapping = {
-    "VNFInstanceID": "vnfInstanceId",
-    "JobId": "jobid"
-}
 
 
 @api_view(http_method_names=['POST'])
@@ -128,12 +105,10 @@ def instantiate_vnf(request, *args, **kwargs):
         data = {}
         data["NFVOID"] = 1
         data["VNFMID"] = vnfm_id
-        # vnfdId = ignorcase_get(packageInfo, "vnfdId")
         vnfdModel = json.loads(ignorcase_get(packageInfo, "vnfdModel"))
         metadata = ignorcase_get(vnfdModel, "metadata")
         vnfd_name = ignorcase_get(metadata, "name")
         # TODO  convert sdc vnf package to vnf vender package
-
         inputs = []
         if "SPGW" in vnfd_name.upper():
             data["VNFD"] = VNF_FTP + "SPGW"
@@ -150,11 +125,9 @@ def instantiate_vnf(request, *args, **kwargs):
         for name, value in ignorcase_get(ignorcase_get(request.data, "additionalParam"), "inputs").items():
             inputs.append({"name": name, "value": value})
 
-        logger.info(
-            "ignorcase_get(request.data, \"additionalParam\") = %s" % ignorcase_get(request.data, "additionalParam"))
         data["extension"]["inputs"] = json.dumps(inputs)
-        data["extension"]["extVirtualLinks"] = ignorcase_get(
-            ignorcase_get(request.data, "additionalParam"), "extVirtualLinks")
+        additionalParam = ignorcase_get(request.data, "additionalParam")
+        data["extension"]["extVirtualLinks"] = ignorcase_get(additionalParam, "extVirtualLinks")
         data["extension"]["vnfinstancename"] = ignorcase_get(request.data, "vnfInstanceName")
         data["extension"]["vnfid"] = data["VNFD"]
         data["extension"]["multivim"] = 0
@@ -165,7 +138,7 @@ def instantiate_vnf(request, *args, **kwargs):
             user=ignorcase_get(vnfm_info, "userName"),
             passwd=ignorcase_get(vnfm_info, "password"),
             auth_type=restcall.rest_no_auth,
-            resource=create_vnf_url,
+            resource="v1/vnfs",
             method='post',
             content=json.JSONEncoder().encode(data))
 
@@ -173,6 +146,10 @@ def instantiate_vnf(request, *args, **kwargs):
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         resp = json.JSONDecoder().decode(ret[1])
+        create_vnf_resp_mapping = {
+            "VNFInstanceID": "vnfInstanceId",
+            "JobId": "jobid"
+        }
         resp_data = mapping_conv(create_vnf_resp_mapping, resp)
         logger.info("[%s]resp_data=%s", fun_name(), resp_data)
     except Exception as e:
