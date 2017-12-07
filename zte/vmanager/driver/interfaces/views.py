@@ -189,12 +189,6 @@ def terminate_vnf(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-vnf_detail_url = "v1/vnfs/%s"
-vnf_detail_resp_mapping = {
-    "VNFInstanseStatus": "status"
-}
-
-
 @api_view(http_method_names=['GET'])
 def query_vnf(request, *args, **kwargs):
     try:
@@ -205,15 +199,14 @@ def query_vnf(request, *args, **kwargs):
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
         logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
-        data = {}
         ret = restcall.call_req(
             base_url=ignorcase_get(vnfm_info, "url"),
             user=ignorcase_get(vnfm_info, "userName"),
             passwd=ignorcase_get(vnfm_info, "password"),
             auth_type=restcall.rest_no_auth,
-            resource=vnf_detail_url % (ignorcase_get(kwargs, "vnfInstanceID")),
+            resource="v1/vnfs/%s" % (ignorcase_get(kwargs, "vnfInstanceID")),
             method='get',
-            content=json.JSONEncoder().encode(data))
+            content=json.JSONEncoder().encode({}))
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         resp = json.JSONDecoder().decode(ret[1])
@@ -224,20 +217,6 @@ def query_vnf(request, *args, **kwargs):
         logger.error("Error occurred when querying VNF information.")
         raise e
     return Response(data=resp_data, status=ret[2])
-
-
-# Get Operation Status
-operation_status_url = '/v1/jobs/{jobId}?NFVOID={nfvoId}&VNFMID={vnfmId}&ResponseID={responseId}'
-operation_status_resp_map = {
-    "JobId": "jobId",
-    "Status": "status",
-    "Progress": "progress",
-    "StatusDescription": "currentStep",
-    "ErrorCode": "errorCode",
-    "ResponseId": "responseId",
-    "ResponseHistoryList": "responseHistoryList",
-    "ResponseDescriptor": "responseDescriptor"
-}
 
 
 @api_view(http_method_names=['GET'])
@@ -251,6 +230,7 @@ def operation_status(request, *args, **kwargs):
             return Response(data={'error': ret[1]}, status=ret[2])
         vnfm_info = json.JSONDecoder().decode(ret[1])
         logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+        operation_status_url = '/v1/jobs/{jobId}?NFVOID={nfvoId}&VNFMID={vnfmId}&ResponseID={responseId}'
         ret = restcall.call_req(
             base_url=ignorcase_get(vnfm_info, 'url'),
             user=ignorcase_get(vnfm_info, 'userName'),
@@ -272,30 +252,26 @@ def operation_status(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-# Grant VNF Lifecycle Operation
-grant_vnf_url = 'api/nslcm/v1/ns/grantvnf'
-grant_vnf_param_map = {
-    "VNFMID": "",
-    "NFVOID": "",
-    "VIMID": "",
-    "ExVIMIDList": "",
-    "ExVIMID": "",
-    "Tenant": "",
-    "VNFInstanceID": "vnfInstanceId",
-    "OperationRight": "",
-    "VMList": "",
-    "VMFlavor": "",
-    "VMNumber": ""}
-
-
 @api_view(http_method_names=['PUT'])
 def grantvnf(request, *args, **kwargs):
     logger.info("=====grantvnf=====")
     try:
         resp_data = {}
         logger.info("req_data = %s", request.data)
+        grant_vnf_param_map = {
+            "VNFMID": "",
+            "NFVOID": "",
+            "VIMID": "",
+            "ExVIMIDList": "",
+            "ExVIMID": "",
+            "Tenant": "",
+            "VNFInstanceID": "vnfInstanceId",
+            "OperationRight": "",
+            "VMList": "",
+            "VMFlavor": "",
+            "VMNumber": ""
+        }
         data = mapping_conv(grant_vnf_param_map, request.data)
-        logger.info("grant_vnf_url = %s", grant_vnf_url)
         data["vnfDescriptorId"] = ""
         if ignorcase_get(request.data, "operationright") == 0:
             data["lifecycleOperation"] = "Instantiate"
@@ -303,28 +279,27 @@ def grantvnf(request, *args, **kwargs):
             for vm in ignorcase_get(request.data, "vmlist"):
                 for i in range(int(ignorcase_get(vm, "vmnumber"))):
                     data["addresource"].append(
-                        {"type": "vdu",
-                         "resourceDefinitionId": i,
-                         "vdu": ignorcase_get(vm, "vmflavor"),
-                         "vimid": ignorcase_get(vm, "vimid"),
-                         "tenant": ignorcase_get(vm, "tenant")
-                         })
+                        {
+                            "type": "vdu",
+                            "resourceDefinitionId": i,
+                            "vdu": ignorcase_get(vm, "vmflavor"),
+                            "vimid": ignorcase_get(vm, "vimid"),
+                            "tenant": ignorcase_get(vm, "tenant")
+                         }
+                    )
 
         data["additionalparam"] = {}
         data["additionalparam"]["vnfmid"] = ignorcase_get(request.data, "vnfmid")
         data["additionalparam"]["vimid"] = ignorcase_get(request.data, "vimid")
         data["additionalparam"]["tenant"] = ignorcase_get(request.data, "tenant")
 
-        logger.info("data = %s", data)
-        ret = req_by_msb(grant_vnf_url, "POST", content=json.JSONEncoder().encode(data))
+        ret = req_by_msb('api/nslcm/v1/ns/grantvnf', "POST", content=json.JSONEncoder().encode(data))
         logger.info("ret = %s", ret)
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         resp = json.JSONDecoder().decode(ret[1])
-
         resp_data['vimid'] = ignorcase_get(resp['vim'], 'vimid')
         resp_data['tenant'] = ignorcase_get(ignorcase_get(resp['vim'], 'accessinfo'), 'tenant')
-
         logger.info("[%s]resp_data=%s", fun_name(), resp_data)
     except Exception as e:
         logger.error("Error occurred in Grant VNF.")
