@@ -256,7 +256,6 @@ def operation_status(request, *args, **kwargs):
 def grantvnf(request, *args, **kwargs):
     logger.info("=====grantvnf=====")
     try:
-        resp_data = {}
         logger.info("req_data = %s", request.data)
         grant_vnf_param_map = {
             "VNFMID": "",
@@ -296,8 +295,10 @@ def grantvnf(request, *args, **kwargs):
         if ret[0] != 0:
             return Response(data={'error': ret[1]}, status=ret[2])
         resp = json.JSONDecoder().decode(ret[1])
-        resp_data['vimid'] = ignorcase_get(resp['vim'], 'vimid')
-        resp_data['tenant'] = ignorcase_get(ignorcase_get(resp['vim'], 'accessinfo'), 'tenant')
+        resp_data = {
+            'vimid': ignorcase_get(resp['vim'], 'vimid'),
+            'tenant': ignorcase_get(ignorcase_get(resp['vim'], 'accessinfo'), 'tenant')
+        }
         logger.info("[%s]resp_data=%s", fun_name(), resp_data)
     except Exception as e:
         logger.error("Error occurred in Grant VNF.")
@@ -305,27 +306,23 @@ def grantvnf(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-# Notify LCM Events
-notify_url = 'api/nslcm/v1/ns/{vnfmid}/vnfs/{vnfInstanceId}/Notify'
-notify_param_map = {
-    "NFVOID": "",
-    "VNFMID": "VNFMID",
-    "VIMID": "vimid",
-    "VNFInstanceID": "vnfInstanceId",
-    "TimeStamp": "",
-    "EventType": "operation",
-    "VMList": "",
-    "VMFlavor": "",
-    "VMNumber": "",
-    "VMIDlist": "",
-    "VMUUID": ""
-}
-
-
 @api_view(http_method_names=['POST'])
 def notify(request, *args, **kwargs):
     try:
         logger.info("[%s]req_data = %s", fun_name(), request.data)
+        notify_param_map = {
+            "NFVOID": "",
+            "VNFMID": "VNFMID",
+            "VIMID": "vimid",
+            "VNFInstanceID": "vnfInstanceId",
+            "TimeStamp": "",
+            "EventType": "operation",
+            "VMList": "",
+            "VMFlavor": "",
+            "VMNumber": "",
+            "VMIDlist": "",
+            "VMUUID": ""
+        }
         data = mapping_conv(notify_param_map, request.data)
         logger.info("[%s]data = %s", fun_name(), data)
 
@@ -373,6 +370,7 @@ def notify(request, *args, **kwargs):
         for affectedcp in affectedcps:
             data["affectedCp"].append(affectedcp)
 
+        notify_url = 'api/nslcm/v1/ns/{vnfmid}/vnfs/{vnfInstanceId}/Notify'
         ret = req_by_msb(notify_url.format(vnfmid=ignorcase_get(data, 'VNFMID'),
                                            vnfInstanceId=ignorcase_get(data, 'vnfinstanceid')),
                          "POST", content=json.JSONEncoder().encode(data))
