@@ -385,9 +385,6 @@ def notify(request, *args, **kwargs):
     return Response(data=None, status=ret[2])
 
 
-nf_scaling_url = '/v1/vnfs/{vnfInstanceID}/scale'
-
-
 @api_view(http_method_names=['POST'])
 def scale(request, *args, **kwargs):
     logger.info("====scale_vnf===")
@@ -403,8 +400,6 @@ def scale(request, *args, **kwargs):
         scale_type = ignorcase_get(request.data, "type")
         aspect_id = ignorcase_get(request.data, "aspectId")
         number_of_steps = ignorcase_get(request.data, "numberOfSteps")
-        # extension = ignorcase_get(request.data, "additionalParam")
-        # vnfd_model = ignorcase_get(extension, "vnfdModel")
         data = {
             'vnfmid': vnfm_id,
             'nfvoid': 1,
@@ -412,20 +407,14 @@ def scale(request, *args, **kwargs):
             'vmlist': [{'VMNumber': number_of_steps, 'VMFlavor': aspect_id}],
             'extension': ''
         }
-        '''
-        for vdu_id in get_vdus(vnfd_model, aspect_id):
-            data['vmlist'].append({
-                "VMFlavor": vdu_id,
-                "VMNumber": number_of_steps
-            })
-        '''
+
         logger.info("data = %s", data)
         ret = restcall.call_req(
             base_url=ignorcase_get(vnfm_info, "url"),
             user=ignorcase_get(vnfm_info, "userName"),
             passwd=ignorcase_get(vnfm_info, "password"),
             auth_type=restcall.rest_no_auth,
-            resource=nf_scaling_url.format(vnfInstanceID=nf_instance_id),
+            resource='/v1/vnfs/{vnfInstanceID}/scale'.format(vnfInstanceID=nf_instance_id),
             method='put',  # POST
             content=json.JSONEncoder().encode(data))
         logger.info("ret=%s", ret)
@@ -438,9 +427,6 @@ def scale(request, *args, **kwargs):
         logger.error(traceback.format_exc())
         return Response(data={'error': 'scale expection'}, status='500')
     return Response(data=resp_data, status=ret[2])
-
-
-nf_healing_url = '/api/v1/nf_m_i/nfs/{vnfInstanceID}/vms/operation'
 
 
 @api_view(http_method_names=['POST'])
@@ -472,7 +458,7 @@ def heal(request, *args, **kwargs):
             user=ignorcase_get(vnfm_info, "userName"),
             passwd=ignorcase_get(vnfm_info, "password"),
             auth_type=restcall.rest_no_auth,
-            resource=nf_healing_url.format(vnfInstanceID=nf_instance_id),
+            resource='/api/v1/nf_m_i/nfs/{vnfInstanceID}/vms/operation'.format(vnfInstanceID=nf_instance_id),
             method='post',
             content=json.JSONEncoder().encode(data))
         logger.info("ret=%s", ret)
