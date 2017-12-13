@@ -128,26 +128,27 @@ public class VnfResourceRoa {
             changeType = "removed";
             operation = "Terminal";
         }
-        String vnfcInstanceId = dataObject.getString("vnf_id");
+        String vnfInstanceId = dataObject.getString("vnf_id");
         for(int i = 0; i < vmList.size(); i++) {
             JSONObject vm = vmList.getJSONObject(i);
             LOG.info("function=callLcmNotify, vm: {}", vm);
             JSONObject affectedVm = new JSONObject();
-            affectedVm.put("vnfcInstanceId", vnfcInstanceId);
+            affectedVm.put("vnfcInstanceId", vm.getString("vm_id"));
             affectedVm.put("changeType", changeType);
             affectedVm.put("vimid", vimId);
             affectedVm.put("vmid", vm.getString("vm_id"));
             affectedVm.put("vmname", vm.getString("vm_name"));
+            affectedVm.put("vduid", vm.getString("vm_id"));
             LOG.info("function=callLcmNotify, affectedVm: {}", affectedVm);
             affectedVnfc.add(affectedVm);
         }
         JSONObject notification = new JSONObject();
         notification.put("status", dataObject.getString("vnf_status"));
-        notification.put("vnfInstanceId", vnfcInstanceId);
+        notification.put("vnfInstanceId", vnfInstanceId);
         notification.put("operation", operation);
         notification.put("affectedVnfc", affectedVnfc);
         LOG.info("function=callLcmNotify, notification: {}", notification);
-        String url = "/api/nslcm/v1/ns/" + vnfmId + "/vnfs/" + vnfcInstanceId + "/Notify";
+        String url = "/api/nslcm/v1/ns/" + vnfmId + "/vnfs/" + vnfInstanceId + "/Notify";
         LOG.info("function=callLcmNotify, url: {}", url);
         RestfulResponse rsp =
                 VnfmRestfulUtil.getRemoteResponse(url, VnfmRestfulUtil.TYPE_POST, notification.toString());
