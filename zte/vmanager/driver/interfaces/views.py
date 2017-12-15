@@ -353,18 +353,22 @@ def notify(request, *args, **kwargs):
                 "vnfcInstanceId": ignorcase_get(affectedvnfc, "vnfcInstanceId"),
                 "vduId": ignorcase_get(affectedvnfc, "vduId"),
                 "changeType": ignorcase_get(affectedvnfc, "changeType"),
-                "vimid": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "vimId"),
+                "vimId": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "vimId"),
                 "vmId": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "resourceId"),
                 "vmName": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "resourceName")
             })
 
         for affectedvl in affectedvls:
             data["affectedVl"].append({
-                "vlInstanceId": ignorcase_get(affectedvl, "virtuallinkinstanceid"),
-                "vimid": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "vimid"),
-                "vldid": ignorcase_get(affectedvl, "virtuallinkdescid"),
-                "vllid": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "resourceid"),
-                "vlName": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "resourcename")
+                "vlInstanceId": ignorcase_get(affectedvl, "virtualLinkInstanceId"),
+                "changeType": ignorcase_get(affectedvl, "changeType"),
+                "vimId": ignorcase_get(ignorcase_get(affectedvl, "networkResource"), "vimId"),
+                "vldId": ignorcase_get(affectedvl, "virtuallinkdescid"),
+                "networkResource": {
+                    "resourceType": "network",
+                    "resourceId": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "resourceid"),
+                    "resourceName": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "resourcename")
+                }
             })
 
         for affectedcp in affectedcps:
