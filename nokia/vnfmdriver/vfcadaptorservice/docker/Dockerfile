@@ -39,12 +39,12 @@ ENV CATALINA_HOME /service
 
 # Set up microservice
 # https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip
-RUN wget -q -O nfvo-driver-vnfm-nokia-1.0.0-SNAPSHOT.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip" && unzip -q -o -B nfvo-driver-vnfm-nokia-1.0.0-SNAPSHOT.zip && rm -f nfvo-driver-vnfm-nokia-1.0.0-SNAPSHOT.zip
+RUN wget -q -O nfvo-driver-vnfm-nokia-1.1.0-SNAPSHOT.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip" && unzip -q -o -B nfvo-driver-vnfm-nokia-1.1.0-SNAPSHOT.zip && rm -f nfvo-driver-vnfm-nokia-1.1.0-SNAPSHOT.zip
 # Set permissions
 RUN find . -type d -exec chmod o-w {} \;
 RUN find . -name "*.sh" -exec chmod +x {} \;
 EXPOSE 8486
-RUN echo ONAP nfvo-driver-vnfm-nokia 1.0.0-SNAPSHOT "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip" > ONAP_VERSION
+RUN echo ONAP nfvo-driver-vnfm-nokia 1.1.0-SNAPSHOT "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip" > ONAP_VERSION
 
 
 # 90-entrypoint.txt
