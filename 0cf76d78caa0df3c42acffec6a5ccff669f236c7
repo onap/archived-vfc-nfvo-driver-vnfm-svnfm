@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_ad44a474",
+        "filename": "nokia/vnfmdriver/vfcadaptorservice/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 925
+      },
+      "writtenOn": "2017-12-25T08:39:13Z",
+      "side": 1,
+      "message": "This should be r\u003dstaging not r\u003dsnapshots",
+      "range": {
+        "startLine": 42,
+        "startChar": 106,
+        "endLine": 42,
+        "endChar": 115
+      },
+      "revId": "0cf76d78caa0df3c42acffec6a5ccff669f236c7",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
