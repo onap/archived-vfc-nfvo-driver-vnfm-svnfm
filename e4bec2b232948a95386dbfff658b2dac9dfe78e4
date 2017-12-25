@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_ed638c18",
+        "filename": "nokia/vnfmdriver/vfcadaptorservice/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 925
+      },
+      "writtenOn": "2017-12-25T07:18:00Z",
+      "side": 1,
+      "message": "repository should be staging",
+      "range": {
+        "startLine": 42,
+        "startChar": 121,
+        "endLine": 42,
+        "endChar": 130
+      },
+      "revId": "e4bec2b232948a95386dbfff658b2dac9dfe78e4",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_0d6918f9",
+        "filename": "nokia/vnfmdriver/vfcadaptorservice/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 925
+      },
+      "writtenOn": "2017-12-25T07:18:00Z",
+      "side": 1,
+      "message": "repository should be staging",
+      "range": {
+        "startLine": 47,
+        "startChar": 116,
+        "endLine": 47,
+        "endChar": 125
+      },
+      "revId": "e4bec2b232948a95386dbfff658b2dac9dfe78e4",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
