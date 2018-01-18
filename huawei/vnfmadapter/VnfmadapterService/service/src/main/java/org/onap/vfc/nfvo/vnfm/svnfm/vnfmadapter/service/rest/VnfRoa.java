@@ -33,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.lang3.StringUtils;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
@@ -352,5 +353,23 @@ public class VnfRoa {
         jobInfoJson.put("responsedescriptor", responseJson);
         LOG.warn("function=getJobBody, jobInfoJson: {}", jobInfoJson);
         return jobInfoJson.toString();
+    }
+
+    @GET
+    @Path("/{vnfmId}/vms")
+    public String getVms(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp)
+            throws ServiceException {
+        LOG.info("function=getVms, msg=enter to get vms: vnfmId: {}", vnfmId);
+        JSONObject restJson = new JSONObject();
+        JSONObject vnfmObjcet = VnfmUtil.getVnfmById(vnfmId);
+        if(vnfmObjcet.isNullObject()) {
+            LOG.error("function=getVnf, msg=vnfm not exists, vnfmId: {}", vnfmId);
+            restJson.put("message", "vnfm not exists");
+            return restJson.toString();
+        }
+        String url = "/v2/vapps/instances/query/vms";
+        restJson = ResultRequestUtil.call(vnfmObjcet, url, Constant.GET, null, Constant.CERTIFICATE);
+        LOG.info("function=getVms, restJson: {}", restJson);
+        return restJson.getString("data");
     }
 }
