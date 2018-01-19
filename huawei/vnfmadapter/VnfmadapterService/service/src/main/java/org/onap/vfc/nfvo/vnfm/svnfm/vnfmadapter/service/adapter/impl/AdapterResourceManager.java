@@ -62,16 +62,17 @@ public class AdapterResourceManager implements IResourceManager {
     private static final String VNFD_FILE_PATH = "vnfd_file_path";
 
     @Override
-    public JSONObject uploadVNFPackage(JSONObject vnfpkg, Map<String, String> paramsMap) {
+    public JSONObject uploadVNFPackage(JSONObject vnfpkge, Map<String, String> paramsMap) {
         JSONObject resultObj = new JSONObject();
         String vnfDescriptorId = paramsMap.get("vnfDescriptorId");
+        JSONObject vnfpkgJson = new JSONObject();
         try {
             // if upper layer do not provide vnfpackage info,then get the
             // vnfpackage info from JSON file.
-            if(vnfpkg == null || vnfpkg.isEmpty()) {
+            if(vnfpkge == null || vnfpkge.isEmpty()) {
                 String vnfPkgInfo = readVfnPkgInfoFromJson();
-                JSONObject vnfpkgJson = JSONObject.fromObject(vnfPkgInfo);
-                vnfpkg = vnfpkgJson.getJSONObject(vnfDescriptorId);
+                vnfpkgJson = JSONObject.fromObject(vnfPkgInfo);
+
             }
         } catch(IOException e) {
             LOG.error("function=uploadVNFPackage", e);
@@ -102,15 +103,19 @@ public class AdapterResourceManager implements IResourceManager {
         // obtain CSAR package info
         JSONObject csarobj = getVnfmCsarInfo(csarid);
         String downloadUri = "";
+        String csarName = "";
         if(Integer.valueOf(csarobj.get(Constant.RETCODE).toString()) == Constant.HTTP_OK) {
             LOG.info("get CSAR info successful.", csarobj.get(Constant.RETCODE));
             downloadUri = csarobj.getJSONObject("packageInfo").getString("downloadUrl");
+            csarName = csarobj.getJSONObject("packageInfo").getString("csarName");
         } else {
             LOG.error("get CSAR info fail.", csarobj.get(Constant.RETCODE));
             resultObj.put(Constant.REASON, csarobj.get(Constant.REASON).toString());
             resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
             return resultObj;
         }
+        String vnfdName = transferFromCsar(csarName);
+        JSONObject vnfpkg = vnfpkgJson.getJSONObject(vnfdName);
         JSONObject csarTempObj = vnfpkg.getJSONObject("template");
         String csarfilepath = csarTempObj.getString("csar_file_path");
         String csarfilename = csarTempObj.getString("csar_file_name");
@@ -196,9 +201,9 @@ public class AdapterResourceManager implements IResourceManager {
 
         if(vnfdid == null || "".equals(vnfdid.trim())) {
             JSONObject vnfdConf = readVnfdIdInfoFromJson();
-            LOG.info("vnfdConf=" + vnfdConf);
-            if(vnfdConf.containsKey(vnfDescriptorId)) {
-                vnfdid = vnfdConf.getString(vnfDescriptorId);
+            LOG.info("vnfdName:" + vnfdName + ", vnfdConf=" + vnfdConf);
+            if(vnfdConf.containsKey(vnfdName)) {
+                vnfdid = vnfdConf.getString(vnfdName);
             }
         }
         LOG.info("set vnfdId=" + vnfdid);
@@ -269,6 +274,14 @@ public class AdapterResourceManager implements IResourceManager {
         LOG.info("resultObj:" + resultObj.toString());
 
         return resultObj;
+    }
+
+    private String transferFromCsar(String csarName) {
+        LOG.info("csarName: " + csarName);
+        if(csarName.toUpperCase().contains("HSS")) {
+            return "HSS";
+        }
+        return "";
     }
 
     private JSONObject uploadCsar(JSONObject vnfpkg, String csarfilepath) {
