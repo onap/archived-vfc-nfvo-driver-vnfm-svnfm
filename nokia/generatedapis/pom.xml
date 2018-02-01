@@ -31,7 +31,7 @@
       <plugin>
         <groupId>io.swagger</groupId>
         <artifactId>swagger-codegen-maven-plugin</artifactId>
-        <version>2.2.1</version>
+        <version>2.2.2</version>
         <executions>
           <execution>
             <id>catalog</id>
@@ -44,6 +44,23 @@
               <output>${project.build.directory}/generated-sources/vfccatalog</output>
               <apiPackage>org.onap.vfccatalog.api</apiPackage>
               <modelPackage>org.onap.vfccatalog.model</modelPackage>
+              <configOptions>
+                <generateSupportingFiles>false</generateSupportingFiles>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>svnfm</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/vfc.vnfdriver.swagger.json</inputSpec>
+              <language>java</language>
+              <output>${project.build.directory}/generated-sources/vnfmdriver</output>
+              <apiPackage>org.onap.vnfmdriver.api</apiPackage>
+              <modelPackage>org.onap.vnfmdriver.model</modelPackage>
               <configOptions>
                 <generateSupportingFiles>false</generateSupportingFiles>
                 <sourceFolder>src/gen/java/main</sourceFolder>
