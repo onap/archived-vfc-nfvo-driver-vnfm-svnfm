@@ -1,0 +1,1100 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Resource Management API",
+        "description": "Resource Management API",
+        "version": "1.0.0"
+    },
+    "tags": [
+        {
+            "name": "Resource Management services"
+        }
+    ],
+    "basePath": "/api/resmgr/v1",
+    "paths": {
+        "/limits": {
+            "get": {
+                "summary": "Query limits information",
+                "description": "Query limits information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimId",
+                        "in": "query",
+                        "description": "vim Id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully Query limits information",
+                        "schema": {
+                            "$ref": "#/definitions/QueryLimts"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Limits Not Found"
+                    },
+                    "500": {
+                        "description": "Limits failed to process the request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/grant": {
+            "put": {
+                "summary": "Grant VNF Life Cycle Operation",
+                "description": "Grant Resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "open-o",
+                        "description": "OPEN-O Interface.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/GrantResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "VNF Resource Response",
+                        "schema": {
+                            "$ref": "#/definitions/GrantResourceResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "VNF Resource Not Found"
+                    },
+                    "500": {
+                        "description": "VNF resource failed to process the request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/vl": {
+            "post": {
+                "summary": "Create virtual link resource",
+                "description": "virtual link Resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "open-o",
+                        "description": "OPEN-O Interface.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VirtualLink"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Successfully Created VNF Resource",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualLinkResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "VNF Resource Not Found"
+                    },
+                    "500": {
+                        "description": "VNF resource failed to process the request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/vl/{id}": {
+            "delete": {
+                "summary": "Delete virtual link resource",
+                "description": "Delete virtual link Resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "VNF Resource Id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully Deleted VNF Resource"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "VNF Resource Not Found"
+                    },
+                    "500": {
+                        "description": "VNF resource failed to process the request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/vnf": {
+            "post": {
+                "summary": "Create VNF instance resource",
+                "description": "Create VNF Resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "open-o",
+                        "description": "OPEN-O Interface.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateVNFResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully Created VNF Resource",
+                        "schema": {
+                            "$ref": "#/definitions/CreateVNFResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "VNF Resource Not Found"
+                    },
+                    "500": {
+                        "description": "VNF resource failed to process the request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/vnfinfo": {
+            "post": {
+                "summary": "Write VNF status information",
+                "description": "VNF Status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "open-o",
+                        "description": "OPEN-O Interface.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VNFStatusInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully write VNF status"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "VNF Resource Not Found"
+                    },
+                    "500": {
+                        "description": "VNF resource failed to process the request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/vnfdetailinfo": {
+            "post": {
+                "summary": "Write VNF detail information",
+                "description": "VNF detail info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "open-o",
+                        "description": "OPEN-O Interface",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VNFDetailInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully write VNF detail Info"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "VNF Resource Not Found"
+                    },
+                    "500": {
+                        "description": "VNF resource failed to process the request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "QueryLimts": {
+            "type": "object",
+            "description": "Query Limits Response.",
+            "required": [
+                "vimId",
+                "vimName",
+                "totalCPU",
+                "totalMemory",
+                "totalDisk",
+                "usedCPU",
+                "usedMemory",
+                "usedDisk"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string",
+                    "description": "Identifier of vimId."
+                },
+                "vimName": {
+                    "type": "string",
+                    "description": "Name."
+                },
+                "totalCPU": {
+                    "type": "string"
+                },
+                "totalMemory": {
+                    "type": "string"
+                },
+                "totalDisk": {
+                    "type": "string"
+                },
+                "usedCPU": {
+                    "type": "string"
+                },
+                "usedMemory": {
+                    "type": "string"
+                },
+                "usedDisk": {
+                    "type": "string"
+                }
+            }
+        },
+        "VirtualLinkResponse": {
+            "type": "object",
+            "description": "Virtual Link Response.",
+            "required": [
+                "Id",
+                "Name"
+            ],
+            "properties": {
+                "Id": {
+                    "type": "string",
+                    "description": "Identifier of VL."
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "Name of VL."
+                }
+            }
+        },
+        "CreateVNFResponse": {
+            "type": "object",
+            "description": "Create VNF Response.",
+            "required": [
+                "Id",
+                "Name"
+            ],
+            "properties": {
+                "Id": {
+                    "type": "string",
+                    "description": "UUID."
+                },
+                "Name": {
+                    "type": "string",
+                    "description": "Instance Name."
+                }
+            }
+        },
+        "VNFDetailInfo": {
+            "type": "object",
+            "description": "List of Vm to be added or deleted",
+            "required": [
+                "vnfInstanceId",
+                "nsId",
+                "vnfmId",
+                "Vms"
+            ],
+            "properties": {
+                "vnfInstanceId": {
+                    "type": "string",
+                    "description": "The id of VNF instance"
+                },
+                "nsId": {
+                    "type": "string",
+                    "description": "NS ID"
+                },
+                "vnfmId": {
+                    "type": "string",
+                    "description": "VNFM ID"
+                },
+                "Vms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Vm"
+                    }
+                }
+            }
+        },
+        "VNFStatusInfo": {
+            "type": "object",
+            "description": "Write VNF Status.",
+            "required": [
+                "vnfInstanceId",
+                "jobId",
+                "nsId",
+                "vnfmId",
+                "responseDescriptor",
+                "status",
+                "progress",
+                "sStatusDescription",
+                "errorCode",
+                "responseId",
+                "responseHistoryList",
+                "addVm",
+                "delVm"
+            ],
+            "properties": {
+                "vnfInstanceId": {
+                    "type": "string",
+                    "description": "The Id of VNF Instance."
+                },
+                "jobId": {
+                    "type": "string",
+                    "description": "The ID of workflow."
+                },
+                "nsId": {
+                    "type": "string",
+                    "description": "NS ID."
+                },
+                "vnfmId": {
+                    "type": "string",
+                    "description": "The VNFM ID."
+                },
+                "responseDescriptor": {
+                    "type": "string",
+                    "description": "The name of VNFM."
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Status of VNF - started processing finished error."
+                },
+                "progress": {
+                    "type": "integer",
+                    "description": "progress (1-100)."
+                },
+                "sStatusDescription": {
+                    "type": "string",
+                    "description": "current Progress Description."
+                },
+                "errorCode": {
+                    "type": "integer",
+                    "description": "Error code."
+                },
+                "responseId": {
+                    "type": "integer",
+                    "description": "Message Number."
+                },
+                "responseHistoryList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/progressInfo"
+                    }
+                },
+                "addVm": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Vm"
+                    }
+                },
+                "delVm": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Vm"
+                    }
+                }
+            }
+        },
+        "progressInfo": {
+            "type": "object",
+            "description": "List of Vm to be added or deleted",
+            "required": [
+                "progress",
+                "status",
+                "statusDescription",
+                "errorCode",
+                "responseId",
+                "responseHistoryList"
+            ],
+            "properties": {
+                "progress": {
+                    "type": "integer",
+                    "description": "progress (1 - 100)"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "status"
+                },
+                "statusDescription": {
+                    "type": "string",
+                    "description": "status description"
+                },
+                "errorCode": {
+                    "type": "integer",
+                    "description": "Error Code"
+                },
+                "responseId": {
+                    "type": "integer",
+                    "description": "Id"
+                },
+                "responseHistoryList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/historyInfo"
+                    }
+                }
+            }
+        },
+        "historyInfo": {
+            "type": "object",
+            "description": "List of Vm to be added or deleted",
+            "required": [
+                "progress",
+                "status",
+                "statusDescription",
+                "errorCode",
+                "responseId"
+            ],
+            "properties": {
+                "progress": {
+                    "type": "integer",
+                    "description": "progress (1 - 100)"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "status"
+                },
+                "statusDescription": {
+                    "type": "string",
+                    "description": "status description"
+                },
+                "errorCode": {
+                    "type": "integer",
+                    "description": "Error Code"
+                },
+                "responseId": {
+                    "type": "integer",
+                    "description": "Id"
+                }
+            }
+        },
+        "Vm": {
+            "type": "object",
+            "description": "List of Vm to be added or deleted",
+            "required": [
+                "vmId",
+                "vmName",
+                "vmStatus"
+            ],
+            "properties": {
+                "vmId": {
+                    "type": "string",
+                    "description": "The ID of VM"
+                },
+                "vmName": {
+                    "type": "string",
+                    "description": "The name of VM"
+                },
+                "vmStatus": {
+                    "type": "string",
+                    "description": "The Status of VM"
+                }
+            }
+        },
+        "CreateVNFResource": {
+            "type": "object",
+            "description": "Create VNF Resource.",
+            "required": [
+                "vnfInstanceId",
+                "vnfInstanceName",
+                "nsId",
+                "nsName",
+                "vnfmId",
+                "vnfmName",
+                "vnfPackageName",
+                "vnfDescriptorName",
+                "vimId",
+                "vimName",
+                "vimTenant",
+                "jobId",
+                "vnfStatus",
+                "vnfType",
+                "maxVm",
+                "maxCpu",
+                "maxDisk",
+                "maxRam",
+                "maxShd",
+                "maxNet"
+            ],
+            "properties": {
+                "vnfInstanceId": {
+                    "type": "string",
+                    "description": "The Identifier of VNF Instance."
+                },
+                "vnfInstanceName": {
+                    "type": "string",
+                    "description": "The name of VNF."
+                },
+                "nsId": {
+                    "type": "string",
+                    "description": "NS ID."
+                },
+                "nsName": {
+                    "type": "string",
+                    "description": "NS name."
+                },
+                "vnfmId": {
+                    "type": "string",
+                    "description": "The ID of VNFM."
+                },
+                "vnfmName": {
+                    "type": "string",
+                    "description": "The name of VNFM."
+                },
+                "vnfPackageName": {
+                    "type": "string",
+                    "description": "The description of VNF Package."
+                },
+                "vnfDescriptorName": {
+                    "type": "string",
+                    "description": "The Description of VNFD."
+                },
+                "vimId": {
+                    "type": "string",
+                    "description": "Vim ID."
+                },
+                "vimName": {
+                    "type": "string",
+                    "description": "The Name of VIM."
+                },
+                "vimTenant": {
+                    "type": "string",
+                    "description": "The tenant of VIM."
+                },
+                "jobId": {
+                    "type": "string",
+                    "description": "The ID of workflow."
+                },
+                "vnfStatus": {
+                    "type": "string",
+                    "description": "The status of VNF."
+                },
+                "vnfType": {
+                    "type": "string",
+                    "description": "The type of VNF."
+                },
+                "maxVm": {
+                    "type": "integer",
+                    "description": "Max Vm in this VNF."
+                },
+                "maxCpu": {
+                    "type": "integer",
+                    "description": "Max CPU in this VNF."
+                },
+                "maxDisk": {
+                    "type": "integer",
+                    "description": "Max Disk in this VNF."
+                },
+                "maxRam": {
+                    "type": "integer",
+                    "description": "Max Memory in this VNF."
+                },
+                "maxShd": {
+                    "type": "integer",
+                    "description": "Max Share Disk in this VNF."
+                },
+                "maxNet": {
+                    "type": "integer",
+                    "description": "Max logical Network in this VNF."
+                }
+            }
+        },
+        "VirtualLink": {
+            "type": "object",
+            "description": "Virtual Link Resource.",
+            "required": [
+                "name",
+                "backendId",
+                "isPublic",
+                "dcName",
+                "vimId",
+                "vimName",
+                "physicialNet",
+                "nsId",
+                "nsName",
+                "description",
+                "networkType",
+                "segmentation",
+                "mtu",
+                "vlanTransparent",
+                "routerExternal",
+                "resourceProviderType",
+                "resourceProviderId"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Logical Network Name."
+                },
+                "backendId": {
+                    "type": "string",
+                    "description": "The backend id on VIM."
+                },
+                "isPublic": {
+                    "type": "string",
+                    "description": "Sharable - True or False."
+                },
+                "dcName": {
+                    "type": "string",
+                    "description": "The DataCenter name."
+                },
+                "vimId": {
+                    "type": "string",
+                    "description": "vim Id."
+                },
+                "vimName": {
+                    "type": "string",
+                    "description": "The name of VIM."
+                },
+                "physicialNet": {
+                    "type": "string",
+                    "description": "Physicial Network."
+                },
+                "nsId": {
+                    "type": "string",
+                    "description": "NsId."
+                },
+                "nsName": {
+                    "type": "string",
+                    "description": "The name of NS."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description."
+                },
+                "networkType": {
+                    "type": "string",
+                    "description": "Network Type - gre/vlan/vxlan."
+                },
+                "segmentation": {
+                    "type": "string",
+                    "description": "Segmentation Id just like vlan id."
+                },
+                "mtu": {
+                    "type": "string",
+                    "description": "MTU value."
+                },
+                "vlanTransparent": {
+                    "type": "string",
+                    "description": "Support vlan transparent- True/False."
+                },
+                "routerExternal": {
+                    "type": "string",
+                    "description": "Support External Router - True / False."
+                },
+                "resourceProviderType": {
+                    "type": "string",
+                    "description": "The location to be deployed in one of the list - VIM/DC/Zone/Host."
+                },
+                "resourceProviderId": {
+                    "type": "string",
+                    "description": "The location ID to be deployed."
+                }
+            }
+        },
+        "GrantResourceResponse": {
+            "type": "object",
+            "description": "Resource Response.",
+            "required": [
+                "vim",
+                "zone",
+                "zoneGroup",
+                "addResource",
+                "tempResource",
+                "removeResource",
+                "updateResource",
+                "vimAssets",
+                "additionalParam"
+            ],
+            "properties": {
+                "vim": {
+                    "$ref": "#/definitions/VimInfo"
+                },
+                "zone": {
+                    "type": "string"
+                },
+                "zoneGroup": {
+                    "type": "string"
+                },
+                "addResource": {
+                    "$ref": "#/definitions/GrantInfo"
+                },
+                "tempResource": {
+                    "$ref": "#/definitions/GrantInfo"
+                },
+                "removeResource": {
+                    "$ref": "#/definitions/GrantInfo"
+                },
+                "updateResource": {
+                    "$ref": "#/definitions/GrantInfo"
+                },
+                "vimAssets": {
+                    "type": "string"
+                },
+                "additionalParam": {
+                    "type": "string"
+                }
+            }
+        },
+        "VimInfo": {
+            "type": "object",
+            "description": "Information about the VIM that manages this resource.",
+            "required": [
+                "vimInfoId",
+                "vimId",
+                "interfaceInfo",
+                "accessInfo",
+                "interfaceEndpoint"
+            ],
+            "properties": {
+                "vimInfoId": {
+                    "type": "string",
+                    "description": "The identifier of this VimInfo instance, for the purpose of referencing it from other information elements."
+                },
+                "vimId": {
+                    "type": "string",
+                    "description": "The identifier of the VIM.."
+                },
+                "interfaceInfo": {
+                    "$ref": "#/definitions/interfaceInfo"
+                },
+                "accessInfo": {
+                    "$ref": "#/definitions/accessInfo"
+                },
+                "interfaceEndpoint": {
+                    "type": "string",
+                    "description": "Information about the interface endpoint. An example is a URL."
+                }
+            }
+        },
+        "interfaceInfo": {
+            "type": "object",
+            "description": "Information about the interface to the VIM, including VIM provider type, API version, and protocol type..",
+            "required": [
+                "vimType",
+                "apiVersion",
+                "protocolType"
+            ],
+            "properties": {
+                "vimType": {
+                    "type": "string",
+                    "description": "vim"
+                },
+                "apiVersion": {
+                    "type": "string",
+                    "description": "api version"
+                },
+                "protocolType": {
+                    "type": "string",
+                    "description": "Type of the protocol"
+                }
+            }
+        },
+        "accessInfo": {
+            "type": "object",
+            "description": "Authentication credentials for accessing the VIM. Examples may include those to support different authentication schemes, e.g., OAuth, Token, etc..",
+            "required": [
+                "tenant",
+                "username",
+                "password"
+            ],
+            "properties": {
+                "tenant": {
+                    "type": "string",
+                    "description": "Tenant Name of tenant"
+                },
+                "username": {
+                    "type": "string",
+                    "description": "Username for login"
+                },
+                "password": {
+                    "type": "string",
+                    "description": "Password of login user"
+                }
+            }
+        },
+        "GrantInfo": {
+            "type": "object",
+            "description": "Grant Information.",
+            "required": [
+                "resourceDefinitionId",
+                "reservationId",
+                "vimId",
+                "resourceProviderId",
+                "zoneId"
+            ],
+            "properties": {
+                "resourceDefinitionId": {
+                    "type": "string",
+                    "description": "Identifier of the related ResourceDefinition information from Grant Request"
+                },
+                "reservationId": {
+                    "type": "string",
+                    "description": "Reservation Identifier applicable to the VNFC/VL."
+                },
+                "vimId": {
+                    "type": "string",
+                    "description": "Reference to the identifier of the VimInfo information element defining the VIM under whose control this resource to be placed."
+                },
+                "resourceProviderId": {
+                    "type": "string",
+                    "description": "Identifies the entity responsible for the management of the virtualized resource."
+                },
+                "zoneId": {
+                    "type": "string",
+                    "description": "Reference of the identifier of the zoneInfo information element defining the resource zone in which resource to be placed."
+                }
+            }
+        },
+        "GrantResource": {
+            "type": "object",
+            "description": "Grant Resource Request Body.",
+            "required": [
+                "vnfInstanceId",
+                "addResource",
+                "vimId",
+                "additionalParam"
+            ],
+            "properties": {
+                "vnfInstanceId": {
+                    "type": "string",
+                    "description": "Identifier Instance."
+                },
+                "vimId": {
+                    "type": "string",
+                    "description": "Identifier vim."
+                },
+                "addResource": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResourceDefinition"
+                    },
+                    "description": "Information sufficient to identify the VNF Descriptor which defines the VNF to be created."
+                },
+                "removeResource": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResourceDefinition"
+                    }
+                },
+                "additionalParam": {
+                    "type": "object",
+                    "description": "additionalParam.",
+                    "required": [
+                        "vnfmid"
+                    ],
+                    "properties": {
+                        "vnfmid": {
+                            "type": "string"
+                        },
+                        "vimid": {
+                            "type": "string"
+                        },
+                        "tenant": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "ResourceDefinition": {
+            "type": "object",
+            "description": "List of resources to be added / deleted / updated.",
+            "required": [
+                "resourceDefinitionId",
+                "resourceTemplate",
+                "type",
+                "vdu"
+            ],
+            "properties": {
+                "resourceDefinitionId": {
+                    "type": "string",
+                    "description": "Identifier of this ResourceDefinition information element, unique at least within the scope of the Grant request."
+                },
+                "resourceTemplate": {
+                    "$ref": "#/definitions/ResourceTemplate"
+                },
+                "type": {
+                    "default": "compute",
+                    "enum": [
+                        "compute",
+                        "VL",
+                        "CP",
+                        "Storage"
+                    ],
+                    "description": "Currently only support tosca.nodes.nfv.VDU."
+                },
+                "vdu": {
+                    "type": "string",
+                    "description": "Reference to the related Vdu applicable to this resource in the VNFD."
+                }
+            }
+        },
+        "ResourceTemplate": {
+            "type": "object",
+            "description": "Resource templates.",
+            "required": [
+                "VirtualComputeDescriptor",
+                "VirtualStorageDescriptor"
+            ],
+            "properties": {
+                "VirtualComputeDescriptor": {
+                    "$ref": "#/definitions/VirtualComputeDescriptor"
+                },
+                "VirtualStorageDescriptor": {
+                    "$ref": "#/definitions/VirtualStorageDescriptor"
+                }
+            }
+        },
+        "VirtualComputeDescriptor": {
+            "type": "object",
+            "description": "Reference to a resource template.",
+            "required": [
+                "virtualCpu",
+                "virtualMemory"
+            ],
+            "properties": {
+                "virtualCpu": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Number of virtual CPUs"
+                },
+                "virtualMemory": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Amount of virtual Memory"
+                }
+            }
+        },
+        "VirtualStorageDescriptor": {
+            "type": "object",
+            "description": "Reference to a resource template.",
+            "required": [
+                "typeOfStorage",
+                "sizeOfStorage",
+                "swImageDescriptor"
+            ],
+            "properties": {
+                "typeOfStorage": {
+                    "type": "string",
+                    "description": "Type of virtualized storage resource"
+                },
+                "sizeOfStorage": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Size of virtualized storage resource"
+                },
+                "swImageDescriptor": {
+                    "type": "string",
+                    "description": "Software image to be loaded on the Virtual Storage"
+                }
+            }
+        },
+        "Error": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
