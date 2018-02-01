@@ -1,0 +1,85 @@
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0_nokia
+
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.nfv.VNF
+    properties:
+      descriptor_version: '1.0'
+      provider: myProvider
+      product_name: 'myName'
+      software_version: '2.0'
+      product_info_name: product_info_name
+  node_templates:
+    vduNode:
+      type: tosca.nodes.nfv.VDU
+      properties:
+        description: myVduDesc
+      requirements:
+        - virtual_compute: myCompute
+        - virtual_storage: myStorage1
+        - virtual_storage: myStorage2
+
+
+    myCompute:
+      type: tosca.nodes.nfv.VirtualCompute
+      properties:
+        virtual_memory:
+          virtual_mem_size: 8192 MB
+        virtual_cpu:
+          num_virtual_cpu: 4
+          virtual_cpu_clock: 1234 Mhz
+    myStorage1:
+      type: tosca.nodes.nfv.VirtualStorage
+      properties:
+        id: myStorage1
+        size_of_storage: 1G
+
+    myStorage2:
+      type: tosca.nodes.nfv.VirtualStorage
+      properties:
+        id: myStorage2
+        size_of_storage: 2G
+
+    myNetwork1:
+      type: tosca.nodes.nfv.VL
+
+    myNetwork2:
+      type: tosca.nodes.nfv.VL
+
+    icpWithOutEcp:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        description: myDescription
+      requirements:
+        - virtual_binding: vduNode
+        - virtual_link: myNetwork1
+
+    icpWithEcp:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        description: myDescription
+      requirements:
+        - virtual_binding: vduNode
+        - virtual_link: myNetwork1
+
+    myEcp:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - internal_connection_point: icpWithEcp
+
+    icpWithOutVdu:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        description: myDescription
+
+    ecpWithIcpWithOutVdu:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - internal_connection_point: icpWithOutVdu

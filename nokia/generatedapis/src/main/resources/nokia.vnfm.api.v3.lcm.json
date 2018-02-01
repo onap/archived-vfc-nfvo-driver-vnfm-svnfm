@@ -1,0 +1,4112 @@
+{
+  "swagger": "2.0", 
+  "info": {
+    "version": "v3.2", 
+    "title": "Nokia VNFM API version 3.2 WIP - VNF Lifecycle Management interface"
+  }, 
+  "basePath": "/vnfm/lcm/v3", 
+  "schemes": [
+    "https"
+  ], 
+  "securityDefinitions": {
+    "OauthPassword": {
+      "description": "OAuth 2.0 resource owner password credentials grant (https://tools.ietf.org/html/rfc6749#section-4.3) with bearer token type. Note: the given tokenUrl does not inherit from the basePath\n", 
+      "type": "oauth2", 
+      "tokenUrl": "/auth/realms/cbam/protocol/openid-connect/token", 
+      "flow": "password", 
+      "scopes": {
+        "default": "default scope"
+      }
+    }, 
+    "OauthClient": {
+      "description": "OAuth 2.0 client credentials grant (https://tools.ietf.org/html/rfc6749#section-4.4) with bearer token type. Note: the given tokenUrl does not inherit from the basePath\n", 
+      "type": "oauth2", 
+      "tokenUrl": "/auth/realms/cbam/protocol/openid-connect/token", 
+      "flow": "application", 
+      "scopes": {
+        "default": "default scope"
+      }
+    }
+  }, 
+  "security": [
+    {
+      "OauthPassword": [
+        "default"
+      ]
+    }, 
+    {
+      "OauthClient": [
+        "default"
+      ]
+    }
+  ], 
+  "produces": [
+    "application/json", 
+    "application/problem+json"
+  ], 
+  "consumes": [
+    "application/json"
+  ], 
+  "tags": [
+    {
+      "name": "vnfs"
+    }, 
+    {
+      "name": "operation_executions"
+    }
+  ], 
+  "paths": {
+    "/versions": {
+      "get": {
+        "description": "Gets the supported microversions for this base url\n", 
+        "responses": {
+          "200": {
+            "description": "Microversion information", 
+            "schema": {
+              "type": "object", 
+              "required": [
+                "version", 
+                "minVersion"
+              ], 
+              "properties": {
+                "version": {
+                  "description": "The most recent version", 
+                  "type": "string"
+                }, 
+                "minVersion": {
+                  "description": "The oldest supported version\n", 
+                  "type": "string"
+                }, 
+                "defaultVersion": {
+                  "description": "The version that is served automatically if no version header is provided. Defaults to the minVersion if not given.\n", 
+                  "type": "string"
+                }
+              }
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "versions"
+        ], 
+        "parameters": [
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ]
+      }
+    }, 
+    "/operation_executions/{operationExecutionId}": {
+      "get": {
+        "description": "Gets a single operation execution resource.", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/operationExecutionId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful response, the operation is not executing.", 
+            "schema": {
+              "$ref": "#/definitions/OperationExecution"
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "202": {
+            "description": "Successful response, the operation is still ongoing.", 
+            "schema": {
+              "$ref": "#/definitions/OperationExecution"
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "operation_executions"
+        ]
+      }
+    }, 
+    "/operation_executions/{operationExecutionId}/end_notification": {
+      "get": {
+        "description": "Gets the lifecycle change notification correponding to the result of the operation if the execution has finished. **Nokia extension to ETSI NFV IFA007.**\n", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/operationExecutionId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful response, the operation is finished", 
+            "schema": {
+              "$ref": "#/definitions/AbstractVnfNotification"
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "operation_executions"
+        ]
+      }
+    }, 
+    "/operation_executions/{operationExecutionId}/operation_params": {
+      "get": {
+        "description": "Gets the operation parameters correponding to the respective operation execution. **Nokia extension to ETSI NFV IFA007.**\n", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/operationExecutionId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful response", 
+            "schema": {
+              "type": "object", 
+              "additionalProperties": {
+                "type": [
+                  "string", 
+                  "number", 
+                  "boolean", 
+                  "array", 
+                  "object"
+                ]
+              }
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "operation_executions"
+        ]
+      }
+    }, 
+    "/operation_executions/{operationExecutionId}/additional_data": {
+      "get": {
+        "description": "Gets the implementation specific data corresponding to the respective operation execution. **Nokia extension to ETSI NFV IFA007.**\n", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/operationExecutionId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful response", 
+            "schema": {
+              "type": "object", 
+              "additionalProperties": {
+                "type": [
+                  "string", 
+                  "number", 
+                  "boolean", 
+                  "array", 
+                  "object"
+                ]
+              }
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "operation_executions"
+        ]
+      }
+    }, 
+    "/operation_executions/{operationExecutionId}/cancel": {
+      "post": {
+        "description": "Cancel the operation execution (if the operation supports it). This has no effect if the operation is not running. The state of the operation execution will change to FAILED when it has been canceled. **Nokia extension to ETSI NFV IFA007.**\n", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/operationExecutionId"
+          }, 
+          {
+            "name": "cancelOperationRequest", 
+            "required": true, 
+            "description": "Input parameters for the cancelling of an operation execution", 
+            "in": "body", 
+            "schema": {
+              "$ref": "#/definitions/CancelOperationRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "200": {
+            "description": "Operation execution canceled", 
+            "schema": {
+              "$ref": "#/definitions/OperationExecution"
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "202": {
+            "description": "Cancel is pending", 
+            "schema": {
+              "$ref": "#/definitions/OperationExecution"
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "400": {
+            "description": "Cancel for the given operation is not supported or not meaningful", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "operation_executions"
+        ]
+      }
+    }, 
+    "/vnfs": {
+      "post": {
+        "description": "Creates VNF object", 
+        "parameters": [
+          {
+            "name": "createVnfRequest", 
+            "description": "Parameters for the creation of a VNF instance", 
+            "in": "body", 
+            "required": true, 
+            "schema": {
+              "$ref": "#/definitions/CreateVnfRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "201": {
+            "description": "Created VNF instance", 
+            "headers": {
+              "Location": {
+                "description": "The url of the VNF instance", 
+                "type": "string", 
+                "format": "url"
+              }, 
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "schema": {
+              "$ref": "#/definitions/VnfInfo"
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }, 
+      "get": {
+        "description": "Gets the list of VNF objects.\n", 
+        "responses": {
+          "200": {
+            "description": "Successful response", 
+            "schema": {
+              "type": "array", 
+              "items": {
+                "$ref": "#/definitions/VnfInfo"
+              }
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ], 
+        "parameters": [
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ]
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}": {
+      "get": {
+        "description": "Gets VNF object", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/VnfInfo"
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }, 
+      "delete": {
+        "description": "Delete VNF instance from VNFM database. This can only be done if the VNF is not currently instantiated\n", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "204": {
+            "description": "Successful response", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }, 
+      "patch": {
+        "description": "Modifies the VnfInfo. This corresponds to the ModifyVnfInfo operation in IFA007. **Due to the ongoing discussions in ETSI regarding the implementation of this operation, this operation specification should not be considered stable**\n", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "name": "modifyVnfInfoRequest", 
+            "description": "Input parameters for VNF info modification", 
+            "required": true, 
+            "in": "body", 
+            "schema": {
+              "$ref": "#/definitions/ModifyVnfInfoRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "202": {
+            "$ref": "#/responses/operationExecutionCreated", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/instantiate": {
+      "post": {
+        "description": "Instantiates VNF with the given parameters", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "name": "instantiateVnfRequest", 
+            "required": true, 
+            "description": "Input parameters for the instantiation of the VNF instance", 
+            "in": "body", 
+            "schema": {
+              "$ref": "#/definitions/InstantiateVnfRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "202": {
+            "$ref": "#/responses/operationExecutionCreated", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/scale": {
+      "post": {
+        "description": "Scales the VNF according to the given parameters", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "name": "scaleVnfRequest", 
+            "description": "Input parameters for the scaling operation", 
+            "required": true, 
+            "in": "body", 
+            "schema": {
+              "$ref": "#/definitions/ScaleVnfRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "202": {
+            "$ref": "#/responses/operationExecutionCreated", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/terminate": {
+      "post": {
+        "description": "Terminates the VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "name": "terminateVnfRequest", 
+            "description": "Input parameters for VNF termination", 
+            "required": true, 
+            "in": "body", 
+            "schema": {
+              "$ref": "#/definitions/TerminateVnfRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "202": {
+            "$ref": "#/responses/operationExecutionCreated", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/heal": {
+      "post": {
+        "description": "Heals the VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "name": "healVnfRequest", 
+            "description": "Input parameters for VNF healing", 
+            "required": true, 
+            "in": "body", 
+            "schema": {
+              "$ref": "#/definitions/HealVnfRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "202": {
+            "$ref": "#/responses/operationExecutionCreated", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/upgrade": {
+      "post": {
+        "description": "Upgrades the VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "name": "upgradeVnfRequest", 
+            "description": "Input parameters for VNF upgrade", 
+            "required": true, 
+            "in": "body", 
+            "schema": {
+              "$ref": "#/definitions/UpgradeVnfRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "202": {
+            "$ref": "#/responses/operationExecutionCreated", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/custom/{customOperationName}": {
+      "post": {
+        "description": "Executes custom operation. **Nokia VNFM proprietary extension.**\n", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "name": "customOperationName", 
+            "in": "path", 
+            "description": "The identifier of the custom operation", 
+            "required": true, 
+            "type": "string"
+          }, 
+          {
+            "name": "customOperationRequest", 
+            "description": "Input parameters for custom operation", 
+            "required": true, 
+            "in": "body", 
+            "schema": {
+              "$ref": "#/definitions/CustomOperationRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "202": {
+            "$ref": "#/responses/operationExecutionCreated", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "vnfs"
+        ]
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/instantiated_vnf_info": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the requested instantiated info resource of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/InstantiatedVnfInfo"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/operation_executions": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the operation execution resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/OperationExecution"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/vnfc_resource_info": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the VNFC resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/VnfcResourceInfo"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/vnfc_resource_info/{vnfcId}": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the requested VNFC resource of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "description": "The identifier of the VNFC", 
+            "required": true, 
+            "type": "string", 
+            "name": "vnfcId", 
+            "in": "path"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/VnfcResourceInfo"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/virtual_link_resource_info": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the virtual link resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/VirtualLinkResourceInfo"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/virtual_link_resource_info/{virtualLinkId}": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the requested virtual link resource of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "description": "The identifier of the virtual link", 
+            "required": true, 
+            "type": "string", 
+            "name": "virtualLinkId", 
+            "in": "path"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/VirtualLinkResourceInfo"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/virtual_storage_resource_info": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the virtual storage resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/VirtualStorageResourceInfo"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/virtual_storage_resource_info/{virtualStorageId}": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the requested virtual storage resource of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "description": "The identifier of the virtual storage", 
+            "required": true, 
+            "type": "string", 
+            "name": "virtualStorageId", 
+            "in": "path"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/VirtualStorageResourceInfo"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/ext_cp_info": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the external connection points resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/VnfExtCpInfo"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/ext_cp_info/{extCpId}": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the requested external connection points resource of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "description": "The identifier of the external connection points", 
+            "required": true, 
+            "type": "string", 
+            "name": "extCpId", 
+            "in": "path"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/VnfExtCpInfo"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/ext_virtual_link_info": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the external virtual links resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/ExtVirtualLinkInfo"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/extensions": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the extension resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/VnfProperty"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/vnf_configurable_properties": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the configurable porperties resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/VnfProperty"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/scale_status": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the scaling aspect resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/ScaleInfo"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/scale_status/{scalingAspectId}": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the requested scaling aspect resource of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "description": "The identifier of the scaling aspect", 
+            "required": true, 
+            "type": "string", 
+            "name": "scalingAspectId", 
+            "in": "path"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/ScaleInfo"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/vim_info": {
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the vim info resources of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/VimInfo"
+              }, 
+              "type": "array"
+            }
+          }
+        }
+      }
+    }, 
+    "/vnfs/{vnfInstanceId}/vim_info/{vimId}": {
+      "put": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Updates the specific vim info resource", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "description": "The identifier of the vim info", 
+            "required": true, 
+            "type": "string", 
+            "name": "vimId", 
+            "in": "path"
+          }, 
+          {
+            "schema": {
+              "$ref": "#/definitions/VimInfo"
+            }, 
+            "required": true, 
+            "name": "updated resource", 
+            "in": "body"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/VimInfo"
+            }
+          }
+        }
+      }, 
+      "get": {
+        "tags": [
+          "vnfs"
+        ], 
+        "description": "Gets the requested vim info resource of a VNF", 
+        "parameters": [
+          {
+            "$ref": "#/parameters/vnfInstanceId"
+          }, 
+          {
+            "description": "The identifier of the vim info", 
+            "required": true, 
+            "type": "string", 
+            "name": "vimId", 
+            "in": "path"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }, 
+          "200": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/VimInfo"
+            }
+          }
+        }
+      }
+    }
+  }, 
+  "parameters": {
+    "vnfInstanceId": {
+      "name": "vnfInstanceId", 
+      "in": "path", 
+      "description": "The identifier of the VNF instance", 
+      "required": true, 
+      "type": "string"
+    }, 
+    "operationExecutionId": {
+      "name": "operationExecutionId", 
+      "in": "path", 
+      "description": "The identifier of the operation execution", 
+      "required": true, 
+      "type": "string"
+    }
+  }, 
+  "responses": {
+    "operationExecutionCreated": {
+      "description": "Created operation execution", 
+      "headers": {
+        "Location": {
+          "description": "The url of the operation execution", 
+          "type": "string", 
+          "format": "url"
+        }
+      }, 
+      "schema": {
+        "$ref": "#/definitions/OperationExecution"
+      }
+    }
+  }, 
+  "definitions": {
+    "CreateVnfRequest": {
+      "type": "object", 
+      "required": [
+        "vnfdId"
+      ], 
+      "properties": {
+        "vnfdId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "name": {
+          "description": "The name of the vnf instance\n", 
+          "type": "string"
+        }, 
+        "description": {
+          "description": "The description string of the vnf instance\n", 
+          "type": "string"
+        }
+      }
+    }, 
+    "InstantiateVnfRequest": {
+      "type": "object", 
+      "required": [
+        "flavourId", 
+        "vims", 
+        "extVirtualLinks"
+      ], 
+      "properties": {
+        "flavourId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "instantiationLevelId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "vims": {
+          "description": "Vim information given for instantiation (in this API version only one VIM per VNF is supported). **Nokia extension to ETSI NFV IFA007.** **The vim information is factored out from the external virtual link data structure.**\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VimInfo"
+          }
+        }, 
+        "extVirtualLinks": {
+          "description": "References to external virtual links to connect the VNF to.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ExtVirtualLinkData"
+          }
+        }, 
+        "extManagedVirtualLinks": {
+          "description": "References to internal virtual links that are managed by other entities than the VNFM\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ExtManagedVirtualLinkData"
+          }
+        }, 
+        "localizationLanguage": {
+          "type": "string"
+        }, 
+        "additionalParams": {
+          "description": "Additional parameters passed by the NFVO as input to the instantiation process, specific to the VNF being instantiated.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }, 
+        "grantlessMode": {
+          "description": "**Nokia VNFM proprietary property.** The NOKIA VNFM API may be used in an environment without an NFVO. This switch determines whether the VNFM should operate without requesting grants from an NFVO. In this case all information that would be passed in the grant responses needs to be passed with the instantiation parameters. The value of this switch applies to all subsequent operations until the VNF is terminated. **Note: Actual grant support is not currently part of the NOKIA VNFM API specification**\n", 
+          "type": "boolean", 
+          "default": false
+        }, 
+        "computeResourceFlavours": {
+          "description": "**Nokia VNFM proprietary property.** Mappings between VirtualComputeDescriptors defined in the VNFD and compute resource flavours managed in the VIM. **Only used in grantless operation mode.**\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VimComputeResourceFlavour"
+          }
+        }, 
+        "softwareImages": {
+          "description": "**Nokia VNFM proprietary property.** Mappings between software images defined in the VNFD and software images managed in the VIM. **Only used in grantless operation mode.**\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VimSoftwareImage"
+          }
+        }, 
+        "zones": {
+          "description": "**Nokia VNFM proprietary property.** Identifies resource zones where the resources are approved to be allocated by the VNFM. **Only used in grantless operation mode.**\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ZoneInfo"
+          }
+        }
+      }
+    }, 
+    "OperationExecution": {
+      "description": "**Apart from id and status, all other fields represent Nokia extensions to IFA007.** The operation end notification can be retrieved as sub-resource of the operation execution resource itself. Additionally all the input parameters for the operation are stored.\n", 
+      "type": "object", 
+      "required": [
+        "vnfInstanceId", 
+        "operationType", 
+        "status", 
+        "id", 
+        "startTime", 
+        "isCancelPending"
+      ], 
+      "properties": {
+        "id": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "vnfInstanceId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "operationType": {
+          "description": "Type of the operation that this structure is related to\n", 
+          "$ref": "#/definitions/OperationType"
+        }, 
+        "operationName": {
+          "description": "Name of the operation (mostly useful for distinguishing custom operations)\n", 
+          "type": "string"
+        }, 
+        "status": {
+          "description": "Execution status of the operation that this structure is related to\n", 
+          "$ref": "#/definitions/OperationStatus"
+        }, 
+        "isCancelPending": {
+          "description": "If the LCM operation occurrence is in executing state and the operation is being cancelled, this attribute shall be set to true. Otherwise, it shall be set to false.\n", 
+          "type": "boolean"
+        }, 
+        "cancelMode": {
+          "$ref": "#/definitions/CancelMode"
+        }, 
+        "error": {
+          "description": "If the status of the notification is \"finished\" and there was error during the execution, then it will be reported in this field\n", 
+          "$ref": "#/definitions/ProblemDetails"
+        }, 
+        "startTime": {
+          "description": "Date-time of the beginning of the operation execution (formatted according to RFC-3339)\n", 
+          "type": "string", 
+          "format": "date-time"
+        }, 
+        "finishTime": {
+          "description": "Date-time of the end of the operation execution (formatted according to RFC-3339)\n", 
+          "type": "string", 
+          "format": "date-time"
+        }, 
+        "grantId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "operationParams": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Original input parameters for the operation.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }, 
+        "additionalData": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Implementation-specific data for the execution, e.g. internal workflow id.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }, 
+        "metadata": {
+          "description": "Additional metadata related to the operation execution.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }, 
+        "_links": {
+          "required": [
+            "self"
+          ], 
+          "type": "object", 
+          "description": "Link relations for this object", 
+          "properties": {
+            "self": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "operationParams": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "additionalData": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "list": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "cancel": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "vnf": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "endNotification": {
+              "$ref": "#/definitions/Link"
+            }
+          }
+        }
+      }
+    }, 
+    "CancelMode": {
+      "type": "string", 
+      "description": "Cancellation mode.\n", 
+      "enum": [
+        "GRACEFUL", 
+        "FORCEFUL"
+      ]
+    }, 
+    "CancelOperationRequest": {
+      "type": "object", 
+      "required": [
+        "cancelMode"
+      ], 
+      "properties": {
+        "cancelMode": {
+          "$ref": "#/definitions/CancelMode"
+        }
+      }
+    }, 
+    "TerminateVnfRequest": {
+      "type": "object", 
+      "required": [
+        "terminationType"
+      ], 
+      "properties": {
+        "terminationType": {
+          "description": "Signals whether forceful or graceful termination is requested. In case of forceful termination, the VNF is shut down immediately, and resources are released. Note that if the VNF is still in service, this may adversely impact network service, and therefore, operator policies apply to determine if forceful termination is allowed in the particular situation. In case of graceful termination, the VNFM first arranges to take the VNF out of service (by means out of scope of the present specification, e.g. involving interaction with EM, if required). Once this was successful, or after a timeout, the VNFM shuts down the VNF and releases the resources.\n", 
+          "$ref": "#/definitions/TerminationType"
+        }, 
+        "gracefulTerminationTimeout": {
+          "description": "The time interval (in seconds) to wait for the VNF to be taken out of service during graceful termination, before shutting down the VNF and releasing the resources. If not given, it is expected that the VNFM waits for the successful taking out of service of the VNF, no matter how long it takes, before shutting down the VNF and releasing the resources (see note). Minimum timeout or timeout range are specified by the VNF Provider (e.g. defined in the VNFD or communicated by other means). Not relevant in case of forceful termination.\n", 
+          "type": "integer"
+        }, 
+        "additionalParams": {
+          "description": "Additional parameters passed by the NFVO as input to the scaling process. **Nokia extension to ETSI NFV IFA007.**\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }
+      }
+    }, 
+    "TerminationType": {
+      "type": "string", 
+      "enum": [
+        "GRACEFUL", 
+        "FORCEFUL"
+      ]
+    }, 
+    "ScaleVnfRequest": {
+      "type": "object", 
+      "required": [
+        "type", 
+        "aspectId"
+      ], 
+      "properties": {
+        "type": {
+          "description": "Defines the type of the scale operation requested (scale out, scale in). The set of types actually supported depends on the capabilities of the VNF being managed, as declared in the VNFD.\n", 
+          "$ref": "#/definitions/ScaleDirection"
+        }, 
+        "aspectId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "numberOfSteps": {
+          "description": "Number of scaling steps to be executed as part of this ScaleVnf operation. It shall be a positive number. Defaults to 1.\n", 
+          "type": "integer", 
+          "default": 1
+        }, 
+        "additionalParams": {
+          "description": "Additional parameters passed by the NFVO as input to the scaling process.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }
+      }
+    }, 
+    "ScaleDirection": {
+      "type": "string", 
+      "enum": [
+        "OUT", 
+        "IN"
+      ]
+    }, 
+    "HealVnfRequest": {
+      "type": "object", 
+      "properties": {
+        "cause": {
+          "description": "Indicates the reason why a healing procedure is required.\n", 
+          "type": "string"
+        }, 
+        "additionalParams": {
+          "description": "Additional parameters passed by the NFVO as input to the healing process, specific to the VNF being healed.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }
+      }
+    }, 
+    "UpgradeVnfRequest": {
+      "description": "**Nokia extension to ETSI NFV IFA007**\n", 
+      "type": "object", 
+      "required": [
+        "vnfdId"
+      ], 
+      "properties": {
+        "vnfdId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "add": {
+          "description": "New external resource information to be added (to the usable set of external resources for the VNF) according to the requirements of the new VNFD.\n", 
+          "$ref": "#/definitions/UpgradeAddResources"
+        }, 
+        "remove": {
+          "description": "External resource information to be removed (from the usable set of external resources for the VNF) according to the requirements of the new VNFD. Resources currently used by the VNF cannot be removed.\n", 
+          "$ref": "#/definitions/UpgradeRemoveResources"
+        }, 
+        "modify": {
+          "description": "External resource information and parameters to be modified according to the requirements of the new VNFD\n", 
+          "$ref": "#/definitions/UpgradeModifyResources"
+        }, 
+        "additionalParams": {
+          "description": "Additional parameters passed to the upgrade process, specific to the VNF being upgraded and the new VNFD.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }
+      }
+    }, 
+    "UpgradeAddResources": {
+      "type": "object", 
+      "properties": {
+        "extVirtualLinks": {
+          "description": "External virtual link information and external connection point information to add (including new addresses to use)\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ExtVirtualLinkData"
+          }
+        }, 
+        "extManagedVirtualLinks": {
+          "description": "External managed virtual links to add.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ExtManagedVirtualLinkData"
+          }
+        }, 
+        "zones": {
+          "description": "Zones to add. Only used in grantless mode.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ZoneInfo"
+          }
+        }
+      }
+    }, 
+    "UpgradeRemoveResources": {
+      "type": "object", 
+      "properties": {
+        "extVirtualLinks": {
+          "description": "External virtual link information and external connection point information to remove (including addresses to remove)\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ExtVirtualLinkData"
+          }
+        }, 
+        "extManagedVirtualLinks": {
+          "description": "External managed virtual links to remove.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ExtManagedVirtualLinkData"
+          }
+        }, 
+        "zones": {
+          "description": "Zones to remove. Only used in grantless mode.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ZoneInfo"
+          }
+        }
+      }
+    }, 
+    "UpgradeModifyResources": {
+      "type": "object", 
+      "properties": {
+        "computeResourceFlavours": {
+          "description": "Mappings between VirtualComputeDescriptors defined in the (new) VNFD and compute resource flavours managed in the VIM. If applicable, existing VNFCs should be changed to use these compute resource flavours.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VimComputeResourceFlavour"
+          }
+        }, 
+        "softwareImages": {
+          "description": "Mappings between software images defined in the (new) VNFD and software images managed in the VIM. If applicable, existing VNFCs should be changed to use these software images.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VimSoftwareImage"
+          }
+        }, 
+        "extensions": {
+          "description": "The new extension values that should be set. These extensions may affect the upgrade and should take into consideration the extension set provided by the new VNFD\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VnfProperty"
+          }
+        }
+      }
+    }, 
+    "CustomOperationRequest": {
+      "type": "object", 
+      "properties": {
+        "additionalParams": {
+          "description": "Additional parameters passed by the NFVO as input to the custom operation.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }
+      }
+    }, 
+    "VnfInfo": {
+      "description": "Information about a VNF instance.\n", 
+      "type": "object", 
+      "required": [
+        "id", 
+        "vnfdId", 
+        "vnfSoftwareVersion", 
+        "vnfdVersion", 
+        "onboardedVnfPkgInfoId", 
+        "instantiationState"
+      ], 
+      "properties": {
+        "id": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "name": {
+          "description": "VNF instance name.\n", 
+          "type": "string"
+        }, 
+        "description": {
+          "description": "Human-readable description of the VNF instance.\n", 
+          "type": "string"
+        }, 
+        "vnfdId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "vnfProvider": {
+          "description": "Name of the person or company providing the VNF.\n", 
+          "type": "string"
+        }, 
+        "vnfProductName": {
+          "description": "Name of the Vnf prodct.\n", 
+          "type": "string"
+        }, 
+        "vnfSoftwareVersion": {
+          "type": "string"
+        }, 
+        "vnfdVersion": {
+          "type": "string"
+        }, 
+        "onboardedVnfPkgInfoId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "instantiationState": {
+          "description": "Current state of the instantiation of the VNF\n", 
+          "$ref": "#/definitions/InstantiationState"
+        }, 
+        "operationExecutions": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Operations executed on the VNF instance\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/OperationExecution"
+          }
+        }, 
+        "instantiatedVnfInfo": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Information specific to an instantiated VNF instance.\n", 
+          "$ref": "#/definitions/InstantiatedVnfInfo"
+        }, 
+        "vnfConfigurableProperties": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Current values of the configurable properties of the VNF instance.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VnfProperty"
+          }
+        }, 
+        "extensions": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** VNF-specific attributes.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VnfProperty"
+          }
+        }, 
+        "metadata": {
+          "description": "Additional metadata describing the VNF instance.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }, 
+        "_links": {
+          "required": [
+            "self"
+          ], 
+          "type": "object", 
+          "description": "Link relations for this object", 
+          "properties": {
+            "self": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "operationExecutions": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "instantiatedVnfInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "vnfConfigurableProperties": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "extensions": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "list": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "delete": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "instantiate": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "scale": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "terminate": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "modifyInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "heal": {
+              "$ref": "#/definitions/Link"
+            }
+          }
+        }
+      }
+    }, 
+    "InstantiationState": {
+      "type": "string", 
+      "enum": [
+        "NOT_INSTANTIATED", 
+        "INSTANTIATED"
+      ]
+    }, 
+    "InstantiatedVnfInfo": {
+      "type": "object", 
+      "required": [
+        "flavourId", 
+        "vnfState"
+      ], 
+      "properties": {
+        "flavourId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "localizationLanguage": {
+          "type": "string"
+        }, 
+        "vnfState": {
+          "description": "The state of the VNF instance.\n", 
+          "$ref": "#/definitions/VnfState"
+        }, 
+        "scaleStatus": {
+          "description": "Scale status of the VNF, one entry per aspect. Shall be present if the VNF supports scaling.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ScaleInfo"
+          }
+        }, 
+        "extCpInfo": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** External connection points exposed by the VNF instance.\n", 
+          "type": "array", 
+          "minItems": 1, 
+          "items": {
+            "$ref": "#/definitions/VnfExtCpInfo"
+          }
+        }, 
+        "extVirtualLinkInfo": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** External virtual links the VNF instance is connected to.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ExtVirtualLinkInfo"
+          }
+        }, 
+        "extManagedVirtualLinkInfo": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** External virtual links the VNF instance is connected to.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/ExtManagedVirtualLinkInfo"
+          }
+        }, 
+        "vimInfo": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Information about VIM(s) that manage resources for the VNF instance.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VimInfo"
+          }
+        }, 
+        "vnfcResourceInfo": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Information on the virtualised compute and storage resource(s) used by the VNFCs of the VNF instance.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VnfcResourceInfo"
+          }
+        }, 
+        "virtualLinkResourceInfo": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Information on the virtualised network resource(s) used by the VLs of the VNF instance.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VirtualLinkResourceInfo"
+          }
+        }, 
+        "virtualStorageResourceInfo": {
+          "description": "**This property is only returned when the containing resource is queried by id and not listed.** Information on the virtualised storage resource(s) used as storage for the VNF instance.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VirtualStorageResourceInfo"
+          }
+        }, 
+        "_links": {
+          "required": [
+            "self"
+          ], 
+          "type": "object", 
+          "description": "Link relations for this object", 
+          "properties": {
+            "self": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "extCpInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "extVirtualLinkInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "extManagedVirtualLinkInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "vimInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "vnfcResourceInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "virtualLinkResourceInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "virtualStorageResourceInfo": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "vnf": {
+              "$ref": "#/definitions/Link"
+            }
+          }
+        }
+      }
+    }, 
+    "VnfcResourceInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVnfcResourceInfo"
+        }, 
+        {
+          "type": "object", 
+          "properties": {
+            "_links": {
+              "required": [
+                "self"
+              ], 
+              "type": "object", 
+              "description": "Link relations for this object", 
+              "properties": {
+                "self": {
+                  "$ref": "#/definitions/Link"
+                }, 
+                "vnf": {
+                  "$ref": "#/definitions/Link"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }, 
+    "VirtualLinkResourceInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVirtualLinkResourceInfo"
+        }, 
+        {
+          "type": "object", 
+          "properties": {
+            "_links": {
+              "required": [
+                "self"
+              ], 
+              "type": "object", 
+              "description": "Link relations for this object", 
+              "properties": {
+                "self": {
+                  "$ref": "#/definitions/Link"
+                }, 
+                "vnf": {
+                  "$ref": "#/definitions/Link"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }, 
+    "VirtualStorageResourceInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVirtualStorageResourceInfo"
+        }, 
+        {
+          "type": "object", 
+          "properties": {
+            "_links": {
+              "required": [
+                "self"
+              ], 
+              "type": "object", 
+              "description": "Link relations for this object", 
+              "properties": {
+                "self": {
+                  "$ref": "#/definitions/Link"
+                }, 
+                "vnf": {
+                  "$ref": "#/definitions/Link"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }, 
+    "ExtVirtualLinkInfo": {
+      "type": "object", 
+      "required": [
+        "resource"
+      ], 
+      "properties": {
+        "extVirtualLinkId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "resource": {
+          "description": "The resource realizing this VL.\n", 
+          "$ref": "#/definitions/ResourceInfo"
+        }, 
+        "linkPorts": {
+          "description": "Link ports of this VL.\n", 
+          "type": "array", 
+          "minItems": 1, 
+          "items": {
+            "$ref": "#/definitions/VnfLinkPort"
+          }
+        }
+      }
+    }, 
+    "ExtManagedVirtualLinkInfo": {
+      "type": "object", 
+      "required": [
+        "virtualLinkResourceInfoId"
+      ], 
+      "properties": {
+        "extManagedVirtualLinkId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "virtualLinkResourceInfoId": {
+          "description": "An identifier that is unique for the respective type within a VNF instance, but may not be globally unique.\n", 
+          "type": "string"
+        }, 
+        "linkPorts": {
+          "description": "Link ports of this VL. This is optional even if there are linkports allocated to this VL.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VnfLinkPort"
+          }
+        }
+      }
+    }, 
+    "VnfLinkPort": {
+      "type": "object", 
+      "required": [
+        "resource"
+      ], 
+      "properties": {
+        "resource": {
+          "description": "Identifier of the virtualised network resource realizing this link port.\n", 
+          "$ref": "#/definitions/ResourceHandle"
+        }, 
+        "cpInstanceId": {
+          "description": "An identifier that is unique for the respective type within a VNF instance, but may not be globally unique.\n", 
+          "type": "string"
+        }
+      }
+    }, 
+    "VnfExtCpInfo": {
+      "type": "object", 
+      "required": [
+        "id", 
+        "cpdId"
+      ], 
+      "properties": {
+        "id": {
+          "description": "An identifier that is unique for the respective type within a VNF instance, but may not be globally unique.\n", 
+          "type": "string"
+        }, 
+        "cpdId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "addresses": {
+          "description": "List of network addresses configured on the connection point instance.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/NetworkAddress"
+          }
+        }, 
+        "metadata": {
+          "description": "**Nokia extension to ETSI NFV IFA007.** Metadata for the external connection point.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }, 
+        "_links": {
+          "required": [
+            "self"
+          ], 
+          "type": "object", 
+          "description": "Link relations for this object", 
+          "properties": {
+            "self": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "vnf": {
+              "$ref": "#/definitions/Link"
+            }
+          }
+        }
+      }
+    }, 
+    "VnfState": {
+      "type": "string", 
+      "enum": [
+        "STARTED", 
+        "STOPPED", 
+        "ERROR"
+      ]
+    }, 
+    "ScaleInfo": {
+      "required": [
+        "aspect", 
+        "scaleLevel"
+      ], 
+      "type": "object", 
+      "properties": {
+        "aspect": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "scaleLevel": {
+          "description": "Current level of the scaling aspect.\n", 
+          "type": "integer"
+        }, 
+        "maxScaleLevel": {
+          "description": "**Nokia VNFM proprietary property.** The maximum level that the scaling aspect can have.\n", 
+          "type": "integer"
+        }, 
+        "_links": {
+          "required": [
+            "self"
+          ], 
+          "type": "object", 
+          "description": "Link relations for this object", 
+          "properties": {
+            "self": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "vnf": {
+              "$ref": "#/definitions/Link"
+            }
+          }
+        }
+      }
+    }, 
+    "Link": {
+      "type": "object", 
+      "required": [
+        "href"
+      ], 
+      "properties": {
+        "href": {
+          "description": "The URL that references the target resource.\n", 
+          "type": "string", 
+          "format": "url"
+        }
+      }
+    }, 
+    "AbstractVnfNotification": {
+      "description": "This is a base type that has derivatives. In all places where it is referenced the following types should be expected: ['VnfIdentifierCreationNotification', 'VnfIdentifierDeletionNotification', 'OtherNotification', 'VnfInfoAttributeValueChangeNotification', 'VnfLifecycleChangeNotification']. The actual type is determined by the field 'notificationType' which contains the type name.", 
+      "type": "object", 
+      "required": [
+        "notificationType", 
+        "vnfInstanceId", 
+        "timestamp"
+      ], 
+      "discriminator": "notificationType", 
+      "properties": {
+        "notificationType": {
+          "description": "discriminator type for different notifications", 
+          "$ref": "#/definitions/VnfNotificationType"
+        }, 
+        "subscriptionId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "timestamp": {
+          "description": "Date-time of the generation of the notification (formatted according to RFC-3339)\n", 
+          "type": "string", 
+          "format": "date-time"
+        }, 
+        "vnfInstanceId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }
+      }
+    }, 
+    "VnfIdentifierCreationNotification": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVnfNotification"
+        }
+      ]
+    }, 
+    "VnfIdentifierDeletionNotification": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVnfNotification"
+        }
+      ]
+    }, 
+    "OtherNotification": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVnfNotification"
+        }, 
+        {
+          "type": "object"
+        }
+      ]
+    }, 
+    "VnfProperty": {
+      "type": "object", 
+      "required": [
+        "name", 
+        "value"
+      ], 
+      "additionalProperties": {
+        "type": [
+          "string", 
+          "number", 
+          "boolean", 
+          "array", 
+          "object"
+        ]
+      }, 
+      "properties": {
+        "name": {
+          "description": "The name of the respective property\n", 
+          "type": "string"
+        }, 
+        "description": {
+          "description": "The description of the respective property\n", 
+          "type": "string"
+        }, 
+        "value": {
+          "description": "Any json value\n", 
+          "type": [
+            "string", 
+            "number", 
+            "boolean", 
+            "array", 
+            "object"
+          ], 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }
+      }
+    }, 
+    "ModifyVnfInfoRequest": {
+      "description": "Contents of the ModifyVnfInfoRequest will be merged with VnfInfo according to JSON Merge Patch (RFC 7396) with the following extensions: VnfProperty arrays can be selectively updated with the given properties, also extensions and vnfConfigurableProperties cannot be deleted or added\n", 
+      "type": "object", 
+      "properties": {
+        "name": {
+          "description": "The new name to be set for the VNF instance\n", 
+          "type": "string"
+        }, 
+        "description": {
+          "description": "The new description to be set for the VNF instance\n", 
+          "type": "string"
+        }, 
+        "metadata": {
+          "description": "The new metadata to be set for the VNF instance.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }, 
+        "vnfConfigurableProperties": {
+          "description": "The new configurable properties that should be set. (Configurable properties that are not provided won't be modified.)\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VnfProperty"
+          }
+        }, 
+        "extensions": {
+          "description": "New extension values that should be set. (Extensions that are not provided won't be modified.)\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VnfProperty"
+          }
+        }
+      }
+    }, 
+    "AttributeValueChanges": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ModifyVnfInfoRequest"
+        }, 
+        {
+          "type": "object", 
+          "properties": {
+            "vnfdId": {
+              "description": "An identifier with the intention of being globally unique.\n", 
+              "type": "string"
+            }, 
+            "vnfProvider": {
+              "description": "Name of the person or company providing the VNF. **Inclusion of this field means that the respective value changed as a result of a template package update on the VNF instance.**\n", 
+              "type": "string"
+            }, 
+            "vnfProductName": {
+              "description": "Name of the Vnf prodct. **Inclusion of this field means that the respective value changed as a result of a template package update on the VNF instance.**\n", 
+              "type": "string"
+            }, 
+            "vnfSoftwareVersion": {
+              "type": "string"
+            }, 
+            "vnfdVersion": {
+              "type": "string"
+            }, 
+            "onboardedVnfPkgInfoId": {
+              "description": "An identifier with the intention of being globally unique.\n", 
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }, 
+    "VnfInfoAttributeValueChangeNotification": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVnfNotification"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "changedInfo"
+          ], 
+          "properties": {
+            "changedInfo": {
+              "$ref": "#/definitions/AttributeValueChanges"
+            }
+          }
+        }
+      ]
+    }, 
+    "VnfLifecycleChangeNotification": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVnfNotification"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "operation", 
+            "status", 
+            "lifecycleOperationOccurrenceId"
+          ], 
+          "properties": {
+            "lifecycleOperationOccurrenceId": {
+              "description": "An identifier with the intention of being globally unique.\n", 
+              "type": "string"
+            }, 
+            "operation": {
+              "description": "Type of the operation that this structure is related to\n", 
+              "$ref": "#/definitions/OperationType"
+            }, 
+            "status": {
+              "description": "Execution status of the operation that this structure is related to\n", 
+              "$ref": "#/definitions/OperationStatus"
+            }, 
+            "error": {
+              "description": "If the status of the notification is \"finished\" and there was error during the execution, then it will be reported in this field\n", 
+              "$ref": "#/definitions/ProblemDetails"
+            }, 
+            "affectedVnfcs": {
+              "description": "Information about VNFC instances that were affected during the lifecycle operation, if this notification represents the result of a lifecycle operation.\n", 
+              "type": "array", 
+              "items": {
+                "$ref": "#/definitions/AffectedVnfc"
+              }
+            }, 
+            "affectedVirtualLinks": {
+              "description": "Information about VL instances that were affected during the lifecycle operation, if this notification represents the result of a lifecycle operation.\n", 
+              "type": "array", 
+              "items": {
+                "$ref": "#/definitions/AffectedVirtualLink"
+              }
+            }, 
+            "affectedVirtualStorages": {
+              "description": "Information about virtualised storage instances that were affected during the lifecycle operation, if this notification represents the result of a lifecycle operation.\n", 
+              "type": "array", 
+              "items": {
+                "$ref": "#/definitions/AffectedVirtualStorage"
+              }
+            }
+          }
+        }
+      ]
+    }, 
+    "OperationStatus": {
+      "description": "**FINISHED** means successful completion as opposed to FAILED, which means unsuccessful completion of the operation. **OTHER** is reserved for forward compatibility with later microversions.\n", 
+      "type": "string", 
+      "enum": [
+        "STARTED", 
+        "FINISHED", 
+        "FAILED", 
+        "OTHER"
+      ]
+    }, 
+    "AbstractVnfcResourceInfo": {
+      "description": "Abstract type, not used in itself\n", 
+      "type": "object", 
+      "required": [
+        "id", 
+        "vduId", 
+        "computeResource"
+      ], 
+      "properties": {
+        "id": {
+          "description": "An identifier that is unique for the respective type within a VNF instance, but may not be globally unique.\n", 
+          "type": "string"
+        }, 
+        "vduId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "computeResource": {
+          "description": "The compute resource in the VIM\n", 
+          "$ref": "#/definitions/ResourceHandle"
+        }, 
+        "storageResourceIds": {
+          "description": "Instance identifiers of associated storage resources\n", 
+          "type": "array", 
+          "items": {
+            "description": "An identifier that is unique for the respective type within a VNF instance, but may not be globally unique.\n", 
+            "type": "string"
+          }
+        }
+      }
+    }, 
+    "AbstractVirtualLinkResourceInfo": {
+      "description": "Abstract type, not used in itself\n", 
+      "type": "object", 
+      "required": [
+        "id", 
+        "virtualLinkDescId"
+      ], 
+      "properties": {
+        "id": {
+          "description": "An identifier that is unique for the respective type within a VNF instance, but may not be globally unique.\n", 
+          "type": "string"
+        }, 
+        "virtualLinkDescId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "resource": {
+          "description": "The network resource in the VIM\n", 
+          "$ref": "#/definitions/ResourceHandle"
+        }
+      }
+    }, 
+    "AbstractVirtualStorageResourceInfo": {
+      "description": "Abstract type, not used in itself\n", 
+      "type": "object", 
+      "required": [
+        "id", 
+        "virtualStorageDescId"
+      ], 
+      "properties": {
+        "id": {
+          "description": "An identifier that is unique for the respective type within a VNF instance, but may not be globally unique.\n", 
+          "type": "string"
+        }, 
+        "virtualStorageDescId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "resource": {
+          "description": "The storage resource in the VIM\n", 
+          "$ref": "#/definitions/ResourceHandle"
+        }
+      }
+    }, 
+    "ChangedResource": {
+      "type": "object", 
+      "required": [
+        "changeType"
+      ], 
+      "properties": {
+        "changeType": {
+          "description": "The type of change of the resource\n", 
+          "$ref": "#/definitions/ChangeType"
+        }
+      }
+    }, 
+    "AffectedVnfc": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVnfcResourceInfo"
+        }, 
+        {
+          "$ref": "#/definitions/ChangedResource"
+        }
+      ]
+    }, 
+    "AffectedVirtualLink": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVirtualLinkResourceInfo"
+        }, 
+        {
+          "$ref": "#/definitions/ChangedResource"
+        }
+      ]
+    }, 
+    "AffectedVirtualStorage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AbstractVirtualStorageResourceInfo"
+        }, 
+        {
+          "$ref": "#/definitions/ChangedResource"
+        }
+      ]
+    }, 
+    "ChangeType": {
+      "type": "string", 
+      "enum": [
+        "ADDED", 
+        "REMOVED", 
+        "MODIFIED"
+      ]
+    }, 
+    "EndpointInfo": {
+      "type": "object", 
+      "required": [
+        "endpoint"
+      ], 
+      "properties": {
+        "endpoint": {
+          "description": "The url representing the interface endpoint.\n", 
+          "type": "string", 
+          "format": "url"
+        }, 
+        "trustedCertificates": {
+          "description": "A collection of base64 encoded certificates to be trusted in relation to the endpoint.\n", 
+          "type": "array", 
+          "items": {
+            "type": "string", 
+            "format": "byte"
+          }
+        }, 
+        "skipCertificateVerification": {
+          "description": "Certificate verification for the endpoint can be skipped by setting this field to true. (Only meaningful for connections with certificate exchange)\n", 
+          "type": "boolean", 
+          "default": false
+        }, 
+        "skipCertificateHostnameCheck": {
+          "description": "Certificate hostname check for the endpoint can be skipped by setting this field to true. (Only meaningful for connections with certificate exchange)\n", 
+          "type": "boolean", 
+          "default": false
+        }
+      }
+    }, 
+    "UsernamePassword": {
+      "type": "object", 
+      "required": [
+        "username"
+      ], 
+      "properties": {
+        "username": {
+          "description": "the username to use for access\n", 
+          "type": "string"
+        }, 
+        "password": {
+          "description": "the password to use for access. **Note: required for input, not returned on output**\n", 
+          "type": "string", 
+          "format": "password"
+        }
+      }
+    }, 
+    "VimInfo": {
+      "type": "object", 
+      "required": [
+        "id", 
+        "vimInfoType"
+      ], 
+      "discriminator": "vimInfoType", 
+      "properties": {
+        "id": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "vimInfoType": {
+          "description": "**Nokia extension to ETSI NFV IFA007.** Type of the VIM info structure. This field will be used as a discriminator for different types of VIMs. OTHER_VIM_INFO is provided for forward compatibility with later microversions of the API.\n", 
+          "type": "string", 
+          "enum": [
+            "OPENSTACK_V2_INFO", 
+            "OPENSTACK_V3_INFO", 
+            "VMWARE_VCLOUD_INFO", 
+            "OTHER_VIM_INFO"
+          ]
+        }
+      }, 
+      "description": "This is a base type that has derivatives. In all places where it is referenced the following types should be expected: ['OPENSTACK_V2_INFO', 'OPENSTACK_V3_INFO', 'VMWARE_VCLOUD_INFO', 'OTHER_VIM_INFO']. The actual type is determined by the field 'vimInfoType' which contains the type name."
+    }, 
+    "OPENSTACK_V2_INFO": {
+      "description": "OpenStack connection information for Keystone V2\n", 
+      "allOf": [
+        {
+          "$ref": "#/definitions/VimInfo"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "interfaceInfo", 
+            "accessInfo"
+          ], 
+          "properties": {
+            "interfaceInfo": {
+              "description": "The Keystone endpoint information\n", 
+              "$ref": "#/definitions/EndpointInfo"
+            }, 
+            "accessInfo": {
+              "description": "Access information for Keystone V2\n", 
+              "$ref": "#/definitions/OpenStackAccessInfoV2"
+            }
+          }
+        }
+      ]
+    }, 
+    "OPENSTACK_V3_INFO": {
+      "description": "OpenStack connection information for Keystone V3\n", 
+      "allOf": [
+        {
+          "$ref": "#/definitions/VimInfo"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "interfaceInfo", 
+            "accessInfo"
+          ], 
+          "properties": {
+            "interfaceInfo": {
+              "description": "The Keystone endpoint information\n", 
+              "$ref": "#/definitions/EndpointInfo"
+            }, 
+            "accessInfo": {
+              "description": "Access information for Keystone V3\n", 
+              "$ref": "#/definitions/OpenStackAccessInfoV3"
+            }
+          }
+        }
+      ]
+    }, 
+    "OpenStackAccessInfoV2": {
+      "description": "OpenStack access information for Keystone V2\n", 
+      "allOf": [
+        {
+          "$ref": "#/definitions/UsernamePassword"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "region", 
+            "tenant"
+          ], 
+          "properties": {
+            "region": {
+              "description": "The OpenStack region to use for the VIM connection\n", 
+              "type": "string"
+            }, 
+            "tenant": {
+              "description": "The OpenStack tenant to use for the VIM connection\n", 
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }, 
+    "OpenStackAccessInfoV3": {
+      "description": "OpenStack access information for Keystone V3\n", 
+      "allOf": [
+        {
+          "$ref": "#/definitions/UsernamePassword"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "region", 
+            "project", 
+            "domain"
+          ], 
+          "properties": {
+            "region": {
+              "description": "The OpenStack region to use for the VIM connection\n", 
+              "type": "string"
+            }, 
+            "project": {
+              "description": "The OpenStack project to use for the VIM connection\n", 
+              "type": "string"
+            }, 
+            "domain": {
+              "description": "The OpenStack domain to use for the VIM connection\n", 
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }, 
+    "VMWARE_VCLOUD_INFO": {
+      "description": "Connection information for a VMware vCloud with optional vROPS support\n", 
+      "allOf": [
+        {
+          "$ref": "#/definitions/VimInfo"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "interfaceInfo", 
+            "accessInfo"
+          ], 
+          "properties": {
+            "interfaceInfo": {
+              "description": "Interface information for the vCloud endpoint\n", 
+              "$ref": "#/definitions/EndpointInfo"
+            }, 
+            "accessInfo": {
+              "$ref": "#/definitions/VCloudAccessInfo"
+            }
+          }
+        }
+      ]
+    }, 
+    "VCloudAccessInfo": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/UsernamePassword"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "organization"
+          ], 
+          "properties": {
+            "organization": {
+              "description": "The organization to use for the VIM connection\n", 
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }, 
+    "OTHER_VIM_INFO": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/VimInfo"
+        }, 
+        {
+          "type": "object"
+        }
+      ]
+    }, 
+    "ZoneInfo": {
+      "description": "**Nokia change to ETSI NFV IFA007: zoneInfoId and zoneId merged into id.**\n", 
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResourceInfo"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "id"
+          ], 
+          "properties": {
+            "id": {
+              "description": "An identifier that is unique for the respective type within a VNF instance, but may not be globally unique.\n", 
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }, 
+    "VimComputeResourceFlavour": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResourceInfo"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "vnfdVirtualComputeDescId"
+          ], 
+          "properties": {
+            "vnfdVirtualComputeDescId": {
+              "description": "An identifier that is unique within a VNF descriptor.\n", 
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }, 
+    "VimSoftwareImage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResourceInfo"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "vnfdSoftwareImageId"
+          ], 
+          "properties": {
+            "vnfdSoftwareImageId": {
+              "description": "An identifier that is unique within a VNF descriptor.\n", 
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }, 
+    "ExtManagedVirtualLinkData": {
+      "description": "**Nokia change to ETSI NFV IFA007: factored out vim info.**\n", 
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResourceInfo"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "virtualLinkDescId"
+          ], 
+          "properties": {
+            "extManagedVirtualLinkId": {
+              "description": "An identifier with the intention of being globally unique.\n", 
+              "type": "string"
+            }, 
+            "virtualLinkDescId": {
+              "description": "An identifier that is unique within a VNF descriptor.\n", 
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }, 
+    "ExtVirtualLinkData": {
+      "description": "**Nokia change to ETSI NFV IFA007: factored out vim info.**\n", 
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResourceInfo"
+        }, 
+        {
+          "type": "object", 
+          "required": [
+            "extCps"
+          ], 
+          "properties": {
+            "extVirtualLinkId": {
+              "description": "An identifier with the intention of being globally unique.\n", 
+              "type": "string"
+            }, 
+            "extCps": {
+              "description": "External connection points of the VNF to be connected to this virtual link.\n", 
+              "type": "array", 
+              "minItems": 1, 
+              "items": {
+                "$ref": "#/definitions/VnfExtCpData"
+              }
+            }
+          }
+        }
+      ]
+    }, 
+    "VnfExtCpData": {
+      "type": "object", 
+      "required": [
+        "cpdId"
+      ], 
+      "properties": {
+        "cpdId": {
+          "description": "An identifier that is unique within a VNF descriptor.\n", 
+          "type": "string"
+        }, 
+        "addresses": {
+          "description": "List of (fixed) network addresses that need to be configured on the connection point. It shall be provided for configuring fixed addresses.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/NetworkAddress"
+          }
+        }, 
+        "numDynamicAddresses": {
+          "description": "Number of dynamic addresses that may be allocated for the external connection point\n", 
+          "type": "integer"
+        }
+      }
+    }, 
+    "NetworkAddress": {
+      "description": "A type representing network addresses", 
+      "type": "object", 
+      "properties": {
+        "subnetId": {
+          "type": "string"
+        }, 
+        "ip": {
+          "type": "string"
+        }, 
+        "mac": {
+          "type": "string"
+        }
+      }
+    }, 
+    "OperationType": {
+      "type": "string", 
+      "enum": [
+        "INSTANTIATE", 
+        "SCALE", 
+        "SCALE_TO_LEVEL", 
+        "MODIFY_INFO", 
+        "CHANGE_FLAVOUR", 
+        "OPERATE", 
+        "HEAL", 
+        "UPGRADE", 
+        "TERMINATE", 
+        "OTHER"
+      ]
+    }, 
+    "ResourceInfo": {
+      "required": [
+        "resourceId"
+      ], 
+      "type": "object", 
+      "description": "VIM and VIM-related identification for resources. Only direct mode is supported.\n", 
+      "properties": {
+        "vimId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "resourceId": {
+          "description": "An identifier maintained by the VIM or other resource provider. It is expected to be unique within the VIM instance.\n", 
+          "type": "string"
+        }
+      }
+    }, 
+    "ResourceHandle": {
+      "required": [
+        "resourceId"
+      ], 
+      "type": "object", 
+      "description": "VIM and VIM-related identification for resources. **Nokia VNFM specific change: only direct mode is supported, so resourceProviderId is removed.**\n", 
+      "properties": {
+        "vimId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "resourceId": {
+          "description": "An identifier maintained by the VIM or other resource provider. It is expected to be unique within the VIM instance.\n", 
+          "type": "string"
+        }, 
+        "resourceType": {
+          "description": "**Nokia extension to ETSI NFV IFA007.** Type of the resource on the VIM. Possible values are implementation dependent and not detailed in this API.\n", 
+          "type": "string"
+        }, 
+        "additionalData": {
+          "description": "**Nokia extension to ETSI NFV IFA007.** VIM-specific resource representation. Intended for debugging and presentational purposes. Contents of this property are VIM- and implementation specific and should not be relied upon.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }, 
+        "metadata": {
+          "description": "**Nokia extension to ETSI NFV IFA007.** VNF-specific metadata related to the resource.\n", 
+          "type": "object", 
+          "additionalProperties": {
+            "type": [
+              "string", 
+              "number", 
+              "boolean", 
+              "array", 
+              "object"
+            ]
+          }
+        }
+      }
+    }, 
+    "ProblemDetails": {
+      "description": "Problem detail object based on RFC7807\n", 
+      "type": "object", 
+      "required": [
+        "status", 
+        "detail"
+      ], 
+      "properties": {
+        "type": {
+          "description": "A URI reference [RFC3986] that identifies the problem type.  This specification encourages that, when dereferenced, it provide human-readable documentation for the problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When this member is not present, its value is assumed to be \"about:blank\".\n", 
+          "type": "string", 
+          "format": "URI"
+        }, 
+        "title": {
+          "description": "A short, human-readable summary of the problem type.  It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization (e.g., using proactive content negotiation; see [RFC7231], Section 3.4).\n", 
+          "type": "string"
+        }, 
+        "status": {
+          "description": "The HTTP status code ([RFC7231], Section 6) generated by the origin server for this occurrence of the problem.\n", 
+          "type": "integer"
+        }, 
+        "detail": {
+          "description": "A human-readable explanation specific to this occurrence of the problem.\n", 
+          "type": "string"
+        }, 
+        "instance": {
+          "description": "A URI reference that identifies the specific occurrence of the problem.  It may or may not yield further information if dereferenced.\n", 
+          "type": "string", 
+          "format": "URI"
+        }
+      }
+    }, 
+    "VnfNotificationType": {
+      "description": "**OtherNotification** is provided for forward compatibility with subsequent API microversions.\n", 
+      "type": "string", 
+      "enum": [
+        "VnfIdentifierCreationNotification", 
+        "VnfIdentifierDeletionNotification", 
+        "VnfLifecycleChangeNotification", 
+        "VnfInfoAttributeValueChangeNotification", 
+        "OtherNotification"
+      ]
+    }
+  }
+}
