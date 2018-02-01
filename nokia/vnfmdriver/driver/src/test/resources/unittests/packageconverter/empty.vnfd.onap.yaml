@@ -1,0 +1,14 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+metadata:
+  vendor: Nokia
+  csarVersion: 1.0
+  csarProvider: myProvider
+  id: Simple
+  version: 2.0
+  csarType: NFAR
+  name: myName
+  vnfdVersion: 1.0
+
+topology_template:
+  node_templates:
