@@ -1,1 +1,3 @@
-vnfmdriver.iml
+.idea
+bin
+*.iml

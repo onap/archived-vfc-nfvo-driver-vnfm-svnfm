@@ -1,0 +1,12 @@
+topology_template:
+  policies:
+    - heat_mapping:
+        properties:
+          aspects:
+            aspect1:
+              vdus:
+                vdu1:
+                  - heatResource: wrapper_rg.0.server
+                  - heatResource: wrapper_rg.1.server
+                vdu2:
+                  - heatResource: wrapper_rg2.0.server

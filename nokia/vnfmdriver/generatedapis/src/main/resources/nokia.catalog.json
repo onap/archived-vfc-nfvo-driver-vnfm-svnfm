@@ -1,0 +1,525 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "v1",
+    "title": "Catalog adapter service"
+  },
+  "basePath": "/adapter",
+  "securityDefinitions": {
+    "OauthPassword": {
+      "description": "OAuth 2.0 resource owner password credentials grant (https://tools.ietf.org/html/rfc6749#section-4.3) with bearer token type. Note: the given tokenUrl does not inherit from the basePath\n",
+      "type": "oauth2",
+      "tokenUrl": "/auth/realms/cbam/protocol/openid-connect/token",
+      "flow": "password",
+      "scopes": {
+        "default": "default scope"
+      }
+    },
+    "OauthClient": {
+      "description": "OAuth 2.0 client credentials grant (https://tools.ietf.org/html/rfc6749#section-4.4) with bearer token type. Note: the given tokenUrl does not inherit from the basePath\n",
+      "type": "oauth2",
+      "tokenUrl": "/auth/realms/cbam/protocol/openid-connect/token",
+      "flow": "application",
+      "scopes": {
+        "default": "default scope"
+      }
+    }
+  },
+  "security": [
+    {
+      "OauthPassword": [
+        "default"
+      ]
+    },
+    {
+      "OauthClient": [
+        "default"
+      ]
+    }
+  ],
+  "paths": {
+    "/vnfpackages": {
+      "get": {
+        "description": "List the available vnf packages",
+        "operationId": "list",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of available vnf packages",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/catalog_adapter_vnfpackage"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new vnf package",
+        "operationId": "create",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "content",
+            "in": "formData",
+            "required": true,
+            "x-is-map": false,
+            "type": "file",
+            "format": "file",
+            "description": "Content of the created package"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The created vnf package",
+            "schema": {
+              "$ref": "#/definitions/catalog_adapter_vnfpackage"
+            }
+          }
+        }
+      }
+    },
+    "/vnfpackages/{id}": {
+      "get": {
+        "description": "Returns a vnf package",
+        "operationId": "getById",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "ID of the queried vnf package"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The queried vnf package",
+            "schema": {
+              "$ref": "#/definitions/catalog_adapter_vnfpackage"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete an existing vnf package",
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "ID of the vnf package to be deleted"
+          }
+        ]
+      }
+    },
+    "/vnfpackages/{vnfdId}/getbyversion": {
+      "get": {
+        "description": "Returns a vnf package",
+        "operationId": "getByVersion",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "vnfdId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "VNFD ID of the queried vnf package"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The queried vnf package",
+            "schema": {
+              "$ref": "#/definitions/catalog_adapter_vnfpackage"
+            }
+          }
+        }
+      }
+    },
+    "/vnfpackages/{vnfdId}/addusagereference": {
+      "post": {
+        "description": "Add a usage reference to the specified vnf package",
+        "operationId": "addUsageReference",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "vnfdId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "VNFD ID of the used vnf package"
+          },
+          {
+            "name": "reference",
+            "in": "header",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "the usage reference"
+          }
+        ]
+      }
+    },
+    "/vnfpackages/{vnfdId}/removeusagereference": {
+      "post": {
+        "description": "Remove a usage reference from the specified vnf package",
+        "operationId": "removeUsageReference",
+        "consumes": [
+          "application/json",
+          "application/xml`"
+        ],
+        "parameters": [
+          {
+            "name": "vnfdId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "VNFD ID of the vnf package"
+          },
+          {
+            "name": "reference",
+            "in": "header",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "the usage reference"
+          }
+        ]
+      }
+    },
+    "/vnfpackages/{vnfdId}/artifacts/{filePath}": {
+      "get": {
+        "description": "Download a file from a vnf package",
+        "operationId": "viewArtifact",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "parameters": [
+          {
+            "name": "vnfdId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "VNFD ID of the vnf package"
+          },
+          {
+            "name": "filePath",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "Path of the requested file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "file"
+            },
+            "description": "Content of the requested file"
+          }
+        }
+      }
+    },
+    "/vnfpackages/{vnfdId}/content": {
+      "get": {
+        "description": "Download a vnf package",
+        "operationId": "content",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "parameters": [
+          {
+            "name": "vnfdId",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "VNFD ID of the vnf package to download"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "file"
+            },
+            "description": "Content of the vnf package"
+          }
+        }
+      }
+    },
+    "/vnfpackages/{id}/vnfversions": {
+      "get": {
+        "description": "List the available versions of a vnf package",
+        "operationId": "vnfversions",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "ID of the vnf package"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of available versions (with full representations)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/catalog_adapter_vnfpackage"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vnfpackages/{id}/versions": {
+      "get": {
+        "description": "List the available versions of a vnf package",
+        "operationId": "versions",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "ID of the vnf package"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of available versions",
+            "schema": {
+              "$ref": "#/definitions/catalog_adapter_vnf_package_versions"
+            }
+          }
+        }
+      }
+    },
+    "/export": {
+      "get": {
+        "description": "Export all vnf packages",
+        "operationId": "exportAllVnfs",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "file"
+            },
+            "description": "Content of the vnf packages"
+          }
+        }
+      }
+    },
+    "/export/{id}": {
+      "get": {
+        "description": "Export a vnf package",
+        "operationId": "exportOneVnf",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "ID of the vnf package to export"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "file"
+            },
+            "description": "Content of the vnf package"
+          }
+        }
+      }
+    },
+    "/import": {
+      "post": {
+        "description": "Import vnf packages",
+        "operationId": "importVnf",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "content",
+            "in": "formData",
+            "required": true,
+            "x-is-map": false,
+            "type": "file",
+            "format": "file",
+            "description": "Content of the imported packages"
+          },
+          {
+            "name": "Content-MD5",
+            "in": "header",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "The checksum of content"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of vnf packages",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/catalog_adapter_vnfpackage"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "catalog_adapter_vnf_package_versions": {
+      "title": "catalog_adapter_vnf_package_versions",
+      "type": "object",
+      "properties": {
+        "result": {
+          "description": "Result of the versions query operation",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "result"
+      ]
+    },
+    "catalog_adapter_artifact": {
+      "title": "catalog_adapter_artifact",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of artifact element. It shall match with the full file path in the ZIP.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of artifact element. Default is other."
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "catalog_adapter_vnfpackage": {
+      "title": "catalog_adapter_vnfpackage",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The ID of the vnf package, which is composed of provider~productName~swVersion",
+          "type": "string"
+        },
+        "vnfdId": {
+          "description": "The VNFD ID of the vnf package, which is composed of provider~productName~swVersion~version",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "description": "The VNFD version of vnf package",
+          "type": "string"
+        },
+        "allVersions": {
+          "description": "List of available versions of the package",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "provider": {
+          "description": "Provider of the vnf package",
+          "type": "string"
+        },
+        "productName": {
+          "description": "Product name of the vnf package",
+          "type": "string"
+        },
+        "swVersion": {
+          "description": "Software version of the vnf package",
+          "type": "string"
+        },
+        "vimType": {
+          "description": "Vim type of the vnf package. Can be openstack or vmware.",
+          "type": "string"
+        },
+        "references": {
+          "description": "references attribute",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "artifacts": {
+          "description": "The list of files in the vnf package zip",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/catalog_adapter_artifact"
+          }
+        }
+      },
+      "required": [
+        "references",
+        "artifacts"
+      ]
+    }
+  }
+}

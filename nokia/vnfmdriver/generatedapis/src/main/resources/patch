@@ -1,0 +1,248 @@
+diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java	2018-02-02 12:57:35.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java	2018-02-02 14:17:03.000000000 +0100
+@@ -19,19 +19,24 @@
+ import com.google.gson.JsonDeserializer;
+ import com.google.gson.JsonElement;
+ import com.google.gson.JsonNull;
++import com.google.gson.JsonObject;
+ import com.google.gson.JsonParseException;
+ import com.google.gson.JsonPrimitive;
+ import com.google.gson.JsonSerializationContext;
+ import com.google.gson.JsonSerializer;
+ import com.google.gson.TypeAdapter;
+ import com.google.gson.stream.JsonReader;
++import com.google.gson.stream.JsonToken;
+ import com.google.gson.stream.JsonWriter;
+ 
+ import java.io.IOException;
+ import java.io.StringReader;
+ import java.lang.reflect.Type;
+ import java.util.Date;
++import java.util.HashMap;
++import java.util.Map;
+ 
++import com.nokia.cbam.lcm.v32.model.*;
+ import org.joda.time.DateTime;
+ import org.joda.time.LocalDate;
+ import org.joda.time.format.DateTimeFormatter;
+@@ -52,6 +57,8 @@
+             .registerTypeAdapter(Date.class, new DateAdapter(apiClient))
+             .registerTypeAdapter(DateTime.class, new DateTimeTypeAdapter())
+             .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
++            .registerTypeAdapter(VimInfo.class, new VimAdapter())
++            .registerTypeAdapter(AbstractVnfNotification.class, new LcnAdapter())
+             .create();
+     }
+ 
+@@ -113,6 +120,80 @@
+             else throw(e);
+         }
+     }
++
++
++    abstract class AbstractPolimorphDeserializer<T> implements JsonDeserializer<T>, JsonSerializer<T>{
++        protected abstract String getTypeField();
++        protected abstract Map<String, Type> getTypeMap();
++        protected abstract Type getDefaultType();
++
++        public T deserialize(JsonElement json, Type typeOf, JsonDeserializationContext context) throws JsonParseException {
++            String TYPE_FIELD = getTypeField();
++            if (json.isJsonObject() && json.getAsJsonObject().has(TYPE_FIELD)) {
++                JsonObject jsonObject = json.getAsJsonObject();
++                final String type = jsonObject.get(TYPE_FIELD).getAsString();
++                Map<String, Type> typeMap = getTypeMap();
++                if(typeMap.containsKey(type)) {
++                    return (T) context.deserialize(json, typeMap.get(type));
++                }
++                return (T) context.deserialize(json, getDefaultType());
++            }
++            return null;
++        }
++
++        @Override
++        public JsonElement serialize(T val, Type type, JsonSerializationContext jsonSerializationContext) {
++            return gson.toJsonTree(val, val.getClass());
++        }
++    }
++
++    class VimAdapter extends AbstractPolimorphDeserializer<VimInfo> {
++
++        @Override
++        protected String getTypeField() {
++            return "vimInfoType";
++        }
++
++        @Override
++        protected Map<String, Type> getTypeMap() {
++            Map<String,Type> myMap = new HashMap<String,Type>();
++            myMap.put(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO.name(), OPENSTACKV2INFO.class);
++            myMap.put(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO.name(), OPENSTACKV3INFO.class);
++            myMap.put(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO.name(), VMWAREVCLOUDINFO.class);
++            return myMap;
++        }
++
++        @Override
++        protected Type getDefaultType() {
++            return OTHERVIMINFO.class;
++        }
++
++    }
++
++    class LcnAdapter extends AbstractPolimorphDeserializer<AbstractVnfNotification> {
++        @Override
++        protected String getTypeField() {
++            return "notificationType";
++        }
++
++        @Override
++        protected Map<String, Type> getTypeMap() {
++            Map<String,Type> myMap = new HashMap<String,Type>();
++            myMap.put(VnfNotificationType.VNFIDENTIFIERCREATIONNOTIFICATION.name(), VnfIdentifierCreationNotification.class);
++            myMap.put(VnfNotificationType.VNFIDENTIFIERDELETIONNOTIFICATION.name(), VnfIdentifierDeletionNotification.class);
++            myMap.put(VnfNotificationType.VNFINFOATTRIBUTEVALUECHANGENOTIFICATION.name(), VnfInfoAttributeValueChangeNotification.class);
++            myMap.put(VnfNotificationType.VNFLIFECYCLECHANGENOTIFICATION.name(), VnfLifecycleChangeNotification.class);
++            myMap.put(VnfNotificationType.OTHERNOTIFICATION.name(), OtherNotification.class);
++            return myMap;
++        }
++
++        @Override
++        protected Type getDefaultType() {
++            return OtherNotification.class;
++        }
++
++    }
++
+ }
+ 
+ class DateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java	2018-02-02 13:01:42.000000000 +0100
+@@ -34,13 +34,13 @@
+       return false;
+     }
+     OTHERVIMINFO OTHER_VIM_INFO = (OTHERVIMINFO) o;
+-    return  &&
++    return 
+         super.equals(o);
+   }
+ 
+   @Override
+   public int hashCode() {
+-    return Objects.hash(, super.hashCode());
++    return Objects.hash( super.hashCode());
+   }
+ 
+ 
+diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java	2018-02-02 13:01:19.000000000 +0100
+@@ -36,13 +36,13 @@
+       return false;
+     }
+     OtherNotification otherNotification = (OtherNotification) o;
+-    return  &&
++    return 
+         super.equals(o);
+   }
+ 
+   @Override
+   public int hashCode() {
+-    return Objects.hash(, super.hashCode());
++    return Objects.hash( super.hashCode());
+   }
+ 
+ 
+diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java	2018-02-02 13:00:51.000000000 +0100
+@@ -36,13 +36,13 @@
+       return false;
+     }
+     VnfIdentifierCreationNotification vnfIdentifierCreationNotification = (VnfIdentifierCreationNotification) o;
+-    return  &&
++    return
+         super.equals(o);
+   }
+ 
+   @Override
+   public int hashCode() {
+-    return Objects.hash(, super.hashCode());
++    return Objects.hash( super.hashCode());
+   }
+ 
+ 
+diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java	2018-02-02 13:02:13.000000000 +0100
+@@ -36,13 +36,13 @@
+       return false;
+     }
+     VnfIdentifierDeletionNotification vnfIdentifierDeletionNotification = (VnfIdentifierDeletionNotification) o;
+-    return  &&
++    return 
+         super.equals(o);
+   }
+ 
+   @Override
+   public int hashCode() {
+-    return Objects.hash(, super.hashCode());
++    return Objects.hash( super.hashCode());
+   }
+ 
+ 
+diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java	2018-02-02 13:09:27.000000000 +0100
+@@ -29,6 +29,27 @@
+   @SerializedName("description")
+   private String description = null;
+ 
++  @SerializedName("value")
++  private Object value;
++
++  public VnfProperty value(Object value) {
++    this.value = value;
++    return this;
++  }
++
++  /**
++   * The name of the respective property
++   * @return name
++   **/
++  @ApiModelProperty(example = "null", required = true, value = "The value of the respective property ")
++  public Object getValue() {
++    return value;
++  }
++
++  public void setValue(String value) {
++    this.value = value;
++  }
++
+   public VnfProperty name(String name) {
+     this.name = name;
+     return this;
+@@ -76,12 +97,13 @@
+     }
+     VnfProperty vnfProperty = (VnfProperty) o;
+     return Objects.equals(this.name, vnfProperty.name) &&
++        Objects.equals(this.value, vnfProperty.value) &&
+         Objects.equals(this.description, vnfProperty.description);
+   }
+ 
+   @Override
+   public int hashCode() {
+-    return Objects.hash(name, description);
++    return Objects.hash(name, value, description);
+   }
+ 
+ 
+@@ -91,6 +113,7 @@
+     sb.append("class VnfProperty {\n");
+     
+     sb.append("    name: ").append(toIndentedString(name)).append("\n");
++    sb.append("    value: ").append(toIndentedString(value)).append("\n");
+     sb.append("    description: ").append(toIndentedString(description)).append("\n");
+     sb.append("}");
+     return sb.toString();
