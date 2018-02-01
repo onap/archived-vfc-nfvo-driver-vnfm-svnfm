@@ -30,6 +30,5 @@
     <modules>
         <module>zte</module>
         <module>huawei</module>
-        <module>nokia</module>
     </modules>
 </project>
