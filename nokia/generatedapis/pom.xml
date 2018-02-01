@@ -34,6 +34,59 @@
         <version>2.2.2</version>
         <executions>
           <execution>
+            <id>cbamlcm</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/nokia.vnfm.api.v3.lcm.json</inputSpec>
+              <language>com.nokia.cbam.swagger.CbamJavaClientCodegen</language>
+              <output>${project.build.directory}/generated-sources/cbam</output>
+              <apiPackage>com.nokia.cbam.lcm.v32.api</apiPackage>
+              <modelPackage>com.nokia.cbam.lcm.v32.model</modelPackage>
+              <configOptions>
+                <jackson>true</jackson>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>cbamlcn</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/nokia.vnfm.api.v3.lcn.subscription.json</inputSpec>
+              <language>com.nokia.cbam.swagger.CbamJavaClientCodegen</language>
+              <output>${project.build.directory}/generated-sources/cbam</output>
+              <apiPackage>com.nokia.cbam.lcn.v32.api</apiPackage>
+              <modelPackage>com.nokia.cbam.lcn.v32.model</modelPackage>
+              <configOptions>
+                <generateSupportingFiles>false</generateSupportingFiles>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>cbamcatalog</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/nokia.catalog.json</inputSpec>
+              <language>com.nokia.cbam.swagger.CbamJavaClientCodegen</language>
+              <output>${project.build.directory}/generated-sources/cbam</output>
+              <apiPackage>com.nokia.cbam.catalog.v1.api</apiPackage>
+              <modelPackage>com.nokia.cbam.catalog.v1.model</modelPackage>
+              <configOptions>
+                <generateSupportingFiles>false</generateSupportingFiles>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
             <id>catalog</id>
             <goals>
               <goal>generate</goal>
@@ -75,6 +128,28 @@
             <version>1.0.0-SNAPSHOT</version>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-patch-plugin</artifactId>
+        <version>1.2</version>
+        <configuration>
+          <targetDirectory>${project.build.directory}/generated-sources</targetDirectory>
+          <skipApplication>false</skipApplication>
+        </configuration>
+        <executions>
+          <execution>
+            <id>bugfix-patches</id>
+            <configuration>
+              <patchFile>src/main/resources/patch</patchFile>
+              <strip>1</strip>
+            </configuration>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
