@@ -31,5 +31,6 @@
     <module>generatedapis</module>
     <module>driver</module>
     <module>driverwar</module>
+    <module>deployment</module>
   </modules>
 </project>
