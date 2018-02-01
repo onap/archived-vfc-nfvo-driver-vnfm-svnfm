@@ -29,5 +29,7 @@
   <modules>
     <module>generatortools</module>
     <module>generatedapis</module>
+    <module>driver</module>
+    <module>driverwar</module>
   </modules>
 </project>
