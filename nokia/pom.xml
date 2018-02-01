@@ -28,5 +28,6 @@
   <name>vfc/nfvo/driver/vnfm/svnfm/nokia</name>
   <modules>
     <module>generatortools</module>
+    <module>generatedapis</module>
   </modules>
 </project>
