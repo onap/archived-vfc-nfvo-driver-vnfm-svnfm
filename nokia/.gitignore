@@ -1,2 +1,3 @@
-target
-vfc-nfvo-driver-vnfm-svnfm-nokia.iml
+.idea
+bin
+*.iml
