@@ -1,0 +1,499 @@
+{
+  "swagger": "2.0", 
+  "info": {
+    "version": "v3.2", 
+    "title": "Nokia VNFM API version 3.2 WIP - VNF Lifecycle Change Notification - Subscription interface"
+  }, 
+  "basePath": "/vnfm/lcn/v3", 
+  "schemes": [
+    "https"
+  ], 
+  "securityDefinitions": {
+    "OauthPassword": {
+      "description": "OAuth 2.0 resource owner password credentials grant (https://tools.ietf.org/html/rfc6749#section-4.3) with bearer token type. Note: the given tokenUrl does not inherit from the basePath\n", 
+      "type": "oauth2", 
+      "tokenUrl": "/auth/realms/cbam/protocol/openid-connect/token", 
+      "flow": "password", 
+      "scopes": {
+        "default": "default scope"
+      }
+    }, 
+    "OauthClient": {
+      "description": "OAuth 2.0 client credentials grant (https://tools.ietf.org/html/rfc6749#section-4.4) with bearer token type. Note: the given tokenUrl does not inherit from the basePath\n", 
+      "type": "oauth2", 
+      "tokenUrl": "/auth/realms/cbam/protocol/openid-connect/token", 
+      "flow": "application", 
+      "scopes": {
+        "default": "default scope"
+      }
+    }
+  }, 
+  "security": [
+    {
+      "OauthPassword": [
+        "default"
+      ]
+    }, 
+    {
+      "OauthClient": [
+        "default"
+      ]
+    }
+  ], 
+  "produces": [
+    "application/json", 
+    "application/problem+json"
+  ], 
+  "consumes": [
+    "application/json"
+  ], 
+  "paths": {
+    "/subscriptions": {
+      "post": {
+        "description": "Creates subscription to notifications.\n", 
+        "parameters": [
+          {
+            "name": "subscriptionRequest", 
+            "description": "Parameters for the subscription to be created", 
+            "in": "body", 
+            "required": true, 
+            "schema": {
+              "$ref": "#/definitions/CreateSubscriptionRequest"
+            }
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "201": {
+            "description": "Created subscription", 
+            "headers": {
+              "Location": {
+                "description": "The url of the subscription", 
+                "type": "string", 
+                "format": "url"
+              }, 
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "schema": {
+              "$ref": "#/definitions/Subscription"
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "subscriptions"
+        ]
+      }, 
+      "get": {
+        "description": "Lists subscriptions", 
+        "parameters": [
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful response", 
+            "schema": {
+              "type": "array", 
+              "items": {
+                "$ref": "#/definitions/Subscription"
+              }
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    }, 
+    "/subscriptions/{subscriptionId}": {
+      "get": {
+        "description": "Gets specific subscription data", 
+        "parameters": [
+          {
+            "name": "subscriptionId", 
+            "in": "path", 
+            "description": "The identifier of the subscription", 
+            "required": true, 
+            "type": "string"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful response", 
+            "schema": {
+              "$ref": "#/definitions/Subscription"
+            }, 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "subscriptions"
+        ]
+      }, 
+      "delete": {
+        "description": "Delete the subscription\n", 
+        "parameters": [
+          {
+            "name": "subscriptionId", 
+            "in": "path", 
+            "description": "The identifier of the subscription", 
+            "required": true, 
+            "type": "string"
+          }, 
+          {
+            "enum": [
+              "3.2"
+            ], 
+            "name": "Nokia-VNFM-API-Version", 
+            "required": true, 
+            "in": "header", 
+            "type": "string", 
+            "description": "The microversion corresponding to the version of the current specification"
+          }
+        ], 
+        "responses": {
+          "204": {
+            "description": "Successful response", 
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }
+          }, 
+          "default": {
+            "headers": {
+              "Nokia-VNFM-API-Version": {
+                "enum": [
+                  "3.2"
+                ], 
+                "type": "string", 
+                "description": "The microversion corresponding to the version of the current specification"
+              }
+            }, 
+            "description": "Error payload", 
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          }
+        }, 
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    }
+  }, 
+  "definitions": {
+    "CreateSubscriptionRequest": {
+      "type": "object", 
+      "required": [
+        "callbackUrl"
+      ], 
+      "properties": {
+        "filter": {
+          "description": "Filter settings for this subscription. Omitting this field indicates that all notifications should be sent to the subscriber.\n", 
+          "$ref": "#/definitions/SubscriptionFilter"
+        }, 
+        "callbackUrl": {
+          "description": "The URL to use as endpoint when sending notifications corresponding to this subscription request. **Nokia extension to ETSI NFV IFA007.**\n", 
+          "type": "string"
+        }, 
+        "authentication": {
+          "description": "Authentication parameters to use when sending notifications corresponding to this subscription. **Nokia extension to ETSI NFV IFA007.**\n", 
+          "$ref": "#/definitions/SubscriptionAuthentication"
+        }
+      }
+    }, 
+    "OperationType": {
+      "type": "string", 
+      "enum": [
+        "INSTANTIATE", 
+        "SCALE", 
+        "SCALE_TO_LEVEL", 
+        "MODIFY_INFO", 
+        "CHANGE_FLAVOUR", 
+        "OPERATE", 
+        "HEAL", 
+        "UPGRADE", 
+        "TERMINATE", 
+        "OTHER"
+      ]
+    }, 
+    "SubscriptionFilter": {
+      "description": "Filter settings for subscriptions. Multiple filter options mean that all should be satisfied (AND relation). **Options may be expanded in later API specification updates.**\n", 
+      "type": "object", 
+      "properties": {
+        "vnfdId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "vnfProductName": {
+          "description": "Subscribe to notifications of VNFs with the given product name\n", 
+          "type": "string"
+        }, 
+        "vnfSoftwareVersion": {
+          "description": "Subscribe to notifications of VNFs with the given software version (to be used in conjunction with vnfProductName)\n", 
+          "type": "string"
+        }, 
+        "vnfInstanceId": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "notificationTypes": {
+          "description": "Only send notifications of the included types. If no types are given, all notifications will be sent.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/VnfNotificationType"
+          }
+        }, 
+        "operationTypes": {
+          "description": "Only send notifications of the included operation types. Only valid for VnfLifecycleChangeNotification notification type.\n", 
+          "type": "array", 
+          "items": {
+            "$ref": "#/definitions/OperationType"
+          }
+        }
+      }
+    }, 
+    "SubscriptionAuthentication": {
+      "description": "Authentication parameters to use when sending notifications for subscriptions. **Options may be expanded in later API specification updates.**\n", 
+      "type": "object", 
+      "required": [
+        "type"
+      ], 
+      "properties": {
+        "type": {
+          "description": "type of authentication. OAUTH2_PASSWD means the \"resource owner password credentials grant\" flow. OAUTH2_CLIENT means the \"client credentials grant\" flow.\n", 
+          "type": "string", 
+          "enum": [
+            "NONE", 
+            "BASIC", 
+            "OAUTH2_PASSWD", 
+            "OAUTH2_CLIENT"
+          ]
+        }, 
+        "userName": {
+          "description": "The name of the user to authenticate with. Used for basic- and OAUTH2_PASSWD authentication. This corresponds to the \"resource owner\" user in case of Oauth 2.\n", 
+          "type": "string"
+        }, 
+        "password": {
+          "description": "The password of the user to authenticate with. Used for basic- and OAUTH2_PASSWD authentication.\n", 
+          "type": "string", 
+          "format": "password"
+        }, 
+        "clientName": {
+          "description": "The client designation to be used for Oauth 2 authentication (both flows)\n", 
+          "type": "string"
+        }, 
+        "clientPassword": {
+          "description": "The client password to be used for Oauth 2 authentication (both flows)\n", 
+          "type": "string"
+        }, 
+        "tokenUrl": {
+          "description": "The endpoint where the authentication token can be obtained. Used for Oauth 2 authentication (both flows)\n", 
+          "type": "string"
+        }
+      }
+    }, 
+    "Subscription": {
+      "type": "object", 
+      "required": [
+        "id", 
+        "callbackUrl"
+      ], 
+      "properties": {
+        "id": {
+          "description": "An identifier with the intention of being globally unique.\n", 
+          "type": "string"
+        }, 
+        "lcnApiVersion": {
+          "description": "Version of the API on which the subscription was created. This may influence the occurrence and contents and of the LCN notifications sent to the subscriber.\n", 
+          "type": "string"
+        }, 
+        "filter": {
+          "description": "Filter settings for this subscription.\n", 
+          "$ref": "#/definitions/SubscriptionFilter"
+        }, 
+        "callbackUrl": {
+          "description": "The URL to use as endpoint when sending notifications corresponding to this subscription\n", 
+          "type": "string"
+        }, 
+        "_links": {
+          "required": [
+            "self"
+          ], 
+          "type": "object", 
+          "description": "Link relations for this object", 
+          "properties": {
+            "self": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "list": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "create": {
+              "$ref": "#/definitions/Link"
+            }, 
+            "delete": {
+              "$ref": "#/definitions/Link"
+            }
+          }
+        }
+      }
+    }, 
+    "Link": {
+      "type": "object", 
+      "required": [
+        "href"
+      ], 
+      "properties": {
+        "href": {
+          "description": "The URL that references the target resource.\n", 
+          "type": "string", 
+          "format": "url"
+        }
+      }
+    }, 
+    "ProblemDetails": {
+      "description": "Problem detail object based on RFC7807\n", 
+      "type": "object", 
+      "required": [
+        "status", 
+        "detail"
+      ], 
+      "properties": {
+        "type": {
+          "description": "A URI reference [RFC3986] that identifies the problem type.  This specification encourages that, when dereferenced, it provide human-readable documentation for the problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When this member is not present, its value is assumed to be \"about:blank\".\n", 
+          "type": "string", 
+          "format": "URI"
+        }, 
+        "title": {
+          "description": "A short, human-readable summary of the problem type.  It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization (e.g., using proactive content negotiation; see [RFC7231], Section 3.4).\n", 
+          "type": "string"
+        }, 
+        "status": {
+          "description": "The HTTP status code ([RFC7231], Section 6) generated by the origin server for this occurrence of the problem.\n", 
+          "type": "integer"
+        }, 
+        "detail": {
+          "description": "A human-readable explanation specific to this occurrence of the problem.\n", 
+          "type": "string"
+        }, 
+        "instance": {
+          "description": "A URI reference that identifies the specific occurrence of the problem.  It may or may not yield further information if dereferenced.\n", 
+          "type": "string", 
+          "format": "URI"
+        }
+      }
+    }, 
+    "VnfNotificationType": {
+      "description": "**OtherNotification** is provided for forward compatibility with subsequent API microversions.\n", 
+      "type": "string", 
+      "enum": [
+        "VnfIdentifierCreationNotification", 
+        "VnfIdentifierDeletionNotification", 
+        "VnfLifecycleChangeNotification", 
+        "VnfInfoAttributeValueChangeNotification", 
+        "OtherNotification"
+      ]
+    }
+  }
+}
