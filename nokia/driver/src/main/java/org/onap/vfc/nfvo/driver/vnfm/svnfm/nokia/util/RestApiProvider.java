@@ -36,7 +36,7 @@ import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamTokenProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.DriverProperties;
 import org.onap.vfccatalog.api.VnfpackageApi;
-import org.onap.vnfmdriver.api.NSLCMApi;
+import org.onap.vnfmdriver.api.NslcmApi;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +105,7 @@ public class RestApiProvider implements InitializingBean {
         vnfmInfoCache = CacheBuilder.newBuilder().expireAfterWrite(environment.getProperty(VNFM_INFO_CACHE_EVICTION_IN_MS, Long.class, Long.valueOf(10 * 60 * 1000)), TimeUnit.MILLISECONDS).concurrencyLevel(1).build(new CacheLoader<String, VnfmInfo>() {
             @Override
             public VnfmInfo load(String vnfmId) throws Exception {
-                NSLCMApi nsLcmApi = getNsLcmApi();
+                NslcmApi nsLcmApi = getNsLcmApi();
                 return nsLcmApi.queryVnfmInfo(vnfmId);
             }
         });
@@ -135,7 +135,7 @@ public class RestApiProvider implements InitializingBean {
     /**
      * @return API to access VF-C for granting & LCN API
      */
-    public NSLCMApi getNsLcmApi() {
+    public NslcmApi getNsLcmApi() {
         org.onap.vnfmdriver.ApiClient apiClient = new org.onap.vnfmdriver.ApiClient();
         String urlInMsb = getMicroServiceUrl(NSLCM_API_SERVICE_NAME, NSLCM_API_VERION);
         //FIXME the swagger schema definition is not consistent with MSB info
@@ -143,7 +143,7 @@ public class RestApiProvider implements InitializingBean {
         // is /nsclm/v1 making all API calls /api/nsclm/v1/nsclm/v1
         String correctedUrl = urlInMsb.replaceFirst("/nslcm/v1", "");
         apiClient.setBasePath(correctedUrl);
-        return new NSLCMApi(apiClient);
+        return new NslcmApi(apiClient);
     }
 
     /**
