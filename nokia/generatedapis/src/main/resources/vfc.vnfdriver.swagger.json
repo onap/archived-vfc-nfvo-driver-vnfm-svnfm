@@ -25,7 +25,7 @@
     "/{vnfmtype}/v1/{vnfmid}/vnfs": {
       "post": {
         "tags": [
-          "VNFMDriver"
+          "VnfmDriver"
         ],
         "summary": "vnf create&instantiate",
         "description": "VNF create&instantiate Rest API should be provided by the VNFM Driver",
@@ -74,7 +74,7 @@
     "/{vnfmtype}/v1/{vnfmid}/vnfs/{vnfInstanceId}/scale": {
       "post": {
         "tags": [
-          "VNFMDriver"
+          "VnfmDriver"
         ],
         "summary": "vnf Scale",
         "description": "VNF Scale Rest API should be provided by the VNFM Driver",
@@ -136,7 +136,7 @@
     "/{vnfmtype}/v1/{vnfmid}/vnfs/{vnfInstanceId}/heal": {
       "post": {
         "tags": [
-          "VNFMDriver"
+          "VnfmDriver"
         ],
         "summary": "vnf heal",
         "description": "VNF Heal Rest API should be provided by the VNFM Driver",
@@ -198,7 +198,7 @@
     "/{vnfmtype}/v1/{vnfmid}/vnfs/{vnfInstanceId}/terminate": {    
       "post": {
         "tags": [
-          "VNFMDriver"
+          "VnfmDriver"
         ],
         "summary": "terminate&delete vnf",
         "description": "VNF terminate&delete Rest API should be provided by the VNFM Driver",
@@ -260,7 +260,7 @@
     "/{vnfmtype}/v1/{vnfmid}/vnfs/{vnfInstanceId}": {
       "get": {
         "tags": [
-          "VNFMDriver"
+          "VnfmDriver"
         ],
         "summary": "query the specified vnf info",
         "description": "",
@@ -313,10 +313,10 @@
     "/nslcm/v1/ns/grantvnf": {
       "post": {
         "tags": [
-          "NSLCM"
+          "Nslcm"
         ],
         "summary": "grantvnf",
-        "description": "Grant VNF, provived by the NSLCM component",
+        "description": "Grant VNF, provived by the Nslcm component",
         "operationId": "grantvnf",
         "parameters": [
           {
@@ -348,10 +348,10 @@
     "/nslcm/v1/ns/{vnfmid}/vnfs/{vnfInstanceId}/Notify": {
       "post": {
         "tags": [
-          "NSLCM"
+          "Nslcm"
         ],
         "summary": "VNF LCM Notification",
-        "description": "VNF LCM Notification API should be provided by NSLCM component",
+        "description": "VNF LCM Notification API should be provided by Nslcm component",
         "operationId": "VNF_LCM_Notification",
         "parameters": [
           {
@@ -394,7 +394,7 @@
     "/{vnfmid}/jobs/{jobid}": {
       "get": {
         "tags": [
-          "VNFMDriver"
+          "VnfmDriver"
         ],
         "summary": "jobstatus",
         "description": "Job Infomation API should be provided by VNFM Driver",
@@ -471,7 +471,7 @@
     "/nslcm/v1/vnfms/{vnfmid}":{
       "get": {
         "tags": [
-          "NSLCM"
+          "Nslcm"
         ],
         "summary": "Query VNFM register info",
         "description": "query VNFM register info",
@@ -510,7 +510,7 @@
     "/nslcm/v1/vims/{vimid}":{
       "get": {
         "tags": [
-          "NSLCM"
+          "Nslcm"
         ],
         "summary": "Query VIM register info",
         "description": "query VIM register info",

@@ -39,7 +39,7 @@ import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfccatalog.api.VnfpackageApi;
-import org.onap.vnfmdriver.api.NSLCMApi;
+import org.onap.vnfmdriver.api.NslcmApi;
 import org.slf4j.Logger;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -83,7 +83,7 @@ public class TestBase {
     @Mock
     protected DriverProperties driverProperties;
     @Mock
-    protected NSLCMApi nsLcmApi;
+    protected NslcmApi nsLcmApi;
     @Mock
     protected SystemFunctions systemFunctions;
     @Mock

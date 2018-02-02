@@ -34,7 +34,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamTokenProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.TestBase;
 import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vnfmdriver.ApiException;
-import org.onap.vnfmdriver.api.NSLCMApi;
+import org.onap.vnfmdriver.api.NslcmApi;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.core.env.Environment;
 
@@ -123,7 +123,7 @@ public class TestRestApiProvider extends TestBase {
         when(msbClient.queryMicroServiceInfo(NSLCM_API_SERVICE_NAME, NSLCM_API_VERION)).thenReturn(microServiceInfo);
 
         //when
-        NSLCMApi nsLcmApi = restApiProvider.getNsLcmApi();
+        NslcmApi nsLcmApi = restApiProvider.getNsLcmApi();
         //verify
         assertEquals("http://1.2.3.4:1234/lead", nsLcmApi.getApiClient().getBasePath());
         assertNull(nsLcmApi.getApiClient().getSslCaCert());

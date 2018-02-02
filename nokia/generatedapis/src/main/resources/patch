@@ -1,26 +1,21 @@
 diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java
---- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java	2017-11-08 12:39:36.000000000 +0100
-+++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java	2017-11-08 14:45:37.000000000 +0100
-@@ -13,17 +13,7 @@
- 
- package com.nokia.cbam.lcm.v32;
- 
--import com.google.gson.Gson;
--import com.google.gson.GsonBuilder;
--import com.google.gson.JsonDeserializationContext;
--import com.google.gson.JsonDeserializer;
--import com.google.gson.JsonElement;
--import com.google.gson.JsonNull;
--import com.google.gson.JsonParseException;
--import com.google.gson.JsonPrimitive;
--import com.google.gson.JsonSerializationContext;
--import com.google.gson.JsonSerializer;
--import com.google.gson.TypeAdapter;
-+import com.google.gson.*;
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java	2018-02-02 12:57:35.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java	2018-02-02 14:17:03.000000000 +0100
+@@ -19,19 +19,24 @@
+ import com.google.gson.JsonDeserializer;
+ import com.google.gson.JsonElement;
+ import com.google.gson.JsonNull;
++import com.google.gson.JsonObject;
+ import com.google.gson.JsonParseException;
+ import com.google.gson.JsonPrimitive;
+ import com.google.gson.JsonSerializationContext;
+ import com.google.gson.JsonSerializer;
+ import com.google.gson.TypeAdapter;
  import com.google.gson.stream.JsonReader;
++import com.google.gson.stream.JsonToken;
  import com.google.gson.stream.JsonWriter;
  
-@@ -31,7 +21,10 @@
+ import java.io.IOException;
  import java.io.StringReader;
  import java.lang.reflect.Type;
  import java.util.Date;
@@ -31,7 +26,7 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java new/cbam/
  import org.joda.time.DateTime;
  import org.joda.time.LocalDate;
  import org.joda.time.format.DateTimeFormatter;
-@@ -52,6 +45,8 @@
+@@ -52,6 +57,8 @@
              .registerTypeAdapter(Date.class, new DateAdapter(apiClient))
              .registerTypeAdapter(DateTime.class, new DateTimeTypeAdapter())
              .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
@@ -40,10 +35,11 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java new/cbam/
              .create();
      }
  
-@@ -83,6 +78,78 @@
-         return gson.toJson(obj);
+@@ -113,6 +120,80 @@
+             else throw(e);
+         }
      }
- 
++
 +
 +    abstract class AbstractPolimorphDeserializer<T> implements JsonDeserializer<T>, JsonSerializer<T>{
 +        protected abstract String getTypeField();
@@ -80,9 +76,9 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java new/cbam/
 +        @Override
 +        protected Map<String, Type> getTypeMap() {
 +            Map<String,Type> myMap = new HashMap<String,Type>();
-+            myMap.put("OpenStackVimInfo", OPENSTACKV2INFO.class);
-+            myMap.put("OpenStackVimInfo", OPENSTACKV3INFO.class);
-+            myMap.put("VmWareVimInfo", VMWAREVCLOUDINFO.class);
++            myMap.put(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO.name(), OPENSTACKV2INFO.class);
++            myMap.put(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO.name(), OPENSTACKV3INFO.class);
++            myMap.put(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO.name(), VMWAREVCLOUDINFO.class);
 +            return myMap;
 +        }
 +
@@ -102,10 +98,11 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java new/cbam/
 +        @Override
 +        protected Map<String, Type> getTypeMap() {
 +            Map<String,Type> myMap = new HashMap<String,Type>();
-+            myMap.put("VnfIdentifierCreationNotification", VnfIdentifierCreationNotification.class);
-+            myMap.put("VnfIdentifierDeletionNotification", VnfIdentifierDeletionNotification.class);
-+            myMap.put("VnfInfoAttributeValueChangeNotification", VnfInfoAttributeValueChangeNotification.class);
-+            myMap.put("VnfLifecycleChangeNotification", VnfLifecycleChangeNotification.class);
++            myMap.put(VnfNotificationType.VNFIDENTIFIERCREATIONNOTIFICATION.name(), VnfIdentifierCreationNotification.class);
++            myMap.put(VnfNotificationType.VNFIDENTIFIERDELETIONNOTIFICATION.name(), VnfIdentifierDeletionNotification.class);
++            myMap.put(VnfNotificationType.VNFINFOATTRIBUTEVALUECHANGENOTIFICATION.name(), VnfInfoAttributeValueChangeNotification.class);
++            myMap.put(VnfNotificationType.VNFLIFECYCLECHANGENOTIFICATION.name(), VnfLifecycleChangeNotification.class);
++            myMap.put(VnfNotificationType.OTHERNOTIFICATION.name(), OtherNotification.class);
 +            return myMap;
 +        }
 +
@@ -116,12 +113,12 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/JSON.java new/cbam/
 +
 +    }
 +
-     /**
-      * Deserialize the given JSON string to Java object.
-      *
+ }
+ 
+ class DateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java
---- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java	2017-11-13 16:58:20.000000000 +0100
-+++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java	2017-11-13 17:05:02.000000000 +0100
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.java	2018-02-02 13:01:42.000000000 +0100
 @@ -34,13 +34,13 @@
        return false;
      }
@@ -139,8 +136,8 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OTHERVIMINFO.
  
  
 diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java
---- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java	2017-11-08 12:39:35.000000000 +0100
-+++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java	2017-11-08 12:41:36.000000000 +0100
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotification.java	2018-02-02 13:01:19.000000000 +0100
 @@ -36,13 +36,13 @@
        return false;
      }
@@ -158,14 +155,14 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/OtherNotifica
  
  
 diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java
---- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java	2017-11-08 12:39:36.000000000 +0100
-+++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java	2017-11-08 12:42:00.000000000 +0100
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierCreationNotification.java	2018-02-02 13:00:51.000000000 +0100
 @@ -36,13 +36,13 @@
        return false;
      }
      VnfIdentifierCreationNotification vnfIdentifierCreationNotification = (VnfIdentifierCreationNotification) o;
 -    return  &&
-+    return  
++    return
          super.equals(o);
    }
  
@@ -177,8 +174,8 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifier
  
  
 diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java
---- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java	2017-11-08 12:39:36.000000000 +0100
-+++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java	2017-11-08 12:42:18.000000000 +0100
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifierDeletionNotification.java	2018-02-02 13:02:13.000000000 +0100
 @@ -36,13 +36,13 @@
        return false;
      }
@@ -196,22 +193,15 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfIdentifier
  
  
 diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java
---- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java	2017-11-08 12:39:36.000000000 +0100
-+++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java	2017-11-13 16:57:01.000000000 +0100
-@@ -29,6 +29,9 @@
+--- old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java	2018-02-02 12:57:34.000000000 +0100
++++ new/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.java	2018-02-02 13:09:27.000000000 +0100
+@@ -29,6 +29,27 @@
    @SerializedName("description")
    private String description = null;
  
 +  @SerializedName("value")
 +  private Object value;
 +
-   public VnfProperty name(String name) {
-     this.name = name;
-     return this;
-@@ -65,6 +68,23 @@
-     this.description = description;
-   }
- 
 +  public VnfProperty value(Object value) {
 +    this.value = value;
 +    return this;
@@ -229,10 +219,11 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.j
 +  public void setValue(String value) {
 +    this.value = value;
 +  }
- 
-   @Override
-   public boolean equals(java.lang.Object o) {
-@@ -76,12 +96,13 @@
++
+   public VnfProperty name(String name) {
+     this.name = name;
+     return this;
+@@ -76,12 +97,13 @@
      }
      VnfProperty vnfProperty = (VnfProperty) o;
      return Objects.equals(this.name, vnfProperty.name) &&
@@ -243,11 +234,11 @@ diff -Naur old/cbam/src/gen/java/main/com/nokia/cbam/lcm/v32/model/VnfProperty.j
    @Override
    public int hashCode() {
 -    return Objects.hash(name, description);
-+    return Objects.hash(name, description, value);
++    return Objects.hash(name, value, description);
    }
  
  
-@@ -91,6 +112,7 @@
+@@ -91,6 +113,7 @@
      sb.append("class VnfProperty {\n");
      
      sb.append("    name: ").append(toIndentedString(name)).append("\n");

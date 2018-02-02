@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import com.nokia.cbam.lcm.v32.ApiClient;
 import com.nokia.cbam.lcm.v32.model.*;
 import org.junit.Test;
@@ -21,8 +22,9 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class TestInhertence {
+
     @Test
-    public void test(){
+    public void testVimInfo(){
         InstantiateVnfRequest req = new InstantiateVnfRequest();
         OPENSTACKV2INFO vim = new OPENSTACKV2INFO();
         req.getVims().add(vim);
@@ -45,4 +47,5 @@ public class TestInhertence {
 
         assertEquals("myId", deserialize.getVnfInstanceId());
     }
+    
 }
