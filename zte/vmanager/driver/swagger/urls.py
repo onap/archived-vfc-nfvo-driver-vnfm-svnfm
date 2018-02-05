@@ -14,19 +14,29 @@
 
 from django.conf.urls import url
 from drf_yasg import openapi
-
-from driver.swagger import views
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 
 swagger_info = openapi.Info(
-    title="vfc-vnfmgr API",
+    title="vfc-ztevnfmdriver API",
     default_version='v1',
     description="""
 
-The `swagger-ui` view can be found [here](/swagger).
-The `ReDoc` view can be found [here](/redoc).
-The swagger YAML document can be found [here](/swagger.yaml)."""
+The `swagger-ui` view can be found [here](/api/ztevnfmdriver/v1/swagger).
+The `ReDoc` view can be found [here](/api/ztevnfmdriver/v1/redoc).
+The swagger YAML document can be found [here](/api/ztevnfmdriver/v1/swagger.yaml).
+The swagger JSON document can be found [here](/api/ztevnfmdriver/v1/swagger.json)."""
+)
+
+SchemaView = get_schema_view(
+    validators=['ssv', 'flex'],
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
-    url(r'^api/ztevnfmdriver/v1/swagger.json$', views.SwaggerView.as_view()),
+    # url(r'^api/ztevnfmdriver/v1/swagger.json$', views.SwaggerView.as_view()),
+    url(r'^api/ztevnfmdriver/v1/swagger(?P<format>.json|.yaml)$', SchemaView.without_ui(cache_timeout=0), name='schema-json'),
+    url(r'^api/ztevnfmdriver/v1/swagger$', SchemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    url(r'^api/ztevnfmdriver/v1/redoc$', SchemaView.with_ui('redoc', cache_timeout=0), name='schema-redoc')
 ]
