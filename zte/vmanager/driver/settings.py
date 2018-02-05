@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'driver.pub.database',
-    'driver.interfaces'
+    'driver.interfaces',
+    'drf_yasg',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -87,6 +88,30 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), }}
 
+# drf-yasg
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+SWAGGER_SETTINGS = {
+    'LOGIN_URL': '/admin/login',
+    'LOGOUT_URL': '/admin/logout',
+
+    'DEFAULT_INFO': 'driver.swagger.urls.swagger_info'
+}
+
 TIME_ZONE = 'UTC'
 
 # Static files (CSS, JavaScript, Images)
@@ -99,22 +124,28 @@ LOGGING = {
     'disable_existing_loggers': True,
     'formatters': {
         'standard': {
-            'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s', }, },
+            'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
+        },
+    },
     'filters': {},
     'handlers': {
         'driver_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/runtime_driver.log'),
+            'filename': os.path.join(
+                BASE_DIR,
+                'logs/runtime_driver.log'),
             'formatter': 'standard',
             'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 5, }, },
-
+            'backupCount': 5,
+        },
+    },
     'loggers': {
         'driver': {
             'handlers': ['driver_handler'],
             'level': 'DEBUG',
-            'propagate': False}, }}
+            'propagate': False},
+    }}
 
 if 'test' in sys.argv:
     config.REG_TO_MSB_WHEN_START = False

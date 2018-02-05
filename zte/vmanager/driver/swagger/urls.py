@@ -13,7 +13,19 @@
 # limitations under the License.
 
 from django.conf.urls import url
+from drf_yasg import openapi
+
 from driver.swagger import views
+
+swagger_info = openapi.Info(
+    title="vfc-vnfmgr API",
+    default_version='v1',
+    description="""
+
+The `swagger-ui` view can be found [here](/swagger).
+The `ReDoc` view can be found [here](/redoc).
+The swagger YAML document can be found [here](/swagger.yaml)."""
+)
 
 urlpatterns = [
     url(r'^api/ztevnfmdriver/v1/swagger.json$', views.SwaggerView.as_view()),
