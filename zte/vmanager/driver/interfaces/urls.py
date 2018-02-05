@@ -35,4 +35,5 @@ urlpatterns = [
         views.scale, name='scale'),
     url(r'^api/(?P<vnfmtype>[0-9a-zA-Z\-\_]+)/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/heal$',
         views.heal, name='heal'),
-    url(r'^samples/$', views.samples, name='samples'), ]
+    url(r'^samples/$', views.samples, name='samples')
+]
