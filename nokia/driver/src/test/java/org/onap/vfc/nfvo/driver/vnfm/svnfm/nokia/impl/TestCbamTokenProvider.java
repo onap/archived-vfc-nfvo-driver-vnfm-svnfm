@@ -112,7 +112,7 @@ public class TestCbamTokenProvider extends TestBase {
         setField(cbamTokenProvider, "password", "myPassword");
         setField(cbamTokenProvider, "skipCertificateVerification", true);
         setField(cbamTokenProvider, "skipHostnameVerification", true);
-        when(restApiProvider.queryVnfmInfo(VNFM_ID)).thenReturn(vnfmInfo);
+        when(vnfmInfoProvider.getVnfmInfo(VNFM_ID)).thenReturn(vnfmInfo);
         vnfmInfo.setPassword("vnfmPassword");
         vnfmInfo.setUserName("vnfmUserName");
         vnfmInfo.setUrl("http://127.0.0.3:12345");

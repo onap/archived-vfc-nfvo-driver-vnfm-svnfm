@@ -32,8 +32,9 @@ import com.nokia.cbam.lcm.v32.model.ChangeType;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.OperationType;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcRestApiProvider;
 import org.onap.vnfmdriver.model.*;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +48,9 @@ import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.nokia.cbam.lcm.v32.model.OperationType.INSTANTIATE;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.JobManager.extractOnapJobId;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCN_API_VERSION;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.childElement;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCM_API_VERSION;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCN_API_VERSION;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -86,7 +87,9 @@ public class LifecycleChangeNotificationManager {
     private static final Set<OperationStatus> terminalStatus = Sets.newHashSet(OperationStatus.FINISHED, OperationStatus.FAILED);
     private static Logger logger = getLogger(LifecycleChangeNotificationManager.class);
     @Autowired
-    private RestApiProvider restApiProvider;
+    private CbamRestApiProvider restApiProvider;
+    @Autowired
+    private VfcRestApiProvider vfcRestApiProvider;
     @Autowired
     private DriverProperties driverProperties;
     private Set<ProcessedNotification> processedNotifications = Sets.newConcurrentHashSet();
@@ -166,7 +169,7 @@ public class LifecycleChangeNotificationManager {
             }
             try {
                 logger.info("Sending LCN: " + new Gson().toJson(notificationToSend));
-                restApiProvider.getNsLcmApi().vNFLCMNotification(driverProperties.getVnfmId(), recievedNotification.getVnfInstanceId(), notificationToSend);
+                vfcRestApiProvider.getNsLcmApi().vNFLCMNotification(driverProperties.getVnfmId(), recievedNotification.getVnfInstanceId(), notificationToSend);
             } catch (Exception e) {
                 logger.error("Unable to send LCN to ONAP", e);
                 throw new RuntimeException(e);

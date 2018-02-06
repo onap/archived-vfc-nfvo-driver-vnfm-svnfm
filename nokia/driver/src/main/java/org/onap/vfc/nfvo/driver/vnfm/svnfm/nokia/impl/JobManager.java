@@ -23,10 +23,9 @@ import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
-import com.nokia.cbam.lcm.v32.model.OperationStatus;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import org.apache.http.HttpStatus;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
 import org.onap.vnfmdriver.model.JobDetailInfo;
 import org.onap.vnfmdriver.model.JobDetailInfoResponseDescriptor;
 import org.onap.vnfmdriver.model.JobResponseInfo;
@@ -44,7 +43,7 @@ import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCM_API_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -68,7 +67,7 @@ public class JobManager {
     private final Set<String> ongoingJobs = Sets.newConcurrentHashSet();
 
     @Autowired
-    private RestApiProvider restApiProvider;
+    private CbamRestApiProvider cbamRestApiProvider;
     @Autowired
     private SelfRegistrationManager selfRegistrationManager;
 
@@ -242,7 +241,7 @@ public class JobManager {
     }
 
     private OperationExecution findOperationByJobId(String vnfmId, Optional<VnfInfo> vnf, String jobId) {
-        OperationExecutionsApi cbamOperationExecutionApi = restApiProvider.getCbamOperationExecutionApi(vnfmId);
+        OperationExecutionsApi cbamOperationExecutionApi = cbamRestApiProvider.getCbamOperationExecutionApi(vnfmId);
         //the operations are sorted so that the newest operations are queried first
         //performance optimalization that usually the external system is interested in the operations executed last
         for (OperationExecution operationExecution : LifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(vnf.get().getOperationExecutions())) {
@@ -262,7 +261,7 @@ public class JobManager {
     private Optional<VnfInfo> getVnf(String vnfmId, String vnfId) {
         try {
             //test if the VNF exists (required to be able to distingush between failed request )
-            VnfsApi cbamLcmApi = restApiProvider.getCbamLcmApi(vnfmId);
+            VnfsApi cbamLcmApi = cbamRestApiProvider.getCbamLcmApi(vnfmId);
             logger.debug("Listing VNFs");
             List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION);
             com.google.common.base.Optional<VnfInfo> vnf = tryFind(vnfs, vnfInfo -> vnfId.equals(vnfInfo.getId()));

@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog;
 
 import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpGet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.TestBase;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
-import org.onap.vfccatalog.ApiException;
-import org.onap.vfccatalog.model.VnfPkgDetailInfo;
-import org.onap.vfccatalog.model.VnfPkgInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,64 +36,54 @@ import java.util.List;
 import java.util.UUID;
 
 import static junit.framework.TestCase.*;
+import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.*;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamCatalogManager.getFileInZip;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager.getFileInZip;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestCbamCatalogManager extends TestBase {
 
     private static final String CSAR_ID = "csarId";
     private static final String CBAM_VNFD_ID = "CBAM_VNFD_ID";
-    @InjectMocks
-    private CbamCatalogManager cbamCatalogManager;
+    private CatalogManager cbamCatalogManager;
+    @Mock
+    private IPackageProvider packageProvider;
+
     private List<CatalogAdapterVnfpackage> existingVnfPackages = new ArrayList<>();
     private ArgumentCaptor<File> uploadedFile = ArgumentCaptor.forClass(File.class);
 
     @Before
     public void initMocks() throws Exception {
-        setField(CbamCatalogManager.class, "logger", logger);
+        setField(CatalogManager.class, "logger", logger);
         when(cbamCatalogApi.list()).thenReturn(existingVnfPackages);
+        cbamCatalogManager = new CatalogManager(cbamRestApiProvider, packageProvider);
     }
 
     /**
-     * the package is transferred from VF-C catalog to CBAM catalog
+     * the package is transferred from source to CBAM catalog
      */
     @Test
     public void testPackageTransfer() throws Exception {
         CatalogAdapterVnfpackage existingPackage = new CatalogAdapterVnfpackage();
         existingPackage.setVnfdId("unknownId");
         existingVnfPackages.add(existingPackage);
-        VnfPkgDetailInfo vnfPackageDetails = new VnfPkgDetailInfo();
-        vnfPackageDetails.setCsarId(CSAR_ID);
-        vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
-
-        vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
-        vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
         CatalogAdapterVnfpackage createdPackage = new CatalogAdapterVnfpackage();
         createdPackage.setVnfdId(CBAM_VNFD_ID);
         when(cbamCatalogApi.create(uploadedFile.capture())).thenAnswer(new Answer<CatalogAdapterVnfpackage>() {
             @Override
             public CatalogAdapterVnfpackage answer(InvocationOnMock invocationOnMock) throws Throwable {
-                File content = invocationOnMock.getArgumentAt(0, File.class);
                 return createdPackage;
             }
         });
         byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
-        ByteArrayInputStream pack = new ByteArrayInputStream(onapPackageContent);
-        when(entity.getContent()).thenReturn(pack);
+        when(packageProvider.getPackage(CSAR_ID)).thenReturn(onapPackageContent);
+        when(packageProvider.getCbamVnfdId(CSAR_ID)).thenReturn(CBAM_VNFD_ID);
         //when
         CatalogAdapterVnfpackage cbamPackage = cbamCatalogManager.preparePackageInCbam(VNFM_ID, CSAR_ID);
         //verify
-        //the correct portion of the package is extracted and uploaded to CBAM
-        byte[] expectedContentToUpload = getFileInZip(new ByteArrayInputStream(onapPackageContent), "Artifacts/Deployment/OTHER/cbam.package.zip").toByteArray();
-        assertTrue(Arrays.equals(expectedContentToUpload, Files.readAllBytes(uploadedFile.getValue().toPath())));
+        byte[] a2 = Files.readAllBytes(uploadedFile.getValue().toPath());
+        assertArrayEquals(getFileInZip(new ByteArrayInputStream(onapPackageContent), "Artifacts/Deployment/OTHER/cbam.package.zip").toByteArray(), a2);
         assertEquals(createdPackage, cbamPackage);
-        assertEquals(HttpGet.class, request.getValue().getClass());
-        assertEquals("http://127.0.0.1/a.csar", request.getValue().getURI().toString());
-        assertEquals("application/octet-stream", request.getValue().getFirstHeader(HttpHeaders.ACCEPT).getValue());
-
-
     }
 
     /**
@@ -110,29 +95,21 @@ public class TestCbamCatalogManager extends TestBase {
         CatalogAdapterVnfpackage existingPackage = new CatalogAdapterVnfpackage();
         existingPackage.setVnfdId("unknownId");
         existingVnfPackages.add(existingPackage);
-        VnfPkgDetailInfo vnfPackageDetails = new VnfPkgDetailInfo();
-        vnfPackageDetails.setCsarId(CSAR_ID);
-        vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
-
-        vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
-        vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
         CatalogAdapterVnfpackage createdPackage = new CatalogAdapterVnfpackage();
         createdPackage.setVnfdId(CBAM_VNFD_ID);
+        byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
+        when(packageProvider.getPackage(CSAR_ID)).thenReturn(onapPackageContent);
+        when(packageProvider.getCbamVnfdId(CSAR_ID)).thenReturn(CBAM_VNFD_ID);
         RuntimeException can_not_upload_package = new RuntimeException("Can not upload package");
         when(cbamCatalogApi.create(uploadedFile.capture())).thenAnswer(new Answer<CatalogAdapterVnfpackage>() {
             @Override
             public CatalogAdapterVnfpackage answer(InvocationOnMock invocationOnMock) throws Throwable {
-                File content = invocationOnMock.getArgumentAt(0, File.class);
                 //this is done by an other thread
                 existingVnfPackages.add(createdPackage);
                 when(cbamCatalogApi.getById(CBAM_VNFD_ID)).thenReturn(createdPackage);
                 throw can_not_upload_package;
             }
         });
-        byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
-        ByteArrayInputStream pack = new ByteArrayInputStream(onapPackageContent);
-        when(entity.getContent()).thenReturn(pack);
         //when
         CatalogAdapterVnfpackage cbamPackage = cbamCatalogManager.preparePackageInCbam(VNFM_ID, CSAR_ID);
         //verify
@@ -140,9 +117,6 @@ public class TestCbamCatalogManager extends TestBase {
         byte[] expectedContentToUpload = getFileInZip(new ByteArrayInputStream(onapPackageContent), "Artifacts/Deployment/OTHER/cbam.package.zip").toByteArray();
         assertTrue(Arrays.equals(expectedContentToUpload, Files.readAllBytes(uploadedFile.getValue().toPath())));
         assertEquals(createdPackage, cbamPackage);
-        assertEquals(HttpGet.class, request.getValue().getClass());
-        assertEquals("http://127.0.0.1/a.csar", request.getValue().getURI().toString());
-        assertEquals("application/octet-stream", request.getValue().getFirstHeader(HttpHeaders.ACCEPT).getValue());
         verify(logger).debug("Probably concurrent package uploads", can_not_upload_package);
     }
 
@@ -151,103 +125,25 @@ public class TestCbamCatalogManager extends TestBase {
      */
     @Test
     public void testIdempotentPackageUpload() throws Exception {
-        CatalogAdapterVnfpackage existingPackage = new CatalogAdapterVnfpackage();
-        existingPackage.setVnfdId(CBAM_VNFD_ID);
-        existingVnfPackages.add(existingPackage);
-        when(cbamCatalogApi.getById(CBAM_VNFD_ID)).thenReturn(existingPackage);
-
-        VnfPkgDetailInfo vnfPackageDetails = new VnfPkgDetailInfo();
-        vnfPackageDetails.setCsarId(CSAR_ID);
-        vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
-        vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
-        vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
-
-       // CatalogAdapterVnfpackage createdPackage = new CatalogAdapterVnfpackage();
-        //createdPackage.setVnfdId(CBAM_VNFD_ID);
-        //when
-        CatalogAdapterVnfpackage cbamPackage = cbamCatalogManager.preparePackageInCbam(VNFM_ID, CSAR_ID);
-        //verify
-        verify(cbamCatalogApi, never()).create(Mockito.any());
-        assertEquals(existingPackage, cbamPackage);
-    }
-
-    /**
-     * the download URL is remapped
-     */
-    @Test
-    public void testDownloadUrl() throws Exception {
-        //given
-        VnfPkgDetailInfo vnfPackageDetails = new VnfPkgDetailInfo();
-        vnfPackageDetails.setCsarId(CSAR_ID);
-        vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
-        vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(restApiProvider.mapPrivateIpToPublicIp("127.0.0.1")).thenReturn("128.0.0.1");
-
-        vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
         CatalogAdapterVnfpackage createdPackage = new CatalogAdapterVnfpackage();
         createdPackage.setVnfdId(CBAM_VNFD_ID);
         when(cbamCatalogApi.create(uploadedFile.capture())).thenAnswer(new Answer<CatalogAdapterVnfpackage>() {
             @Override
             public CatalogAdapterVnfpackage answer(InvocationOnMock invocationOnMock) throws Throwable {
-                File content = invocationOnMock.getArgumentAt(0, File.class);
                 return createdPackage;
             }
         });
-        byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
-        ByteArrayInputStream pack = new ByteArrayInputStream(onapPackageContent);
-        when(entity.getContent()).thenReturn(pack);
+        when(packageProvider.getCbamVnfdId(CSAR_ID)).thenReturn(CBAM_VNFD_ID);
+        CatalogAdapterVnfpackage existingPackage = new CatalogAdapterVnfpackage();
+        existingPackage.setVnfdId(CBAM_VNFD_ID);
+        existingVnfPackages.add(existingPackage);
+        when(cbamCatalogApi.getById(CBAM_VNFD_ID)).thenReturn(existingPackage);
         //when
         CatalogAdapterVnfpackage cbamPackage = cbamCatalogManager.preparePackageInCbam(VNFM_ID, CSAR_ID);
         //verify
-        assertEquals("http://128.0.0.1/a.csar", request.getValue().getURI().toString());
-    }
-
-    /**
-     * failure to query package from VF-C is propagated
-     */
-    @Test
-    public void testFailureUnableToQueryPackageFromVFC() throws Exception {
-        ApiException expectedException = new ApiException();
-        when(vfcCatalogApi.queryVnfPackage(Mockito.any())).thenThrow(expectedException);
-        //when
-        try {
-            cbamCatalogManager.preparePackageInCbam(VNFM_ID, CSAR_ID);
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals(expectedException, e.getCause());
-            verify(logger).error("Unable to query VNF package with csarId from VF-C", e.getCause());
-        }
-    }
-
-    /**
-     * failure to download package from VF-C results in error
-     */
-    @Test
-    public void testFailureUnableToDownloadPackageFromVFC() throws Exception {
-        CatalogAdapterVnfpackage existingPackage = new CatalogAdapterVnfpackage();
-        existingPackage.setVnfdId("unknownId");
-        existingVnfPackages.add(existingPackage);
-        VnfPkgDetailInfo vnfPackageDetails = new VnfPkgDetailInfo();
-        vnfPackageDetails.setCsarId(CSAR_ID);
-        vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
-
-        vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
-        vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
-        CatalogAdapterVnfpackage createdPackage = new CatalogAdapterVnfpackage();
-        createdPackage.setVnfdId(CBAM_VNFD_ID);
-        IOException expectedException = new IOException();
-        when(httpClient.execute(Mockito.any(HttpGet.class))).thenThrow(expectedException);
-        //when
-        try {
-            cbamCatalogManager.preparePackageInCbam(VNFM_ID, CSAR_ID);
-            fail();
-        } catch (Exception e) {
-            verify(logger).error("Unable to download package from http://127.0.0.1/a.csar from VF-C", expectedException);
-            assertEquals(expectedException, e.getCause());
-        }
+        verify(cbamCatalogApi, never()).create(Mockito.any());
+        assertEquals(existingPackage, cbamPackage);
+        verify(packageProvider, never()).getPackage(CSAR_ID);
     }
 
     /**
@@ -255,18 +151,7 @@ public class TestCbamCatalogManager extends TestBase {
      */
     @Test
     public void testFailureToListVnfPackagesInCbam() throws Exception {
-        CatalogAdapterVnfpackage existingPackage = new CatalogAdapterVnfpackage();
-        existingPackage.setVnfdId("unknownId");
-        existingVnfPackages.add(existingPackage);
-        VnfPkgDetailInfo vnfPackageDetails = new VnfPkgDetailInfo();
-        vnfPackageDetails.setCsarId(CSAR_ID);
-        vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
-
-        vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
-        vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
-        CatalogAdapterVnfpackage createdPackage = new CatalogAdapterVnfpackage();
-        createdPackage.setVnfdId(CBAM_VNFD_ID);
+        when(packageProvider.getCbamVnfdId(CSAR_ID)).thenReturn(CBAM_VNFD_ID);
         com.nokia.cbam.catalog.v1.ApiException expectedException = new com.nokia.cbam.catalog.v1.ApiException();
         when(cbamCatalogApi.list()).thenThrow(expectedException);
         //when
@@ -284,15 +169,10 @@ public class TestCbamCatalogManager extends TestBase {
      */
     @Test
     public void testFailureToQueryVnfPackagesFromCbam() throws Exception {
+        when(packageProvider.getCbamVnfdId(CSAR_ID)).thenReturn(CBAM_VNFD_ID);
         CatalogAdapterVnfpackage existingPackage = new CatalogAdapterVnfpackage();
         existingPackage.setVnfdId(CBAM_VNFD_ID);
         existingVnfPackages.add(existingPackage);
-        VnfPkgDetailInfo vnfPackageDetails = new VnfPkgDetailInfo();
-        vnfPackageDetails.setCsarId(CSAR_ID);
-        vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
-        vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
-        vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
         com.nokia.cbam.catalog.v1.ApiException expectedException = new com.nokia.cbam.catalog.v1.ApiException();
         when(cbamCatalogApi.getById(CBAM_VNFD_ID)).thenThrow(expectedException);
         //when
@@ -313,26 +193,16 @@ public class TestCbamCatalogManager extends TestBase {
         CatalogAdapterVnfpackage existingPackage = new CatalogAdapterVnfpackage();
         existingPackage.setVnfdId("unknownId");
         existingVnfPackages.add(existingPackage);
-        VnfPkgDetailInfo vnfPackageDetails = new VnfPkgDetailInfo();
-        vnfPackageDetails.setCsarId(CSAR_ID);
-        vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
-
-        vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
-        vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
-        CatalogAdapterVnfpackage createdPackage = new CatalogAdapterVnfpackage();
-        createdPackage.setVnfdId(CBAM_VNFD_ID);
-
+        when(packageProvider.getCbamVnfdId(CSAR_ID)).thenReturn(CBAM_VNFD_ID);
         byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
-        ByteArrayInputStream pack = new ByteArrayInputStream(onapPackageContent);
-        when(entity.getContent()).thenReturn(pack);
+        when(packageProvider.getPackage(CSAR_ID)).thenReturn(onapPackageContent);
         com.nokia.cbam.catalog.v1.ApiException expectedException = new com.nokia.cbam.catalog.v1.ApiException();
         when(cbamCatalogApi.create(Mockito.any())).thenThrow(expectedException);
         try {
             cbamCatalogManager.preparePackageInCbam(VNFM_ID, CSAR_ID);
             fail();
         } catch (Exception e) {
-            verify(logger).error("Unable to create VNF with csarId CSAR identifier in package in CBAM downloaded from http://127.0.0.1/a.csar", expectedException);
+            verify(logger).error("Unable to create VNF with csarId CSAR identifier in package in CBAM", expectedException);
             assertEquals(expectedException, e.getCause());
         }
     }

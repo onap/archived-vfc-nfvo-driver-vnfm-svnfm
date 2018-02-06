@@ -23,7 +23,8 @@ import org.onap.msb.sdk.discovery.common.RouteException;
 import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
 import org.onap.msb.sdk.discovery.entity.MicroServiceInfo;
 import org.onap.msb.sdk.discovery.entity.Node;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.MsbApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 
 import static com.nokia.cbam.lcn.v32.model.SubscriptionAuthentication.TypeEnum.NONE;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCN_API_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCN_API_VERSION;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -43,7 +44,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class SelfRegistrationManager {
     public static final String DRIVER_VERSION = "v1";
-    public static final String SERVICE_VENDOR = "Nokia";
     public static final String SERVICE_NAME = "NokiaSVNFM";
     // 1 means internal 0 means external :)
     public static final String INTERNAL_SERVICE = "1";
@@ -60,7 +60,10 @@ public class SelfRegistrationManager {
     @Autowired
     private DriverProperties driverProperties;
     @Autowired
-    private RestApiProvider restApiProvider;
+    private MsbApiProvider msbApiProvider;
+    @Autowired
+    private CbamRestApiProvider cbamRestApiProvider;
+
     @Autowired
     private JobManager jobManager;
 
@@ -86,11 +89,11 @@ public class SelfRegistrationManager {
         prepareForShutdown();
         try {
             logger.info("Cacnelling micro service registration");
-            restApiProvider.getMsbClient().cancelMicroServiceInfo(SERVICE_NAME, DRIVER_VERSION);
+            msbApiProvider.getMsbClient().cancelMicroServiceInfo(SERVICE_NAME, DRIVER_VERSION);
         } catch (RouteException e) {
             //ONAP throws 500 internal server error, but deletes the micro service
             try {
-                MicroServiceFullInfo microServiceFullInfo = restApiProvider.getMsbClient().queryMicroServiceInfo(SERVICE_NAME, DRIVER_VERSION);
+                MicroServiceFullInfo microServiceFullInfo = msbApiProvider.getMsbClient().queryMicroServiceInfo(SERVICE_NAME, DRIVER_VERSION);
                 logger.error("Unable to unregister Nokia VNFM driver", e);
                 //the microservice still exists
                 throw new RuntimeException(e);
@@ -117,7 +120,7 @@ public class SelfRegistrationManager {
     }
 
     /**
-     * @return the swagger API defintion
+     * @return the swagger API definition
      */
     public byte[] getSwaggerApiDefinition() {
         return SystemFunctions.systemFunctions().loadFile(SWAGGER_API_DEFINITION);
@@ -129,7 +132,7 @@ public class SelfRegistrationManager {
 
     private void deleteSubscription(String vnfmId) {
         logger.info("Deleteing CBAM LCN subscription");
-        SubscriptionsApi lcnApi = restApiProvider.getCbamLcnApi(vnfmId);
+        SubscriptionsApi lcnApi = cbamRestApiProvider.getCbamLcnApi(vnfmId);
         try {
             String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_PATH;
             for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION)) {
@@ -161,7 +164,7 @@ public class SelfRegistrationManager {
         node.setPort(driverPort);
         node.setTtl("0");
         try {
-            return restApiProvider.getMsbClient().registerMicroServiceInfo(msinfo);
+            return msbApiProvider.getMsbClient().registerMicroServiceInfo(msinfo);
         } catch (RouteException e) {
             logger.error("Unable to register Nokia VNFM driver", e);
             throw new RuntimeException(e);
@@ -171,7 +174,7 @@ public class SelfRegistrationManager {
     private void subscribeToLcn(String vnfmId) {
         String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_PATH;
         logger.info("Subscribing to CBAM LCN " + driverProperties.getCbamLcnUrl() + " with callback to " + callbackUrl);
-        SubscriptionsApi lcnApi = restApiProvider.getCbamLcnApi(vnfmId);
+        SubscriptionsApi lcnApi = cbamRestApiProvider.getCbamLcnApi(vnfmId);
         try {
             for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION)) {
                 if (subscription.getCallbackUrl().equals(callbackUrl)) {

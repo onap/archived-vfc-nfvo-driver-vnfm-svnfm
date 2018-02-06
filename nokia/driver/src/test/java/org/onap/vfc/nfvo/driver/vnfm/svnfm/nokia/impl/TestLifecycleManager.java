@@ -28,11 +28,15 @@ import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vnfmdriver.model.ExtVirtualLinkInfo;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.ScaleDirection;
@@ -46,7 +50,7 @@ import static java.nio.file.Files.readAllBytes;
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCM_API_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
@@ -59,7 +63,7 @@ public class TestLifecycleManager extends TestBase {
     private static final String VIM_ID = "ownerId_regionId";
     private GrantVNFResponseVim vim = new GrantVNFResponseVim();
     @Mock
-    private CbamCatalogManager catalogManager;
+    private CatalogManager catalogManager;
     @Mock
     private GrantManager grantManager;
     @Mock
@@ -70,6 +74,9 @@ public class TestLifecycleManager extends TestBase {
     private LifecycleChangeNotificationManager notificationManager;
     @Mock
     private HttpServletResponse restResponse;
+    @Mock
+    private VimInfoProvider vimInfoProvider;
+
     private ArgumentCaptor<CreateVnfRequest> createRequest = ArgumentCaptor.forClass(CreateVnfRequest.class);
     private AdditionalParams additionalParam = new AdditionalParams();
     private String INSTANTIATION_LEVEL = "level1";
@@ -90,13 +97,11 @@ public class TestLifecycleManager extends TestBase {
     private ArgumentCaptor<ScaleVnfRequest> actualScaleRequest = ArgumentCaptor.forClass(ScaleVnfRequest.class);
     private ArgumentCaptor<HealVnfRequest> actualHealRequest = ArgumentCaptor.forClass(HealVnfRequest.class);
 
-    @InjectMocks
     private LifecycleManager lifecycleManager;
-
 
     @Before
     public void initMocks() throws Exception {
-
+        lifecycleManager = new LifecycleManager(catalogManager, grantManager, cbamRestApiProvider, vimInfoProvider, jobManager, notificationManager);
         cbamVnfdContent = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/vnfd.full.yaml").toURI())));
         setField(LifecycleManager.class, "logger", logger);
         CatalogAdapterVnfpackage cbamPackage = new CatalogAdapterVnfpackage();
@@ -113,7 +118,7 @@ public class TestLifecycleManager extends TestBase {
         vimInfo.setSslInsecure("true");
         vimInfo.setVimId(VIM_ID);
         vimInfo.setName("vimName");
-        when(nsLcmApi.queryVIMInfo(VIM_ID)).thenReturn(vimInfo);
+        when(vimInfoProvider.getVimInfo((VIM_ID))).thenReturn(vimInfo);
         instantiationOperationExecution.setId(OPERATION_EXECUTION_ID);
         instantiationOperationExecution.setOperationType(OperationType.INSTANTIATE);
         instantiationOperationExecution.setStartTime(DateTime.now());
@@ -257,7 +262,7 @@ public class TestLifecycleManager extends TestBase {
             lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
             //verify
             fail();
-        }catch (Exception e){
+        } catch (Exception e) {
             assertEquals("Only OPENSTACK_V2_INFO, OPENSTACK_V3_INFO and VMWARE_VCLOUD_INFO is the supported VIM types", e.getMessage());
         }
         verify(vnfApi, never()).vnfsPost(Mockito.any(), Mockito.any());
@@ -495,6 +500,7 @@ public class TestLifecycleManager extends TestBase {
         verify(logger).error("VF-C did not send VIM identifier in grant response");
 
     }
+
     /**
      * test operation execution polling is retried in case of failures
      */
@@ -594,7 +600,7 @@ public class TestLifecycleManager extends TestBase {
         accessInfo.setTenant(TENANT);
         grantResponse.setAccessInfo(accessInfo);
 
-        when(nsLcmApi.queryVIMInfo(VIM_ID)).thenThrow(new org.onap.vnfmdriver.ApiException());
+        when(vimInfoProvider.getVimInfo(VIM_ID)).thenThrow(new RuntimeException());
         //when
         lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
         //verify
@@ -1263,8 +1269,8 @@ public class TestLifecycleManager extends TestBase {
             case VMWARE_VCLOUD_INFO:
                 additionalParam.setVimType(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO);
                 break;
-                default:
-                    additionalParam.setVimType(VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO);
+            default:
+                additionalParam.setVimType(VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO);
         }
 
         Map<String, List<NetworkAddress>> exteranalConnectionPointAddresses = new HashMap<>();

@@ -26,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager;
 import org.onap.vnfmdriver.ApiException;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.ScaleDirection;
@@ -38,7 +39,7 @@ import java.util.List;
 import static java.nio.file.Files.readAllBytes;
 import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCM_API_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestGrantManager extends TestBase {
@@ -47,7 +48,7 @@ public class TestGrantManager extends TestBase {
     private GrantVNFResponseVim vim = new GrantVNFResponseVim();
     private GrantVNFResponse grantResponse = new GrantVNFResponse();
     @Mock
-    private CbamCatalogManager cbamCatalogManager;
+    private CatalogManager cbamCatalogManager;
     @InjectMocks
     private GrantManager grantManager;
 
