@@ -18,9 +18,6 @@ from rest_framework.response import Response
 
 
 class SwaggerView(APIView):
-    """
-    Show rest api swagger.
-    """
     def get(self, request, format=None):
         json_file = os.path.join(os.path.dirname(__file__), 'swagger.json')
         f = open(json_file)
