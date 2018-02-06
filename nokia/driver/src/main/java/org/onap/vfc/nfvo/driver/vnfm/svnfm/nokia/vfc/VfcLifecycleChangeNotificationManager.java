@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -32,15 +31,15 @@ import com.nokia.cbam.lcm.v32.model.ChangeType;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.OperationType;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.ILifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.DriverProperties;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcRestApiProvider;
 import org.onap.vnfmdriver.model.*;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.collect.Iterables.filter;
@@ -68,24 +67,14 @@ import static org.slf4j.LoggerFactory.getLogger;
  * reality (VNF having been deleted)
  */
 @Component
-public class LifecycleChangeNotificationManager {
-    public static final String EXTERNAL_VNFM_ID = "externalVnfmId";
-    public static final String SEPARATOR = "_";
-    /**
-     * Order the operations by start time (latest first)
-     */
-    public static final Ordering<OperationExecution> NEWEST_OPERATIONS_FIRST = new Ordering<OperationExecution>() {
-        @Override
-        public int compare(@Nullable OperationExecution left, @Nullable OperationExecution right) {
-            return right.getStartTime().toLocalDate().compareTo(left.getStartTime().toLocalDate());
-        }
-    };
+public class VfcLifecycleChangeNotificationManager implements ILifecycleChangeNotificationManager {
+
     public static final String PROBLEM = "All operations must return the { \"operationResult\" : { \"cbam_pre\" : [<fillMeOut>], \"cbam_post\" : [<fillMeOut>] } } structure";
     /**
      * < Separates the VNF id and the resource id within a VNF
      */
     private static final Set<OperationStatus> terminalStatus = Sets.newHashSet(OperationStatus.FINISHED, OperationStatus.FAILED);
-    private static Logger logger = getLogger(LifecycleChangeNotificationManager.class);
+    private static Logger logger = getLogger(VfcLifecycleChangeNotificationManager.class);
     @Autowired
     private CbamRestApiProvider restApiProvider;
     @Autowired
@@ -107,11 +96,7 @@ public class LifecycleChangeNotificationManager {
         throw new NoSuchElementException();
     }
 
-    /**
-     * Transform a CBAM LCN into ONAP LCN
-     *
-     * @param recievedNotification the CBAM LCN
-     */
+    @Override
     public void handleLcn(VnfLifecycleChangeNotification recievedNotification) {
         logger.info("Recieved LCN: " + new Gson().toJson(recievedNotification));
         VnfsApi cbamLcmApi = restApiProvider.getCbamLcmApi(driverProperties.getVnfmId());
@@ -183,11 +168,7 @@ public class LifecycleChangeNotificationManager {
         }
     }
 
-    /**
-     * Wait for the termination finish notification to be processed
-     *
-     * @param operationExecutionId the identifier of the termination operation
-     */
+    @Override
     public void waitForTerminationToBeProcessed(String operationExecutionId) {
         while (true) {
             com.google.common.base.Optional<ProcessedNotification> notification = Iterables.tryFind(processedNotifications, processedNotification -> processedNotification.getOperationExecutionId().equals(operationExecutionId));

@@ -34,9 +34,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.ILifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.TestVfcGrantManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcGrantManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcLifecycleChangeNotificationManager;
 import org.onap.vnfmdriver.model.ExtVirtualLinkInfo;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.ScaleDirection;
@@ -65,13 +69,13 @@ public class TestLifecycleManager extends TestBase {
     @Mock
     private CatalogManager catalogManager;
     @Mock
-    private GrantManager grantManager;
+    private VfcGrantManager vfcGrantManager;
     @Mock
     private CbamTokenProvider tokenProvider;
     @Mock
     private JobManager jobManager;
     @Mock
-    private LifecycleChangeNotificationManager notificationManager;
+    private VfcLifecycleChangeNotificationManager notificationManager;
     @Mock
     private HttpServletResponse restResponse;
     @Mock
@@ -101,8 +105,8 @@ public class TestLifecycleManager extends TestBase {
 
     @Before
     public void initMocks() throws Exception {
-        lifecycleManager = new LifecycleManager(catalogManager, grantManager, cbamRestApiProvider, vimInfoProvider, jobManager, notificationManager);
-        cbamVnfdContent = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/vnfd.full.yaml").toURI())));
+        lifecycleManager = new LifecycleManager(catalogManager, vfcGrantManager, cbamRestApiProvider, vimInfoProvider, jobManager, notificationManager);
+        cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.full.yaml").toURI())));
         setField(LifecycleManager.class, "logger", logger);
         CatalogAdapterVnfpackage cbamPackage = new CatalogAdapterVnfpackage();
         when(catalogManager.preparePackageInCbam(VNFM_ID, ONAP_CSAR_ID)).thenReturn(cbamPackage);
@@ -166,7 +170,7 @@ public class TestLifecycleManager extends TestBase {
 
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
@@ -241,7 +245,7 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(2, actualVnfModifyRequest.getValue().getExtensions().size());
         assertEquals(LifecycleManager.ONAP_CSAR_ID, actualVnfModifyRequest.getValue().getExtensions().get(0).getName());
         assertEquals(ONAP_CSAR_ID, actualVnfModifyRequest.getValue().getExtensions().get(0).getValue());
-        assertEquals(LifecycleChangeNotificationManager.EXTERNAL_VNFM_ID, actualVnfModifyRequest.getValue().getExtensions().get(1).getName());
+        assertEquals(ILifecycleChangeNotificationManager.EXTERNAL_VNFM_ID, actualVnfModifyRequest.getValue().getExtensions().get(1).getName());
         assertEquals(VNFM_ID, actualVnfModifyRequest.getValue().getExtensions().get(1).getValue());
 
         //the 3.2 API does not accept empty array
@@ -278,11 +282,11 @@ public class TestLifecycleManager extends TestBase {
 
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
-        String caCert = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
+        String caCert = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
         vimInfo.setSslInsecure("false");
         vimInfo.setSslCacert(caCert);
         grantResponse.setAccessInfo(accessInfo);
@@ -308,7 +312,7 @@ public class TestLifecycleManager extends TestBase {
 
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
@@ -344,11 +348,11 @@ public class TestLifecycleManager extends TestBase {
 
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
-        String caCert = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
+        String caCert = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
         vimInfo.setSslInsecure("false");
         vimInfo.setSslCacert(caCert);
         grantResponse.setAccessInfo(accessInfo);
@@ -384,7 +388,7 @@ public class TestLifecycleManager extends TestBase {
 
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
@@ -418,11 +422,11 @@ public class TestLifecycleManager extends TestBase {
 
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
-        String caCert = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
+        String caCert = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
         vimInfo.setSslInsecure("false");
         vimInfo.setSslCacert(caCert);
         grantResponse.setAccessInfo(accessInfo);
@@ -455,7 +459,7 @@ public class TestLifecycleManager extends TestBase {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
@@ -482,11 +486,11 @@ public class TestLifecycleManager extends TestBase {
 
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         //grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
-        String caCert = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
+        String caCert = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
         vimInfo.setSslInsecure("false");
         vimInfo.setSslCacert(caCert);
         grantResponse.setAccessInfo(accessInfo);
@@ -509,7 +513,7 @@ public class TestLifecycleManager extends TestBase {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
@@ -594,7 +598,7 @@ public class TestLifecycleManager extends TestBase {
     public void testFailureInQueryVimInfo() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
-        when(grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
         accessInfo.setTenant(TENANT);
@@ -642,8 +646,8 @@ public class TestLifecycleManager extends TestBase {
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualTerminationRequest.getAllValues().size());
         assertEquals(TerminationType.FORCEFUL, actualTerminationRequest.getValue().getTerminationType());
-        InOrder notificationIsProcessedBeforeDeletingTheVnf = Mockito.inOrder(grantManager, notificationManager, vnfApi);
-        notificationIsProcessedBeforeDeletingTheVnf.verify(grantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
+        InOrder notificationIsProcessedBeforeDeletingTheVnf = Mockito.inOrder(vfcGrantManager, notificationManager, vnfApi);
+        notificationIsProcessedBeforeDeletingTheVnf.verify(vfcGrantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
         notificationIsProcessedBeforeDeletingTheVnf.verify(notificationManager).waitForTerminationToBeProcessed("terminationId");
         notificationIsProcessedBeforeDeletingTheVnf.verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
         verify(jobManager).spawnJob(VNF_ID, restResponse);
@@ -678,7 +682,7 @@ public class TestLifecycleManager extends TestBase {
             } catch (Error e) {
             }
         }
-        verify(grantManager, never()).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
+        verify(vfcGrantManager, never()).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
         verify(notificationManager, never()).waitForTerminationToBeProcessed("terminationId");
     }
 
@@ -822,8 +826,8 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(1, actualTerminationRequest.getAllValues().size());
         assertEquals(TerminationType.GRACEFUL, actualTerminationRequest.getValue().getTerminationType());
         assertEquals(Integer.valueOf(1234), actualTerminationRequest.getValue().getGracefulTerminationTimeout());
-        InOrder notificationIsProcessedBeforeDeletingTheVnf = Mockito.inOrder(grantManager, notificationManager, vnfApi);
-        notificationIsProcessedBeforeDeletingTheVnf.verify(grantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
+        InOrder notificationIsProcessedBeforeDeletingTheVnf = Mockito.inOrder(vfcGrantManager, notificationManager, vnfApi);
+        notificationIsProcessedBeforeDeletingTheVnf.verify(vfcGrantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
         notificationIsProcessedBeforeDeletingTheVnf.verify(notificationManager).waitForTerminationToBeProcessed("terminationId");
         notificationIsProcessedBeforeDeletingTheVnf.verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
     }
@@ -887,8 +891,8 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(1, actualTerminationRequest.getAllValues().size());
         assertEquals(TerminationType.FORCEFUL, actualTerminationRequest.getValue().getTerminationType());
         assertNull(actualTerminationRequest.getValue().getGracefulTerminationTimeout());
-        InOrder notificationIsProcessedBeforeDeletingTheVnf = Mockito.inOrder(grantManager, notificationManager, vnfApi);
-        notificationIsProcessedBeforeDeletingTheVnf.verify(grantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
+        InOrder notificationIsProcessedBeforeDeletingTheVnf = Mockito.inOrder(vfcGrantManager, notificationManager, vnfApi);
+        notificationIsProcessedBeforeDeletingTheVnf.verify(vfcGrantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
         notificationIsProcessedBeforeDeletingTheVnf.verify(notificationManager).waitForTerminationToBeProcessed("terminationId");
         notificationIsProcessedBeforeDeletingTheVnf.verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
     }
@@ -929,7 +933,7 @@ public class TestLifecycleManager extends TestBase {
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(0, actualTerminationRequest.getAllValues().size());
-        Mockito.verifyZeroInteractions(grantManager);
+        Mockito.verifyZeroInteractions(vfcGrantManager);
     }
 
     /**
@@ -965,7 +969,7 @@ public class TestLifecycleManager extends TestBase {
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualTerminationRequest.getAllValues().size());
         assertEquals(TerminationType.FORCEFUL, actualTerminationRequest.getValue().getTerminationType());
-        verify(grantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
+        verify(vfcGrantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
         verify(vnfApi, never()).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
         verify(logger).error("Unable to terminate VNF the operation did not finish with success");
     }
@@ -1044,8 +1048,8 @@ public class TestLifecycleManager extends TestBase {
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualScaleRequest.getAllValues().size());
         ScaleVnfRequest sRequest = actualScaleRequest.getValue();
-        InOrder workflowOrder = Mockito.inOrder(grantManager, vnfApi);
-        workflowOrder.verify(grantManager).requestGrantForScale(eq(VNFM_ID), eq(VNF_ID), eq(VIM_ID), eq(ONAP_CSAR_ID), eq(scaleRequest), eq(JOB_ID));
+        InOrder workflowOrder = Mockito.inOrder(vfcGrantManager, vnfApi);
+        workflowOrder.verify(vfcGrantManager).requestGrantForScale(eq(VNFM_ID), eq(VNF_ID), eq(VIM_ID), eq(ONAP_CSAR_ID), eq(scaleRequest), eq(JOB_ID));
         workflowOrder.verify(vnfApi).vnfsVnfInstanceIdScalePost(VNF_ID, sRequest, NOKIA_LCM_API_VERSION);
         assertEquals("myAspect", sRequest.getAspectId());
         assertEquals(com.nokia.cbam.lcm.v32.model.ScaleDirection.IN, sRequest.getType());
@@ -1079,8 +1083,8 @@ public class TestLifecycleManager extends TestBase {
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualScaleRequest.getAllValues().size());
         ScaleVnfRequest sRequest = actualScaleRequest.getValue();
-        InOrder workflowOrder = Mockito.inOrder(grantManager, vnfApi);
-        workflowOrder.verify(grantManager).requestGrantForScale(eq(VNFM_ID), eq(VNF_ID), eq(VIM_ID), eq(ONAP_CSAR_ID), eq(scaleRequest), eq(JOB_ID));
+        InOrder workflowOrder = Mockito.inOrder(vfcGrantManager, vnfApi);
+        workflowOrder.verify(vfcGrantManager).requestGrantForScale(eq(VNFM_ID), eq(VNF_ID), eq(VIM_ID), eq(ONAP_CSAR_ID), eq(scaleRequest), eq(JOB_ID));
         workflowOrder.verify(vnfApi).vnfsVnfInstanceIdScalePost(VNF_ID, sRequest, NOKIA_LCM_API_VERSION);
         assertEquals("myAspect", sRequest.getAspectId());
         assertEquals(com.nokia.cbam.lcm.v32.model.ScaleDirection.OUT, sRequest.getType());
@@ -1173,8 +1177,8 @@ public class TestLifecycleManager extends TestBase {
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualHealRequest.getAllValues().size());
         HealVnfRequest sRequest = actualHealRequest.getValue();
-        InOrder workflowOrder = Mockito.inOrder(grantManager, vnfApi);
-        workflowOrder.verify(grantManager).requestGrantForHeal(eq(VNFM_ID), eq(VNF_ID), eq(VIM_ID), eq(ONAP_CSAR_ID), eq(healRequest), eq(JOB_ID));
+        InOrder workflowOrder = Mockito.inOrder(vfcGrantManager, vnfApi);
+        workflowOrder.verify(vfcGrantManager).requestGrantForHeal(eq(VNFM_ID), eq(VNF_ID), eq(VIM_ID), eq(ONAP_CSAR_ID), eq(healRequest), eq(JOB_ID));
         workflowOrder.verify(vnfApi).vnfsVnfInstanceIdHealPost(VNF_ID, sRequest, NOKIA_LCM_API_VERSION);
         JsonObject root = new Gson().toJsonTree(sRequest.getAdditionalParams()).getAsJsonObject();
         assertEquals("myAction", root.get("action").getAsString());

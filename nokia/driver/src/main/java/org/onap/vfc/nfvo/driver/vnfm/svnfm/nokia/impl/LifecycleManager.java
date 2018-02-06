@@ -25,9 +25,11 @@ import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.ScaleDirection;
 import org.apache.commons.lang.StringUtils;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.ILifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
 import org.onap.vnfmdriver.model.ExtVirtualLinkInfo;
 import org.onap.vnfmdriver.model.*;
@@ -53,7 +55,7 @@ import static com.nokia.cbam.lcm.v32.model.OperationType.INSTANTIATE;
 import static com.nokia.cbam.lcm.v32.model.VimInfo.VimInfoTypeEnum.*;
 import static java.lang.Integer.parseInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.LifecycleChangeNotificationManager.EXTERNAL_VNFM_ID;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.ILifecycleChangeNotificationManager.EXTERNAL_VNFM_ID;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
@@ -68,9 +70,9 @@ public class LifecycleManager {
     public static final long OPERATION_STATUS_POLLING_INTERVALIN_MS = 5000L;
     private static Logger logger = getLogger(LifecycleManager.class);
     private final CatalogManager catalogManager;
-    private final GrantManager grantManager;
+    private final IGrantManager grantManager;
     private final JobManager jobManager;
-    private final LifecycleChangeNotificationManager notificationManager;
+    private final ILifecycleChangeNotificationManager notificationManager;
     private final CbamRestApiProvider cbamRestApiProvider;
     private final VimInfoProvider vimInfoProvider;
 
@@ -80,7 +82,7 @@ public class LifecycleManager {
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Autowired
-    LifecycleManager(CatalogManager catalogManager, GrantManager grantManager, CbamRestApiProvider restApiProvider, VimInfoProvider vimInfoProvider, JobManager jobManager, LifecycleChangeNotificationManager notificationManager) {
+    LifecycleManager(CatalogManager catalogManager, IGrantManager grantManager, CbamRestApiProvider restApiProvider, VimInfoProvider vimInfoProvider, JobManager jobManager, ILifecycleChangeNotificationManager notificationManager) {
         this.vimInfoProvider = vimInfoProvider;
         this.grantManager = grantManager;
         this.cbamRestApiProvider = restApiProvider;
@@ -94,7 +96,7 @@ public class LifecycleManager {
     }
 
     private static OperationExecution findLastInstantiation(List<OperationExecution> operationExecutions) {
-        return find(LifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(operationExecutions), op -> INSTANTIATE.equals(op.getOperationType()));
+        return find(ILifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(operationExecutions), op -> INSTANTIATE.equals(op.getOperationType()));
     }
 
     /**
