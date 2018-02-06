@@ -42,6 +42,8 @@ public class UrlConstant {
 
     public static final String URL_VNFDPLANINFO_GET = "/v2/vapps/templates/%s/plans";
 
+    public static final String URL_JOBSTATUS_GET = "/v2/vapps/jobs/%s";
+
     public static final String PORT_COMMON = "31943";
 
     public static final String PORT_UPLOADVNFPKG = "30001";
