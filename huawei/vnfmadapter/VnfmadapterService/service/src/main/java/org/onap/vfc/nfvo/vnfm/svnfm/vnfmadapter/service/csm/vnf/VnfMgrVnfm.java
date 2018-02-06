@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.vnf;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.UrlConstant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.inf.InterfaceVnfMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,6 +262,29 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
         } else {
             LOG.error("function=healVnf, msg=send heal vnf msg to csm get wrong status: {}", statusCode);
+        }
+
+        return restJson;
+    }
+
+    public JSONObject getJobFromVnfm(JSONObject vnfmObjcet, String jobId) {
+        LOG.warn("function=getJobFromVnfm, jobId: {}", jobId);
+        JSONObject restJson = new JSONObject();
+        restJson.put(Constant.RETCODE, Constant.REST_FAIL);
+
+        JSONObject queryResult = ResultRequestUtil.call(vnfmObjcet, String.format(UrlConstant.URL_JOBSTATUS_GET, jobId),
+                Constant.GET, null, Constant.CERTIFICATE);
+
+        int statusCode = queryResult.getInt(Constant.RETCODE);
+        if(statusCode == Constant.HTTP_OK || statusCode == Constant.HTTP_CREATED) {
+            if((queryResult.get("data")) == null) {
+                LOG.warn("function=getJobFromVnfm, msg=query is null {}", queryResult.get("data"));
+                return restJson;
+            }
+            restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
+            restJson.put("data", JSONObject.fromObject(queryResult.getString("data")));
+        } else {
+            LOG.error("function=getJobFromVnfm, msg=query job from vnfm wrong status: {}", statusCode);
         }
 
         return restJson;
