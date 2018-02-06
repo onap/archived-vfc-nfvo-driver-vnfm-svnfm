@@ -16,11 +16,13 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.GenericExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.Conditions;
 import org.onap.vnfmdriver.ApiException;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +33,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Responsible for providing information related to the VNFM from VF-C source
  */
 @Component
+@Conditional(value = Conditions.UseForVfc.class)
 public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProvider {
     private static Logger logger = getLogger(VfcExternalSystemInfoProvider.class);
     private final VfcRestApiProvider vfcRestApiProvider;

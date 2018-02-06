@@ -16,15 +16,18 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.MsbApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.Conditions;
 import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vnfmdriver.api.NslcmApi;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * Responsible for providing access to VF-C REST APIs
  */
 @Component
+@Conditional(value = Conditions.UseForVfc.class)
 public class VfcRestApiProvider {
     static final String NSLCM_API_SERVICE_NAME = "nslcm";
     static final String NSLCM_API_VERION = "v1";
@@ -58,8 +61,8 @@ public class VfcRestApiProvider {
 
     /**
      * The swagger schema definition is not consistent with MSB info. The MSB reports
-     * the base path /api/nsclm/v1 (correct) and the paths defined in swagger is
-     * /nsclm/v1 making all API calls /api/nsclm/v1/nsclm/v1 (incorrect)
+     * the base path /restapi/nsclm/v1 (correct) and the paths defined in swagger is
+     * /nsclm/v1 making all API calls /restapi/nsclm/v1/nsclm/v1 (incorrect)
      *
      * @return
      */
@@ -68,6 +71,4 @@ public class VfcRestApiProvider {
         //FIXME in VF-C swagger API definitions
         return urlInMsb.replaceFirst("/nslcm/v1", "");
     }
-
-
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -23,13 +23,15 @@ import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import com.nokia.cbam.lcm.v32.model.VnfcResourceInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.Conditions;
 import org.onap.vnfmdriver.model.*;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
@@ -45,8 +47,9 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Responsible for handling granting before the execution of a VNF operation
  */
 @Component
-public class GrantManager {
-    private static Logger logger = getLogger(GrantManager.class);
+@Conditional(value = Conditions.UseForVfc.class)
+public class VfcGrantManager implements IGrantManager {
+    private static Logger logger = getLogger(VfcGrantManager.class);
     @Autowired
     private CatalogManager catalogManager;
     @Autowired
@@ -54,18 +57,7 @@ public class GrantManager {
     @Autowired
     private VfcRestApiProvider vfcRestApiProvider;
 
-    /**
-     * Request grant for healing
-     * - the affected virtual machine is added twice to the grant request (add & remove) to
-     * signal that it is temporary removed
-     * - the grant response is only used make a binary decision
-     *
-     * @param vnfmId  the identifier of the VNFM
-     * @param vnfId   the identifier of the VNF
-     * @param vimId   the identifier of the VIM
-     * @param request the heal request
-     * @param jobId   the identifier of the job that triggered the grant
-     */
+    @Override
     public void requestGrantForHeal(String vnfmId, String vnfId, String vimId, String onapCsarId, VnfHealRequest request, String jobId) {
         GrantVNFRequest grantRequest = buildGrantRequest(vnfmId, vimId, onapCsarId, jobId, OperationType.HEAL);
         ResourceChange resourceChange = new ResourceChange();
@@ -78,28 +70,7 @@ public class GrantManager {
         requestGrant(grantRequest);
     }
 
-    private GrantVNFRequest buildGrantRequest(String vnfmId, String vimId, String onapCsarId, String jobId, OperationType operationType) {
-        //FIXME the vimId should not be required for grant request see VFC-603 issue
-        GrantVNFRequest grantVNFRequest = new GrantVNFRequest();
-        grantVNFRequest.setAdditionalParam(new AdditionalGrantParams(vnfmId, vimId));
-        grantVNFRequest.setVnfDescriptorId(onapCsarId);
-        grantVNFRequest.setJobId(jobId);
-        grantVNFRequest.setLifecycleOperation(operationType);
-        return grantVNFRequest;
-    }
-
-    /**
-     * Request grant for scaling
-     * - the affected virtual machines are calculated from the Heat mapping section of the corresponding aspect
-     * - the grant response is only used make a binary decision
-     *
-     * @param vnfmId     the identifier of the VNFM
-     * @param vnfId      the identifier of the VNF
-     * @param vimId      the identifier of the VIM
-     * @param onapCsarId the CSAR ID of the ONAP
-     * @param request    the scaling request
-     * @param jobId      the identifier of the job that triggered the grant
-     */
+    @Override
     public void requestGrantForScale(String vnfmId, String vnfId, String vimId, String onapCsarId, VnfScaleRequest request, String jobId) {
         try {
             OperationType operationType = ScaleDirection.IN.equals(request.getType()) ? OperationType.SCALEIN : OperationType.SCALEOUT;
@@ -123,15 +94,7 @@ public class GrantManager {
         }
     }
 
-    /**
-     * Request grant for termination
-     * - the resources removed is the previously deployed resources based on VNF query
-     * - the grant response is only used make a binary decision
-     *
-     * @param vnfmId the identifier of the VNFM
-     * @param vnfId  the identifier of the VNF
-     * @param vimId  the identifier of the VIM
-     */
+    @Override
     public void requestGrantForTerminate(String vnfmId, String vnfId, String vimId, String onapVnfdId, VnfInfo vnf, String jobId) {
         switch (vnf.getInstantiationState()) {
             case NOT_INSTANTIATED:
@@ -157,19 +120,7 @@ public class GrantManager {
         }
     }
 
-    /**
-     * Request grant for instantiation
-     * - the added resources are calculated from the VNFD by counting the VDUs in the selected the instantiation level
-     * - the only parameter used from the grant response in the VIM to which the VNF is to be deployed to
-     *
-     * @param vnfmId               the identifier of the VNFM
-     * @param vnfId                the identifier of the VNF
-     * @param vimId                the identifier of the VIM
-     * @param onapVnfdId           the identifier of the VNF package in ONAP
-     * @param instantiationLevelId the instantiation level
-     * @param cbamVnfdContent      the content of the CBAM VNFD
-     * @return the grant response
-     */
+    @Override
     public GrantVNFResponseVim requestGrantForInstantiate(String vnfmId, String vnfId, String vimId, String onapVnfdId, String instantiationLevelId, String cbamVnfdContent, String jobId) {
         GrantVNFRequest grantRequest;
         try {
@@ -181,6 +132,16 @@ public class GrantManager {
             throw new RuntimeException("Unable to prepare grant request for instantiation", e);
         }
         return requestGrant(grantRequest);
+    }
+
+    private GrantVNFRequest buildGrantRequest(String vnfmId, String vimId, String onapCsarId, String jobId, OperationType operationType) {
+        //FIXME the vimId should not be required for grant request see VFC-603 issue
+        GrantVNFRequest grantVNFRequest = new GrantVNFRequest();
+        grantVNFRequest.setAdditionalParam(new AdditionalGrantParams(vnfmId, vimId));
+        grantVNFRequest.setVnfDescriptorId(onapCsarId);
+        grantVNFRequest.setJobId(jobId);
+        grantVNFRequest.setLifecycleOperation(operationType);
+        return grantVNFRequest;
     }
 
     private GrantVNFResponseVim requestGrant(GrantVNFRequest grantRequest) {

@@ -26,6 +26,7 @@ import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import org.apache.http.HttpStatus;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcLifecycleChangeNotificationManager;
 import org.onap.vnfmdriver.model.JobDetailInfo;
 import org.onap.vnfmdriver.model.JobDetailInfoResponseDescriptor;
 import org.onap.vnfmdriver.model.JobResponseInfo;
@@ -244,7 +245,7 @@ public class JobManager {
         OperationExecutionsApi cbamOperationExecutionApi = cbamRestApiProvider.getCbamOperationExecutionApi(vnfmId);
         //the operations are sorted so that the newest operations are queried first
         //performance optimalization that usually the external system is interested in the operations executed last
-        for (OperationExecution operationExecution : LifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(vnf.get().getOperationExecutions())) {
+        for (OperationExecution operationExecution : VfcLifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(vnf.get().getOperationExecutions())) {
             try {
                 Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operationExecution.getId(), NOKIA_LCM_API_VERSION);
                 if (extractOnapJobId(operationParams).equals(jobId)) {

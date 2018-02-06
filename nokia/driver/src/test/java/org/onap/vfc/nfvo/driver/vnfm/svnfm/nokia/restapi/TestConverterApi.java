@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
 import com.google.common.collect.Lists;
 import junit.framework.TestCase;

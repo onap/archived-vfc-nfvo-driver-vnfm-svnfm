@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -27,6 +27,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.LifecycleManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.TestBase;
 import org.onap.vnfmdriver.ApiException;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.ScaleDirection;
@@ -42,7 +44,7 @@ import static org.mockito.Mockito.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-public class TestGrantManager extends TestBase {
+public class TestVfcGrantManager extends TestBase {
 
     private ArgumentCaptor<GrantVNFRequest> grantRequest = ArgumentCaptor.forClass(GrantVNFRequest.class);
     private GrantVNFResponseVim vim = new GrantVNFResponseVim();
@@ -50,11 +52,11 @@ public class TestGrantManager extends TestBase {
     @Mock
     private CatalogManager cbamCatalogManager;
     @InjectMocks
-    private GrantManager grantManager;
+    private VfcGrantManager vfcGrantManager;
 
     @Before
     public void initMocks() throws Exception {
-        setField(GrantManager.class, "logger", logger);
+        setField(VfcGrantManager.class, "logger", logger);
         when(nsLcmApi.grantvnf(grantRequest.capture())).thenReturn(grantResponse);
         grantResponse.setVim(vim);
     }
@@ -64,9 +66,9 @@ public class TestGrantManager extends TestBase {
      */
     @Test
     public void testGrantDuringInstantiation() throws Exception {
-        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
+        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
         //when
-        grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, "level1", cbamVnfdContent, JOB_ID);
+        vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, "level1", cbamVnfdContent, JOB_ID);
         //verify
         assertEquals(1, grantRequest.getAllValues().size());
         GrantVNFRequest request = grantRequest.getValue();
@@ -81,10 +83,10 @@ public class TestGrantManager extends TestBase {
      */
     @Test
     public void testFailureDuringGrantPreparation() throws Exception {
-        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
+        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
         //when
         try {
-            grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, "missingLevel", cbamVnfdContent, JOB_ID);
+            vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, "missingLevel", cbamVnfdContent, JOB_ID);
             //verify
             fail();
         } catch (RuntimeException e) {
@@ -98,12 +100,12 @@ public class TestGrantManager extends TestBase {
      */
     @Test
     public void testFailureDuringGrantRequest() throws Exception {
-        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
+        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
         ApiException expectedException = new ApiException("a");
         when(nsLcmApi.grantvnf(Mockito.any())).thenThrow(expectedException);
         //when
         try {
-            grantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, "level1", cbamVnfdContent, JOB_ID);
+            vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, "level1", cbamVnfdContent, JOB_ID);
             //verify
             fail();
         } catch (RuntimeException e) {
@@ -120,7 +122,7 @@ public class TestGrantManager extends TestBase {
         vnf.setId(VNF_ID);
         vnf.setInstantiationState(InstantiationState.NOT_INSTANTIATED);
         //when
-        grantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
+        vfcGrantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
         //verify
         verifyNoMoreInteractions(nsLcmApi);
     }
@@ -144,7 +146,7 @@ public class TestGrantManager extends TestBase {
         prop.setValue(ONAP_CSAR_ID);
         vnf.getVnfConfigurableProperties().add(prop);
         //when
-        grantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
+        vfcGrantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
         //verify
         assertEquals(1, grantRequest.getAllValues().size());
         GrantVNFRequest request = grantRequest.getValue();
@@ -165,7 +167,7 @@ public class TestGrantManager extends TestBase {
         vnf.setInstantiationState(InstantiationState.INSTANTIATED);
         //when
         try {
-            grantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
+            vfcGrantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
             //verify
             fail();
         } catch (RuntimeException e) {
@@ -196,7 +198,7 @@ public class TestGrantManager extends TestBase {
         when(nsLcmApi.grantvnf(Mockito.any())).thenThrow(expectedException);
         //when
         try {
-            grantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
+            vfcGrantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
             //verify
             fail();
         } catch (RuntimeException e) {
@@ -209,7 +211,7 @@ public class TestGrantManager extends TestBase {
      */
     @Test
     public void testFailureToRequestGrantForScaleIsLogged() throws Exception {
-        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/vnfd.scale.yaml").toURI())));
+        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.scale.yaml").toURI())));
         VnfScaleRequest scaleRequest = new VnfScaleRequest();
         scaleRequest.setType(ScaleDirection.OUT);
         scaleRequest.setAspectId("aspect1");
@@ -218,7 +220,7 @@ public class TestGrantManager extends TestBase {
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //when
         try {
-            grantManager.requestGrantForScale(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, scaleRequest, JOB_ID);
+            vfcGrantManager.requestGrantForScale(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, scaleRequest, JOB_ID);
             //verify
             fail();
         } catch (RuntimeException e) {
@@ -232,7 +234,7 @@ public class TestGrantManager extends TestBase {
      */
     @Test
     public void testGrantDuringScaleOut() throws Exception {
-        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/vnfd.scale.yaml").toURI())));
+        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.scale.yaml").toURI())));
         VnfScaleRequest scaleRequest = new VnfScaleRequest();
         scaleRequest.setType(ScaleDirection.OUT);
         scaleRequest.setAspectId("aspect1");
@@ -242,7 +244,7 @@ public class TestGrantManager extends TestBase {
         vnf.setVnfdId(CBAM_VNFD_ID);
         when(cbamCatalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
         //when
-        grantManager.requestGrantForScale(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, scaleRequest, JOB_ID);
+        vfcGrantManager.requestGrantForScale(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, scaleRequest, JOB_ID);
         //verify
         assertEquals(1, grantRequest.getAllValues().size());
         GrantVNFRequest request = grantRequest.getValue();
@@ -257,7 +259,7 @@ public class TestGrantManager extends TestBase {
      */
     @Test
     public void testGrantDuringScaleIn() throws Exception {
-        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestGrantManager.class.getResource("/unittests/vnfd.scale.yaml").toURI())));
+        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.scale.yaml").toURI())));
         VnfScaleRequest scaleRequest = new VnfScaleRequest();
         scaleRequest.setType(ScaleDirection.IN);
         scaleRequest.setAspectId("aspect1");
@@ -267,7 +269,7 @@ public class TestGrantManager extends TestBase {
         vnf.setVnfdId(CBAM_VNFD_ID);
         when(cbamCatalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
         //when
-        grantManager.requestGrantForScale(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, scaleRequest, JOB_ID);
+        vfcGrantManager.requestGrantForScale(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, scaleRequest, JOB_ID);
         //verify
         assertEquals(1, grantRequest.getAllValues().size());
         GrantVNFRequest request = grantRequest.getValue();
@@ -288,7 +290,7 @@ public class TestGrantManager extends TestBase {
         VnfHealRequestAffectedvm affectedVm = new VnfHealRequestAffectedvm();
         affectedVm.setVduid("vdu1");
         healRequest.setAffectedvm(affectedVm);
-        grantManager.requestGrantForHeal(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, healRequest, JOB_ID);
+        vfcGrantManager.requestGrantForHeal(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, healRequest, JOB_ID);
         //verify
         assertEquals(1, grantRequest.getAllValues().size());
         GrantVNFRequest request = grantRequest.getValue();

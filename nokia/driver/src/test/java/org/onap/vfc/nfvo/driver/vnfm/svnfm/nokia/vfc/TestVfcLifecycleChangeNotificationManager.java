@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
@@ -33,6 +33,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.ILifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.TestBase;
 import org.onap.vnfmdriver.model.*;
 
 import java.util.ArrayList;
@@ -51,12 +53,12 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 
-public class TestLifecycleChangeNotificationManager extends TestBase {
+public class TestVfcLifecycleChangeNotificationManager extends TestBase {
 
     public static final String OPERATION_EXECUTION_ID = "myOperationExecutionId";
 
     @InjectMocks
-    private LifecycleChangeNotificationManager lifecycleChangeNotificationManager;
+    private VfcLifecycleChangeNotificationManager lifecycleChangeNotificationManager;
     private VnfLifecycleChangeNotification recievedLcn = new VnfLifecycleChangeNotification();
     private List<OperationExecution> operationExecutions = new ArrayList<>();
     private OperationExecution instantiationOperation = new OperationExecution();
@@ -71,7 +73,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
 
     @Before
     public void initMocks() throws Exception {
-        setField(LifecycleChangeNotificationManager.class, "logger", logger);
+        setField(VfcLifecycleChangeNotificationManager.class, "logger", logger);
         instantiationOperation.setId("instantiationOperationExecutionId");
         instantiationOperation.setStartTime(DateTime.now());
         instantiationOperation.setOperationType(OperationType.INSTANTIATE);
@@ -101,7 +103,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         vnfs.add(vnf);
         vnf.setId(VNF_ID);
         VnfProperty prop = new VnfProperty();
-        prop.setName(LifecycleChangeNotificationManager.EXTERNAL_VNFM_ID);
+        prop.setName(ILifecycleChangeNotificationManager.EXTERNAL_VNFM_ID);
         prop.setValue(VNFM_ID);
         vnf.getExtensions().add(prop);
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnf);
@@ -121,7 +123,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
 
     private void addEmptyModifiedConnectionPoints(OperationExecution operationExecution) {
         OperationResult operationResult = new OperationResult();
-        operationResult.operationResult = new LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
+        operationResult.operationResult = new VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         operationExecution.setAdditionalData(additionalData);
     }
@@ -143,7 +145,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         operations.add(operationScale);
         operations.add(operationClosestInstantiate);
         operations.add(operationFurthers);
-        assertEquals(operationClosestInstantiate, LifecycleChangeNotificationManager.findLastInstantiationBefore(operations, operation));
+        assertEquals(operationClosestInstantiate, VfcLifecycleChangeNotificationManager.findLastInstantiationBefore(operations, operation));
     }
 
     /**
@@ -161,7 +163,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         operations.add(operation);
         operations.add(operationScale);
         operations.add(operationFurthers);
-        assertEquals(operation, LifecycleChangeNotificationManager.findLastInstantiationBefore(operations, operation));
+        assertEquals(operation, VfcLifecycleChangeNotificationManager.findLastInstantiationBefore(operations, operation));
     }
 
     /**
@@ -178,7 +180,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         operations.add(operation);
         operations.add(operationScale);
         try {
-            LifecycleChangeNotificationManager.findLastInstantiationBefore(operations, operation);
+            VfcLifecycleChangeNotificationManager.findLastInstantiationBefore(operations, operation);
             fail();
         } catch (NoSuchElementException e) {
 
@@ -187,8 +189,8 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
 
     @Test
     public void testPojo() {
-        assertPojoMethodsFor(LifecycleChangeNotificationManager.ProcessedNotification.class).areWellImplemented();
-        assertPojoMethodsFor(LifecycleChangeNotificationManager.ReportedAffectedCp.class).areWellImplemented();
+        assertPojoMethodsFor(VfcLifecycleChangeNotificationManager.ProcessedNotification.class).areWellImplemented();
+        assertPojoMethodsFor(VfcLifecycleChangeNotificationManager.ReportedAffectedCp.class).areWellImplemented();
     }
 
     /**
@@ -202,7 +204,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         operationExecutions.add(before);
         OperationExecution after = buildOperation(new DateTime(base).plusDays(1), OperationType.SCALE);
         operationExecutions.add(after);
-        List<OperationExecution> sorted1 = LifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(operationExecutions);
+        List<OperationExecution> sorted1 = VfcLifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(operationExecutions);
         assertEquals(after, sorted1.get(0));
         assertEquals(before, sorted1.get(1));
     }
@@ -274,8 +276,8 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         affectedStorage.getResource().setResourceId("storageProviderId");
         recievedLcn.getAffectedVirtualStorages().add(affectedStorage);
 
-        LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
-        LifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new LifecycleChangeNotificationManager.ReportedAffectedCp();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new VfcLifecycleChangeNotificationManager.ReportedAffectedCp();
         affectedCp.setChangeType(ChangeType.ADDED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
@@ -359,8 +361,8 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         affectedVnfc.getComputeResource().setAdditionalData(new JsonParser().parse("{ \"name\" : \"myVmName\" } "));
         recievedLcn.getAffectedVnfcs().add(affectedVnfc);
 
-        LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
-        LifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new LifecycleChangeNotificationManager.ReportedAffectedCp();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new VfcLifecycleChangeNotificationManager.ReportedAffectedCp();
         affectedCp.setChangeType(ChangeType.ADDED);
         //affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
@@ -438,8 +440,8 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         affectedStorage.getResource().setResourceId("storageProviderId");
         recievedLcn.getAffectedVirtualStorages().add(affectedStorage);
 
-        LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
-        LifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new LifecycleChangeNotificationManager.ReportedAffectedCp();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new VfcLifecycleChangeNotificationManager.ReportedAffectedCp();
         affectedCp.setChangeType(ChangeType.REMOVED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
@@ -676,8 +678,8 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         affectedStorage.getResource().setResourceId("storageProviderId");
         recievedLcn.getAffectedVirtualStorages().add(affectedStorage);
 
-        LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
-        LifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new LifecycleChangeNotificationManager.ReportedAffectedCp();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new VfcLifecycleChangeNotificationManager.ReportedAffectedCp();
         affectedCp.setChangeType(ChangeType.MODIFIED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
@@ -787,8 +789,8 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         affectedStorage.getResource().setResourceId("storageProviderId");
         recievedLcn.getAffectedVirtualStorages().add(affectedStorage);
 
-        LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
-        LifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new LifecycleChangeNotificationManager.ReportedAffectedCp();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new VfcLifecycleChangeNotificationManager.ReportedAffectedCp();
         affectedCp.setChangeType(ChangeType.ADDED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
@@ -896,8 +898,8 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         affectedStorage.getResource().setResourceId("storageProviderId");
         recievedLcn.getAffectedVirtualStorages().add(affectedStorage);
 
-        LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
-        LifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new LifecycleChangeNotificationManager.ReportedAffectedCp();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints affectedConnectionPoints = new VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints();
+        VfcLifecycleChangeNotificationManager.ReportedAffectedCp affectedCp = new VfcLifecycleChangeNotificationManager.ReportedAffectedCp();
         affectedCp.setChangeType(ChangeType.REMOVED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
@@ -1119,6 +1121,6 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
     }
 
     class OperationResult {
-        LifecycleChangeNotificationManager.ReportedAffectedConnectionPoints operationResult;
+        VfcLifecycleChangeNotificationManager.ReportedAffectedConnectionPoints operationResult;
     }
 }

@@ -25,10 +25,12 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.IPackageProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.IpMappingProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.Conditions;
 import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vfccatalog.model.VnfPkgDetailInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -45,6 +47,7 @@ import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
  * Retrieves a package from VF-C
  */
 @Component
+@Conditional(value = Conditions.UseForVfc.class)
 public class VfcPackageProvider implements IPackageProvider {
     private static Logger logger = getLogger(VfcPackageProvider.class);
     private final VfcRestApiProvider restApiProvider;

@@ -17,10 +17,11 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest;
 
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
 import java.util.concurrent.TimeUnit;

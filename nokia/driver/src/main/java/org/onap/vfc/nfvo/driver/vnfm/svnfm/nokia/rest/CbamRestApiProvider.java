@@ -21,6 +21,7 @@ import com.nokia.cbam.lcm.v32.ApiClient;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamTokenProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.DriverProperties;
 import org.onap.vnfmdriver.model.VnfmInfo;

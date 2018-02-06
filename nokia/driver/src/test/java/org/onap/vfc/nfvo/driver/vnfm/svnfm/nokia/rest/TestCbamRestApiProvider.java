@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
 import org.onap.msb.sdk.discovery.entity.NodeInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamTokenProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.TestBase;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;

@@ -23,14 +23,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-//@Ignore
 @RunWith(value = SpringRunner.class)
 @SpringBootTest(classes = NokiaSvnfmApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("real")
 public class CTReal {
 
+    /**
+     * The following is not a real test, but only start the driver locally.
+     * It takes parameters from application-real.properties
+     */
     @Test
     public void testBasicWorkflow() throws Exception {
+
+
         Thread.sleep(10000000 * 1000L);
     }
 

@@ -17,7 +17,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestCbamVnfPackageBuilder;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestCbamVnfdBuilder;
@@ -27,12 +26,15 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.TestCbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.TestGenericExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.TestIpMappingProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.TestMsbApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestRealConfig;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestServletInitializer;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestCbamUtils;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestStoreLoader;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestSystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.TestVfcExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.TestVfcGrantManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.TestVfcLifecycleChangeNotificationManager;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -41,9 +43,9 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.TestVfcExternalSystemInfoPr
         TestAdditionalParams.class,
         TestCbamTokenProvider.class,
         TestDriverProperties.class,
-        TestGrantManager.class,
+        TestVfcGrantManager.class,
         TestJobManager.class,
-        TestLifecycleChangeNotificationManager.class,
+        TestVfcLifecycleChangeNotificationManager.class,
         TestLifecycleManager.class,
         TestSelfRegistrationManager.class,
 

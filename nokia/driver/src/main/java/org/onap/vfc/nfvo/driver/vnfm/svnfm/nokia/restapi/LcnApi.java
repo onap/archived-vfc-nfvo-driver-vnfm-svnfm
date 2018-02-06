@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.LifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcLifecycleChangeNotificationManager;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -44,7 +44,7 @@ public class LcnApi {
     private static Logger logger = getLogger(LcnApi.class);
 
     @Autowired
-    private LifecycleChangeNotificationManager lcnManager;
+    private VfcLifecycleChangeNotificationManager lcnManager;
 
     /**
      * Provides a probe for CBAM VNFM to test LCN registration

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
 
 import org.onap.vnfmdriver.model.VnfmInfo;
 

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.LifecycleChangeNotificationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.TestBase;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcLifecycleChangeNotificationManager;
 
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -33,7 +33,7 @@ public class TestLcnApi extends TestBase {
     @Mock
     private VnfLifecycleChangeNotification lcn;
     @Mock
-    private LifecycleChangeNotificationManager lcnManager;
+    private VfcLifecycleChangeNotificationManager lcnManager;
     @InjectMocks
     private LcnApi lcnApi;
 
