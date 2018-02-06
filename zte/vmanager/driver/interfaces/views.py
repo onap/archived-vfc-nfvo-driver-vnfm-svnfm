@@ -450,13 +450,17 @@ class Heal(APIView):
         try:
             logger.info("request.data = %s", request.data)
             logger.info("requested_url = %s", request.get_full_path())
+            healReqSerializer = HealReqSerializer(data=request.data)
+            if not healReqSerializer.is_valid():
+                raise Exception(healReqSerializer.errors)
+
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
                 return Response(data={'error': ret[1]}, status=ret[2])
             vnfm_info = json.JSONDecoder().decode(ret[1])
             data = {}
-            data['action'] = ignorcase_get(request.data, 'action')
-            affectedvm = ignorcase_get(request.data, 'affectedvm')
+            data['action'] = ignorcase_get(healReqSerializer.data, 'action')
+            affectedvm = ignorcase_get(healReqSerializer.data, 'affectedvm')
             data['affectedvm'] = []
             if isinstance(affectedvm, list):
                 data['affectedvm'] = affectedvm
@@ -479,7 +483,11 @@ class Heal(APIView):
                 raise Exception('heal error')
             resp_data = json.JSONDecoder().decode(ret[1])
             logger.info("resp_data=%s", resp_data)
-            return Response(data=resp_data, status=status.HTTP_202_ACCEPTED)
+            healRespSerializer = HealRespSerializer(data=resp_data)
+            if not healRespSerializer.is_valid():
+                raise Exception(healRespSerializer.errors)
+
+            return Response(data=healRespSerializer.data, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             logger.error("Error occurred when healing VNF,error:%s", e.message)
             logger.error(traceback.format_exc())
