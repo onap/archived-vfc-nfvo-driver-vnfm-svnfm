@@ -25,8 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamCatalogManager.getFileInZip;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamCatalogManager.getVnfdLocation;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager.getFileInZip;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager.getVnfdLocation;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 
 /**

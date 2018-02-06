@@ -16,6 +16,8 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -144,5 +146,14 @@ public class SystemFunctions {
      */
     public InputStream in() {
         return System.in;
+    }
+
+    /**
+     * Wraps the static call (required for being able to test)
+     *
+     * @return the default HTTP client
+     */
+    public CloseableHttpClient getHttpClient() {
+        return HttpClients.createDefault();
     }
 }

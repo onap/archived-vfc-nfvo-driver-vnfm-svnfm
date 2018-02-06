@@ -15,9 +15,6 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
-import com.google.common.io.ByteStreams;
-import org.apache.commons.lang.ArrayUtils;
-import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.TestBase;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
@@ -25,17 +22,10 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamCatalogManager.getFileInZip;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager.getFileInZip;
 
 
 public class TestOnapVnfPackageBuilder extends TestBase {
@@ -79,7 +69,6 @@ public class TestOnapVnfPackageBuilder extends TestBase {
     public void testPreventMove() {
         assertEquals("org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfPackageBuilder", OnapVnfPackageBuilder.class.getCanonicalName());
     }
-
 
 
 }

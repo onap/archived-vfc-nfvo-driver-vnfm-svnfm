@@ -31,7 +31,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfdBuil
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.DelegatingServletInputStream;
 import org.springframework.mock.web.DelegatingServletOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +42,7 @@ import java.util.Arrays;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamCatalogManager.getFileInZip;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager.getFileInZip;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 
@@ -99,7 +98,7 @@ public class TestConverterApi extends TestBase {
     }
 
     @Test
-    public void testDownloaderPage() throws Exception{
+    public void testDownloaderPage() throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         PrintStream actualOut = new PrintStream(bos, true);
         when(httpResponse.getOutputStream()).thenReturn(new DelegatingServletOutputStream(actualOut));

@@ -1,0 +1,73 @@
+/*
+ * Copyright 2016-2017, Nokia Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc;
+
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.MsbApiProvider;
+import org.onap.vfccatalog.api.VnfpackageApi;
+import org.onap.vnfmdriver.api.NslcmApi;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * Responsible for providing access to VF-C REST APIs
+ */
+@Component
+public class VfcRestApiProvider {
+    static final String NSLCM_API_SERVICE_NAME = "nslcm";
+    static final String NSLCM_API_VERION = "v1";
+    static final String NSCATALOG_SERVICE_NAME = "catalog";
+    static final String NSCATALOG_API_VERSION = "v1";
+    private final MsbApiProvider msbApiProvider;
+
+    @Autowired
+    VfcRestApiProvider(MsbApiProvider msbApiProvider) {
+        this.msbApiProvider = msbApiProvider;
+    }
+
+    /**
+     * @return API to access VF-C for granting & LCN API
+     */
+    public NslcmApi getNsLcmApi() {
+        org.onap.vnfmdriver.ApiClient apiClient = new org.onap.vnfmdriver.ApiClient();
+        String correctedUrl = fixIncorrectUrl();
+        apiClient.setBasePath(correctedUrl);
+        return new NslcmApi(apiClient);
+    }
+
+    /**
+     * @return API to access VF-C catalog API
+     */
+    public VnfpackageApi getOnapCatalogApi() {
+        org.onap.vfccatalog.ApiClient vfcApiClient = new org.onap.vfccatalog.ApiClient();
+        vfcApiClient.setBasePath(msbApiProvider.getMicroServiceUrl(NSCATALOG_SERVICE_NAME, NSCATALOG_API_VERSION));
+        return new VnfpackageApi(vfcApiClient);
+    }
+
+    /**
+     * The swagger schema definition is not consistent with MSB info. The MSB reports
+     * the base path /api/nsclm/v1 (correct) and the paths defined in swagger is
+     * /nsclm/v1 making all API calls /api/nsclm/v1/nsclm/v1 (incorrect)
+     *
+     * @return
+     */
+    private String fixIncorrectUrl() {
+        String urlInMsb = msbApiProvider.getMicroServiceUrl(NSLCM_API_SERVICE_NAME, NSLCM_API_VERION);
+        //FIXME in VF-C swagger API definitions
+        return urlInMsb.replaceFirst("/nslcm/v1", "");
+    }
+
+
+}

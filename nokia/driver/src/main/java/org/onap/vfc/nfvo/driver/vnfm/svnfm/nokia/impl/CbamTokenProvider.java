@@ -23,7 +23,8 @@ import com.google.gson.annotations.SerializedName;
 import okhttp3.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vnfmdriver.model.VnfmInfo;
@@ -66,14 +67,17 @@ public class CbamTokenProvider {
     private boolean skipHostnameVerification;
 
     @Autowired
-    private RestApiProvider restApiProvider;
+    private CbamRestApiProvider restApiProvider;
+    @Autowired
+    private VnfmInfoProvider vnfmInfoProvider;
+
     private volatile CurrentToken token;
 
     /**
      * @return the token to access CBAM APIs (ex. 123456)
      */
     public String getToken(String vnfmId) {
-        VnfmInfo vnfmInfo = restApiProvider.queryVnfmInfo(vnfmId);
+        VnfmInfo vnfmInfo = vnfmInfoProvider.getVnfmInfo(vnfmId);
         return getToken(vnfmInfo.getUserName(), vnfmInfo.getPassword());
     }
 

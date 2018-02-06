@@ -47,7 +47,7 @@ import static com.nokia.cbam.lcm.v32.model.OperationType.*;
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCM_API_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 

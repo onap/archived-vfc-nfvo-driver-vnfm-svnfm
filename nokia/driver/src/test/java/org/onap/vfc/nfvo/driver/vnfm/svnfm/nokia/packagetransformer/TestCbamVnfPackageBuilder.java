@@ -19,12 +19,7 @@ import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.TestBase;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-
-import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamCatalogManager.getFileInZip;
 
 
 public class TestCbamVnfPackageBuilder extends TestBase {
@@ -55,6 +50,5 @@ public class TestCbamVnfPackageBuilder extends TestBase {
 
     }
 
-    
 
 }

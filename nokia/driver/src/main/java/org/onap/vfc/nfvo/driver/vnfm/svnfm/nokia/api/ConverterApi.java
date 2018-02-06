@@ -17,7 +17,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
 
 import org.apache.http.entity.ContentType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfPackageBuilder;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

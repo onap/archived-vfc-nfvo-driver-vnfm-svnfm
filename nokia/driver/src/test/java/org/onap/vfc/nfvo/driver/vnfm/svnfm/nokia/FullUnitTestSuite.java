@@ -23,17 +23,22 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestCbamVnfP
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestCbamVnfdBuilder;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestOnapVnfPackageBuilder;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestOnapVnfdBuilder;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.TestCbamRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.TestGenericExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.TestIpMappingProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.TestMsbApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestRealConfig;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestServletInitializer;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestCbamUtils;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestStoreLoader;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestSystemFunctions;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.TestVfcExternalSystemInfoProvider;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+
+
         TestAdditionalParams.class,
-        TestCbamCatalogManager.class,
         TestCbamTokenProvider.class,
         TestDriverProperties.class,
         TestGrantManager.class,
@@ -48,12 +53,18 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestSystemFunctions;
         TestOnapVnfPackageBuilder.class,
 
         TestCbamUtils.class,
-        TestRestApiProvider.class,
         TestStoreLoader.class,
         TestSystemFunctions.class,
 
         TestServletInitializer.class,
         TestRealConfig.class,
+
+        TestCbamRestApiProvider.class,
+        TestGenericExternalSystemInfoProvider.class,
+        TestIpMappingProvider.class,
+        TestMsbApiProvider.class,
+        TestVfcExternalSystemInfoProvider.class,
+        TestVfcExternalSystemInfoProvider.class,
 
         TestConverterApi.class,
         TestLcmApi.class,

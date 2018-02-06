@@ -42,7 +42,7 @@ import static com.nokia.cbam.lcn.v32.model.OperationType.*;
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCN_API_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCN_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestSelfRegistrationManager extends TestBase {

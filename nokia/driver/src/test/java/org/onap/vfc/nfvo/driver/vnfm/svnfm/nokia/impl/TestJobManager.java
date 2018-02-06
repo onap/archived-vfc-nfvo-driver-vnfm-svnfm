@@ -44,10 +44,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.JobManager.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.JobManager.extractOnapJobId;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCM_API_VERSION;
-import static org.onap.vnfmdriver.model.JobStatus.ERROR;
-import static org.onap.vnfmdriver.model.JobStatus.FINISHED;
-import static org.onap.vnfmdriver.model.JobStatus.STARTED;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
+import static org.onap.vnfmdriver.model.JobStatus.*;
 
 public class TestJobManager extends TestBase {
 
@@ -233,8 +231,8 @@ public class TestJobManager extends TestBase {
             @Override
             public VnfInfo answer(InvocationOnMock invocation) throws Throwable {
                 vnfs.clear();
-                return  detailedVnf;
-                }
+                return detailedVnf;
+            }
         });
 
         jobManager.jobFinished(jobId);
@@ -409,11 +407,11 @@ public class TestJobManager extends TestBase {
     }
 
     /**
-     * Failuire to retrieve VNF (CBAM REST API fail) is logged and propagated
+     * Failure to retrieve VNF (CBAM REST API fail) is logged and propagated
      */
     @Test
     public void failuresDuringVnfRetrievalIsLoggedAndPropagated() throws Exception {
-        String jobId = jobManager.spawnJob(VNFM_ID, httpResponse);
+        String jobId = jobManager.spawnJob(VNF_ID, httpResponse);
         VnfInfo vnf = new VnfInfo();
         vnf.setId(VNF_ID);
         vnfs.add(vnf);

@@ -101,7 +101,7 @@ public class TestSystemFunctions {
      * Test standard stream wrapping
      */
     @Test
-    public void testStandardStreams(){
+    public void testStandardStreams() {
         assertEquals(System.err, SystemFunctions.systemFunctions().err());
         assertEquals(System.out, SystemFunctions.systemFunctions().out());
         assertEquals(System.in, SystemFunctions.systemFunctions().in());

@@ -21,15 +21,8 @@ import com.nokia.cbam.lcm.v32.model.VnfIdentifierDeletionNotification;
 import com.nokia.cbam.lcm.v32.model.VnfInfoAttributeValueChangeNotification;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.http.MediaType;
-
-import javax.print.attribute.standard.Media;
-
-import static org.mockito.Mockito.verify;
 
 public class TestRealConfig {
 

@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl;
 
+import com.google.common.base.Predicate;
 import com.google.common.io.ByteStreams;
 import com.nokia.cbam.catalog.v1.api.DefaultApi;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
@@ -31,22 +32,26 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.MsbApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcRestApiProvider;
 import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vnfmdriver.api.NslcmApi;
+import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -57,17 +62,23 @@ import java.util.zip.ZipInputStream;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl.CbamCatalogManager.getFileInZip;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager.getFileInZip;
 
 public class TestBase {
     public static final String VNF_ID = "myVnfId";
-    public static final String VNFM_ID = "myVnfId";
+    public static final String VNFM_ID = "myVnfmId";
     public static final String ONAP_CSAR_ID = "myOnapCsarId";
     public static final String VIM_ID = "myVimId";
     public static final String JOB_ID = "myJobId";
     public static final String CBAM_VNFD_ID = "cbamVnfdId";
     @Mock
-    protected RestApiProvider restApiProvider;
+    protected CbamRestApiProvider cbamRestApiProvider;
+    @Mock
+    protected VfcRestApiProvider vfcRestApiProvider;
+    @Mock
+    protected MsbApiProvider msbApiProvider;
+    @Mock
+    protected VnfmInfoProvider vnfmInfoProvider;
     @Mock
     protected VnfsApi vnfApi;
     @Mock
@@ -99,28 +110,25 @@ public class TestBase {
     protected HttpEntity entity;
     @Mock
     protected HttpServletResponse httpResponse;
+    @Mock
+    protected Environment environment;
 
     @Before
     public void genericSetup() throws Exception {
         MockitoAnnotations.initMocks(this);
         ReflectionTestUtils.setField(SystemFunctions.class, "INSTANCE", systemFunctions);
-        when(restApiProvider.getCbamLcmApi(VNFM_ID)).thenReturn(vnfApi);
-        when(restApiProvider.getMsbClient()).thenReturn(msbClient);
-        when(restApiProvider.getCbamOperationExecutionApi(VNFM_ID)).thenReturn(operationExecutionApi);
-        when(restApiProvider.getNsLcmApi()).thenReturn(nsLcmApi);
-        when(restApiProvider.getOnapCatalogApi()).thenReturn(vfcCatalogApi);
-        when(restApiProvider.getCbamLcnApi(VNFM_ID)).thenReturn(lcnApi);
-        when(restApiProvider.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
-        when(restApiProvider.getHttpClient()).thenReturn(httpClient);
+        when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID)).thenReturn(vnfApi);
+        when(cbamRestApiProvider.getCbamOperationExecutionApi(VNFM_ID)).thenReturn(operationExecutionApi);
+        when(cbamRestApiProvider.getCbamLcnApi(VNFM_ID)).thenReturn(lcnApi);
+        when(cbamRestApiProvider.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
+        when(msbApiProvider.getMsbClient()).thenReturn(msbClient);
+        when(vfcRestApiProvider.getNsLcmApi()).thenReturn(nsLcmApi);
+        when(vfcRestApiProvider.getOnapCatalogApi()).thenReturn(vfcCatalogApi);
+        when(systemFunctions.getHttpClient()).thenReturn(httpClient);
         when(httpClient.execute(request.capture())).thenReturn(response);
-        when(restApiProvider.mapPrivateIpToPublicIp(Mockito.anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return invocationOnMock.getArgumentAt(0, String.class);
-            }
-        });
         when(response.getEntity()).thenReturn(entity);
         when(driverProperties.getVnfmId()).thenReturn(VNFM_ID);
+        when(systemFunctions.getHttpClient()).thenReturn(httpClient);
     }
 
     @After
@@ -147,5 +155,26 @@ public class TestBase {
         }
         zipInputStream.close();
         return files;
+    }
+
+    protected void setFieldWithPropertyAnnotation(Object obj, String key, String value) {
+        for (Field field : ReflectionUtils.getAllFields(obj.getClass(), new Predicate<Field>() {
+            @Override
+            public boolean apply(@Nullable Field field) {
+                for (Value value : field.getAnnotationsByType(Value.class)) {
+                    if (value.value().equals(key)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        })) {
+            try {
+                field.setAccessible(true);
+                field.set(obj, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

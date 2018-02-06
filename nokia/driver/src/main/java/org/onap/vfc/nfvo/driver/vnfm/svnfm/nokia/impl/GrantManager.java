@@ -23,9 +23,12 @@ import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import com.nokia.cbam.lcm.v32.model.VnfcResourceInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.catalog.CatalogManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcRestApiProvider;
 import org.onap.vnfmdriver.model.*;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
@@ -35,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.RestApiProvider.NOKIA_LCM_API_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -43,12 +46,13 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 @Component
 public class GrantManager {
-    private static org.slf4j.Logger logger = getLogger(GrantManager.class);
-
+    private static Logger logger = getLogger(GrantManager.class);
     @Autowired
-    private CbamCatalogManager catalogManager;
+    private CatalogManager catalogManager;
     @Autowired
-    private RestApiProvider restApiProvider;
+    private CbamRestApiProvider cbamRestApiProvider;
+    @Autowired
+    private VfcRestApiProvider vfcRestApiProvider;
 
     /**
      * Request grant for healing
@@ -100,7 +104,7 @@ public class GrantManager {
         try {
             OperationType operationType = ScaleDirection.IN.equals(request.getType()) ? OperationType.SCALEIN : OperationType.SCALEOUT;
             GrantVNFRequest grantRequest = buildGrantRequest(vnfmId, vimId, onapCsarId, jobId, operationType);
-            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = restApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
+            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
             String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, vnf.getVnfdId());
             Set<ResourceChange> resourceChanges = calculateResourceChangeDuringScaling(vnfdContent, request.getAspectId(), Integer.parseInt(request.getNumberOfSteps()));
             switch (request.getType()) {
@@ -181,7 +185,7 @@ public class GrantManager {
 
     private GrantVNFResponseVim requestGrant(GrantVNFRequest grantRequest) {
         try {
-            return restApiProvider.getNsLcmApi().grantvnf(grantRequest).getVim();
+            return vfcRestApiProvider.getNsLcmApi().grantvnf(grantRequest).getVim();
         } catch (org.onap.vnfmdriver.ApiException e) {
             logger.error("Unable to request grant", e);
             throw new RuntimeException(e);
