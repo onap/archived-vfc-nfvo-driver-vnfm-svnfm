@@ -67,8 +67,6 @@ public class CbamTokenProvider {
     private boolean skipHostnameVerification;
 
     @Autowired
-    private CbamRestApiProvider restApiProvider;
-    @Autowired
     private VnfmInfoProvider vnfmInfoProvider;
 
     private volatile CurrentToken token;

@@ -38,7 +38,6 @@ abstract public class GenericExternalSystemInfoProvider extends IpMappingProvide
     private final Environment environment;
     private LoadingCache<String, VnfmInfo> vnfmInfoCache;
 
-    @Autowired
     public GenericExternalSystemInfoProvider(Environment environment) {
         super(environment);
         this.environment = environment;
