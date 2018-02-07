@@ -281,12 +281,15 @@ class InterfacesTest(TestCase):
             "operationright": "0",
             "vmlist": [
                 {
-                    "vmflavor": "SMP",
-                    "vmnumber": "3"
-                },
-                {
-                    "vmflavor": "CMP",
-                    "vmnumber": "3"
+                    "VMNumber": 1,
+                    "VMFlavor": "VDU_S_CDB_51",
+                    "vimid": "",
+                    "tenant": ""
+                }, {
+                    "VMNumber": 1,
+                    "VMFlavor": "VDU_M_SLB_42",
+                    "vimid": "",
+                    "tenant": ""
                 }
             ]
         }

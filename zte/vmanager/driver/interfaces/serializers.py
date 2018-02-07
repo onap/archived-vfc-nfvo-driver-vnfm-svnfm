@@ -15,6 +15,70 @@
 from rest_framework import serializers
 
 
+class GrantVmlistSerializer(serializers.Serializer):
+    VMNumber = serializers.CharField(
+        help_text="VMNumber",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    VMFlavor = serializers.CharField(
+        help_text="VMFlavor",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    vimid = serializers.CharField(
+        help_text="vimid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    tenant = serializers.CharField(
+        help_text="tenant",
+        max_length=255,
+        required=False,
+        allow_blank=True)
+
+
+class GrantReqSerializer(serializers.Serializer):
+    nfvoid = serializers.CharField(
+        help_text="nfvoid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    vnfmid = serializers.CharField(
+        help_text="vnfmid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    vimid = serializers.CharField(
+        help_text="vimid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    tenant = serializers.CharField(
+        help_text="tenant",
+        max_length=255,
+        required=False,
+        allow_blank=True)
+    vnfinstanceid = serializers.CharField(
+        help_text="vnfinstanceid",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    operationright = serializers.CharField(
+        help_text="operationright",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    vmlist = GrantVmlistSerializer(
+        help_text='vmlist',
+        required=False,
+        many=True)
+    exvimidlist = serializers.ListSerializer(
+        help_text='exvimidlist',
+        child=serializers.CharField(allow_null=True),
+        required=False)
+
+
 class VMIDlistSerializer(serializers.Serializer):
     VMID = serializers.CharField(
         help_text="VMID",
@@ -38,7 +102,7 @@ class VMIDlistSerializer(serializers.Serializer):
         allow_null=True)
 
 
-class VmlistSerializer(serializers.Serializer):
+class NotifyVmlistSerializer(serializers.Serializer):
     VMNumber = serializers.CharField(
         help_text="VMNumber",
         max_length=255,
@@ -91,7 +155,7 @@ class NotifyReqSerializer(serializers.Serializer):
         max_length=255,
         required=False,
         allow_null=True)
-    vmlist = VmlistSerializer(
+    vmlist = NotifyVmlistSerializer(
         help_text='vmlist',
         required=False,
         many=True)
