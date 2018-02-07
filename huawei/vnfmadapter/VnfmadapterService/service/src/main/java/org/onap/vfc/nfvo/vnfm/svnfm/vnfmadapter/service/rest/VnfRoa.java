@@ -87,17 +87,18 @@ public class VnfRoa {
 
     /**
      * Scale VNF
-     * 
+     *
+     * @param vnfmId
+     * @param vnfInstanceId
+     * @param resp
      * @param context
-     *            * {
+     *            {
      *            "vnfInstanceId":"5",
      *            "type":"SCALE_OUT",
      *            "aspectId":"101",
      *            "numberOfSteps":"1",
      *            "additionalParam":{}
      *            }
-     * @param resp
-     * @param vnfmId
      * @return
      *         {
      *         "jobId":"1"
@@ -371,5 +372,30 @@ public class VnfRoa {
         restJson = ResultRequestUtil.call(vnfmObjcet, url, Constant.GET, null, Constant.CERTIFICATE);
         LOG.info("function=getVms, restJson: {}", restJson);
         return restJson.getString("data");
+    }
+
+    /**
+     * <br>
+     * Query job status from vnfm version 18.1
+     * 
+     * @param jobId
+     * @param vnfmId
+     * @param responseId
+     * @return
+     * @throws ServiceException
+     * @since VFC 1.0
+     */
+    public String getJobFromVnfm(@PathParam("jobId") String jobId, @PathParam("vnfmId") String vnfmId,
+            @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) throws ServiceException {
+        LOG.warn("function=getJobFromVnfm, msg=enter to get a job: jobId: {}, responseId: {}", jobId, responseId);
+        JSONObject restJson = vnfMgr.getJobFromVnfm(jobId, vnfmId);
+
+        if(restJson.getInt(Constant.RETCODE) == Constant.REST_FAIL) {
+            LOG.error("function=getJobFromVnfm, msg=getJobFromVnfm fail");
+            resp.setStatus(Constant.HTTP_INNERERROR);
+            return restJson.toString();
+        }
+
+        return vnfMgr.transferToLcm(restJson);
     }
 }
