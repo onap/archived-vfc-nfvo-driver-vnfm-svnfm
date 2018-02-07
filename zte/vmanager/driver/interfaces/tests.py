@@ -473,10 +473,8 @@ class InterfacesTest(TestCase):
             'isgrace': 'force'
         }
 
-        response = self.client.post(
-            "/api/ztevnfmdriver/v1/200/vnfs/201/heal",
-            data=json.dumps(heal_vnf_data),
-            content_type='application/json')
+        response = self.client.post("/api/ztevnfmdriver/v1/200/vnfs/201/heal", data=json.dumps(heal_vnf_data),
+                                    content_type='application/json')
 
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
         self.assertDictEqual(job_info, response.data)

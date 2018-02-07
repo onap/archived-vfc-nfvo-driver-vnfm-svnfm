@@ -29,6 +29,6 @@ urlpatterns = [
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/scale$',
         views.scale, name='scale'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/heal$',
-        views.heal, name='heal'),
+        views.Heal.as_view(), name='heal'),
     url(r'^samples/$', views.samples, name='samples')
 ]

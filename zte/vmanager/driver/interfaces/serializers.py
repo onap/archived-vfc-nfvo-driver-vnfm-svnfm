@@ -19,8 +19,7 @@ class AffectedvmSerializer(serializers.Serializer):
     extention = serializers.CharField(
         help_text="extention",
         max_length=255,
-        required=True,
-        allow_null=True)
+        required=True, allow_blank=True)
     vmid = serializers.CharField(
         help_text="vmid",
         max_length=255,
@@ -65,3 +64,16 @@ class HealReqSerializer(serializers.Serializer):
         required=False,
         allow_null=True)
     affectedvm = AffectedvmSerializer(help_text='affectedvm', many=True)
+
+
+class HealRespSerializer(serializers.Serializer):
+    jobid = serializers.CharField(
+        help_text="jobid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    nfInstanceId = serializers.CharField(
+        help_text="nfInstanceId",
+        max_length=255,
+        required=True,
+        allow_null=False)

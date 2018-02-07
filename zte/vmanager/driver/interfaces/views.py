@@ -18,9 +18,13 @@ import logging
 import traceback
 import os
 
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from driver.interfaces.serializers import HealReqSerializer, HealRespSerializer
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
 from driver.pub.config.config import VNF_FTP
@@ -433,48 +437,61 @@ def scale(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-@api_view(http_method_names=['POST'])
-def heal(request, *args, **kwargs):
-    logger.info("====heal_vnf===")
-    try:
-        logger.info("request.data = %s", request.data)
-        logger.info("requested_url = %s", request.get_full_path())
-        vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        nf_instance_id = ignorcase_get(kwargs, "vnfInstanceId")
-        ret = get_vnfminfo_from_nslcm(vnfm_id)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        vnfm_info = json.JSONDecoder().decode(ret[1])
-        data = {}
-        data['action'] = ignorcase_get(request.data, 'action')
-        affectedvm = ignorcase_get(request.data, 'affectedvm')
-        data['affectedvm'] = []
-        if isinstance(affectedvm, list):
-            data['affectedvm'] = affectedvm
-        else:
-            data['affectedvm'].append(affectedvm)
-        data['lifecycleoperation'] = 'operate'
-        data['isgrace'] = 'force'
+class Heal(APIView):
+    @swagger_auto_schema(
+        request_body=HealReqSerializer(),
+        responses={
+            status.HTTP_202_ACCEPTED: HealRespSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
+    def post(self, request, vnfmid, vnfInstanceId):
+        logger.info("====heal_vnf===")
+        try:
+            logger.info("request.data = %s", request.data)
+            logger.info("requested_url = %s", request.get_full_path())
+            healReqSerializer = HealReqSerializer(data=request.data)
+            if not healReqSerializer.is_valid():
+                raise Exception(healReqSerializer.errors)
 
-        logger.info("data = %s", data)
-        ret = restcall.call_req(
-            base_url=ignorcase_get(vnfm_info, "url"),
-            user=ignorcase_get(vnfm_info, "userName"),
-            passwd=ignorcase_get(vnfm_info, "password"),
-            auth_type=restcall.rest_no_auth,
-            resource='/api/v1/nf_m_i/nfs/{vnfInstanceID}/vms/operation'.format(vnfInstanceID=nf_instance_id),
-            method='post',
-            content=json.JSONEncoder().encode(data))
-        logger.info("ret=%s", ret)
-        if ret[0] != 0:
-            return Response(data={'error': 'heal error'}, status=ret[2])
-        resp_data = json.JSONDecoder().decode(ret[1])
-        logger.info("resp_data=%s", resp_data)
-    except Exception as e:
-        logger.error("Error occurred when healing VNF,error:%s", e.message)
-        logger.error(traceback.format_exc())
-        return Response(data={'error': 'heal expection'}, status='500')
-    return Response(data=resp_data, status=ret[2])
+            ret = get_vnfminfo_from_nslcm(vnfmid)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            vnfm_info = json.JSONDecoder().decode(ret[1])
+            data = {}
+            data['action'] = ignorcase_get(healReqSerializer.data, 'action')
+            affectedvm = ignorcase_get(healReqSerializer.data, 'affectedvm')
+            data['affectedvm'] = []
+            if isinstance(affectedvm, list):
+                data['affectedvm'] = affectedvm
+            else:
+                data['affectedvm'].append(affectedvm)
+            data['lifecycleoperation'] = 'operate'
+            data['isgrace'] = 'force'
+
+            logger.info("data = %s", data)
+            ret = restcall.call_req(
+                base_url=ignorcase_get(vnfm_info, "url"),
+                user=ignorcase_get(vnfm_info, "userName"),
+                passwd=ignorcase_get(vnfm_info, "password"),
+                auth_type=restcall.rest_no_auth,
+                resource='/api/v1/nf_m_i/nfs/{vnfInstanceID}/vms/operation'.format(vnfInstanceID=vnfInstanceId),
+                method='post',
+                content=json.JSONEncoder().encode(data))
+            logger.info("ret=%s", ret)
+            if ret[0] != 0:
+                raise Exception('heal error')
+            resp_data = json.JSONDecoder().decode(ret[1])
+            logger.info("resp_data=%s", resp_data)
+            healRespSerializer = HealRespSerializer(data=resp_data)
+            if not healRespSerializer.is_valid():
+                raise Exception(healRespSerializer.errors)
+
+            return Response(data=healRespSerializer.data, status=status.HTTP_202_ACCEPTED)
+        except Exception as e:
+            logger.error("Error occurred when healing VNF,error:%s", e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'heal expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def get_vdus(nf_model, aspect_id):
