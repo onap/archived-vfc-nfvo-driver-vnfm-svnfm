@@ -319,4 +319,31 @@ public class VnfMgr {
         restJson = (new VnfMgrVnfm()).healVnf(jsonObject, vnfmObjcet, vnfmId, vnfInstanceId);
         return restJson;
     }
+
+    public JSONObject getJobFromVnfm(String jobId, String vnfmId) {
+        LOG.warn("function=getJobFromVnfm, jobId:{}, vnfmId:{}", jobId, vnfmId);
+        JSONObject restJson = new JSONObject();
+        JSONObject vnfmObjcet = VnfmUtil.getVnfmById(vnfmId);
+        if(vnfmObjcet.isNullObject()) {
+            LOG.error("function=getJobFromVnfm, msg=vnfm not exists, vnfmId: {}", vnfmId);
+            return restJson;
+        }
+        restJson = (new VnfMgrVnfm()).getJobFromVnfm(vnfmObjcet, jobId);
+        return restJson;
+    }
+
+    public String transferToLcm(JSONObject restJson) {
+        LOG.warn("function=transferToLcm, restJson: {}", restJson);
+        JSONObject responseJson = new JSONObject();
+        JSONObject jobInfoJson = new JSONObject();
+        JSONObject jobInfo = restJson.getJSONObject("data").getJSONObject("job_info");
+        jobInfoJson.put("jobId", jobInfo.getString("job_id"));
+        responseJson.put("progress", jobInfo.getString("task_progress_rate"));
+        responseJson.put("status", jobInfo.getString("task_status"));
+        responseJson.put("errorCode", jobInfo.getString("error_code"));
+        responseJson.put("responseId", jobInfo.getString("task_progress_rate"));
+        jobInfoJson.put("responsedescriptor", responseJson);
+        LOG.warn("function=getJobBody, jobInfoJson: {}", jobInfoJson);
+        return jobInfoJson.toString();
+    }
 }
