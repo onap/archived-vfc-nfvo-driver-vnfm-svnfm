@@ -406,13 +406,18 @@ class Scale(APIView):
         try:
             logger.info("request.data = %s", request.data)
             logger.info("requested_url = %s", request.get_full_path())
+            scaleReqSerializer = ScaleReqSerializer(data=request.data)
+            if not scaleReqSerializer.is_valid():
+                raise Exception(scaleReqSerializer.errors)
+
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             vnfm_info = json.JSONDecoder().decode(ret[1])
-            scale_type = ignorcase_get(request.data, "type")
-            aspect_id = ignorcase_get(request.data, "aspectId")
-            number_of_steps = ignorcase_get(request.data, "numberOfSteps")
+            scale_type = ignorcase_get(scaleReqSerializer.data, "type")
+            aspect_id = ignorcase_get(scaleReqSerializer.data, "aspectId")
+            number_of_steps = ignorcase_get(scaleReqSerializer.data, "numberOfSteps")
             data = {
                 'vnfmid': vnfmid,
                 'nfvoid': 1,
@@ -432,10 +437,15 @@ class Scale(APIView):
                 content=json.JSONEncoder().encode(data))
             logger.info("ret=%s", ret)
             if ret[0] != 0:
-                return Response(data={'error': 'scale error'}, status=ret[2])
+                raise Exception('scale error')
+
             resp_data = json.JSONDecoder().decode(ret[1])
             logger.info("resp_data=%s", resp_data)
-            return Response(data=resp_data, status=status.HTTP_202_ACCEPTED)
+            scaleRespSerializer = InstScaleHealRespSerializer(data=resp_data)
+            if not scaleRespSerializer.is_valid():
+                raise Exception(scaleRespSerializer.errors)
+
+            return Response(data=scaleRespSerializer.data, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             logger.error("Error occurred when scaling VNF,error:%s", e.message)
             logger.error(traceback.format_exc())
@@ -461,7 +471,8 @@ class Heal(APIView):
 
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             vnfm_info = json.JSONDecoder().decode(ret[1])
             data = {}
             data['action'] = ignorcase_get(healReqSerializer.data, 'action')

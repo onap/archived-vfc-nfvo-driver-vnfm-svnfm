@@ -32,7 +32,7 @@ class ScaleReqSerializer(serializers.Serializer):
         allow_null=True)
     additionalParam = serializers.DictField(
         help_text="additionalParam",
-        child=serializers.CharField(allow_blank=True),
+        child=serializers.DictField(allow_null=True),
         required=False,
         allow_null=True)
 
