@@ -30,7 +30,7 @@ class GrantVmlistSerializer(serializers.Serializer):
         help_text="vimid",
         max_length=255,
         required=True,
-        allow_null=True)
+        allow_blank=True)
     tenant = serializers.CharField(
         help_text="tenant",
         max_length=255,
