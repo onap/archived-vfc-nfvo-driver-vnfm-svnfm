@@ -54,7 +54,10 @@ class VmlistSerializer(serializers.Serializer):
         max_length=255,
         required=False,
         allow_null=True)
-    VMIDlist = VMIDlistSerializer(help_text='VMIDlist', required=False, many=True)
+    VMIDlist = VMIDlistSerializer(
+        help_text='VMIDlist',
+        required=False,
+        many=True)
 
 
 class NotifyReqSerializer(serializers.Serializer):
@@ -88,7 +91,10 @@ class NotifyReqSerializer(serializers.Serializer):
         max_length=255,
         required=False,
         allow_null=True)
-    vmlist = VmlistSerializer(help_text='vmlist', required=False, many=True)
+    vmlist = VmlistSerializer(
+        help_text='vmlist',
+        required=False,
+        many=True)
     extension = serializers.DictField(
         help_text="extension",
         child=serializers.DictField(allow_null=True),
@@ -176,7 +182,10 @@ class HealReqSerializer(serializers.Serializer):
         max_length=255,
         required=False,
         allow_null=True)
-    affectedvm = AffectedvmSerializer(help_text='affectedvm', required=True, many=True)
+    affectedvm = AffectedvmSerializer(
+        help_text='affectedvm',
+        required=True,
+        many=True)
 
 
 class InstScaleHealRespSerializer(serializers.Serializer):

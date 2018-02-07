@@ -313,11 +313,19 @@ def grantvnf(request, *args, **kwargs):
 
 class Notify(APIView):
     @swagger_auto_schema(
-        request_body=NotifyReqSerializer()
+        request_body=NotifyReqSerializer(),
+        responses={
+            status.HTTP_200_OK: 'Successfully',
+            status.HTTP_500_INTERNAL_SERVER_ERROR: 'Internal error'
+        }
     )
     def post(self, request):
         try:
             logger.info("[%s]req_data = %s", fun_name(), request.data)
+            notifyReqSerializer = NotifyReqSerializer(data=request.data)
+            if not notifyReqSerializer.is_valid():
+                raise Exception(notifyReqSerializer.errors)
+
             notify_param_map = {
                 "NFVOID": "",
                 "VNFMID": "VNFMID",
@@ -331,7 +339,7 @@ class Notify(APIView):
                 "VMIDlist": "",
                 "VMUUID": ""
             }
-            data = mapping_conv(notify_param_map, request.data)
+            data = mapping_conv(notify_param_map, notifyReqSerializer.data)
             logger.info("[%s]data = %s", fun_name(), data)
 
             data["status"] = "result"
@@ -341,7 +349,7 @@ class Notify(APIView):
             data["affectedVirtualStorage"] = []
             data["affectedCp"] = []
 
-            extension = ignorcase_get(request.data, "extension")
+            extension = ignorcase_get(notifyReqSerializer.data, "extension")
             openo_notification = ignorcase_get(extension, "openo_notification")
             if openo_notification:
                 affectedvnfcs = ignorcase_get(openo_notification, "affectedVnfc")
@@ -349,10 +357,10 @@ class Notify(APIView):
                 affectedcps = ignorcase_get(openo_notification, "affectedCp")
                 vnfdmodule = ignorcase_get(openo_notification, "vnfdmodule")
             else:
-                affectedvnfcs = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvnfc")
-                affectedvls = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvl")
-                affectedcps = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedcp")
-                vnfdmodule = ignorcase_get(ignorcase_get(request.data, "extension"), "vnfdmodule")
+                affectedvnfcs = ignorcase_get(ignorcase_get(notifyReqSerializer.data, "extension"), "affectedvnfc")
+                affectedvls = ignorcase_get(ignorcase_get(notifyReqSerializer.data, "extension"), "affectedvl")
+                affectedcps = ignorcase_get(ignorcase_get(notifyReqSerializer.data, "extension"), "affectedcp")
+                vnfdmodule = ignorcase_get(ignorcase_get(notifyReqSerializer.data, "extension"), "vnfdmodule")
 
             data["vnfdmodule"] = vnfdmodule
 
@@ -389,12 +397,13 @@ class Notify(APIView):
 
             logger.info("[%s]data = %s", fun_name(), ret)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             return Response(data=None, status=ret[2])
         except Exception as e:
-            logger.error("Error occurred in LCM notification.")
+            logger.error("Error occurred in LCM notification,error: %s", e.message)
             logger.error(traceback.format_exc())
-            raise e
+            return Response(data={'error': 'notify expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class Scale(APIView):
