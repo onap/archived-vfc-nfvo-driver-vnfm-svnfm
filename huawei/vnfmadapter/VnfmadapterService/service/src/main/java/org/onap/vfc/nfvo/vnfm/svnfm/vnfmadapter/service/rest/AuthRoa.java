@@ -43,7 +43,10 @@ import net.sf.json.JSONObject;
  * Provide interfaces for authInfo
  * <br/>
  * <p>
- * </p>
+ * auth tokens interface is provided by platform
+ * not in nfvo for vnfm
+ * differences from other interface
+  * </p>
  *
  * @author
  * @version VFC 1.0 Aug 24, 2016
