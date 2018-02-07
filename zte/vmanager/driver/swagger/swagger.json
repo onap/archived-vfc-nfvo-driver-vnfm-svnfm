@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "title": "ZTE VNFM Driver Service rest API"
   },
-  "basePath": "/api/{vnfmtype}/v1",
+  "basePath": "/api/ztevnfmdriver/v1",
   "tags": [
     {
       "name": "ztevnfmdriver"
@@ -395,7 +395,7 @@
         "vnfInstanceId": {
           "type": "string"
         },
-        "jobid": {
+        "jobId": {
           "type": "string"
         }
       }

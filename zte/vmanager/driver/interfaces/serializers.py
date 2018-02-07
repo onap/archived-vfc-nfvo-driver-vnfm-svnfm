@@ -15,6 +15,28 @@
 from rest_framework import serializers
 
 
+class ScaleReqSerializer(serializers.Serializer):
+    type = serializers.CharField(
+        help_text="type",
+        max_length=255,
+        required=True, allow_blank=True)
+    aspectId = serializers.CharField(
+        help_text="aspectId",
+        max_length=255,
+        required=True,
+        allow_null=False)
+    numberOfSteps = serializers.CharField(
+        help_text="numberOfSteps",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    additionalParam = serializers.DictField(
+        help_text="additionalParam",
+        child=serializers.CharField(allow_blank=True),
+        required=False,
+        allow_null=True)
+
+
 class AffectedvmSerializer(serializers.Serializer):
     extention = serializers.CharField(
         help_text="extention",
@@ -66,13 +88,13 @@ class HealReqSerializer(serializers.Serializer):
     affectedvm = AffectedvmSerializer(help_text='affectedvm', many=True)
 
 
-class HealRespSerializer(serializers.Serializer):
-    jobid = serializers.CharField(
+class InstScaleHealRespSerializer(serializers.Serializer):
+    jobId = serializers.CharField(
         help_text="jobid",
         max_length=255,
         required=True,
         allow_null=True)
-    nfInstanceId = serializers.CharField(
+    vnfInstanceId = serializers.CharField(
         help_text="nfInstanceId",
         max_length=255,
         required=True,

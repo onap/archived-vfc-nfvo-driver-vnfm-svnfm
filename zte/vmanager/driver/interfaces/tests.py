@@ -351,7 +351,10 @@ class InterfacesTest(TestCase):
 
     @mock.patch.object(restcall, 'call_req')
     def test_scale(self, mock_call_req):
-        job_info = {"jobid": "801", "nfInstanceId": "101"}
+        job_info = {
+            "jobId": "801",
+            "vnfInstanceId": "101"
+        }
         vnfm_info = {
             "userName": "admin",
             "vendor": "ZTE",
@@ -435,8 +438,8 @@ class InterfacesTest(TestCase):
     @mock.patch.object(restcall, 'call_req')
     def test_heal(self, mock_call_req):
         job_info = {
-            "jobid": "12234455",
-            "nfInstanceId": "10144445666"
+            "jobId": "12234455",
+            "vnfInstanceId": "10144445666"
         }
         vnfm_info = {
             "userName": "admin",

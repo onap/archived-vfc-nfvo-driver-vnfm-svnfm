@@ -15,8 +15,8 @@
 import inspect
 import json
 import logging
-import traceback
 import os
+import traceback
 
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -24,10 +24,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from driver.interfaces.serializers import HealReqSerializer, HealRespSerializer
+from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer
+from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
-from driver.pub.config.config import VNF_FTP
 
 logger = logging.getLogger(__name__)
 
@@ -441,7 +441,7 @@ class Heal(APIView):
     @swagger_auto_schema(
         request_body=HealReqSerializer(),
         responses={
-            status.HTTP_202_ACCEPTED: HealRespSerializer(),
+            status.HTTP_202_ACCEPTED: InstScaleHealRespSerializer(),
             status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
         }
     )
@@ -483,7 +483,7 @@ class Heal(APIView):
                 raise Exception('heal error')
             resp_data = json.JSONDecoder().decode(ret[1])
             logger.info("resp_data=%s", resp_data)
-            healRespSerializer = HealRespSerializer(data=resp_data)
+            healRespSerializer = InstScaleHealRespSerializer(data=resp_data)
             if not healRespSerializer.is_valid():
                 raise Exception(healRespSerializer.errors)
 
