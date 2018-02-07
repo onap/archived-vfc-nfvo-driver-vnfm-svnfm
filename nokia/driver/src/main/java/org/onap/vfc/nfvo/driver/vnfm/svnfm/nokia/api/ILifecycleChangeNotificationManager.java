@@ -19,8 +19,6 @@ import com.google.common.collect.Ordering;
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 
-import javax.annotation.Nullable;
-
 public interface ILifecycleChangeNotificationManager {
     String EXTERNAL_VNFM_ID = "externalVnfmId";
     String SEPARATOR = "_";
@@ -29,7 +27,7 @@ public interface ILifecycleChangeNotificationManager {
      */
     Ordering<OperationExecution> NEWEST_OPERATIONS_FIRST = new Ordering<OperationExecution>() {
         @Override
-        public int compare(@Nullable OperationExecution left, @Nullable OperationExecution right) {
+        public int compare(OperationExecution left, OperationExecution right) {
             return right.getStartTime().toLocalDate().compareTo(left.getStartTime().toLocalDate());
         }
     };

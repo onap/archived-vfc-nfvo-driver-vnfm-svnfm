@@ -21,7 +21,6 @@ import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import okhttp3.*;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
@@ -30,6 +29,7 @@ import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.net.ssl.*;
 import java.io.IOException;

@@ -16,7 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.ByteStreams;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -50,7 +50,7 @@ public class OnapVnfPackageBuilder {
      * @return the converted ONAP package
      */
     public byte[] covert(InputStream zip) throws Exception {
-        byte[] cbamVnfPackage = IOUtils.toByteArray(zip);
+        byte[] cbamVnfPackage = ByteStreams.toByteArray(zip);
         String vnfdLocation = getVnfdLocation(new ByteArrayInputStream(cbamVnfPackage));
         ByteArrayOutputStream vnfdContent = getFileInZip(new ByteArrayInputStream(cbamVnfPackage), vnfdLocation);
         byte[] cbamVnfdContent = vnfdContent.toByteArray();
