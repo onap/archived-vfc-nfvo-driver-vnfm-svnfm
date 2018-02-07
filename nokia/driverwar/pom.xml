@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia</groupId>
   <artifactId>driverwar</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>vfc/nfvo/driver/vnfm/svnfm/nokia/driverwar</name>
   <description>svnfm vnfm driver</description>
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia</groupId>
       <artifactId>driver</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

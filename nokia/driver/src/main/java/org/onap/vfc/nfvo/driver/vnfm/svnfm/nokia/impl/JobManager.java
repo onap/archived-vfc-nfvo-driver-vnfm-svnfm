@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
@@ -60,7 +59,7 @@ public class JobManager {
     public static final Ordering<JobResponseInfo> OLDEST_FIRST = new Ordering<JobResponseInfo>() {
 
         @Override
-        public int compare(@Nullable JobResponseInfo left, @Nullable JobResponseInfo right) {
+        public int compare(JobResponseInfo left, JobResponseInfo right) {
             return Long.valueOf(left.getResponseId()).compareTo(Long.valueOf(right.getResponseId()));
         }
     };

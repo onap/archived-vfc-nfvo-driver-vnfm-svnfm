@@ -16,7 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.ByteStreams;
 import org.eclipse.jetty.server.NetworkTrafficServerConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -82,7 +82,7 @@ class HttpTestServer {
         _server.setHandler(new AbstractHandler() {
             @Override
             public void handle(String target, org.eclipse.jetty.server.Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
-                requests.add(new String(IOUtils.toByteArray(request.getInputStream())));
+                requests.add(new String(ByteStreams.toByteArray(request.getInputStream())));
                 httpServletResponse.getWriter().write(respones.remove(0));
                 httpServletResponse.setStatus(codes.remove(0));
                 request.setHandled(true);

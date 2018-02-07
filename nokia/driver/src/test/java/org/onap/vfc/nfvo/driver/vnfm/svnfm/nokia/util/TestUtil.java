@@ -16,7 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.ByteStreams;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -47,7 +47,7 @@ public class TestUtil {
     public static byte[] loadFile(String url) {
         try {
             InputStream stream = SystemFunctions.class.getClassLoader().getResourceAsStream(url);
-            byte[] bytes = IOUtils.toByteArray(stream);
+            byte[] bytes = ByteStreams.toByteArray(stream);
             return bytes;
         } catch (Exception e) {
             throw new RuntimeException("Unable to load " + url, e);

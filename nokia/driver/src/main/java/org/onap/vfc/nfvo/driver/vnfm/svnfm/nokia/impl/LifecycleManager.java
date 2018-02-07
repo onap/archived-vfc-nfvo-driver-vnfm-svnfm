@@ -24,7 +24,6 @@ import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
 import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.ScaleDirection;
-import org.apache.commons.lang.StringUtils;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.ILifecycleChangeNotificationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
@@ -60,6 +59,7 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.rest.CbamRestApiProvider
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * Responsible for executing lifecycle operation on the VNF
@@ -169,7 +169,7 @@ public class LifecycleManager {
                     instantiationRequest.addExtVirtualLinksItem(extVirtualLinkData);
                 }
                 JsonObject root = new Gson().toJsonTree(jobInfo).getAsJsonObject();
-                if (additionalParams.getAdditionalParams() != null && !StringUtils.isEmpty(additionalParams.getAdditionalParams().toString())) {
+                if (additionalParams.getAdditionalParams() != null && !isEmpty(additionalParams.getAdditionalParams().toString())) {
                     for (Map.Entry<String, JsonElement> item : new Gson().toJsonTree(additionalParams.getAdditionalParams()).getAsJsonObject().entrySet()) {
                         root.add(item.getKey(), item.getValue());
                     }
@@ -269,7 +269,7 @@ public class LifecycleManager {
         accessInfov3.setUsername(vimInfo.getUserName());
         EndpointInfo interfaceInfoV3 = new EndpointInfo();
         interfaceInfoV3.setEndpoint(vimInfo.getUrl());
-        if (!StringUtils.isEmpty(vimInfo.getSslInsecure())) {
+        if (!isEmpty(vimInfo.getSslInsecure())) {
             interfaceInfoV3.setSkipCertificateVerification(Boolean.parseBoolean(vimInfo.getSslInsecure()));
             interfaceInfoV3.setSkipCertificateHostnameCheck(Boolean.parseBoolean(vimInfo.getSslInsecure()));
         }
@@ -293,7 +293,7 @@ public class LifecycleManager {
         accessInfo.setUsername(vimInfo.getUserName());
         accessInfo.setRegion(getRegionName(vimId));
         EndpointInfo interfaceEndpoint = new EndpointInfo();
-        if (!StringUtils.isEmpty(vimInfo.getSslInsecure())) {
+        if (!isEmpty(vimInfo.getSslInsecure())) {
             interfaceEndpoint.setSkipCertificateHostnameCheck(Boolean.parseBoolean(vimInfo.getSslInsecure()));
             interfaceEndpoint.setSkipCertificateVerification(Boolean.parseBoolean(vimInfo.getSslInsecure()));
         }
@@ -317,7 +317,7 @@ public class LifecycleManager {
         accessInfo.setUsername(vimInfo.getUserName());
         accessInfo.setOrganization(getRegionName(vimId));
         EndpointInfo interfaceEndpoint = new EndpointInfo();
-        if (!StringUtils.isEmpty(vimInfo.getSslInsecure())) {
+        if (!isEmpty(vimInfo.getSslInsecure())) {
             interfaceEndpoint.setSkipCertificateHostnameCheck(Boolean.parseBoolean(vimInfo.getSslInsecure()));
             interfaceEndpoint.setSkipCertificateVerification(Boolean.parseBoolean(vimInfo.getSslInsecure()));
         }

@@ -16,13 +16,12 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.impl;
 
-import com.google.common.base.Predicate;
 import com.google.common.io.ByteStreams;
 import com.nokia.cbam.catalog.v1.api.DefaultApi;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -41,13 +40,11 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc.VfcRestApiProvider;
 import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vnfmdriver.api.NslcmApi;
-import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -158,22 +155,16 @@ public class TestBase {
     }
 
     protected void setFieldWithPropertyAnnotation(Object obj, String key, String value) {
-        for (Field field : ReflectionUtils.getAllFields(obj.getClass(), new Predicate<Field>() {
-            @Override
-            public boolean apply(@Nullable Field field) {
-                for (Value value : field.getAnnotationsByType(Value.class)) {
-                    if (value.value().equals(key)) {
-                        return true;
+        for (Field field : obj.getClass().getDeclaredFields()) {
+            for (Value fieldValue : field.getAnnotationsByType(Value.class)) {
+                if (fieldValue.value().equals(key)) {
+                    try {
+                        field.setAccessible(true);
+                        field.set(obj, value);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
                     }
                 }
-                return false;
-            }
-        })) {
-            try {
-                field.setAccessible(true);
-                field.set(obj, value);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
             }
         }
     }

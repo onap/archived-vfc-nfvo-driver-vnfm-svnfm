@@ -15,9 +15,9 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vfc;
 
+import com.google.common.io.ByteStreams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -100,7 +100,7 @@ public class VfcPackageProvider implements IPackageProvider {
         HttpEntity entity = response.getEntity();
         InputStream is = entity.getContent();
         ByteArrayOutputStream cbamInZip = new ByteArrayOutputStream();
-        byte[] bytes = IOUtils.toByteArray(is);
+        byte[] bytes = ByteStreams.toByteArray(is);
         client.close();
         return bytes;
     }
