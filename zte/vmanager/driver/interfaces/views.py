@@ -24,7 +24,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer
+from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -393,48 +393,53 @@ def notify(request, *args, **kwargs):
     return Response(data=None, status=ret[2])
 
 
-@api_view(http_method_names=['POST'])
-def scale(request, *args, **kwargs):
-    logger.info("====scale_vnf===")
-    try:
-        logger.info("request.data = %s", request.data)
-        logger.info("requested_url = %s", request.get_full_path())
-        vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        nf_instance_id = ignorcase_get(kwargs, "vnfInstanceId")
-        ret = get_vnfminfo_from_nslcm(vnfm_id)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        vnfm_info = json.JSONDecoder().decode(ret[1])
-        scale_type = ignorcase_get(request.data, "type")
-        aspect_id = ignorcase_get(request.data, "aspectId")
-        number_of_steps = ignorcase_get(request.data, "numberOfSteps")
-        data = {
-            'vnfmid': vnfm_id,
-            'nfvoid': 1,
-            'scaletype': '0' if scale_type == 'SCALE_OUT' else '1',
-            'vmlist': [{'VMNumber': number_of_steps, 'VMFlavor': aspect_id}],
-            'extension': ''
+class Scale(APIView):
+    @swagger_auto_schema(
+        request_body=ScaleReqSerializer(),
+        responses={
+            status.HTTP_202_ACCEPTED: InstScaleHealRespSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
         }
+    )
+    def post(self, request, vnfmid, vnfInstanceId):
+        logger.info("====scale_vnf===")
+        try:
+            logger.info("request.data = %s", request.data)
+            logger.info("requested_url = %s", request.get_full_path())
+            ret = get_vnfminfo_from_nslcm(vnfmid)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            vnfm_info = json.JSONDecoder().decode(ret[1])
+            scale_type = ignorcase_get(request.data, "type")
+            aspect_id = ignorcase_get(request.data, "aspectId")
+            number_of_steps = ignorcase_get(request.data, "numberOfSteps")
+            data = {
+                'vnfmid': vnfmid,
+                'nfvoid': 1,
+                'scaletype': '0' if scale_type == 'SCALE_OUT' else '1',
+                'vmlist': [{'VMNumber': number_of_steps, 'VMFlavor': aspect_id}],
+                'extension': ''
+            }
 
-        logger.info("data = %s", data)
-        ret = restcall.call_req(
-            base_url=ignorcase_get(vnfm_info, "url"),
-            user=ignorcase_get(vnfm_info, "userName"),
-            passwd=ignorcase_get(vnfm_info, "password"),
-            auth_type=restcall.rest_no_auth,
-            resource='/v1/vnfs/{vnfInstanceID}/scale'.format(vnfInstanceID=nf_instance_id),
-            method='put',  # POST
-            content=json.JSONEncoder().encode(data))
-        logger.info("ret=%s", ret)
-        if ret[0] != 0:
-            return Response(data={'error': 'scale error'}, status=ret[2])
-        resp_data = json.JSONDecoder().decode(ret[1])
-        logger.info("resp_data=%s", resp_data)
-    except Exception as e:
-        logger.error("Error occurred when scaling VNF,error:%s", e.message)
-        logger.error(traceback.format_exc())
-        return Response(data={'error': 'scale expection'}, status='500')
-    return Response(data=resp_data, status=ret[2])
+            logger.info("data = %s", data)
+            ret = restcall.call_req(
+                base_url=ignorcase_get(vnfm_info, "url"),
+                user=ignorcase_get(vnfm_info, "userName"),
+                passwd=ignorcase_get(vnfm_info, "password"),
+                auth_type=restcall.rest_no_auth,
+                resource='/v1/vnfs/{vnfInstanceID}/scale'.format(vnfInstanceID=vnfInstanceId),
+                method='put',  # POST
+                content=json.JSONEncoder().encode(data))
+            logger.info("ret=%s", ret)
+            if ret[0] != 0:
+                return Response(data={'error': 'scale error'}, status=ret[2])
+            resp_data = json.JSONDecoder().decode(ret[1])
+            logger.info("resp_data=%s", resp_data)
+            return Response(data=resp_data, status=status.HTTP_202_ACCEPTED)
+        except Exception as e:
+            logger.error("Error occurred when scaling VNF,error:%s", e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'scale expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class Heal(APIView):

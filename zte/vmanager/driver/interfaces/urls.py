@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^api/ztevnfmdriver/v1/resource/grant$', views.grantvnf, name='grantvnf'),
     url(r'^api/ztevnfmdriver/v1/vnfs/lifecyclechangesnotification$', views.notify, name='notify'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/scale$',
-        views.scale, name='scale'),
+        views.Scale.as_view(), name='scale'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/heal$',
         views.Heal.as_view(), name='heal'),
     url(r'^samples/$', views.samples, name='samples')
