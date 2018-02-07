@@ -25,7 +25,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
-    NotifyReqSerializer
+    NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -257,58 +257,53 @@ def operation_status(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-@api_view(http_method_names=['PUT'])
-def grantvnf(request, *args, **kwargs):
-    logger.info("=====grantvnf=====")
-    try:
-        logger.info("req_data = %s", request.data)
-        grant_vnf_param_map = {
-            "VNFMID": "",
-            "NFVOID": "",
-            "VIMID": "",
-            "ExVIMIDList": "",
-            "ExVIMID": "",
-            "Tenant": "",
-            "VNFInstanceID": "vnfInstanceId",
-            "OperationRight": "",
-            "VMList": "",
-            "VMFlavor": "",
-            "VMNumber": ""
+class GrantVnf(APIView):
+    @swagger_auto_schema(
+        request_body=GrantReqSerializer(),
+        responses={
+            status.HTTP_201_CREATED: GrantRespSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: 'Internal error'
         }
-        data = mapping_conv(grant_vnf_param_map, request.data)
-        data["vnfDescriptorId"] = ""
-        if ignorcase_get(request.data, "operationright") == 0:
-            data["lifecycleOperation"] = "Instantiate"
-            data["addresource"] = []
-            for vm in ignorcase_get(request.data, "vmlist"):
-                for i in range(int(ignorcase_get(vm, "vmnumber"))):
-                    data["addresource"].append(
-                        {
-                            "type": "vdu",
-                            "resourceDefinitionId": i,
-                            "vdu": ignorcase_get(vm, "vmflavor"),
-                            "vimid": ignorcase_get(vm, "vimid"),
-                            "tenant": ignorcase_get(vm, "tenant")})
+    )
+    def put(self, request):
+        logger.info("=====GrantVnf=====")
+        try:
+            logger.info("req_data = %s", request.data)
+            data = {}
+            data["vnfInstanceId"] = ignorcase_get(request.data, "vnfistanceid")
+            data["vnfDescriptorId"] = ""
+            if ignorcase_get(request.data, "operationright") == 0:
+                data["lifecycleOperation"] = "Instantiate"
+                data["addresource"] = []
+                for vm in ignorcase_get(request.data, "vmlist"):
+                    for i in range(int(ignorcase_get(vm, "vmnumber"))):
+                        data["addresource"].append(
+                            {
+                                "type": "vdu",
+                                "resourceDefinitionId": i,
+                                "vdu": ignorcase_get(vm, "vmflavor"),
+                                "vimid": ignorcase_get(vm, "vimid"),
+                                "tenant": ignorcase_get(vm, "tenant")})
 
-        data["additionalparam"] = {}
-        data["additionalparam"]["vnfmid"] = ignorcase_get(request.data, "vnfmid")
-        data["additionalparam"]["vimid"] = ignorcase_get(request.data, "vimid")
-        data["additionalparam"]["tenant"] = ignorcase_get(request.data, "tenant")
+            data["additionalparam"] = {}
+            data["additionalparam"]["vnfmid"] = ignorcase_get(request.data, "vnfmid")
+            data["additionalparam"]["vimid"] = ignorcase_get(request.data, "vimid")
+            data["additionalparam"]["tenant"] = ignorcase_get(request.data, "tenant")
 
-        ret = req_by_msb('api/nslcm/v1/ns/grantvnf', "POST", content=json.JSONEncoder().encode(data))
-        logger.info("ret = %s", ret)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        resp = json.JSONDecoder().decode(ret[1])
-        resp_data = {
-            'vimid': ignorcase_get(resp['vim'], 'vimid'),
-            'tenant': ignorcase_get(ignorcase_get(resp['vim'], 'accessinfo'), 'tenant')
-        }
-        logger.info("[%s]resp_data=%s", fun_name(), resp_data)
-    except Exception as e:
-        logger.error("Error occurred in Grant VNF.")
-        raise e
-    return Response(data=resp_data, status=ret[2])
+            ret = req_by_msb('api/nslcm/v1/ns/grantvnf', "POST", content=json.JSONEncoder().encode(data))
+            logger.info("ret = %s", ret)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            resp = json.JSONDecoder().decode(ret[1])
+            resp_data = {
+                'vimid': ignorcase_get(resp['vim'], 'vimid'),
+                'tenant': ignorcase_get(ignorcase_get(resp['vim'], 'accessinfo'), 'tenant')
+            }
+            logger.info("[%s]resp_data=%s", fun_name(), resp_data)
+            return Response(data=resp_data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error("Error occurred in Grant VNF.")
+            raise e
 
 
 class Notify(APIView):

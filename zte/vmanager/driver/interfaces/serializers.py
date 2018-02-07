@@ -79,6 +79,19 @@ class GrantReqSerializer(serializers.Serializer):
         required=False)
 
 
+class GrantRespSerializer(serializers.Serializer):
+    vimid = serializers.CharField(
+        help_text="vimid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    tenant = serializers.CharField(
+        help_text="tenant",
+        max_length=255,
+        required=True,
+        allow_null=True)
+
+
 class VMIDlistSerializer(serializers.Serializer):
     VMID = serializers.CharField(
         help_text="VMID",
