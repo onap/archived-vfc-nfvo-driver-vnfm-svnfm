@@ -89,6 +89,19 @@ class NotifyReqSerializer(serializers.Serializer):
         required=False,
         allow_null=True)
     vmlist = VmlistSerializer(help_text='vmlist', required=False, many=True)
+    extension = serializers.DictField(
+        help_text="extension",
+        child=serializers.DictField(allow_null=True),
+        required=False,
+        allow_null=True)
+    affectedcp = serializers.ListSerializer(
+        help_text='affectedcp',
+        child=serializers.DictField(allow_null=True),
+        required=False)
+    affectedvirtuallink = serializers.ListSerializer(
+        help_text='affectedvirtuallink',
+        child=serializers.DictField(allow_null=True),
+        required=False)
 
 
 class ScaleReqSerializer(serializers.Serializer):

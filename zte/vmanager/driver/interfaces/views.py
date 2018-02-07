@@ -24,7 +24,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer
+from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
+    NotifyReqSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -310,87 +311,90 @@ def grantvnf(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-@api_view(http_method_names=['POST'])
-def notify(request, *args, **kwargs):
-    try:
-        logger.info("[%s]req_data = %s", fun_name(), request.data)
-        notify_param_map = {
-            "NFVOID": "",
-            "VNFMID": "VNFMID",
-            "VIMID": "vimid",
-            "VNFInstanceID": "vnfInstanceId",
-            "TimeStamp": "",
-            "EventType": "operation",
-            "VMList": "",
-            "VMFlavor": "",
-            "VMNumber": "",
-            "VMIDlist": "",
-            "VMUUID": ""
-        }
-        data = mapping_conv(notify_param_map, request.data)
-        logger.info("[%s]data = %s", fun_name(), data)
+class Notify(APIView):
+    @swagger_auto_schema(
+        request_body=NotifyReqSerializer()
+    )
+    def post(self, request):
+        try:
+            logger.info("[%s]req_data = %s", fun_name(), request.data)
+            notify_param_map = {
+                "NFVOID": "",
+                "VNFMID": "VNFMID",
+                "VIMID": "vimid",
+                "VNFInstanceID": "vnfInstanceId",
+                "TimeStamp": "",
+                "EventType": "operation",
+                "VMList": "",
+                "VMFlavor": "",
+                "VMNumber": "",
+                "VMIDlist": "",
+                "VMUUID": ""
+            }
+            data = mapping_conv(notify_param_map, request.data)
+            logger.info("[%s]data = %s", fun_name(), data)
 
-        data["status"] = "result"
-        data["jobId"] = "notMust"
-        data["affectedVnfc"] = []
-        data["affectedVl"] = []
-        data["affectedVirtualStorage"] = []
-        data["affectedCp"] = []
+            data["status"] = "result"
+            data["jobId"] = "notMust"
+            data["affectedVnfc"] = []
+            data["affectedVl"] = []
+            data["affectedVirtualStorage"] = []
+            data["affectedCp"] = []
 
-        extension = ignorcase_get(request.data, "extension")
-        openo_notification = ignorcase_get(extension, "openo_notification")
-        if openo_notification:
-            affectedvnfcs = ignorcase_get(openo_notification, "affectedVnfc")
-            affectedvls = ignorcase_get(openo_notification, "affectedvirtuallink")
-            affectedcps = ignorcase_get(openo_notification, "affectedCp")
-            vnfdmodule = ignorcase_get(openo_notification, "vnfdmodule")
-        else:
-            affectedvnfcs = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvnfc")
-            affectedvls = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvl")
-            affectedcps = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedcp")
-            vnfdmodule = ignorcase_get(ignorcase_get(request.data, "extension"), "vnfdmodule")
+            extension = ignorcase_get(request.data, "extension")
+            openo_notification = ignorcase_get(extension, "openo_notification")
+            if openo_notification:
+                affectedvnfcs = ignorcase_get(openo_notification, "affectedVnfc")
+                affectedvls = ignorcase_get(openo_notification, "affectedvirtuallink")
+                affectedcps = ignorcase_get(openo_notification, "affectedCp")
+                vnfdmodule = ignorcase_get(openo_notification, "vnfdmodule")
+            else:
+                affectedvnfcs = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvnfc")
+                affectedvls = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvl")
+                affectedcps = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedcp")
+                vnfdmodule = ignorcase_get(ignorcase_get(request.data, "extension"), "vnfdmodule")
 
-        data["vnfdmodule"] = vnfdmodule
+            data["vnfdmodule"] = vnfdmodule
 
-        for affectedvnfc in affectedvnfcs:
-            data["affectedVnfc"].append({
-                "vnfcInstanceId": ignorcase_get(affectedvnfc, "vnfcInstanceId"),
-                "vduId": ignorcase_get(affectedvnfc, "vduId"),
-                "changeType": ignorcase_get(affectedvnfc, "changeType"),
-                "vimId": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "vimId"),
-                "vmId": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "resourceId"),
-                "vmName": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "resourceName")
-            })
+            for affectedvnfc in affectedvnfcs:
+                data["affectedVnfc"].append({
+                    "vnfcInstanceId": ignorcase_get(affectedvnfc, "vnfcInstanceId"),
+                    "vduId": ignorcase_get(affectedvnfc, "vduId"),
+                    "changeType": ignorcase_get(affectedvnfc, "changeType"),
+                    "vimId": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "vimId"),
+                    "vmId": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "resourceId"),
+                    "vmName": ignorcase_get(ignorcase_get(affectedvnfc, "computeResource"), "resourceName")
+                })
 
-        for affectedvl in affectedvls:
-            data["affectedVl"].append({
-                "vlInstanceId": ignorcase_get(affectedvl, "virtualLinkInstanceId"),
-                "changeType": ignorcase_get(affectedvl, "changeType"),
-                "vimId": ignorcase_get(ignorcase_get(affectedvl, "networkResource"), "vimId"),
-                "vldId": ignorcase_get(affectedvl, "virtuallinkdescid"),
-                "networkResource": {
-                    "resourceType": "network",
-                    "resourceId": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "resourceid"),
-                    "resourceName": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "resourcename")
-                }
-            })
+            for affectedvl in affectedvls:
+                data["affectedVl"].append({
+                    "vlInstanceId": ignorcase_get(affectedvl, "virtualLinkInstanceId"),
+                    "changeType": ignorcase_get(affectedvl, "changeType"),
+                    "vimId": ignorcase_get(ignorcase_get(affectedvl, "networkResource"), "vimId"),
+                    "vldId": ignorcase_get(affectedvl, "virtuallinkdescid"),
+                    "networkResource": {
+                        "resourceType": "network",
+                        "resourceId": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "resourceid"),
+                        "resourceName": ignorcase_get(ignorcase_get(affectedvl, "networkresource"), "resourcename")
+                    }
+                })
 
-        for affectedcp in affectedcps:
-            data["affectedCp"].append(affectedcp)
+            for affectedcp in affectedcps:
+                data["affectedCp"].append(affectedcp)
 
-        notify_url = 'api/nslcm/v1/ns/{vnfmid}/vnfs/{vnfInstanceId}/Notify'
-        ret = req_by_msb(notify_url.format(vnfmid=ignorcase_get(data, 'VNFMID'),
-                                           vnfInstanceId=ignorcase_get(data, 'vnfinstanceid')),
-                         "POST", content=json.JSONEncoder().encode(data))
+            notify_url = 'api/nslcm/v1/ns/{vnfmid}/vnfs/{vnfInstanceId}/Notify'
+            ret = req_by_msb(notify_url.format(vnfmid=ignorcase_get(data, 'VNFMID'),
+                                               vnfInstanceId=ignorcase_get(data, 'vnfinstanceid')),
+                             "POST", content=json.JSONEncoder().encode(data))
 
-        logger.info("[%s]data = %s", fun_name(), ret)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-    except Exception as e:
-        logger.error("Error occurred in LCM notification.")
-        logger.error(traceback.format_exc())
-        raise e
-    return Response(data=None, status=ret[2])
+            logger.info("[%s]data = %s", fun_name(), ret)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            return Response(data=None, status=ret[2])
+        except Exception as e:
+            logger.error("Error occurred in LCM notification.")
+            logger.error(traceback.format_exc())
+            raise e
 
 
 class Scale(APIView):
