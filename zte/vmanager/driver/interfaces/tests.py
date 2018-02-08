@@ -229,33 +229,32 @@ class InterfacesTest(TestCase):
             "description": ""
         }
         resp_body = {
-            "responsedescriptor": {
+            "responseDescriptor": {
                 "status": "processing",
-                "responsehistorylist": [
+                "responseHistoryList": [
                     {
                         "status": "error",
                         "progress": 255,
-                        "errorcode": "",
-                        "responseid": 20,
-                        "statusdescription": "'JsonParser' object has no attribute 'parser_info'"}],
-                "responseid": 21,
-                "errorcode": "",
+                        "errorCode": "",
+                        "responseId": 20,
+                        "statusDescription": "'JsonParser' object has no attribute 'parser_info'"}],
+                "responseId": 21,
+                "errorCode": "",
                 "progress": 40,
-                "statusdescription": "Create nf apply resource failed"},
-            "jobid": "NF-CREATE-11-ec6c2f2a-9f48-11e6-9405-fa163e91c2f9"}
+                "statusDescription": "Create nf apply resource failed"},
+            "jobId": "NF-CREATE-11-ec6c2f2a-9f48-11e6-9405-fa163e91c2f9"}
         r1 = [0, json.JSONEncoder().encode(vnfm_info), '200']
         r2 = [0, json.JSONEncoder().encode(resp_body), '200']
         mock_call_req.side_effect = [r1, r2]
         response = self.client.get(
             "/api/ztevnfmdriver/v1/{vnfmid}/jobs/{jobid}?responseId={responseId}".format(
                 vnfmid=vnfm_info["vnfmId"],
-                jobid=resp_body["jobid"],
-                responseId=resp_body["responsedescriptor"]["responseid"]))
+                jobid=resp_body["jobId"],
+                responseId=resp_body["responseDescriptor"]["responseId"]))
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-        expect_resp_data = resp_body
-        self.assertDictEqual(expect_resp_data, response.data)
+        self.assertDictEqual(resp_body, response.data)
 
     @mock.patch.object(restcall, 'call_req')
     def test_grantvnf_005(self, mock_call_req):

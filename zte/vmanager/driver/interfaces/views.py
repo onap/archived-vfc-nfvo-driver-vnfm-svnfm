@@ -236,25 +236,32 @@ class JobView(APIView):
             logger.debug("[%s] request.data=%s", fun_name(), request.data)
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             vnfm_info = json.JSONDecoder().decode(ret[1])
             logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
             operation_status_url = '/v1/jobs/{jobId}?NFVOID={nfvoId}&VNFMID={vnfmId}&ResponseID={responseId}'
+            responseId = ignorcase_get(request.GET, 'responseId')
+            query_url = operation_status_url.format(jobId=jobid, nfvoId=1, vnfmId=vnfmid, responseId=responseId)
             ret = restcall.call_req(
                 base_url=ignorcase_get(vnfm_info, 'url'),
                 user=ignorcase_get(vnfm_info, 'userName'),
                 passwd=ignorcase_get(vnfm_info, 'password'),
                 auth_type=restcall.rest_no_auth,
-                resource=operation_status_url.format(jobId=jobid, nfvoId=1, vnfmId=vnfmid,
-                                                     responseId=ignorcase_get(request.GET, 'responseId')),
+                resource=query_url,
                 method='get',
                 content={})
 
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             resp_data = json.JSONDecoder().decode(ret[1])
             logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-            return Response(data=resp_data, status=ret[2])
+            jobQueryRespSerializer = JobQueryRespSerializer(data=resp_data)
+            if not jobQueryRespSerializer.is_valid():
+                raise Exception(jobQueryRespSerializer.errors)
+
+            return Response(data=jobQueryRespSerializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when getting operation status information,error:%s", e.message)
             logger.error(traceback.format_exc())

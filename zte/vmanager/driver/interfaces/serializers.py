@@ -20,7 +20,7 @@ class JobHistorySerializer(serializers.Serializer):
         help_text="Status of job",
         required=True,
         allow_null=False)
-    progress = serializers.CharField(
+    progress = serializers.IntegerField(
         help_text="Progress of job",
         required=True,
         allow_null=False)
@@ -31,8 +31,8 @@ class JobHistorySerializer(serializers.Serializer):
     errorCode = serializers.CharField(
         help_text="Error code of job",
         required=False,
-        allow_null=True)
-    responseId = serializers.CharField(
+        allow_blank=True)
+    responseId = serializers.IntegerField(
         help_text="Response index of job",
         required=True,
         allow_null=False)
@@ -43,7 +43,7 @@ class JobDescriptorSerializer(serializers.Serializer):
         help_text="Status of job",
         required=True,
         allow_null=False)
-    progress = serializers.CharField(
+    progress = serializers.IntegerField(
         help_text="Progress of job",
         required=True,
         allow_null=False)
@@ -54,8 +54,8 @@ class JobDescriptorSerializer(serializers.Serializer):
     errorCode = serializers.CharField(
         help_text="Error code of job",
         required=False,
-        allow_null=True)
-    responseId = serializers.CharField(
+        allow_blank=True)
+    responseId = serializers.IntegerField(
         help_text="Response index of job",
         required=True,
         allow_null=False)
