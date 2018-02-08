@@ -25,7 +25,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
-    NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer
+    NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -224,37 +224,41 @@ def query_vnf(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-@api_view(http_method_names=['GET'])
-def operation_status(request, *args, **kwargs):
-    data = {}
-    try:
-        logger.debug("[%s] request.data=%s", fun_name(), request.data)
-        vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        ret = get_vnfminfo_from_nslcm(vnfm_id)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        vnfm_info = json.JSONDecoder().decode(ret[1])
-        logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
-        operation_status_url = '/v1/jobs/{jobId}?NFVOID={nfvoId}&VNFMID={vnfmId}&ResponseID={responseId}'
-        ret = restcall.call_req(
-            base_url=ignorcase_get(vnfm_info, 'url'),
-            user=ignorcase_get(vnfm_info, 'userName'),
-            passwd=ignorcase_get(vnfm_info, 'password'),
-            auth_type=restcall.rest_no_auth,
-            resource=operation_status_url.format(jobId=ignorcase_get(kwargs, 'jobid'), nfvoId=1,
-                                                 vnfmId=ignorcase_get(kwargs, 'vnfmid'),
-                                                 responseId=ignorcase_get(request.GET, 'responseId')),
-            method='get',
-            content=json.JSONEncoder().encode(data))
+class JobView(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: JobQueryRespSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
+    def get(self, request, vnfmid, jobid):
+        try:
+            logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            ret = get_vnfminfo_from_nslcm(vnfmid)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            vnfm_info = json.JSONDecoder().decode(ret[1])
+            logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+            operation_status_url = '/v1/jobs/{jobId}?NFVOID={nfvoId}&VNFMID={vnfmId}&ResponseID={responseId}'
+            ret = restcall.call_req(
+                base_url=ignorcase_get(vnfm_info, 'url'),
+                user=ignorcase_get(vnfm_info, 'userName'),
+                passwd=ignorcase_get(vnfm_info, 'password'),
+                auth_type=restcall.rest_no_auth,
+                resource=operation_status_url.format(jobId=jobid, nfvoId=1, vnfmId=vnfmid,
+                                                     responseId=ignorcase_get(request.GET, 'responseId')),
+                method='get',
+                content={})
 
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        resp_data = json.JSONDecoder().decode(ret[1])
-        logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-    except Exception as e:
-        logger.error("Error occurred when getting operation status information.")
-        raise e
-    return Response(data=resp_data, status=ret[2])
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            resp_data = json.JSONDecoder().decode(ret[1])
+            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
+            return Response(data=resp_data, status=ret[2])
+        except Exception as e:
+            logger.error("Error occurred when getting operation status information,error:%s", e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'QueryJob expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class GrantVnf(APIView):
