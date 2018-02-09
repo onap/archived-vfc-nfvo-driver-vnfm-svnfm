@@ -18,6 +18,7 @@ import logging
 import os
 import traceback
 
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -226,6 +227,13 @@ def query_vnf(request, *args, **kwargs):
 
 class JobView(APIView):
     @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('responseId',
+                              openapi.IN_QUERY,
+                              "responseId",
+                              type=openapi.TYPE_INTEGER
+                              ),
+        ],
         responses={
             status.HTTP_200_OK: JobQueryRespSerializer(),
             status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
