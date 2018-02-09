@@ -190,10 +190,11 @@ class NotifyVmlistSerializer(serializers.Serializer):
         max_length=255,
         required=False,
         allow_null=True)
-    VMIDlist = VMIDlistSerializer(
+    VMIDlist = serializers.ListSerializer(
         help_text='VMIDlist',
+        child=VMIDlistSerializer(help_text='VMIDlist', required=True, allow_null=True),
         required=False,
-        many=True)
+        allow_null=True)
 
 
 class NotifyReqSerializer(serializers.Serializer):
@@ -318,10 +319,11 @@ class HealReqSerializer(serializers.Serializer):
         max_length=255,
         required=False,
         allow_null=True)
-    affectedvm = AffectedvmSerializer(
+    affectedvm = serializers.ListSerializer(
         help_text='affectedvm',
+        child=AffectedvmSerializer(help_text='affectedvm', required=True, allow_null=True),
         required=True,
-        many=True)
+        allow_null=True)
 
 
 class InstScaleHealRespSerializer(serializers.Serializer):
