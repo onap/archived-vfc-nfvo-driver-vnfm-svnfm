@@ -16,7 +16,6 @@ import os
 import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from driver.pub.config import config
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -65,28 +64,14 @@ WSGI_APPLICATION = 'driver.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',),
+        'rest_framework.renderers.JSONRenderer',
+    ),
 
     'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.MultiPartParser',
-        'rest_framework.parsers.JSONParser')}
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'vmanager',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD':'password',
-    },
+    )
 }
-
-redis_client = redis.StrictRedis(host='127.0.0.1', port=6379, password='', db=1)
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), }}
 
 # drf-yasg
 TEMPLATES = [
@@ -112,6 +97,13 @@ SWAGGER_SETTINGS = {
     'DEFAULT_INFO': 'driver.swagger.urls.swagger_info'
 }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    },
+}
+
 TIME_ZONE = 'UTC'
 
 # Static files (CSS, JavaScript, Images)
@@ -127,7 +119,8 @@ LOGGING = {
             'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
         },
     },
-    'filters': {},
+    'filters': {
+    },
     'handlers': {
         'driver_handler': {
             'level': 'DEBUG',
@@ -148,6 +141,7 @@ LOGGING = {
     }}
 
 if 'test' in sys.argv:
+    from driver.pub.config import config
     config.REG_TO_MSB_WHEN_START = False
     REST_FRAMEWORK = {}
     import platform
