@@ -174,9 +174,14 @@ class TerminateVnf(APIView):
     def post(self, request, vnfmid, vnfInstanceId):
         try:
             logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            terminate_vnf_request_serializer = TerminateVnfRequestSerializer(data=request.data)
+            if not terminate_vnf_request_serializer.is_valid():
+                raise Exception(terminate_vnf_request_serializer.errors)
+
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             vnfm_info = json.JSONDecoder().decode(ret[1])
             logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
             ret = restcall.call_req(
@@ -186,19 +191,24 @@ class TerminateVnf(APIView):
                 auth_type=restcall.rest_no_auth,
                 resource="v1/vnfs/%s" % vnfInstanceId,
                 method='delete',
-                content=json.JSONEncoder().encode(request.data))
+                content=json.JSONEncoder().encode(terminate_vnf_request_serializer.data))
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             resp = json.JSONDecoder().decode(ret[1])
             resp_data = {
                 "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
                 "jobId": ignorcase_get(resp, "JobId")
             }
             logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-            return Response(data=resp_data, status=status.HTTP_200_OK)
+            terminateRespSerializer = InstScaleHealRespSerializer(data=resp_data)
+            if not terminateRespSerializer.is_valid():
+                raise Exception(terminateRespSerializer.errors)
+            return Response(data=terminateRespSerializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error("Error occurred when terminating VNF")
-            raise e
+            logger.error("Error occurred when terminating VNF,error: %s", e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'TerminateVnf expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(http_method_names=['GET'])

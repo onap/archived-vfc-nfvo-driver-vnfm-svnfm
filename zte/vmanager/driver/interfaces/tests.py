@@ -174,12 +174,14 @@ class InterfacesTest(TestCase):
             "password": "admin",
             "createTime": "2016-07-06 15:33:18"}), "200"]
 
-        r2 = [0, json.JSONEncoder().encode(
-            {"vnfInstanceId": "1", "jobId": "1"}), "200"]
+        r2 = [0, json.JSONEncoder().encode({"vnfInstanceId": "1", "jobId": "1"}), "200"]
         mock_call_req.side_effect = [r1, r2]
-
+        req_data = {
+            "terminationType": "GRACEFUL",
+            "gracefulTerminationTimeout": 120
+        }
         response = self.client.post(
-            "/api/ztevnfmdriver/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate")
+            "/api/ztevnfmdriver/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate", data=req_data)
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         expect_resp_data = {"jobId": "1", "vnfInstanceId": "1"}
