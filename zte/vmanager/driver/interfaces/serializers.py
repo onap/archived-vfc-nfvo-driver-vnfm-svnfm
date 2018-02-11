@@ -15,6 +15,18 @@
 from rest_framework import serializers
 
 
+class TerminateVnfRequestSerializer(serializers.Serializer):
+    terminationType = serializers.CharField(
+        help_text="terminationType",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    gracefulTerminationTimeout = serializers.IntegerField(
+        help_text="gracefulTerminationTimeout",
+        default=120,
+        required=False)
+
+
 class JobHistorySerializer(serializers.Serializer):
     status = serializers.CharField(
         help_text="Status of job",
