@@ -26,7 +26,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
-    NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer
+    NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -163,36 +163,42 @@ def instantiate_vnf(request, *args, **kwargs):
     return Response(data=resp_data, status=ret[2])
 
 
-@api_view(http_method_names=['POST'])
-def terminate_vnf(request, *args, **kwargs):
-    try:
-        logger.debug("[%s] request.data=%s", fun_name(), request.data)
-        vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        ret = get_vnfminfo_from_nslcm(vnfm_id)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        vnfm_info = json.JSONDecoder().decode(ret[1])
-        logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
-        ret = restcall.call_req(
-            base_url=ignorcase_get(vnfm_info, "url"),
-            user=ignorcase_get(vnfm_info, "userName"),
-            passwd=ignorcase_get(vnfm_info, "password"),
-            auth_type=restcall.rest_no_auth,
-            resource="v1/vnfs/%s" % (ignorcase_get(kwargs, "vnfInstanceID")),
-            method='delete',
-            content=json.JSONEncoder().encode(request.data))
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        resp = json.JSONDecoder().decode(ret[1])
-        resp_data = {
-            "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
-            "jobId": ignorcase_get(resp, "JobId")
+class TerminateVnf(APIView):
+    @swagger_auto_schema(
+        request_body=TerminateVnfRequestSerializer(),
+        responses={
+            status.HTTP_200_OK: InstScaleHealRespSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
         }
-        logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-    except Exception as e:
-        logger.error("Error occurred when terminating VNF")
-        raise e
-    return Response(data=resp_data, status=ret[2])
+    )
+    def post(self, request, vnfmid, vnfInstanceId):
+        try:
+            logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            ret = get_vnfminfo_from_nslcm(vnfmid)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            vnfm_info = json.JSONDecoder().decode(ret[1])
+            logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+            ret = restcall.call_req(
+                base_url=ignorcase_get(vnfm_info, "url"),
+                user=ignorcase_get(vnfm_info, "userName"),
+                passwd=ignorcase_get(vnfm_info, "password"),
+                auth_type=restcall.rest_no_auth,
+                resource="v1/vnfs/%s" % vnfInstanceId,
+                method='delete',
+                content=json.JSONEncoder().encode(request.data))
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            resp = json.JSONDecoder().decode(ret[1])
+            resp_data = {
+                "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
+                "jobId": ignorcase_get(resp, "JobId")
+            }
+            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
+            return Response(data=resp_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error("Error occurred when terminating VNF")
+            raise e
 
 
 @api_view(http_method_names=['GET'])
