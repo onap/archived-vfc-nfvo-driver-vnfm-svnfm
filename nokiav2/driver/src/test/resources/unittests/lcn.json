@@ -1,0 +1,9 @@
+{
+  "status": "STARTED",
+  "vnfInstanceId": "CBAM-d59f413228af4a35b00eb168d636f567",
+  "timestamp": "2018-01-02T10:50:54.903260Z",
+  "notificationType": "VnfLifecycleChangeNotification",
+  "lifecycleOperationOccurrenceId": "CBAM-9b7dd0c2591d463b890021c38ead3f24",
+  "subscriptionId": "CBAM-1b89306bcd494879b7cb02369d2b2503",
+  "operation": "TERMINATE"
+}
