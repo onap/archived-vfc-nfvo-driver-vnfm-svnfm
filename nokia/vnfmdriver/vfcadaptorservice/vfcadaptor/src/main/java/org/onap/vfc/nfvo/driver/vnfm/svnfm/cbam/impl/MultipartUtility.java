@@ -43,7 +43,8 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.SslConfInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util.CommonUtil;
 
@@ -56,7 +57,7 @@ import com.google.gson.Gson;
  *
  */
 public class MultipartUtility {
-	private static final Logger logger = Logger.getLogger(MultipartUtility.class);
+	private static final Logger logger = LoggerFactory.getLogger(MultipartUtility.class);
     private final String boundary;
     private static final String LINE_FEED = "\r\n";
     private HttpsURLConnection httpConn;

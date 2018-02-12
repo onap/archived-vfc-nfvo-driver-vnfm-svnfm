@@ -18,10 +18,13 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.controller;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
@@ -36,6 +39,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.inf.VnfmDriverMgmrInf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -55,19 +59,24 @@ public class VnfmDriverController {
 	@Autowired
 	private VnfmDriverMgmrInf vnfmDriverMgmr;
 	
+	@Autowired
+	private CbamMgmrInf cbamMgmr;
+	
 	private Gson gson = new Gson();
 	
 	@RequestMapping(value = "/swagger.json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public String apidoc() throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
+//		String client = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRemoteAddr();
+		ClassLoader classLoader = getClass().getClassLoader();
         return IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
     }
 	
 	@RequestMapping(value = "/{vnfmId}/vnfs", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
+	@ResponseBody
     public InstantiateVnfResponse instantiateVnf(@RequestBody InstantiateVnfRequest request, @PathVariable("vnfmId") String vnfmId, HttpServletResponse httpResponse)
     {
+		MDC.put("MDCtest", "MDCtest_001");
 		String jsonString = gson.toJson(request);
 		logger.info("instantiateVnf request: vnfmId = " + vnfmId + ", bodyMessage is " + jsonString);
 		
@@ -185,6 +194,31 @@ public class VnfmDriverController {
 		}
 		
 		return null;
+    }
+	
+//	@RequestMapping(value = "/notifications", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+//	public CBAMVnfNotificationResponse notificationVnf(@RequestBody CBAMVnfNotificationRequest request, HttpServletResponse httpResponse) throws ClientProtocolException, Exception
+	@RequestMapping(value = "/notifications")
+//    @ResponseBody
+    public void notificationVnf(HttpServletRequest request, HttpServletResponse httpResponse) throws ClientProtocolException, Exception
+    {
+		
+//		String jsonString = gson.toJson(request);
+//		logger.info("notificationVnf request:  bodyMessage is " + jsonString);
+		logger.info("notificationVnf request:  bodyMessage is " + request.getMethod() + ",");
+		
+		try {
+//			CBAMVnfNotificationResponse response = cbamMgmr.getNotification(request);
+			httpResponse.setStatus(204);
+//			logger.info("cbamController --> notificationVnf response is " + gson.toJson(response));
+//			return response;
+		}
+		catch(VnfmDriverException e)
+		{
+			processControllerException(httpResponse, e);
+		}
+		
+//		return null;
     }
 
 	private void processControllerException(HttpServletResponse httpResponse, VnfmDriverException e) {

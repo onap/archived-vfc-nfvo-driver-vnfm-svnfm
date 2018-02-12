@@ -15,9 +15,6 @@
 */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
@@ -25,10 +22,12 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.OperationExecution.OperationType;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.OperStatusVnfResponse;
@@ -36,15 +35,19 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.QueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.ResponseDescriptor;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.entity.ResponseHistoryList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Cbam2DriverResponseConverter {
+	private static final Logger logger = LoggerFactory.getLogger(Cbam2DriverResponseConverter.class);
+	@Autowired
+	private VnfmJobExecutionMapper jobDbManager;
 
 	@Autowired
-	private VnfmJobExecutionRepository jobDbManager;
+	private AdaptorEnv adaptorEnv;
 
 	public InstantiateVnfResponse createRspConvert(CBAMCreateVnfResponse cbamResponse, Long jobId) {
 
@@ -61,7 +64,8 @@ public class Cbam2DriverResponseConverter {
 		jobInfo.setVnfmInterfceName(CommonConstants.NSLCM_OPERATION_TERMINATE);
 		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_START);
 
-		VnfmJobExecutionInfo jobInfo1 = (VnfmJobExecutionInfo) jobDbManager.save(jobInfo);
+		jobDbManager.insert(jobInfo);
+		VnfmJobExecutionInfo jobInfo1 = (VnfmJobExecutionInfo) jobDbManager.findNewestJobInfo();
 		Long jobId = jobInfo1.getJobId();
 		TerminateVnfResponse response = new TerminateVnfResponse();
 		response.setJobId(jobId.longValue() + "");
@@ -82,51 +86,37 @@ public class Cbam2DriverResponseConverter {
 		return vnf;
 	}
 
-	public OperStatusVnfResponse operRspConvert(OperationExecution oper) {
-
+	public OperStatusVnfResponse operRspConvert(OperationExecution oper, String jobId) {
 		OperStatusVnfResponse response = new OperStatusVnfResponse();
-
 		ResponseDescriptor er = new ResponseDescriptor();
-		if (oper.getStatus() == CommonEnum.OperationStatus.STARTED ) {
+		if (oper.getStatus() == CommonEnum.OperationStatus.STARTED) {
 			er.setStatusDescription("Vim is processing");
 			er.setStatus("started");
-			int progress;
-			if(OperationType.INSTANTIATE == oper.getOperationType())
-			{
-				progress = OperateTaskProgress.getInstantiateProgress();
-			} else {
-				progress = OperateTaskProgress.getTerminateProgress();
-			}
-			
+			int progress = calculateProgress(oper, jobId);
+
 			er.setProgress("" + progress);
-			er.setResponseId("" +  + progress);
+			er.setResponseId("" + +progress);
 		} else if (oper.getStatus() == CommonEnum.OperationStatus.FINISHED) {
 			er.setStatus("finished");
 			er.setProgress("100");
 			er.setResponseId("100");
-			
-		}  else if (oper.getStatus() == CommonEnum.OperationStatus.OTHER) {
+
+		} else if (oper.getStatus() == CommonEnum.OperationStatus.OTHER) {
 			er.setStatus("processing");
 			er.setStatusDescription("Vim is processing");
-			
-			int progress;
-			if(OperationType.INSTANTIATE == oper.getOperationType())
-			{
-				progress = OperateTaskProgress.getInstantiateProgress();
-			} else {
-				progress = OperateTaskProgress.getTerminateProgress();
-			}
-			
+
+			int progress = calculateProgress(oper, jobId);
+
 			er.setProgress("" + progress);
-			er.setResponseId("" +  + progress);
-			
+			er.setResponseId("" + +progress);
+
 		} else {
-			er.setStatus("error"); 
+			er.setStatus("error");
 			er.setStatus("finished");
 			er.setProgress("100");
 			er.setResponseId("100");
 		}
-		
+
 		er.setErrorCode("null");
 
 		response.setResponseDescriptor(er);
@@ -139,9 +129,47 @@ public class Cbam2DriverResponseConverter {
 		return response;
 	}
 
-	public ScaleVnfResponse scaleRspConvert(CBAMScaleVnfResponse cbamResponse) {
+	public ScaleVnfResponse scaleRspConvert(CBAMScaleVnfResponse cbamResponse,ScaleType type) {
+		VnfmJobExecutionInfo jobInfo = new VnfmJobExecutionInfo();
+		jobInfo.setVnfInstanceId(cbamResponse.getId());
+		if (type.equals(ScaleType.SCALE_OUT)) {
+			jobInfo.setVnfmInterfceName(CommonConstants.NSLCM_OPERATION_SCALE_OUT);
+		} else {
+			jobInfo.setVnfmInterfceName(CommonConstants.NSLCM_OPERATION_SCALE_IN);
+		}
+		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_START);
+
+		jobDbManager.insert(jobInfo);
+		VnfmJobExecutionInfo jobInfo1 = (VnfmJobExecutionInfo) jobDbManager.findNewestJobInfo();
+		Long jobId = jobInfo1.getJobId();
 		ScaleVnfResponse response = new ScaleVnfResponse();
-		response.setJobId("1");
+
+		response.setJobId(jobId.longValue() + "");
 		return response;
 	}
+
+	public int calculateProgress(OperationExecution oper, String jobId) {
+		long nowTime = System.currentTimeMillis();
+		VnfmJobExecutionInfo jobInfo = jobDbManager.findOne(Long.parseLong(jobId));
+		int initialProgress = adaptorEnv.getInitialProgress();
+
+		if (OperationType.INSTANTIATE == oper.getOperationType()) {
+			double instantiateProgress = (nowTime - jobInfo.getOperateStartTime())
+					/ adaptorEnv.getInstantiateTimeInterval();
+			initialProgress = (int) (instantiateProgress + initialProgress);
+		} else if (OperationType.TERMINATE == oper.getOperationType()) {
+			double terminateProgress = (nowTime - jobInfo.getOperateStartTime())
+					/ adaptorEnv.getTerminateTimeInterval();
+			initialProgress = (int) (terminateProgress + initialProgress);
+		} else {
+			initialProgress = 0;
+		}
+		return initialProgress;
+
+	}
+
+	public void setAdaptorEnv(AdaptorEnv adaptorEnv) {
+		this.adaptorEnv = adaptorEnv;
+	}
+
 }

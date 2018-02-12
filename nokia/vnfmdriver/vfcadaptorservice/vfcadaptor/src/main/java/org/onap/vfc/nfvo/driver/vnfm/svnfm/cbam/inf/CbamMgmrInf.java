@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfRequest;
@@ -34,6 +36,9 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfcResourceInfo;
 
 public interface CbamMgmrInf {
@@ -44,6 +49,12 @@ public interface CbamMgmrInf {
 	
 	public CBAMInstantiateVnfResponse instantiateVnf(CBAMInstantiateVnfRequest cbamRequest, String vnfInstanceId)
 			throws ClientProtocolException, IOException;
+	public CBAMCreateSubscriptionResponse createSubscription(CBAMCreateSubscriptionRequest subscriptionRequest)
+			throws ClientProtocolException, IOException;
+	public Subscription getSubscription(String subscriptionId)
+			throws ClientProtocolException, IOException;
+	public CBAMVnfNotificationResponse getNotification(CBAMVnfNotificationRequest getNotificationRequest)
+			throws ClientProtocolException, IOException;
 
 	public CBAMTerminateVnfResponse terminateVnf(CBAMTerminateVnfRequest cbamRequest, String vnfInstanceId)
 			throws ClientProtocolException, IOException;
@@ -52,7 +63,7 @@ public interface CbamMgmrInf {
 			throws ClientProtocolException, IOException;
 
 	public CBAMHealVnfResponse healVnf(CBAMHealVnfRequest cbamRequest, String vnfInstanceId)
-			throws ClientProtocolException, IOException;
+            throws ClientProtocolException, IOException;
 
 	public CBAMQueryVnfResponse queryVnf(String vnfInstanceId) throws ClientProtocolException, IOException;
 	

@@ -18,35 +18,41 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+//import javax.persistence.Column;
+//import javax.persistence.Entity;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.GenerationType;
+//import javax.persistence.Id;
+//import javax.persistence.Table;
 
 
-@Entity
-@Table(name = "vnfm_job_execution_info")
+//@Entity
+//@Table(name = "vnfm_job_execution_info")
 public class VnfmJobExecutionInfo implements Serializable {
 	private static final long serialVersionUID = -288015953900428312L;
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name = "job_id")
+//	@Id
+//	@GeneratedValue(strategy=GenerationType.AUTO)
+//	@Column(name = "job_id")
 	private long jobId;
 	
-	@Column(name = "vnfm_execution_id")
+//	@Column(name = "vnfm_execution_id")
 	private String vnfmExecutionId;
 	
-	@Column(name = "vnf_instance_id")
+//	@Column(name = "vnf_instance_id")
 	private String vnfInstanceId;
 	
-	@Column(name = "vnfm_interface_name")
+//	@Column(name = "vnfm_interface_name")
 	private String vnfmInterfceName;
 	
-	@Column(name = "status")
+//	@Column(name = "status")
 	private String status;
+	
+//	@Column(name = "operate_start_time")
+	private long operateStartTime;
+	
+//	@Column(name = "operate_end_time")
+	private long operateEndTime;
 
 	public long getJobId() {
 		return jobId;
@@ -88,6 +94,30 @@ public class VnfmJobExecutionInfo implements Serializable {
 		this.status = status;
 	}
 	
+	
+   
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	
+	public long getOperateStartTime() {
+		return operateStartTime;
+	}
+
+	public void setOperateStartTime(long operateStartTime) {
+		this.operateStartTime = operateStartTime;
+	}
+
+	public long getOperateEndTime() {
+		return operateEndTime;
+	}
+
+	public void setOperateEndTime(long operateEndTime) {
+		this.operateEndTime = operateEndTime;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -97,7 +127,9 @@ public class VnfmJobExecutionInfo implements Serializable {
 				+ ", vnfInstanceId = " + vnfInstanceId       
 				+ ", vnfmExecutionId = " + vnfmExecutionId        
 				+ ", vnfmInterfceName = " + vnfmInterfceName  
-				+ ", status = " + status   
+				+ ", status = " + status 
+				+ ", operateStartTime = "+ operateStartTime
+				+ ", operateEndTime = "+ operateEndTime
 				+ "]";
 	
 	}

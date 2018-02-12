@@ -23,8 +23,9 @@ import org.springframework.stereotype.Component;
 public class AdaptorEnv {
 	private String msbIp;
 	private int msbPort;
-	
-	// service name and version of MSB services AAI/LCM/Catalog configured in application.properties
+
+	// service name and version of MSB services AAI/LCM/Catalog configured in
+	// application.properties
 	@Value("${aaiServiceNameInMsb}")
 	private String aaiServiceNameInMsb;
 
@@ -43,30 +44,29 @@ public class AdaptorEnv {
 	@Value("${catalogVersionInMsb}")
 	private String catalogVersionInMsb;
 
-	//Following uriFront is from msb query
-	
+	// Following uriFront is from msb query
+
 	private String aaiUrlInMsb;
 	private String aaiApiUriFront;
-	
+
 	private String lcmUrlInMsb;
 	private String lcmApiUriFront;
-	
+
 	private String catalogUrlInMsb;
 	private String catalogApiUriFront;
-	
-	//cbamApiFront is from aai query
+
+	// cbamApiFront is from aai query
 	@Value("${cbamApiUriFront}")
 	private String cbamApiUriFront;
-	
+
 	@Value("${cbamUserName}")
 	private String cbamUserName;
-	
+
 	@Value("${cbamPassword}")
 	private String cbamPassword;
-	
-	
+
 	private String msbApiUriFront;
-	
+
 	// for retrieving token from CBAM, configured in application.properties
 	@Value("${grantType}")
 	private String grantType;
@@ -76,22 +76,36 @@ public class AdaptorEnv {
 
 	@Value("${clientSecret}")
 	private String clientSecret;
-	
+
 	// for granting
 	@Value("${type}")
 	private String type;
-	
+
 	@Value("${sizeOfStorage}")
 	private String sizeOfStorage;
-	
+
 	@Value("${virtualMemSize}")
 	private String virtualMemSize;
-	
+
 	@Value("${numVirtualCpu}")
 	private String numVirtualCpu;
-	
+
 	@Value("${vnfdId}")
 	private String vnfdId;
+
+	// for OperateTaskProcess
+	@Value("${initialProgress}")
+	private int initialProgress;
+	
+	@Value("${instantiateTimeInterval}")
+	private int instantiateTimeInterval;
+	
+	@Value("${terminateTimeInterval}")
+	private int terminateTimeInterval;
+	
+	//
+	@Value("${driverApiUriFront}")
+	private String driverApiUriFront;
 
 	public String getAaiServiceNameInMsb() {
 		return aaiServiceNameInMsb;
@@ -301,5 +315,39 @@ public class AdaptorEnv {
 		this.vnfdId = vnfdId;
 	}
 
+	public int getInitialProgress() {
+		return initialProgress;
+	}
 
+	public void setInitialProgress(int initialProgress) {
+		this.initialProgress = initialProgress;
+	}
+
+	public int getInstantiateTimeInterval() {
+		return instantiateTimeInterval;
+	}
+
+	public void setInstantiateTimeInterval(int instantiateTimeInterval) {
+		this.instantiateTimeInterval = instantiateTimeInterval;
+	}
+
+	public int getTerminateTimeInterval() {
+		return terminateTimeInterval;
+	}
+
+	public void setTerminateTimeInterval(int terminateTimeInterval) {
+		this.terminateTimeInterval = terminateTimeInterval;
+	}
+
+	public String getDriverApiUriFront() {
+		return driverApiUriFront;
+	}
+
+	public void setDriverApiUriFront(String driverApiUriFront) {
+		this.driverApiUriFront = driverApiUriFront;
+	}
+
+	
+   
+	
 }

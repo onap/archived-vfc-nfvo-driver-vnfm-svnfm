@@ -19,49 +19,45 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum.LifecycleOperation;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfcResourceInfoMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AddResource;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.AffectedVnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity.ResourceDefinition;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class TerminateVnfContinueRunnable implements Runnable {
-	private static final Logger logger = LoggerFactory.getLogger(TerminateVnfContinueRunnable.class);
+public class ScaleVnfContinueRunnable implements Runnable {
+	private static final Logger logger = LoggerFactory.getLogger(ScaleVnfContinueRunnableTest.class);
 
 	@Autowired
 	private CbamMgmrInf cbamMgmr;
 	@Autowired
 	private NslcmMgmrInf nslcmMgmr;
 	
-	private TerminateVnfRequest driverRequest;
+	private ScaleVnfRequest driverRequest;
 	private String vnfInstanceId;
 	private String jobId;
 	private String vnfmId;
+	private ScaleType type;
 	@Autowired
 	private VnfmJobExecutionMapper jobDbMgmr;
-	@Autowired
-	private VnfcResourceInfoMapper vnfcDbMgmr;
 	
 	private Driver2CbamRequestConverter requestConverter;
 	
-	public TerminateVnfContinueRunnable(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId,
-			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper dbManager, VnfcResourceInfoMapper vnfcDbMgmr)
+	public ScaleVnfContinueRunnable(String vnfmId, ScaleVnfRequest driverRequest, String vnfInstanceId, String jobId,
+			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper dbManager)
 	{
 		this.driverRequest = driverRequest;
 		this.vnfInstanceId = vnfInstanceId;
@@ -71,7 +67,6 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		this.jobId = jobId;
 		this.jobDbMgmr = dbManager;
 		this.vnfmId = vnfmId;
-		this.vnfcDbMgmr = vnfcDbMgmr;
 	}
 	
 	private void handleGrant(){
@@ -79,67 +74,31 @@ public class TerminateVnfContinueRunnable implements Runnable {
 			NslcmGrantVnfRequest grantRequest = buildNslcmGrantVnfRequest();
 			nslcmMgmr.grantVnf(grantRequest);
 		} catch (Exception e) {
-			logger.error("TerminateVnfContinueRunnable --> handleGrant error.", e);
+			logger.error("ScaleVnfContinueRunnable --> handleGrant error.", e);
 		}
 	}
 	
 	public void run() {
 		handleGrant();
-		handleTerminate();
-		handleDelete();
+		handleScale();
 	}
 	
-	private void handleDelete() {
-		try {
-			boolean vnfAllowDelete = false;
-			int i = 0;
-			while(!vnfAllowDelete) {
-				CBAMQueryVnfResponse queryResponse = cbamMgmr.queryVnf(vnfInstanceId);
-				if(CommonEnum.InstantiationState.NOT_INSTANTIATED == queryResponse.getInstantiationState())
-				{
-					vnfAllowDelete = true;
-					break;
-				}
-				i++;
-				logger.info(i + ": The vnf's current status is " + queryResponse.getInstantiationState().name() + " is not ready for deleting, please wait ... ");
-				Thread.sleep(30000);
-			}
-			prepareDelete(jobId);
-			cbamMgmr.deleteVnf(vnfInstanceId);
-		} catch (Exception e) {
-			logger.error("TerminateVnfContinueRunnable --> handleDelete error.", e);
-		}
-	}
 	
-	private void prepareDelete(String jobId) {
-		long nowTime = System.currentTimeMillis();
-		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.parseLong(jobId));
-		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_FINISH);
-		jobInfo.setOperateEndTime(nowTime);
-		jobDbMgmr.update(jobInfo);
-		
-		try {
-			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest();
-			nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
-		} catch (Exception e) {
-			logger.error("TerminateVnfContinueRunnable --> handleNotify error.", e);
-		}
-	}
 
-	private CBAMTerminateVnfResponse handleTerminate() {
-		CBAMTerminateVnfResponse cbamResponse = null;
+	private CBAMScaleVnfResponse handleScale() {
+		CBAMScaleVnfResponse cbamResponse = null;
 		try {
-			CBAMTerminateVnfRequest  modifyReq = requestConverter.terminateReqConvert(driverRequest);
-			cbamResponse = cbamMgmr.terminateVnf(modifyReq, vnfInstanceId);
-			handleCbamTerminateResponse(cbamResponse, jobId);
+			CBAMScaleVnfRequest scaleReq = requestConverter.scaleReqconvert(driverRequest);
+			cbamResponse = cbamMgmr.scaleVnf(scaleReq, vnfInstanceId);
+			handleCbamScaleResponse(cbamResponse, jobId);
 		} catch (Exception e) {
-			logger.error("TerminateVnfContinueRunnable --> handleTerminate error.", e);
+			logger.error("ScaleVnfContinueRunnable --> handleScale error.", e);
 		}
 		
 		return cbamResponse;
 	}
 
-	private void handleCbamTerminateResponse(CBAMTerminateVnfResponse cbamResponse, String jobId) {
+	private void handleCbamScaleResponse(CBAMScaleVnfResponse cbamResponse, String jobId) {
 		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.parseLong(jobId));
 		
 		jobInfo.setVnfmExecutionId(cbamResponse.getId());
@@ -156,7 +115,11 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		NslcmGrantVnfRequest request = new NslcmGrantVnfRequest();
 		
 		request.setVnfInstanceId(vnfInstanceId);
-		request.setLifecycleOperation(LifecycleOperation.Terminal);
+		if(type.equals(ScaleType.SCALE_OUT)) {
+			request.setLifecycleOperation(LifecycleOperation.Scaleout);
+		}else {
+			request.setLifecycleOperation(LifecycleOperation.Scalein);
+		}
 		request.setJobId(jobId);
 		
 		ResourceDefinition resource = getFreeVnfResource();
@@ -181,36 +144,7 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		return def;
 	}
 
-	private NslcmNotifyLCMEventsRequest buildNslcmNotifyLCMEventsRequest() {
-		NslcmNotifyLCMEventsRequest request = new NslcmNotifyLCMEventsRequest();
-		request.setStatus(CommonEnum.status.result);
-		List<AffectedVnfc> vnfcsFromDb = vnfcDbMgmr.getAllByInstanceId(vnfInstanceId);
-		List<AffectedVnfc> vnfcs = modifyResourceTypeAsRemove(vnfcsFromDb);
-		
-		request.setAffectedVnfc(vnfcs);
-		request.setVnfInstanceId(vnfInstanceId);
-		request.setOperation(CommonConstants.NSLCM_OPERATION_TERMINATE);
-		request.setJobId(jobId);
-		return request;
-	}
-
-	private List<AffectedVnfc> modifyResourceTypeAsRemove(List<AffectedVnfc> affectedVnfc) {
-		List<AffectedVnfc> vnfcs = affectedVnfc;
-		if(vnfcs != null && !vnfcs.isEmpty()) {
-			for(AffectedVnfc vnfc : vnfcs)
-			{
-				vnfc.setChangeType(CommonEnum.AffectchangeType.removed);
-			}
-		}
-		
-		if(vnfcs == null) {
-			vnfcs = new ArrayList<>();
-		}
-		
-		return vnfcs;
-	}
-
-	public void setDriverRequest(TerminateVnfRequest driverRequest) {
+	public void setDriverRequest(ScaleVnfRequest driverRequest) {
 		this.driverRequest = driverRequest;
 	}
 
@@ -226,7 +160,12 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		this.vnfmId = vnfmId;
 	}
 
+	public void setType(ScaleType type) {
+		this.type = type;
+	}
+
 	public void setRequestConverter(Driver2CbamRequestConverter requestConverter) {
 		this.requestConverter = requestConverter;
 	}
+
 }

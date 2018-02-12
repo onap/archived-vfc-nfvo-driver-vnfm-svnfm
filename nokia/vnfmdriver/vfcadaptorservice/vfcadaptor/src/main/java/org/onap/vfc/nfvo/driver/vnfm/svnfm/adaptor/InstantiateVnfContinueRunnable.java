@@ -35,7 +35,8 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum.LifecycleOperation;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfcResourceInfoMapper;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorImpl;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
@@ -46,14 +47,18 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
 
 
 public class InstantiateVnfContinueRunnable implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(InstantiateVnfContinueRunnable.class);
+	@Autowired
 	private CbamMgmrInf cbamMgmr;
+	@Autowired
 	private CatalogMgmrInf catalogMgmr;
+	@Autowired
 	private NslcmMgmrInf nslcmMgmr;
 	
 	private InstantiateVnfRequest driverRequest;
@@ -61,14 +66,18 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 	private String jobId;
 	private String vnfmId;
 	
-	private VnfmJobExecutionRepository jobDbMgmr;
+//	private VnfmJobExecutionRepository jobDbMgmr;
+	@Autowired
+	private VnfmJobExecutionMapper jobDbMgmr;
+	@Autowired
+	private VnfcResourceInfoMapper vnfcDbMgmr;
 	
 	private Driver2CbamRequestConverter requestConverter;
 	
 	private Gson gson = new Gson();
 	
 	public InstantiateVnfContinueRunnable(String vnfmId, InstantiateVnfRequest driverRequest, String vnfInstanceId, String jobId,
-			NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository dbManager)
+			NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper dbManager, VnfcResourceInfoMapper vnfcDbMgmr)
 	{
 		this.driverRequest = driverRequest;
 		this.vnfInstanceId = vnfInstanceId;
@@ -79,6 +88,7 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		this.requestConverter = requestConverter;
 		this.jobDbMgmr = dbManager;
 		this.vnfmId = vnfmId;
+		this.vnfcDbMgmr = vnfcDbMgmr;
 	}
 	
 	public void run() {
@@ -109,7 +119,6 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 				{
 					instantiateFinished = true;
 					handleCbamInstantiateResponse(exeResponse, jobId);
-					OperateTaskProgress.stopInstantiateTimerTask();
 					if (exeResponse.getStatus() == CommonEnum.OperationStatus.FINISHED)
 					{
 						
@@ -132,7 +141,7 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 						logger.info("Start to notify LCM the instantiation result");
 						NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest(vnfcResources);
 						
-						OperateTaskProgress.setAffectedVnfc(nslcmNotifyReq.getAffectedVnfc());
+//						OperateTaskProgress.setAffectedVnfc(nslcmNotifyReq.getAffectedVnfc());
 						
 						nslcmMgmr.notifyVnf(nslcmNotifyReq, vnfmId, vnfInstanceId);
 						logger.info("End to notify LCM the instantiation result");
@@ -236,6 +245,8 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 				vnfc.setVmid(resource.getComputeResource().getResourceId());
 				
 				vnfcs.add(vnfc);
+				
+				vnfcDbMgmr.insert(vnfc);
 			}
 		}
 		return vnfcs;
@@ -274,6 +285,7 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.parseLong(jobId));
 		
 		jobInfo.setVnfmExecutionId(cbamInstantiateResponse.getId());
+		long nowTime = System.currentTimeMillis();
 		if(CommonEnum.OperationStatus.FAILED == cbamInstantiateResponse.getStatus()){
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_ERROR);
 //			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_FINISH);
@@ -281,12 +293,34 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_PROCESSING);
 		} else if(CommonEnum.OperationStatus.FINISHED == cbamInstantiateResponse.getStatus()){
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_FINISH);
+			jobInfo.setOperateEndTime(nowTime);
+			
 		}
 		else{
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_START);
 		}
 			
-		jobDbMgmr.save(jobInfo);
+		jobDbMgmr.update(jobInfo);
+	}
+
+	public void setDriverRequest(InstantiateVnfRequest driverRequest) {
+		this.driverRequest = driverRequest;
+	}
+
+	public void setVnfInstanceId(String vnfInstanceId) {
+		this.vnfInstanceId = vnfInstanceId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
+	public void setVnfmId(String vnfmId) {
+		this.vnfmId = vnfmId;
+	}
+
+	public void setRequestConverter(Driver2CbamRequestConverter requestConverter) {
+		this.requestConverter = requestConverter;
 	}
 
 }

@@ -19,13 +19,18 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.impl;
 import java.util.concurrent.Executors;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.Driver2CbamRequestConverter;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.HealVnfContinueRunnable;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.InstantiateVnfContinueRunnable;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.ScaleVnfContinueRunnable;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.TerminateVnfContinueRunnable;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfcResourceInfoMapper;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.ScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.inf.VnfContinueProcessorInf;
 import org.springframework.stereotype.Component;
@@ -34,19 +39,39 @@ import org.springframework.stereotype.Component;
 public class VnfContinueProcessorImpl implements VnfContinueProcessorInf{
 
 	@Override
-	public void continueInstantiateVnf(String vnfmId, InstantiateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository jobDbManager) {
+	public void continueInstantiateVnf(String vnfmId, InstantiateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper jobDbManager, VnfcResourceInfoMapper vnfcDbMgmr) {
 		InstantiateVnfContinueRunnable task = new InstantiateVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
-				nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager);
+				nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager, vnfcDbMgmr);
 		
 		Executors.newSingleThreadExecutor().submit(task);
 	}
 
 	@Override
-	public void continueTerminateVnf(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository jobDbManager) {
+	public void continueTerminateVnf(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper jobDbManager, VnfcResourceInfoMapper vnfcDbMgmr) {
 		TerminateVnfContinueRunnable task = new TerminateVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
-				nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
+				nslcmMgmr, cbamMgmr, requestConverter, jobDbManager, vnfcDbMgmr);
 		
 		Executors.newSingleThreadExecutor().submit(task);
+	}
+
+	@Override
+	public void continueScaleVnf(String vnfmId, ScaleVnfRequest driverRequest, String vnfInstanceId, String jobId,
+			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter,
+			VnfmJobExecutionMapper jobDbManager) {
+		ScaleVnfContinueRunnable task = new ScaleVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
+				nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
+		Executors.newSingleThreadExecutor().submit(task);
+		
+	}
+
+	@Override
+	public void continueHealVnf(String vnfmId, HealVnfRequest driverRequest, String vnfInstanceId, String jobId,
+			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter,
+			VnfmJobExecutionMapper jobDbManager) {
+		HealVnfContinueRunnable task = new HealVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
+				nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
+		Executors.newSingleThreadExecutor().submit(task);
+		
 	}
 
 }
