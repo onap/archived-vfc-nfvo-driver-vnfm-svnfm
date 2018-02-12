@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
-public interface VnfmResourceRepository //extends CrudRepository<VnfmResourceInfo, Integer> 
-{
+public enum VnfNotificationType {
+	VnfIdentifierCreationNotification, VnfIdentifierDeletionNotification,
+	VnfLifecycleChangeNotification, VnfInfoAttributeValueChangeNotification, OtherNotification
 
 }

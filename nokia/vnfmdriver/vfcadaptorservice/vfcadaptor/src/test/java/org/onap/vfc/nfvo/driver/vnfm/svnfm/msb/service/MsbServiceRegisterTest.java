@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.init.MsbServiceRegister;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.inf.IMsbMgmr;
 import org.springframework.boot.ApplicationArguments;
 
