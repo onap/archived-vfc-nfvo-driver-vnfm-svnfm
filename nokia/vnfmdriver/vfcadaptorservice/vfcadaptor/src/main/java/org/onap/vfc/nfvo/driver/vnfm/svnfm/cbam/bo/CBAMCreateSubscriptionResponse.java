@@ -13,9 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository;
 
-public interface VnfmResourceRepository //extends CrudRepository<VnfmResourceInfo, Integer> 
-{
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
 
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
+
+public class CBAMCreateSubscriptionResponse extends Subscription{
+/*
+	
+	@JsonProperty("problemDetails")
+	private ProblemDetails problemDetails;
+
+
+	public ProblemDetails getProblemDetails() {
+		return problemDetails;
+	}
+
+	public void setProblemDetails(ProblemDetails problemDetails) {
+		this.problemDetails = problemDetails;
+	}
+*/
+	
+	
+
+	
+	
 }

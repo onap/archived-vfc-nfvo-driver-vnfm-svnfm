@@ -49,7 +49,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
@@ -82,7 +82,7 @@ public class VnfmDriverMgmrImplTest {
 	private NslcmMgmrInf nslcmMgmr;;
 	
 	@Mock
-	private VnfmJobExecutionRepository jobDbManager;
+	private VnfmJobExecutionMapper jobDbManager;
 	
 	@Mock
 	private VnfContinueProcessorInf vnfContinueProcessorInf;
@@ -95,6 +95,8 @@ public class VnfmDriverMgmrImplTest {
 	
 	private String vnfmId = "vnfmId_001";
 	private String vnfInstanceId = "vnfInstanceId_001";
+	
+	private ScaleType type;
 	
 	private String protocol = "https";
 	private String ip = "139.234.34.43";
@@ -135,7 +137,7 @@ public class VnfmDriverMgmrImplTest {
 		execInfo.setVnfmExecutionId("executionId_001");
 		execInfo.setVnfInstanceId(vnfInstanceId);
 		
-		when(jobDbManager.save(Mockito.any(VnfmJobExecutionInfo.class))).thenReturn(execInfo);
+		when(jobDbManager.findNewestJobInfo()).thenReturn(execInfo);
 	}
 	
 	@Test
@@ -200,6 +202,7 @@ public class VnfmDriverMgmrImplTest {
 		VnfmJobExecutionInfo execInfo = new VnfmJobExecutionInfo();
 		execInfo.setJobId(1L);
 		execInfo.setVnfmExecutionId("executionId_001");
+		execInfo.setStatus("finished");
 		when(jobDbManager.findOne(Mockito.anyLong())).thenReturn(execInfo);
 		
 		CBAMQueryOperExecutionResponse cbamResponse = new CBAMQueryOperExecutionResponse();
@@ -208,7 +211,7 @@ public class VnfmDriverMgmrImplTest {
 		cbamResponse.setGrantId("001002001");
 		
 //		when(cbamMgmr.queryOperExecution(Mockito.anyString())).thenReturn(cbamResponse);
-//		OperStatusVnfResponse response = vnfmDriverMgmr.getOperStatus(vnfmId, "1");
+		OperStatusVnfResponse response = vnfmDriverMgmr.getOperStatus(vnfmId, "1");
 //		
 //		Assert.assertEquals("executionId_001", response.getJobId());
 	}

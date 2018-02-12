@@ -30,8 +30,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+@Order(1)
 @Component
 public class EnvVariablesInitialization implements ApplicationRunner {
 	private static final Logger logger = LoggerFactory.getLogger(EnvVariablesInitialization.class);

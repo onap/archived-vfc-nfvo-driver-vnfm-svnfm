@@ -52,6 +52,7 @@ public class MsbMgmrImplTest {
 		String json = "{\"serviceName\":\"catalog\", \"url\":\"/api/catalog/v1\"}";
 		HttpResult httpResult = new HttpResult();
 		httpResult.setContent(json);
+		httpResult.setStatusCode(200);
 		
 		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
 	}

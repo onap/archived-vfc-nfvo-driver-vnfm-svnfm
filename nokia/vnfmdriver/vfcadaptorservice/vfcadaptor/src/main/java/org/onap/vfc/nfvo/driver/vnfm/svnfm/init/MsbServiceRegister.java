@@ -14,7 +14,7 @@
  * limitations under the License.
  */
  
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.service;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.init;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +22,10 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.inf.IMsbMgmr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+@Order(2)
 @Component
 public class MsbServiceRegister implements ApplicationRunner{
 	private static final Logger logger = LoggerFactory.getLogger(MsbServiceRegister.class);

@@ -15,7 +15,10 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository;
 
-public interface VnfmResourceRepository //extends CrudRepository<VnfmResourceInfo, Integer> 
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmSubscriptionInfo;
+//import org.springframework.data.repository.CrudRepository;
+
+public interface VnfmSubscriptionsRepository //extends CrudRepository<VnfmSubscriptionInfo, Integer> 
 {
 
 }
