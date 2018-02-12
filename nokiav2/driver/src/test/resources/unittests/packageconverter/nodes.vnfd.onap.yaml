@@ -1,0 +1,80 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+metadata:
+  vendor: Nokia
+  csarVersion: 1.0
+  csarProvider: myProvider
+  id: Simple
+  version: 2.0
+  csarType: NFAR
+  name: myName
+  vnfdVersion: 1.0
+
+topology_template:
+  node_templates:
+    vduNode:
+      type: tosca.nodes.nfv.VDU.Compute
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 8192 MB
+            virtual_cpu:
+              num_virtual_cpu: 4
+      requirements:
+        - virtual_storage:
+            capability: tosca.capabilities.nfv.VirtualStorage
+            node: myStorage1
+        - virtual_storage:
+            capability: tosca.capabilities.nfv.VirtualStorage
+            node: myStorage2
+    myStorage1:
+      type: tosca.nodes.nfv.VDU.VirtualStorage
+      properties:
+        id: myStorage1
+        type_of_storage: volume
+        size_of_storage: 1G
+    myStorage2:
+      type: tosca.nodes.nfv.VDU.VirtualStorage
+      properties:
+        id: myStorage2
+        type_of_storage: volume
+        size_of_storage: 2G
+    myNetwork1:
+      type: tosca.nodes.nfv.VnfVirtualLinkDesc
+      properties:
+        vl_flavours:
+          flavours:
+            flavourId: notUsed
+    myNetwork2:
+      type: tosca.nodes.nfv.VnfVirtualLinkDesc
+      properties:
+        vl_flavours:
+          flavours:
+            flavourId: notUsed
+    icpWithOutEcp:
+      type: tosca.nodes.nfv.VduCpd
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: myDescription
+      requirements:
+        - virtual_binding: vduNode
+        - virtual_link: myNetwork1
+    icpWithEcp:
+      type: tosca.nodes.nfv.VduCpd
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: myDescription
+      requirements:
+        - virtual_binding: vduNode
+        - virtual_link: myNetwork1
+    myEcp:
+      type: tosca.nodes.nfv.VduCpd
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: myDescription
+      requirements:
+        - virtual_binding: vduNode

@@ -1,0 +1,7 @@
+metadata:
+    vnf_product_name: VNF_PRODUCT_NAME
+    vnf_provider_id: Nokia
+    vnf_package_version: VNF_PACKAGE_VERSION
+    vnf_release_data_time: 2017.01.01T10:00+03:00
+
+source: MainServiceTemplate.yaml
