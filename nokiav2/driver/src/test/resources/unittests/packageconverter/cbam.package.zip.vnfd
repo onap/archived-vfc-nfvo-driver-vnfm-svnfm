@@ -1,0 +1,17 @@
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0_nokia
+
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.nfv.VNF
+    properties:
+      descriptor_id: Nokia~Maria DB~1.0~1.0
+      descriptor_version: '1.0'
+      provider: Nokia
+      product_name: Maria DB
+      software_version: '1.0'
+      product_info_name: Maria DB
+      product_info_description: Relational database, non-scalable
+    interfaces:
+      Basic:
+        instantiate:
+        terminate:
