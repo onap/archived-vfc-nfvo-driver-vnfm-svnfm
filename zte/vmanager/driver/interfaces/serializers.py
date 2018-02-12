@@ -15,6 +15,77 @@
 from rest_framework import serializers
 
 
+class additionalParamSerializer(serializers.Serializer):
+    sdncontroller = serializers.CharField(
+        help_text="sdncontroller",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    NatIpRange = serializers.CharField(
+        help_text="NatIpRange",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    m6000_mng_ip = serializers.CharField(
+        help_text="m6000_mng_ip",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    externalPluginManageNetworkName = serializers.CharField(
+        help_text="externalPluginManageNetworkName",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    location = serializers.CharField(
+        help_text="location",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    externalManageNetworkName = serializers.CharField(
+        help_text="externalManageNetworkName",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    sfc_data_network = serializers.CharField(
+        help_text="sfc_data_network",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    externalDataNetworkName = serializers.CharField(
+        help_text="externalDataNetworkName",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    inputs = serializers.DictField(
+        help_text='inputs',
+        child=serializers.CharField(allow_blank=True),
+        required=False,
+        allow_null=True)
+
+
+class InstantiateVnfRequestSerializer(serializers.Serializer):
+    vnfInstanceName = serializers.CharField(
+        help_text="vnfInstanceName",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    vnfPackageId = serializers.CharField(
+        help_text="vnfPackageId",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    vnfDescriptorId = serializers.CharField(
+        help_text="vnfDescriptorId",
+        required=True,
+        max_length=255,
+        allow_null=True)
+    additionalParam = serializers.DictField(
+        help_text="additionalParam",
+        child=additionalParamSerializer(help_text='additionalParam'),
+        required=True,
+        allow_null=True)
+
+
 class TerminateVnfRequestSerializer(serializers.Serializer):
     terminationType = serializers.CharField(
         help_text="terminationType",
