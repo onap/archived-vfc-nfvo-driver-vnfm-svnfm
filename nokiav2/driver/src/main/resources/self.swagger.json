@@ -1,0 +1,798 @@
+{
+  "basePath": "/api/NokiaSVNFM/v1",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "contact": {
+      "email": "onap-discuss@lists.onap.org",
+      "name": "Nokia team",
+      "url": "https://gerrit.onap.org/r/#/admin/projects/vfc/nfvo/lcm"
+    },
+    "description": "ONAP Nokia CBAM Driver API.",
+    "title": "ONAP Nokia CBAM Driver API",
+    "version": "1.0.0"
+  },
+  "definitions": {
+    "JobDetailInfo": {
+      "properties": {
+        "jobId": {
+          "type": "string"
+        },
+        "responseDescriptor": {
+          "properties": {
+            "errorCode": {
+              "type": "string"
+            },
+            "progress": {
+              "description": "The progress of the job. Value between 0 and 100.",
+              "type": "string"
+            },
+            "responseHistoryList": {
+              "items": {
+                "$ref": "#/definitions/jobResponseInfo"
+              },
+              "type": "array"
+            },
+            "responseId": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/JobStatus",
+              "description": "The status of the job"
+            },
+            "statusDescription": {
+              "description": "The reason of the current status of the job.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "JobInfo": {
+      "properties": {
+        "jobId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "JobStatus": {
+      "description": "The status of the job",
+      "enum": [
+        "started",
+        "processing",
+        "finished",
+        "error",
+        "timeout"
+      ],
+      "type": "string"
+    },
+    "ScaleDirection": {
+      "description": "The direction of the scaling",
+      "enum": [
+        "SCALE_IN",
+        "SCALE_OUT"
+      ],
+      "type": "string"
+    },
+    "VimInfo": {
+      "properties": {
+        "createTime": {
+          "description": "vim info createTime",
+          "type": "string"
+        },
+        "description": {
+          "description": "vim description",
+          "type": "string"
+        },
+        "name": {
+          "description": "vim name",
+          "type": "string"
+        },
+        "password": {
+          "description": "vim login password",
+          "type": "string"
+        },
+        "sslCacert": {
+          "description": "The collection of trusted certificates towards the VIM connection.",
+          "type": "string"
+        },
+        "sslInsecure": {
+          "description": "Whether to verify VIM's certificate",
+          "type": "string"
+        },
+        "status": {
+          "description": "The status of external system",
+          "type": "string"
+        },
+        "type": {
+          "description": "vim type",
+          "type": "string"
+        },
+        "url": {
+          "description": "vim url",
+          "type": "string"
+        },
+        "userName": {
+          "description": "vim login username",
+          "type": "string"
+        },
+        "vendor": {
+          "description": "vendor name",
+          "type": "string"
+        },
+        "version": {
+          "description": "vim version",
+          "type": "string"
+        },
+        "vimId": {
+          "description": "vim Id",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "VnfHealRequest": {
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "affectedvm": {
+          "properties": {
+            "vduid": {
+              "type": "string"
+            },
+            "vimid": {
+              "type": "string"
+            },
+            "vmname": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "VnfInfo": {
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "vnfInstanceDescription": {
+          "type": "string"
+        },
+        "vnfId": {
+          "type": "string"
+        },
+        "vnfInstanceName": {
+          "type": "string"
+        },
+        "vnfPackageId": {
+          "type": "string"
+        },
+        "vnfProvider": {
+          "type": "string"
+        },
+        "vnfStatus": {
+          "type": "string"
+        },
+        "vnfType": {
+          "type": "string"
+        },
+        "vnfdId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "VnfInstInfo": {
+      "properties": {
+        "vnfId": {
+          "description": "VNF instance ID",
+          "type": "string"
+        },
+        "vnfInstanceName": {
+          "description": "VNF instance name",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "VnfInstListInfo": {
+      "items": {
+        "$ref": "#/definitions/VnfInstInfo"
+      },
+      "type": "array"
+    },
+    "VnfInstantiateRequest": {
+      "properties": {
+        "additionalParam": {
+          "type": "object"
+        },
+        "extVirtualLink": {
+          "items": {
+            "$ref": "#/definitions/extVirtualLinkInfo"
+          },
+          "type": "array"
+        },
+        "vnfDescriptorId": {
+          "type": "string"
+        },
+        "vnfInstanceDescription": {
+          "type": "string"
+        },
+        "vnfInstanceName": {
+          "type": "string"
+        },
+        "vnfPackageId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "VnfInstantiateResponse": {
+      "properties": {
+        "jobId": {
+          "type": "string"
+        },
+        "vnfId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "VnfScaleRequest": {
+      "properties": {
+        "additionalParam": {
+          "description": "Additional parameters passed by the NFVO as input to the scaling process, specific to the VNF being scaled",
+          "type": "object"
+        },
+        "aspectId": {
+          "description": "Identifies the aspect of the VNF that is requested to be scaled",
+          "type": "string"
+        },
+        "numberOfSteps": {
+          "description": "Number of scaling steps to be executed as part of this ScaleVnf operation. It shall be a positive number",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/ScaleDirection",
+          "description": "The direction of the scaling."
+        }
+      },
+      "type": "object"
+    },
+    "VnfTerminateRequest": {
+      "properties": {
+        "gracefulTerminationTimeout": {
+          "description": "The time interval(second) to wait for the VNF to be taken out of service during graceful termination.",
+          "type": "string"
+        },
+        "terminationType": {
+          "$ref": "#/definitions/VnfTerminationType",
+          "description": "The type of the termination"
+        }
+      },
+      "type": "object"
+    },
+    "VnfTerminationType": {
+      "description": "The type of the termination.",
+      "enum": [
+        "graceful",
+        "forceful"
+      ],
+      "type": "string"
+    },
+    "extVirtualLinkInfo":{
+        "type": "object",
+        "properties": {
+          "resourceSubnetId": {
+            "type": "string",
+            "description": "The provider id of the subnet"
+          },
+          "vlInstanceId": {
+            "type": "string",
+            "description" : "The identifier of the virtual link"
+          },
+          "resourceId": {
+            "type": "string",
+            "description": "The provider id of the network"
+          },
+          "cpdId": {
+            "type": "string",
+            "description": "The identifier of the connection point descriptor"
+          },
+          "vim": {
+            "type": "object",
+            "properties": {
+               "vimid": {
+                  "type": "string",
+                  "description": "The identifier of the VIM"
+               }
+            }
+          }
+        }
+    },
+    "jobResponseInfo": {
+      "properties": {
+        "errorCode": {
+          "type": "string"
+        },
+        "progress": {
+          "type": "string"
+        },
+        "responseId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "statusDescription": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "vimInfo": {
+      "properties": {
+        "accessInfo": {
+          "properties": {
+            "password": {
+              "description": "Password of login user",
+              "type": "string"
+            },
+            "tenant": {
+              "description": "Tenant Name of tenant",
+              "type": "string"
+            },
+            "username": {
+              "description": "Username for login",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "interfaceEndpoint": {
+          "description": "Information about the interface endpoint. It is a URL",
+          "type": "string"
+        },
+        "interfaceInfo": {
+          "properties": {
+            "apiVersion": {
+              "description": "The api Version Type value will be ",
+              "type": "string"
+            },
+            "protocolType": {
+              "description": "The protocol Type value will be http or https",
+              "type": "string"
+            },
+            "vimType": {
+              "description": "The vim Type value wil be openstack",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "vimId": {
+          "type": "string"
+        },
+        "vimInfoId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "VnfLifecycleChangeNotification": {
+      "type": "object",
+      "description": "The lifecycle change notifications send from CBAM"
+    }
+  },
+  "paths": {
+    "/{vnfmId}/vnfs": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "VNF create&instantiate Rest API should be provided by the VNFM Driver",
+        "operationId": "vnf_instantiate",
+        "parameters": [
+          {
+            "description": "The value of vnfmid should be the VNFM Instantiate ID",
+            "in": "path",
+            "name": "vnfmId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "instantiate request param",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfInstantiateRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/VnfInstantiateResponse"
+            }
+          }
+        },
+        "summary": "vnf create&instantiate",
+        "tags": [
+          "VNFMDriver"
+        ]
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "",
+        "operationId": "query_vnf",
+        "parameters": [
+          {
+            "description": "The value of vnfmId should be the VNFM Instantiate ID",
+            "in": "path",
+            "name": "vnfmId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The value of vnfId should be the VNF Instantiate ID",
+            "in": "path",
+            "name": "vnfId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/VnfInfo"
+            }
+          },
+          "404": {
+            "description": "the vnf instance id is wrong"
+          },
+          "500": {
+            "description": "the url is invalid"
+          }
+        },
+        "summary": "query the specified vnf info",
+        "tags": [
+          "VNFMDriver"
+        ]
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}/heal": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "VNF Heal Rest API should be provided by the VNFM Driver",
+        "operationId": "vnf_heal",
+        "parameters": [
+          {
+            "description": "The value of vnfmId should be the VNFM Instantiate ID",
+            "in": "path",
+            "name": "vnfmId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The value of vnfId should be the VNF Instantiate ID",
+            "in": "path",
+            "name": "vnfId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "instantiate request param",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfHealRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobInfo"
+            }
+          },
+          "404": {
+            "description": "the VNF instance id is wrong"
+          },
+          "500": {
+            "description": "the url is invalid"
+          }
+        },
+        "summary": "vnf heal",
+        "tags": [
+          "VNFMDriver"
+        ]
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}/scale": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "VNF Scale Rest API should be provided by the VNFM Driver",
+        "operationId": "vnf_scale",
+        "parameters": [
+          {
+            "description": "The value of vnfmId should be the VNFM Instantiate ID",
+            "in": "path",
+            "name": "vnfmId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The value of vnfId should be the VNF Instantiate ID",
+            "in": "path",
+            "name": "vnfId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "instantiate request param",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfScaleRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobInfo"
+            }
+          },
+          "404": {
+            "description": "the VNF instance id is wrong"
+          },
+          "500": {
+            "description": "the url is invalid"
+          }
+        },
+        "summary": "vnf Scale",
+        "tags": [
+          "VNFMDriver"
+        ]
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}/terminate": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "VNF terminate&delete Rest API should be provided by the VNFM Driver",
+        "operationId": "terminate_vnf",
+        "parameters": [
+          {
+            "description": "The value of vnfmId should be the VNFM Instantiate ID",
+            "in": "path",
+            "name": "vnfmId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The value of vnfId should be the VNF Instantiate ID",
+            "in": "path",
+            "name": "vnfId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "instantiate request param",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfTerminateRequest"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/JobInfo"
+            }
+          },
+          "404": {
+            "description": "the VNF instance id is wrong"
+          },
+          "500": {
+            "description": "the url is invalid"
+          }
+        },
+        "summary": "terminate&delete vnf",
+        "tags": [
+          "VNFMDriver"
+        ]
+      }
+    },
+    "/{vnfmId}/jobs/{jobId}": {
+      "get": {
+        "tags": [
+          "VNFMDriver"
+        ],
+        "summary": "jobstatus",
+        "description": "Job Infomation API should be provided by VNFM Driver",
+        "operationId": "get_jobstatus",
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "job Id",
+            "name": "jobId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "The value of vnfmId should be the VNFM Instantiate ID",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "job response message id",
+            "name": "responseId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobDetailInfo"
+            }
+          }
+        }
+      }
+    },
+    "/lcn":{
+      "get": {
+        "tags": [
+          "SBI"
+        ],
+        "summary": "Test LCN connectivity from CBAM to driver",
+        "description": "Test LCN connectivity from CBAM to driver",
+        "responses": {
+          "204": {
+            "description": "Used for connectivity test"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SBI"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "summary": "Send LCN from CBAM",
+        "description": "Test LCN connectivity from CBAM to driver",
+        "parameters": [
+          {
+            "description": "The life cycle change notification",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfLifecycleChangeNotification"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Used for connectivity test"
+          }
+        }
+      }
+    },
+    "/swagger.json": {
+      "get": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "The Nokia SVNFM API definition",
+        "description": "The Nokia SVNFM API definition",
+        "responses": {
+          "202": {
+            "description": "The swagger API definition"
+          }
+        }
+      }
+    },
+    "/convert": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "consumes":[
+          "multipart/form-data"
+        ],
+        "produces":[
+          "application/octet-stream"
+        ],
+        "parameters" : [
+          {
+            "description": "The CBAM VNF package",
+            "in": "formData",
+            "name": "upfile",
+            "type": "file"
+          }
+        ],
+        "summary": "Converts the Nokia CBAM package to ONAP package",
+        "description": "Converts the Nokia CBAM package to ONAP package",
+        "responses": {
+          "200": {
+            "description": "The converted package",
+            "schema":{
+              "type": "file"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Utilities"
+        ],
+        "produces":[
+          "text/html"
+        ],
+        "summary": "UI to convert the Nokia CBAM package to ONAP package",
+        "description": "UI to convert the Nokia CBAM package to ONAP package",
+        "responses": {
+          "200": {
+            "description": "The converted package"
+          }
+        }
+      }
+
+    }
+  }
+}

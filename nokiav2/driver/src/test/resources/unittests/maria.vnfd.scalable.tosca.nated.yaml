@@ -1,0 +1,593 @@
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0_nokia
+
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.nfv.VNF
+    properties:
+      descriptor_id: Nokia~Maria DB~1.0~1.0
+      descriptor_version: '1.0'
+      provider: Nokia
+      product_name: Maria DB
+      software_version: '1.0'
+      product_info_name: Maria DB
+      product_info_description: Relational database, non-scalable
+      vnfm_info:
+        - CBAM
+    requirements:
+      - virtual_link: [ dbBackendIpv4,   external_virtual_link ]  # IPv4 for SQL
+      - virtual_link: [ dbBackendIpv6,   external_virtual_link ]  # IPv6 for SQL
+      - virtual_link: [ serviceNodeIpv4, external_virtual_link ]  # IPv4 for SSH
+      - virtual_link: [ loadBalancer,    external_virtual_link ]  # IPv4 for SQL (load balanced)
+    capabilities:
+      deployment_flavour:
+        properties:
+          flavour_id: scalable
+          description: ..
+          scaling_aspects:
+            dbBackendAspect:
+              name: ..
+              description: ..
+              associated_group: dbBackendScalingGroup
+              max_scale_level: 8
+            serviceNodeAspect:
+              name: ..
+              description: ..
+              associated_group: serviceNodeScalingGroup
+              max_scale_level: 3
+          instantiation_levels:
+            small:
+              description: ..
+              vdu_levels:
+                dbBackend:
+                  number_of_instances: 3
+                serviceNode:
+                  number_of_instances: 2
+              scale_info:
+                dbBackendAspect:
+                  scale_level: 0
+                serviceNodeAspect:
+                  scale_level: 1
+            medium:
+              description: ..
+              vdu_levels:
+                dbBackend:
+                  number_of_instances: 4
+                serviceNode:
+                  number_of_instances: 2
+              scale_info:
+                dbBackendAspect:
+                  scale_level: 1
+                serviceNodeAspect:
+                  scale_level: 1
+            large:
+              description: ..
+              vdu_levels:
+                dbBackend:
+                  number_of_instances: 5
+                serviceNode:
+                  number_of_instances: 4
+              scale_info:
+                dbBackendAspect:
+                  scale_level: 2
+                serviceNodeAspect:
+                  scale_level: 2
+          default_instantiation_level_id: small
+          vdu_profile:
+            dbBackend:
+              min_number_of_instances: 3
+              max_number_of_instances: 11
+            serviceNode:
+              min_number_of_instances: 0
+              max_number_of_instances: 6
+      vnf:
+        properties:
+          modifiable_attributes:
+            extensions:
+              http_proxy:
+                default: "http://87.254.212.120:8080"
+              https_proxy:
+                default: "https://87.254.212.120:8080"
+              no_proxy:
+                default: "10.41.49.231,10.41.49.5"
+              mysqlPassword:
+                default: "password"
+              mysqlUsername:
+                default: "mysql"
+              loginUsername:
+                default: "ubuntu"
+              rhel_yum_repository_host:
+                default: "http://10.41.49.231/mirror/rhel-7-server-rpms/"
+              ubuntu_repository_host:
+                default: "deb [arch=amd64] http://10.41.49.5/cobbler/repo_mirror/ubuntu-16.04-x86_64/ xenial main universe"
+              mariadb_rhel_repo_host:
+#                default: "http://yum.mariadb.org/10.0/rhel7-amd64"
+                default: "http://10.41.49.5/cobbler/repo_mirror/mariadb-10.0-el7-x86_64/"
+              mariadb_ubuntu_repo_host:
+#                default: "deb http://mirror.netinch.com/pub/mariadb/repo/10.0/ubuntu trusty main"
+                default: "deb [arch=amd64] http://10.41.49.5/cobbler/repo_mirror/ubuntu-mariadb-10.0-x86_64/ xenial main"
+              custom_backend_root_volume_size:
+                default: "10"
+              dry_run:
+                default: "false"
+    interfaces:
+      Basic:
+        instantiate:
+          inputs:
+            extensions:
+              pre_actions:
+                - javascript: javascript/scalable_instantiate_hot_params.js
+                  include:
+                    - javascript/scalable_prepare_cbam_include.js
+                  output: stack_parameters
+                - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                  include:
+                    - javascript/cbam.collectConnectionPoints.js
+                  output: operation_result
+              post_actions:
+                - javascript: javascript/workaround_inventory_on_kilo.js
+                  output: ansible_inventory
+                - ansible: ansible/playbook-scalable.yml
+                - javascript: javascript/cbam.post.collectConnectionPoints.js
+                  include:
+                    - javascript/cbam.collectConnectionPoints.js
+                  output: operation_result
+            additional_parameters:
+              jobId: onapJobId
+        terminate:
+          inputs:
+            extensions:
+              pre_actions:
+                - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                  include:
+                    - javascript/cbam.collectConnectionPoints.js
+                  output: operation_result
+              post_actions:
+                - javascript: javascript/cbam.post.collectConnectionPoints.js
+                  include:
+                    - javascript/cbam.collectConnectionPoints.js
+                  output: operation_result
+            additional_parameters:
+              jobId: onapJobId
+      Scalable:
+        scale:
+          inputs:
+            extensions:
+              pre_actions:
+                - javascript: javascript/scalable_instantiate_hot_params.js
+                  include:
+                    - javascript/scalable_prepare_cbam_include.js
+                  output: stack_parameters
+                - ansible: ansible/playbook-scalable-scale-in.yml
+                - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                  include:
+                    - javascript/cbam.collectConnectionPoints.js
+                  output: operation_result
+              post_actions:
+                - javascript: javascript/workaround_inventory_on_kilo.js
+                  output: ansible_inventory
+                - ansible: ansible/playbook-scalable.yml
+                - javascript: javascript/cbam.post.collectConnectionPoints.js
+                  include:
+                    - javascript/cbam.collectConnectionPoints.js
+                  output: operation_result
+            additional_parameters:
+              jobId: onapJobId
+      Healable:
+        heal:
+          implementation: mistral-workbooks/heal_workbook.yaml
+          inputs:
+            extensions:
+              pre_actions:
+                - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                  include:
+                    - javascript/cbam.collectConnectionPoints.js
+                  output: operation_result
+              post_actions:
+                - javascript: javascript/cbam.post.collectConnectionPoints.js
+                  include:
+                    - javascript/cbam.collectConnectionPoints.js
+                  output: operation_result
+            additional_parameters:
+              vmName: null
+              action: null
+              jobId: onapJobId
+      Custom:
+        upgrade:
+          implementation: mistral-workbooks/upgrade_workbook.yaml
+          inputs:
+            additional_parameters:
+              imageId: ubuntu.16.04
+              jobId: onapJobId
+  node_templates:
+    dbBackend:
+      type: tosca.nodes.nfv.VDU
+      properties:
+        description: ..
+        configurable_properties:
+          additional_vnfc_configurable_properties: {}
+        boot_order:
+          - rootVolume
+      requirements:
+        - virtual_compute: dbBackendCompute
+        - virtual_storage: rootVolume
+        - virtual_storage: dataVolume
+        - sw_image: mariaDbImage #FIXME
+
+    serviceNode:
+      type: tosca.nodes.nfv.VDU
+      properties:
+        description: ..
+        configurable_properties:
+          additional_vnfc_configurable_properties: {}
+      requirements:
+        - virtual_compute: serviceNodeCompute
+        - sw_image: mariaDbImage
+
+    dbBackendCompute:
+      type: tosca.nodes.nfv.VirtualCompute
+      properties:
+        virtual_memory:
+            virtual_mem_size: 8096 MB
+        virtual_cpu:
+            cpu_architecture: x86
+            num_virtual_cpu: 2
+            virtual_cpu_clock: 1800 MHz
+
+    serviceNodeCompute:
+      type: tosca.nodes.nfv.VirtualCompute
+      properties:
+        virtual_memory:
+            virtual_mem_size: 8096 MB
+        virtual_cpu:
+            cpu_architecture: x86
+            num_virtual_cpu: 2
+            virtual_cpu_clock: 1800 MHz
+
+    rootVolume:
+      type: tosca.nodes.nfv.VirtualStorage
+      properties:
+        type_of_storage: volume
+        size_of_storage: 10 GB
+        #rdma_enabled: false
+      requirements:
+        - sw_image: mariaDbImage
+
+    dataVolume:
+      type: tosca.nodes.nfv.VirtualStorage
+      properties:
+        type_of_storage: volume
+        size_of_storage: 1 GB
+        #rdma_enabled: false
+      requirements:
+        - sw_image: mariaDbImage
+
+    mariaDbImage:
+      type: tosca.nodes.nfv.SwImage
+      properties:
+        name: Software of Maria Db
+        version: 1.0
+        checksum: 9af30fce37a4c5c831e095745744d6d2
+        container_format: qcow2
+        disk_format: bare
+        # the ubuntu image is minimum 4GB the Centos is minimum 8 GB ?
+        min_disk: 10 GB
+        min_ram: 8096 MB
+        size: 10 GB
+        sw_image: maria.db.image.v1.0.qcow2
+        operating_system: Linux
+        supported_virtualisation_environments:
+          - KVM
+
+    dbBackendCpOnIpv4:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Connection point to access the DB on IPv4 externally
+      requirements:
+        - virtual_binding: dbBackend
+        - virtual_link: internalNetworkForFloatingIp
+
+    dbBackendCpOnIpv6:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv6
+        role: leaf
+        description: Connection point to access the DB on IPv6 externally
+      requirements:
+        - virtual_binding: dbBackend
+        #- virtual_link: the CP is connected to the core network (IPv6)
+
+    dbBackendCpOnIpv4Redundancy1:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Connection point for DB replication
+      requirements:
+        - virtual_binding: dbBackend
+        - virtual_link: internalReplicationNetwork1
+
+    dbBackendCpOnIpv4Redundancy2:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Connection point for DB replication
+      requirements:
+        - virtual_binding: dbBackend
+        - virtual_link: internalReplicationNetwork2
+
+    dbBackendExternallyManagedCp:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv6
+        role: leaf
+        description: Connection point to access the DB on IPv6 externally
+      requirements:
+        - virtual_binding: dbBackend
+        - virtual_link: extManagedVl
+    
+    serviceNodeCp:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Connection point to access the DB on IPv4 externally
+      requirements:
+        - virtual_binding: serviceNode
+        - virtual_link: internalNetworkForFloatingIp
+
+    serviceNodeExternallyManagedCp:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point to access the DB on IPv4
+      requirements:
+        - virtual_binding: dbBackend
+        - virtual_link: extManagedVl
+
+    movingIpCp:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+        #- virtual_binding: # no corresponding VDU
+        - virtual_link: internalNetworkForFloatingIp
+    internalNetworkForFloatingIp:
+      type: tosca.nodes.nfv.VL
+      properties:
+        connectivity_type:
+          layer_protocol: ipv4
+          flow_pattern: mesh
+        vl_flavours: {}
+
+    internalReplicationNetwork1:
+      type: tosca.nodes.nfv.VL
+      properties:
+        connectivity_type:
+          layer_protocol: ipv4
+          flow_pattern: mesh
+        test_access: []
+        description: ..
+        vl_flavours: {}
+
+    internalReplicationNetwork2:
+      type: tosca.nodes.nfv.VL
+      properties:
+        connectivity_type:
+          layer_protocol: ipv4
+          flow_pattern: mesh
+        test_access: []
+        description: ..
+        vl_flavours: {}
+
+    extManagedVl:
+      type: tosca.nodes.nfv.VL
+      properties:
+        connectivity_type:
+          layer_protocol: ipv4
+          flow_pattern: mesh
+        test_access: []
+        description: ..
+        vl_flavours: {}
+
+    dbBackendIpv4:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - internal_connection_point: dbBackendCpOnIpv4
+        #- external_virtual_link: # exposed on VNF boundary
+
+    dbBackendIpv6:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv6
+      requirements:
+        - internal_connection_point: dbBackendCpOnIpv6
+        #- external_virtual_link: # exposed on VNF boundary
+    
+    serviceNodeIpv4:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - internal_connection_point: serviceNodeCp
+        #- external_virtual_link: # exposed on VNF boundary
+
+    loadBalancer:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - internal_connection_point: movingIpCp
+        #- external_virtual_link: # exposed on VNF boundary
+
+  groups:
+    dbBackendScalingGroup:
+      type: tosca.groups.nfv.ElementGroup
+      description: ..
+      members: [ dbBackend ]
+
+    serviceNodeScalingGroup:
+      type: tosca.groups.nfv.ElementGroup
+      description: ..
+      members: [ serviceNode ]
+
+  policies:
+    - service_node_anti_affinity:
+        type: tosca.policies.nfv.ScalingStepLocalAntiAffinity
+        targets: [ serviceNode ]
+        properties:
+          scope: nfvi_node
+
+    - backend_node_anti_affinity:
+        type: tosca.policies.nfv.LocalAntiAffinity
+        targets: [ dbBackend ]
+        properties:
+          scope: nfvi_node
+
+    - nfvi_affinity:
+        type: tosca.policies.nfv.LocalAffinity
+        targets: [ dbBackend ]
+        properties:
+          scope: nfvi
+
+    - zone_affinity:
+        type: tosca.policies.nfv.LocalAffinity
+        targets: [ dbBackend ]
+        properties:
+          scope: resource_zone_group
+
+    - commissioning:
+        type: tosca.policies.nfv.Commissioning #FIXME
+        properties:
+          connection_points:
+            - dbBackendIpv6
+            - serviceNodeIpv4
+
+    - heat_mapping:
+        type: tosca.policies.nfv.HeatMapping
+        properties:
+          template:
+            hotPath: hot/
+            main: maria.hot.scalable.main.nated.yaml
+            nested:
+             - maria.hot.common.nated.yaml
+             - maria.hot.scalable.service.scaling.nated.yaml
+             - maria.hot.scalable.service.static.nated.yaml
+             - maria.hot.scalable.service.nated.yaml
+             - maria.hot.scalable.backend.static.nated.yaml
+             - maria.hot.scalable.backend.single.nated.yaml
+             - maria.hot.scalable.backend.nated.yaml
+             - maria.hot.scalable.backend.single.wrapper.nated.yaml
+             - maria.hot.scalable.backend.wrapper.nated.yaml
+#            environment:
+          static:
+            virtualLinks:
+              internalReplicationNetwork1: db_backend_static.replication_network_1
+              internalReplicationNetwork2: db_backend_static.replication_network_2
+              internalNetworkForFloatingIp: common_resources.internal_network_for_floatingip
+            vdus:
+              dbBackend:
+                - heatResource: db_backend_static.static_node_0.wrapper_rg.0.server
+                  connectionPoints:
+                    dbBackendCpOnIpv4: db_backend_static.static_node_0.wrapper_rg.0.port_ipv4_nated
+                    dbBackendCpOnIpv6: db_backend_static.static_node_0.wrapper_rg.0.port_ipv6
+                    dbBackendCpOnIpv4Redundancy1: db_backend_static.static_node_0.wrapper_rg.0.port_replication_1
+                    dbBackendCpOnIpv4Redundancy2: db_backend_static.static_node_0.wrapper_rg.0.port_replication_2
+                    dbBackendExternallyManagedCp: db_backend_static.static_node_0.wrapper_rg.0.port_internal_ext_managed
+                  virtualStorages:
+                      rootVolume: db_backend_static.static_node_0.wrapper_rg.0.volume_root
+                      dataVolume: db_backend_static.static_node_0.wrapper_rg.0.volume_data
+                  externalConnectionPoints:
+                    dbBackendIpv4:
+                      - db_backend_static.static_node_0.wrapper_rg.0.floating_ip
+                    dbBackendIpv6:
+                      - db_backend_static.static_node_0.wrapper_rg.0.port_ipv6
+                - heatResource: db_backend_static.static_node_1.wrapper_rg.0.server
+                  connectionPoints:
+                    dbBackendCpOnIpv4: db_backend_static.static_node_1.wrapper_rg.0.port_ipv4_nated
+                    dbBackendCpOnIpv6: db_backend_static.static_node_1.wrapper_rg.0.port_ipv6
+                    dbBackendCpOnIpv4Redundancy1: db_backend_static.static_node_1.wrapper_rg.0.port_replication_1
+                    dbBackendCpOnIpv4Redundancy2: db_backend_static.static_node_1.wrapper_rg.0.port_replication_2
+                    dbBackendExternallyManagedCp: db_backend_static.static_node_1.wrapper_rg.0.port_internal_ext_managed
+                  virtualStorages:
+                      rootVolume: db_backend_static.static_node_1.wrapper_rg.0.volume_root
+                      dataVolume: db_backend_static.static_node_1.wrapper_rg.0.volume_data
+                  externalConnectionPoints:
+                    dbBackendIpv4:
+                      - db_backend_static.static_node_1.wrapper_rg.0.floating_ip
+                    dbBackendIpv6:
+                      - db_backend_static.static_node_1.wrapper_rg.0.port_ipv6
+                - heatResource: db_backend_static.static_node_2.wrapper_rg.0.server
+                  connectionPoints:
+                    dbBackendCpOnIpv4: db_backend_static.static_node_2.wrapper_rg.0.port_ipv4_nated
+                    dbBackendCpOnIpv6: db_backend_static.static_node_2.wrapper_rg.0.port_ipv6
+                    dbBackendCpOnIpv4Redundancy1: db_backend_static.static_node_2.wrapper_rg.0.port_replication_1
+                    dbBackendCpOnIpv4Redundancy2: db_backend_static.static_node_2.wrapper_rg.0.port_replication_2
+                    dbBackendExternallyManagedCp: db_backend_static.static_node_2.wrapper_rg.0.port_internal_ext_managed
+                  virtualStorages:
+                      rootVolume: db_backend_static.static_node_2.wrapper_rg.0.volume_root
+                      dataVolume: db_backend_static.static_node_2.wrapper_rg.0.volume_data
+                  externalConnectionPoints:
+                    dbBackendIpv4:
+                      - db_backend_static.static_node_2.wrapper_rg.0.floating_ip
+                    dbBackendIpv6:
+                      - db_backend_static.static_node_2.wrapper_rg.0.port_ipv6
+            externalConnectionPoints:
+              loadBalancer:
+               - service_node_static.moving_ip_floating_ip
+          aspects:
+            dbBackendAspect:
+              heatResource: db_backend_aspect_group
+              vdus:
+                dbBackend:
+                  - heatResource: wrapper_rg.0.server
+                    connectionPoints:
+                      dbBackendCpOnIpv4: wrapper_rg.0.port_ipv4_nated
+                      dbBackendCpOnIpv6: wrapper_rg.0.port_ipv6
+                      dbBackendCpOnIpv4Redundancy1: wrapper_rg.0.port_replication_1
+                      dbBackendCpOnIpv4Redundancy2: wrapper_rg.0.port_replication_2
+                      dbBackendExternallyManagedCp: wrapper_rg.0.port_internal_ext_managed
+                    virtualStorages:
+                      rootVolume: wrapper_rg.0.volume_root
+                      dataVolume: wrapper_rg.0.volume_data
+              externalConnectionPoints:
+                dbBackendIpv4:
+                  - wrapper_rg.0.floating_ip
+                dbBackendIpv6:
+                  - wrapper_rg.0.port_ipv6
+            serviceNodeAspect:
+              heatResource: service_node_aspect_group
+              affinity:
+                local:
+                  - type: same
+                    place: vim
+                    resources: [node_a.server, node_b.server]
+                  - type: same
+                    place: zone
+                    resources: [node_a.server, node_b.server]
+                  - type: different
+                    place: host
+                    resources: [node_a.server, node_b.server]
+              vdus:
+                serviceNode:
+                  - heatResource: node_a.server
+                    connectionPoints:
+                      serviceNodeCp: node_a.port_ipv4_nated
+                      serviceNodeExternallyManagedCp: node_a.port_internal_ext_managed
+                    externalConnectionPoints:
+                      serviceNodeIpv4:
+                       - node_a.floating_ip
+                  - heatResource: node_b.server
+                    connectionPoints:
+                      serviceNodeCp: node_b.port_ipv4_nated
+                      serviceNodeExternallyManagedCp: node_b.port_internal_ext_managed
+                    externalConnectionPoints:
+                      serviceNodeIpv4:
+                       - node_b.floating_ip
