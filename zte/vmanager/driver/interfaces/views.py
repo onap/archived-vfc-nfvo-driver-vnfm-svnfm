@@ -26,7 +26,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
-    NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer
+    NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer, \
+    InstantiateVnfRequestSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -84,83 +85,88 @@ def vnfpackage_get(csarid):
     ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % csarid, "GET")
     return ret
 
-
-@api_view(http_method_names=['POST'])
-def instantiate_vnf(request, *args, **kwargs):
-    try:
-        logger.debug("[%s] request.data=%s", fun_name(), request.data)
-        vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        ret = get_vnfminfo_from_nslcm(vnfm_id)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        vnfm_info = json.JSONDecoder().decode(ret[1])
-        logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
-        vnf_package_id = ignorcase_get(request.data, "vnfPackageId")
-        ret = vnfd_get(vnf_package_id)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        vnfd_info = json.JSONDecoder().decode(ret[1])
-        logger.debug("[%s] vnfd_info=%s", fun_name(), vnfd_info)
-        csar_id = ignorcase_get(vnfd_info, "csarId")
-        ret = vnfpackage_get(csar_id)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        vnf_package_info = json.JSONDecoder().decode(ret[1])
-        packageInfo = ignorcase_get(vnf_package_info, "packageInfo")
-        logger.debug("[%s] packageInfo=%s", fun_name(), packageInfo)
-        data = {}
-        data["NFVOID"] = 1
-        data["VNFMID"] = vnfm_id
-        vnfdModel = json.loads(ignorcase_get(packageInfo, "vnfdModel"))
-        metadata = ignorcase_get(vnfdModel, "metadata")
-        vnfd_name = ignorcase_get(metadata, "name")
-        # TODO  convert sdc vnf package to vnf vender package
-        inputs = []
-        if "SPGW" in vnfd_name.upper():
-            data["VNFD"] = VNF_FTP + "SPGW"
-            inputs = load_json_file("SPGW" + "_inputs.json")
-        elif "MME" in vnfd_name.upper():
-            data["VNFD"] = VNF_FTP + "MME"
-            inputs = load_json_file("MME" + "_inputs.json")
-        else:
-            data["VNFD"] = ignorcase_get(packageInfo, "downloadUri")
-
-        data["VNFURL"] = data["VNFD"]
-
-        data["extension"] = {}
-        for name, value in ignorcase_get(ignorcase_get(request.data, "additionalParam"), "inputs").items():
-            inputs.append({"name": name, "value": value})
-
-        data["extension"]["inputs"] = json.dumps(inputs)
-        additionalParam = ignorcase_get(request.data, "additionalParam")
-        data["extension"]["extVirtualLinks"] = ignorcase_get(additionalParam, "extVirtualLinks")
-        data["extension"]["vnfinstancename"] = ignorcase_get(request.data, "vnfInstanceName")
-        data["extension"]["vnfid"] = data["VNFD"]
-        data["extension"]["multivim"] = 0
-        logger.debug("[%s] call_req data=%s", fun_name(), data)
-
-        ret = restcall.call_req(
-            base_url=ignorcase_get(vnfm_info, "url"),
-            user=ignorcase_get(vnfm_info, "userName"),
-            passwd=ignorcase_get(vnfm_info, "password"),
-            auth_type=restcall.rest_no_auth,
-            resource="v1/vnfs",
-            method='post',
-            content=json.JSONEncoder().encode(data))
-
-        logger.debug("[%s] call_req ret=%s", fun_name(), ret)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        resp = json.JSONDecoder().decode(ret[1])
-        resp_data = {
-            "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
-            "jobId": ignorcase_get(resp, "JobId")
+class InstamtiateVnf(APIView):
+    @swagger_auto_schema(
+        request_body=InstantiateVnfRequestSerializer(),
+        responses={
+            status.HTTP_200_OK: InstScaleHealRespSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
         }
-        logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-    except Exception as e:
-        logger.error("Error occurred when instantiating VNF")
-        raise e
-    return Response(data=resp_data, status=ret[2])
+    )
+    def post(self, request, vnfmid):
+        try:
+            logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            ret = get_vnfminfo_from_nslcm(vnfmid)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            vnfm_info = json.JSONDecoder().decode(ret[1])
+            logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+            vnf_package_id = ignorcase_get(request.data, "vnfPackageId")
+            ret = vnfd_get(vnf_package_id)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            vnfd_info = json.JSONDecoder().decode(ret[1])
+            logger.debug("[%s] vnfd_info=%s", fun_name(), vnfd_info)
+            csar_id = ignorcase_get(vnfd_info, "csarId")
+            ret = vnfpackage_get(csar_id)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            vnf_package_info = json.JSONDecoder().decode(ret[1])
+            packageInfo = ignorcase_get(vnf_package_info, "packageInfo")
+            logger.debug("[%s] packageInfo=%s", fun_name(), packageInfo)
+            data = {}
+            data["NFVOID"] = 1
+            data["VNFMID"] = vnfmid
+            vnfdModel = json.loads(ignorcase_get(packageInfo, "vnfdModel"))
+            metadata = ignorcase_get(vnfdModel, "metadata")
+            vnfd_name = ignorcase_get(metadata, "name")
+            # TODO  convert sdc vnf package to vnf vender package
+            inputs = []
+            if "SPGW" in vnfd_name.upper():
+                data["VNFD"] = VNF_FTP + "SPGW"
+                inputs = load_json_file("SPGW" + "_inputs.json")
+            elif "MME" in vnfd_name.upper():
+                data["VNFD"] = VNF_FTP + "MME"
+                inputs = load_json_file("MME" + "_inputs.json")
+            else:
+                data["VNFD"] = ignorcase_get(packageInfo, "downloadUri")
+
+            data["VNFURL"] = data["VNFD"]
+
+            data["extension"] = {}
+            for name, value in ignorcase_get(ignorcase_get(request.data, "additionalParam"), "inputs").items():
+                inputs.append({"name": name, "value": value})
+
+            data["extension"]["inputs"] = json.dumps(inputs)
+            additionalParam = ignorcase_get(request.data, "additionalParam")
+            data["extension"]["extVirtualLinks"] = ignorcase_get(additionalParam, "extVirtualLinks")
+            data["extension"]["vnfinstancename"] = ignorcase_get(request.data, "vnfInstanceName")
+            data["extension"]["vnfid"] = data["VNFD"]
+            data["extension"]["multivim"] = 0
+            logger.debug("[%s] call_req data=%s", fun_name(), data)
+
+            ret = restcall.call_req(
+                base_url=ignorcase_get(vnfm_info, "url"),
+                user=ignorcase_get(vnfm_info, "userName"),
+                passwd=ignorcase_get(vnfm_info, "password"),
+                auth_type=restcall.rest_no_auth,
+                resource="v1/vnfs",
+                method='post',
+                content=json.JSONEncoder().encode(data))
+
+            logger.debug("[%s] call_req ret=%s", fun_name(), ret)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            resp = json.JSONDecoder().decode(ret[1])
+            resp_data = {
+                "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
+                "jobId": ignorcase_get(resp, "JobId")
+            }
+            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
+        except Exception as e:
+            logger.error("Error occurred when instantiating VNF")
+            raise e
+        return Response(data=resp_data, status=ret[2])
 
 
 class TerminateVnf(APIView):
