@@ -1,0 +1,13 @@
+{
+  "healVnfData": {
+    "vnfInstanceId": "05901205-622e-495b-9673-25c433c1c35a",
+    "cause": "cause",
+    "additionalParams": {
+      "action": "restartvm",
+      "actionvminfo": {
+        "vmid": "vmId",
+        "vmname": "vmname"
+      }
+    }
+  }
+}
