@@ -85,6 +85,7 @@ def vnfpackage_get(csarid):
     ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % csarid, "GET")
     return ret
 
+
 class InstamtiateVnf(APIView):
     @swagger_auto_schema(
         request_body=InstantiateVnfRequestSerializer(),
@@ -96,27 +97,36 @@ class InstamtiateVnf(APIView):
     def post(self, request, vnfmid):
         try:
             logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            instantiateVnfRequestSerializer = InstantiateVnfRequestSerializer(data=request.data)
+            if not instantiateVnfRequestSerializer.is_valid():
+                raise Exception(instantiateVnfRequestSerializer.errors)
+
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             vnfm_info = json.JSONDecoder().decode(ret[1])
             logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
-            vnf_package_id = ignorcase_get(request.data, "vnfPackageId")
+            vnf_package_id = ignorcase_get(instantiateVnfRequestSerializer.data, "vnfPackageId")
             ret = vnfd_get(vnf_package_id)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             vnfd_info = json.JSONDecoder().decode(ret[1])
             logger.debug("[%s] vnfd_info=%s", fun_name(), vnfd_info)
             csar_id = ignorcase_get(vnfd_info, "csarId")
             ret = vnfpackage_get(csar_id)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             vnf_package_info = json.JSONDecoder().decode(ret[1])
             packageInfo = ignorcase_get(vnf_package_info, "packageInfo")
             logger.debug("[%s] packageInfo=%s", fun_name(), packageInfo)
-            data = {}
-            data["NFVOID"] = 1
-            data["VNFMID"] = vnfmid
+            data = {
+                "NFVOID": 1,
+                "VNFMID": vnfmid,
+                "extension": {},
+            }
             vnfdModel = json.loads(ignorcase_get(packageInfo, "vnfdModel"))
             metadata = ignorcase_get(vnfdModel, "metadata")
             vnfd_name = ignorcase_get(metadata, "name")
@@ -133,14 +143,13 @@ class InstamtiateVnf(APIView):
 
             data["VNFURL"] = data["VNFD"]
 
-            data["extension"] = {}
-            for name, value in ignorcase_get(ignorcase_get(request.data, "additionalParam"), "inputs").items():
+            for name, value in ignorcase_get(ignorcase_get(instantiateVnfRequestSerializer.data, "additionalParam"), "inputs").items():
                 inputs.append({"name": name, "value": value})
 
             data["extension"]["inputs"] = json.dumps(inputs)
-            additionalParam = ignorcase_get(request.data, "additionalParam")
+            additionalParam = ignorcase_get(instantiateVnfRequestSerializer.data, "additionalParam")
             data["extension"]["extVirtualLinks"] = ignorcase_get(additionalParam, "extVirtualLinks")
-            data["extension"]["vnfinstancename"] = ignorcase_get(request.data, "vnfInstanceName")
+            data["extension"]["vnfinstancename"] = ignorcase_get(instantiateVnfRequestSerializer.data, "vnfInstanceName")
             data["extension"]["vnfid"] = data["VNFD"]
             data["extension"]["multivim"] = 0
             logger.debug("[%s] call_req data=%s", fun_name(), data)
@@ -156,17 +165,23 @@ class InstamtiateVnf(APIView):
 
             logger.debug("[%s] call_req ret=%s", fun_name(), ret)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             resp = json.JSONDecoder().decode(ret[1])
             resp_data = {
                 "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
                 "jobId": ignorcase_get(resp, "JobId")
             }
             logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
+            instRespSerializer = InstScaleHealRespSerializer(data=resp_data)
+            if not instRespSerializer.is_valid():
+                raise Exception(instRespSerializer.errors)
+
+            return Response(data=instRespSerializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error("Error occurred when instantiating VNF")
-            raise e
-        return Response(data=resp_data, status=ret[2])
+            logger.error("Error occurred when instantiating VNF,error:%s", e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'InstantiateVnf expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class TerminateVnf(APIView):

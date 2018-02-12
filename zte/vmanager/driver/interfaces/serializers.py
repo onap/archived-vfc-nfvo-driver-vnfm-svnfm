@@ -79,9 +79,8 @@ class InstantiateVnfRequestSerializer(serializers.Serializer):
         required=True,
         max_length=255,
         allow_null=True)
-    additionalParam = serializers.DictField(
+    additionalParam = additionalParamSerializer(
         help_text="additionalParam",
-        child=additionalParamSerializer(help_text='additionalParam'),
         required=True,
         allow_null=True)
 
