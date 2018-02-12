@@ -27,7 +27,8 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum.LifecycleOperation;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfcResourceInfoMapper;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmGrantVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
@@ -38,23 +39,29 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.TerminateVnfRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class TerminateVnfContinueRunnable implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(TerminateVnfContinueRunnable.class);
 
+	@Autowired
 	private CbamMgmrInf cbamMgmr;
+	@Autowired
 	private NslcmMgmrInf nslcmMgmr;
 	
 	private TerminateVnfRequest driverRequest;
 	private String vnfInstanceId;
 	private String jobId;
 	private String vnfmId;
-	private VnfmJobExecutionRepository jobDbMgmr;
+	@Autowired
+	private VnfmJobExecutionMapper jobDbMgmr;
+	@Autowired
+	private VnfcResourceInfoMapper vnfcDbMgmr;
 	
 	private Driver2CbamRequestConverter requestConverter;
 	
 	public TerminateVnfContinueRunnable(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId,
-			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionRepository dbManager)
+			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper dbManager, VnfcResourceInfoMapper vnfcDbMgmr)
 	{
 		this.driverRequest = driverRequest;
 		this.vnfInstanceId = vnfInstanceId;
@@ -64,6 +71,7 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		this.jobId = jobId;
 		this.jobDbMgmr = dbManager;
 		this.vnfmId = vnfmId;
+		this.vnfcDbMgmr = vnfcDbMgmr;
 	}
 	
 	private void handleGrant(){
@@ -104,11 +112,11 @@ public class TerminateVnfContinueRunnable implements Runnable {
 	}
 	
 	private void prepareDelete(String jobId) {
-		OperateTaskProgress.stopTerminateTimerTask();
-		
+		long nowTime = System.currentTimeMillis();
 		VnfmJobExecutionInfo jobInfo = jobDbMgmr.findOne(Long.parseLong(jobId));
 		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_FINISH);
-		jobDbMgmr.save(jobInfo);
+		jobInfo.setOperateEndTime(nowTime);
+		jobDbMgmr.update(jobInfo);
 		
 		try {
 			NslcmNotifyLCMEventsRequest nslcmNotifyReq = buildNslcmNotifyLCMEventsRequest();
@@ -141,7 +149,7 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		else {
 			jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_PROCESSING);
 		}
-		jobDbMgmr.save(jobInfo);
+		jobDbMgmr.update(jobInfo);
 	}
 	
 	private NslcmGrantVnfRequest buildNslcmGrantVnfRequest() {
@@ -176,8 +184,8 @@ public class TerminateVnfContinueRunnable implements Runnable {
 	private NslcmNotifyLCMEventsRequest buildNslcmNotifyLCMEventsRequest() {
 		NslcmNotifyLCMEventsRequest request = new NslcmNotifyLCMEventsRequest();
 		request.setStatus(CommonEnum.status.result);
-		
-		List<AffectedVnfc> vnfcs = modifyResourceTypeAsRemove(OperateTaskProgress.getAffectedVnfc());
+		List<AffectedVnfc> vnfcsFromDb = vnfcDbMgmr.getAllByInstanceId(vnfInstanceId);
+		List<AffectedVnfc> vnfcs = modifyResourceTypeAsRemove(vnfcsFromDb);
 		
 		request.setAffectedVnfc(vnfcs);
 		request.setVnfInstanceId(vnfInstanceId);
@@ -202,8 +210,23 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		return vnfcs;
 	}
 
-	private void handleNslcmGrantResponse(NslcmGrantVnfResponse grantResponse) {
-		// TODO Auto-generated method stub
-		
+	public void setDriverRequest(TerminateVnfRequest driverRequest) {
+		this.driverRequest = driverRequest;
+	}
+
+	public void setVnfInstanceId(String vnfInstanceId) {
+		this.vnfInstanceId = vnfInstanceId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
+	public void setVnfmId(String vnfmId) {
+		this.vnfmId = vnfmId;
+	}
+
+	public void setRequestConverter(Driver2CbamRequestConverter requestConverter) {
+		this.requestConverter = requestConverter;
 	}
 }

@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
@@ -28,17 +29,26 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMInstantiateVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMModifyVnfRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMModifyVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryOperExecutionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMScaleVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationResponse;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfcResourceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
@@ -61,6 +71,7 @@ public class CbamMgmrImplTest {
 		
 		String json = "{\"access_token\":\"1234567\"}";
 		HttpResult httpResult = new HttpResult();
+		httpResult.setStatusCode(200);
 		httpResult.setContent(json);
 		
 		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
@@ -78,6 +89,13 @@ public class CbamMgmrImplTest {
 	{
 		CBAMInstantiateVnfRequest cbamRequest = new CBAMInstantiateVnfRequest();
 		CBAMInstantiateVnfResponse response = cbamMgmr.instantiateVnf(cbamRequest, vnfInstanceId);
+	}
+	
+	@Test
+	public void testModifyVnf() throws ClientProtocolException, IOException
+	{
+		CBAMModifyVnfRequest cbamRequest = new CBAMModifyVnfRequest();
+		CBAMModifyVnfResponse response = cbamMgmr.modifyVnf(cbamRequest, vnfInstanceId);
 	}
 	
 	@Test
@@ -111,5 +129,52 @@ public class CbamMgmrImplTest {
 	public void testQueryVnf() throws ClientProtocolException, IOException
 	{
 		CBAMQueryVnfResponse response = cbamMgmr.queryVnf(vnfInstanceId);
+	}
+	
+	@Test
+	public void testCreateSubscription() throws ClientProtocolException, IOException
+	{
+		CBAMCreateSubscriptionRequest cbamRequest = new CBAMCreateSubscriptionRequest();
+		CBAMCreateSubscriptionResponse response = cbamMgmr.createSubscription(cbamRequest);
+	}
+	
+	@Test
+	public void testGetNotification() throws ClientProtocolException, IOException
+	{
+		CBAMVnfNotificationRequest cbamRequest = new CBAMVnfNotificationRequest();
+		CBAMVnfNotificationResponse response = cbamMgmr.getNotification(cbamRequest);
+	}
+	
+	@Test
+	public void testGetSubscription() throws ClientProtocolException, IOException
+	{
+		String subscriptionId = "subscriptionId_001";
+		Subscription response = cbamMgmr.getSubscription(subscriptionId);
+	}
+	
+	@Test
+	public void testQueryVnfcResource() throws ClientProtocolException, IOException
+	{
+		String json = "[{'id':'id_001'}]";
+		HttpResult httpResult = new HttpResult();
+		httpResult.setStatusCode(200);
+		httpResult.setContent(json);
+		
+		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
+		List<VnfcResourceInfo> response = cbamMgmr.queryVnfcResource(vnfInstanceId);
+	}
+	
+	@Test
+	public void testQueryOperExecution() throws ClientProtocolException, IOException
+	{
+		String execId = "execId_001";
+		CBAMQueryOperExecutionResponse response = cbamMgmr.queryOperExecution(execId);
+	}
+	
+	@Test
+	public void testUploadVnfPackage() throws ClientProtocolException, IOException
+	{
+		String cbamPackageFilePath = "cbamPackageFilePath_001";
+		cbamMgmr.uploadVnfPackage(cbamPackageFilePath);
 	}
 }

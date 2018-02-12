@@ -44,7 +44,7 @@ public class CommonEnum {
 
 	// GrantVnf
 	public enum LifecycleOperation {
-		Instantiate, Scaleout, Scalein, Scaleup, Scaledown, Terminal
+		Instantiate, Scaleout, Scalein, Scaleup, Scaledown, Terminal,Heal
 	}
 
 	public enum type {

@@ -15,9 +15,7 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
-import org.springframework.data.repository.CrudRepository;
-
-public interface VnfmJobExecutionRepository extends CrudRepository< VnfmJobExecutionInfo, Long> {
+public interface VnfmJobExecutionRepository //extends CrudRepository< VnfmJobExecutionInfo, Long> 
+{
 
 }

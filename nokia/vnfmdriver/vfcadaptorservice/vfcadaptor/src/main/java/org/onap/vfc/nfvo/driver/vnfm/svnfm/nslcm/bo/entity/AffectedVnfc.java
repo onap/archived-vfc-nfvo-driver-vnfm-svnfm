@@ -17,9 +17,13 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.entity;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AffectedVnfc {
+	@JsonIgnore
+	private String vnfInstanceId;
+	
 	@JsonProperty("vnfcInstanceId")
 	private String vnfcInstanceId;
 	
@@ -73,6 +77,14 @@ public class AffectedVnfc {
 
 	public void setVmid(String vmid) {
 		this.vmid = vmid;
+	}
+
+	public String getVnfInstanceId() {
+		return vnfInstanceId;
+	}
+
+	public void setVnfInstanceId(String vnfInstanceId) {
+		this.vnfInstanceId = vnfInstanceId;
 	}
 	
 	
