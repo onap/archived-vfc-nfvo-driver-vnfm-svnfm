@@ -1,0 +1,11 @@
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0_nokia
+
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.nfv.VNF
+    properties:
+      descriptor_version: '1.0'
+      provider: myProvider
+      product_name: 'myName'
+      software_version: '2.0'
+      product_info_name: product_info_name
