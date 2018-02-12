@@ -1,0 +1,751 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "ONAP VFC Catalog Rest API",
+    "description": "VFC Catalog Management API.",
+    "contact": {
+      "name": "ONAP VFC team",
+      "email": "onap-discuss@lists.onap.org",
+      "url": "https://gerrit.onap.org/r/#/admin/projects/vfc/nfvo/catalog"
+    }
+  },
+  "basePath": "/api/catalog/v1",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/nspackages": {
+      "get": {
+        "tags": [
+          "nspackage"
+        ],
+        "summary": "query ns packages info",
+        "description": "query ns packages info",
+        "operationId": "query_ns_packages",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/NsPkgListInfo"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "nspackage"
+        ],
+        "summary": "ns package distribute",
+        "description": "ns package distribute",
+        "operationId": "ns_pkg_distribute",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "distribute request param",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NsPkgDistributeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/NsPkgDistributeResponse"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      }
+    },
+    "/nspackages/{csarId}": {
+      "get": {
+        "tags": [
+          "nspackage"
+        ],
+        "summary": "query ns package info",
+        "description": "query ns package info via ns package csarId",
+        "operationId": "query_ns_package",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "csarId",
+            "in": "path",
+            "description": "csar id of ns package",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/NsPkgDetailInfo"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "nspackage"
+        ],
+        "summary": "delete ns pkg",
+        "description": "delete ns pkg",
+        "operationId": "delete_ns_pkg",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "csarId",
+            "in": "path",
+            "description": "csar id of ns package",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/NsPkgDelResponse"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      }
+    },
+    "/parsernsd": {
+      "post": {
+        "tags": [
+          "model"
+        ],
+        "summary": "ns package model",
+        "description": "ns package model",
+        "operationId": "ms_model_parser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "distribute request param",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/modelParserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/modelParserResponse"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      }
+     },
+    "/vnfpackages": {
+      "get": {
+        "tags": [
+          "vnfpackage"
+        ],
+        "summary": "query vnf packages info",
+        "description": "query vnf packages info",
+        "operationId": "query_vnf_packages",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/VnfPkgListInfo"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "vnfpackage"
+        ],
+        "summary": "vnf package distribute",
+        "description": "vnf package distribute",
+        "operationId": "vnf_pkg_distribute",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "distribute request param",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfPkgDistributeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/VnfPkgDistributeResponse"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      }
+    },
+    "/vnfpackages/{csarId}": {
+      "get": {
+        "tags": [
+          "vnfpackage"
+        ],
+        "summary": "query vnf package info",
+        "description": "query one vnf package info via vnf package csarId",
+        "operationId": "query_vnf_package",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "csarId",
+            "in": "path",
+            "description": "csar id of vnf package",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/VnfPkgDetailInfo"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "vnfpackage"
+        ],
+        "summary": "delete vnf package",
+        "description": "delete vnf package",
+        "operationId": "delete_vnf_package",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "csarId",
+            "in": "path",
+            "description": "csar id of vnf package",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/VnfPkgDelResponse"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      }
+    },
+    "/parservnfd": {
+      "post": {
+        "tags": [
+          "model"
+        ],
+        "summary": "vnf package model",
+        "description": "vnf package model",
+        "operationId": "vnf_model_parser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "distribute request param",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/modelParserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/modelParserResponse"
+            }
+          },
+          "404": {
+            "description": "URL not found"
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      }
+     },
+     "/jobs/{jobId}": {
+       "get": {
+        "tags": [
+          "job"
+        ],
+        "summary": "jobstatus",
+        "description": "",
+        "operationId": "get_jobstatus",
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "job Id",
+            "name": "jobId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "job response message id",
+            "name": "responseId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+             "schema": {
+              "$ref": "#/definitions/JobDetailInfo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "NsPkgDistributeRequest": {
+      "type": "object",
+      "properties": {
+        "csarId": {
+          "type": "string",
+          "description": "network service package id, UUID"
+        }
+      }
+    },
+    "NsPkgDistributeResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Operation status. value is success or failed"
+        },
+        "statusDescription": {
+          "type": "string",
+          "description": "description about the operation result"
+        },
+        "errorCode": {
+          "type": "string",
+          "description": "If the status is failed, the errorcode will be returned"
+        }
+      }
+    },
+    "NsPkgDelResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Operation status. value is success or failed"
+        },
+        "statusDescription": {
+          "type": "string",
+          "description": "description about the operation result"
+        },
+        "errorCode": {
+          "type": "string",
+          "description": "If the status is failed, the errorcode will be returned"
+        }
+      }
+    },
+    "NsPkgListInfo": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/NsPkgInfo"
+      }
+    },
+    "NsPkgDetailInfo": {
+      "type": "object",
+      "properties": {
+        "csarId": {
+          "type": "string"
+        },
+        "packageInfo": {
+          "$ref": "#/definitions/NsPkgInfo"
+        },
+        "instanceInfo": {
+          "$ref": "#/definitions/NsInstListInfo"
+        }
+      }
+    },
+    "NsPkgInfo": {
+      "type": "object",
+      "properties": {
+        "nsPackageId": {
+          "type": "string",
+          "description": "The identifer of the NS (csarId)"
+        },
+        "nsdId": {
+          "type": "string",
+          "description": "network service descriptor identifer (same as csarId)"
+        },
+        "csarName": {
+          "type": "string",
+          "description": "The name of the CSAR"
+        },
+        "nsdProvider": {
+          "type": "string",
+          "description": "network service designer name"
+        },
+        "nsdVersion": {
+          "type": "string",
+          "description": "network service descriptor version"
+        },
+        "downloadUrl": {
+          "type": "string",
+          "description": "The URL from which the NSD package can be downloaded from"
+        },
+        "nsdModel": {
+          "type": "string",
+          "description": "The parsed model of the NSD (JSON encoded into string)"
+        }
+      }
+    },
+    "NsInstListInfo": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/NsInstInfo"
+      }
+    },
+    "NsInstInfo": {
+      "type": "object",
+      "properties": {
+        "nsInstanceId": {
+          "type": "string",
+          "description": "network service instance ID"
+        },
+        "nsInstanceName": {
+          "type": "string",
+          "description": "network service instance name"
+        }
+      }
+    },
+    "VnfPkgDistributeRequest": {
+      "type": "object",
+      "properties": {
+        "csarId": {
+          "type": "string",
+          "description": "vnf package id, UUID"
+        }
+      }
+    },
+    "VnfPkgDistributeResponse": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "description": "VNF package distribute job ID"
+        }
+      }
+    },
+    "VnfPkgDelResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Operation status. value is success or failed"
+        },
+        "statusDescription": {
+          "type": "string",
+          "description": "description about the operation result"
+        },
+        "errorCode": {
+          "type": "string",
+          "description": "If the status is failed, the errorcode will be returned"
+        }
+      }
+    },
+    "VnfPkgListInfo": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VnfPkgInfo"
+      }
+    },
+    "VnfPkgDetailInfo": {
+      "type": "object",
+      "properties": {
+        "csarId": {
+          "type": "string",
+          "description": "vnf package id, UUID"
+        },
+        "packageInfo": {
+          "$ref": "#/definitions/VnfPkgInfo"
+        },
+        "imageInfo": {
+          "$ref": "#/definitions/VnfPkgImgListInfo"
+        },
+        "vnfInstanceInfo": {
+          "$ref": "#/definitions/VnfInstListInfo"
+        }
+      }
+    },
+    "VnfPkgInfo": {
+      "type": "object",
+      "description": "vnf package infomation",
+      "properties": {
+        "vnfPackageId": {
+          "type": "string",
+          "description": "The identifier of the VNF package (csarId)"
+        },
+        "csarName": {
+          "type": "string",
+          "description": "The name of the CSAR"
+        },
+        "vnfdId": {
+          "type": "string",
+          "description": "VNF descriptor ID (same as CSAR ID)"
+        },
+        "vnfdProvider": {
+          "type": "string",
+          "description": "VNF descriptor vendor ID"
+        },
+        "vnfdVersion": {
+          "type": "string",
+          "description": "VNF descriptor version"
+        },
+        "vnfVersion": {
+          "type": "string",
+          "description": "VNF Software version"
+        },
+        "vnfdModel":{
+          "type": "string",
+          "description": "The model of the VNFD (JSON encoded into string)"
+        },
+        "downloadUrl":{
+          "type": "string",
+          "description": "The URL from which the package can be downloaded from"
+        }
+      }
+    },
+    "VnfInstListInfo": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VnfInstInfo"
+      }
+    },
+    "VnfInstInfo": {
+      "type": "object",
+      "properties": {
+        "vnfInstanceId": {
+          "type": "string",
+          "description": "VNF instance ID"
+        },
+        "vnfInstanceName": {
+          "type": "string",
+          "description": "VNF instance name"
+        }
+      }
+    },
+    "VnfPkgImgListInfo": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VnfPkgImgInfo"
+      }
+    },
+    "VnfPkgImgInfo": {
+      "type": "object",
+      "properties": {
+        "fileName": {
+          "type": "string",
+          "description": "image file name"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "image file path in the csar or image url in external repository"
+        }
+      }
+    },
+    "modelParserRequest":{
+      "type": "object",
+      "properties": {
+        "csarId": {
+          "type": "string",
+          "description": "csar Package Id"
+        },
+        "inputs": {
+          "type": "object",
+          "description": "csar package json inputs"
+        }
+      }
+    },
+    "modelParserResponse":{
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "object",
+          "description": "csar model json data"
+        }
+      }
+    },
+    "jobResponseInfo": {
+       "type": "object",
+       "properties": {
+          "status": {
+            "type": "string"
+          },
+         "progress":{
+            "type": "string"
+         },
+         "statusDescription": {
+            "type": "string"
+         },
+         "errorCode": {
+            "type": "string"
+         },
+         "responseId": {
+            "type": "string"
+        }
+       }
+    },
+    "JobDetailInfo":{
+      "type": "object",
+      "properties": {
+            "jobId": {
+               "type": "string"
+             },
+            "responseDescriptor":
+            {
+                "type":"object",
+                "properties": {
+                    "status": {
+                       "type": "string"
+                    },
+                    "progress":{
+                       "type": "string"
+                    },
+                    "statusDescription": {
+                       "type": "string"
+                    },
+                    "errorCode": {
+                       "type": "string"
+                    },
+                    "responseId": {
+                       "type": "string"
+                    },
+                    "responseHistoryList": {
+                        "type": "array",
+                        "items": {
+                           "$ref": "#/definitions/jobResponseInfo"
+                        }
+                    }
+                }
+           }
+      }
+    }
+  }
+}

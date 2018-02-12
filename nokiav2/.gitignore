@@ -1,0 +1,5 @@
+.idea
+bin
+*.iml
+.DS_Store
+tmp
