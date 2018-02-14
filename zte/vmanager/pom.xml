@@ -25,7 +25,7 @@
     <artifactId>vfc-nfvo-driver-vnfm-svnfm-zte-vmanager</artifactId>
     <version>1.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>vfc/nfvo/driver/vnfm/svnfm/zte/vmanager</name>
+    <name>vfc-nfvo-driver-vnfm-svnfm</name>
     <description>vfc nfvo driver-vnfm-svnfm-zte-vmanager</description>
     <build>
       <plugins>
