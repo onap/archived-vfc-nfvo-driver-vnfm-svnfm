@@ -40,7 +40,7 @@ import net.sf.json.JSONObject;
  * <br>
  * <p>
  * </p>
- * 
+ *
  * @author
  * @version VFC 1.0 Jan 23, 2017
  */
@@ -77,38 +77,29 @@ public class VnfmAdapter2DriverMgrService implements IVnfmAdapter2DriverMgrServi
 
     /**
      * Retrieve VIM driver information.
-     * 
+     *
      * @return
      * @throws IOException
      */
     public static String readVnfmAdapterInfoFromJson() throws IOException {
-        InputStream ins = null;
-        BufferedInputStream bins = null;
         String fileContent = "";
 
         String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
                 + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
                 + "adapterInfo" + System.getProperty(Constant.FILE_SEPARATOR) + VNFMADAPTER2DRIVERMGR;
 
-        try {
-            ins = new FileInputStream(fileName);
-            bins = new BufferedInputStream(ins);
+        try (InputStream ins = new FileInputStream(fileName)){
+            try(BufferedInputStream bins = new BufferedInputStream(ins)){
 
-            byte[] contentByte = new byte[ins.available()];
-            int num = bins.read(contentByte);
+                byte[] contentByte = new byte[ins.available()];
+                int num = bins.read(contentByte);
 
-            if(num > 0) {
-                fileContent = new String(contentByte);
+                if(num > 0) {
+                    fileContent = new String(contentByte);
+                }
             }
         } catch(FileNotFoundException e) {
             LOG.error(fileName + "is not found!", e);
-        } finally {
-            if(ins != null) {
-                ins.close();
-            }
-            if(bins != null) {
-                bins.close();
-            }
         }
 
         return fileContent;
@@ -167,6 +158,8 @@ public class VnfmAdapter2DriverMgrService implements IVnfmAdapter2DriverMgrServi
                     }
                 } catch(InterruptedException e) {
                     LOG.error(e.getMessage(), e);
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 }
 
                 sendRequest(this.paramsMap, this.adapterInfo);
