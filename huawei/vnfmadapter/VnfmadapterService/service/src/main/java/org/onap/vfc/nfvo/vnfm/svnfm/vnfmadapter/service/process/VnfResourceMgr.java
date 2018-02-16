@@ -110,7 +110,7 @@ public class VnfResourceMgr {
         RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(ParamConstants.GRANT_RES_URL, VnfmRestfulUtil.TYPE_PUT,
                 grantParam.toString());
         if(rsp == null || rsp.getStatus() != Constant.HTTP_OK) {
-            return null;
+            return new JSONObject();
         }
         LOG.error("funtion=sendGrantToResmgr, status={}", rsp.getStatus());
         return JSONObject.fromObject(rsp.getResponseContent());
