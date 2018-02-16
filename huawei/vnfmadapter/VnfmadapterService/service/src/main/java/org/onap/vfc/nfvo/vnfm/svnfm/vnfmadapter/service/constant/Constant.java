@@ -152,11 +152,11 @@ public class Constant {
 
     public static final String FILE_SEPARATOR = "file.separator";
 
-    public static final String PASSWORD = "password";
+    public static final String PASSWORD = "password";  // NOSONAR
 
     public static final String USERNAME = "userName";
 
-    public static final String LOCAL_HOST = "127.0.0.1";
+    public static final String LOCAL_HOST = "127.0.0.1";  // NOSONAR
 
     private Constant() {
         // private constructor
