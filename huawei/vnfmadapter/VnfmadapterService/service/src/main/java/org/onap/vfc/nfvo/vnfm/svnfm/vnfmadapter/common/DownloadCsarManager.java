@@ -57,7 +57,7 @@ public class DownloadCsarManager {
 
     /**
      * Download from given URL.
-     * 
+     *
      * @param url String
      * @return
      */
@@ -67,49 +67,53 @@ public class DownloadCsarManager {
 
     /**
      * Download from given URL to given file location.
-     * 
+     *
      * @param url String
      * @param filepath String
      * @return
      */
     public static String download(String url, String filepath) {
         String status = "";
-        try {
-            CloseableHttpClient client = HttpClients.createDefault();
+        try (CloseableHttpClient client = HttpClients.createDefault()){
             HttpGet httpget = new HttpGet(url);
             CloseableHttpResponse response = client.execute(httpget);
 
             HttpEntity entity = response.getEntity();
-            InputStream is = entity.getContent();
-            if(filepath == null) {
-                filepath = getFilePath(response); // NOSONAR
+            try(InputStream is = entity.getContent()) {
+                if(filepath == null) {
+                    filepath = getFilePath(response); // NOSONAR
+                }
+
+                File file = new File(filepath);
+                file.getParentFile().mkdirs();
+                try(FileOutputStream fileout = new FileOutputStream(file)){
+
+                    byte[] buffer = new byte[CACHE];
+                    int ch;
+                    while((ch = is.read(buffer)) != -1) {
+                        fileout.write(buffer, 0, ch);
+                    }
+                    fileout.flush();
+                    status = Constant.DOWNLOADCSAR_SUCCESS;
+                } catch(Exception e) {
+                    status = Constant.DOWNLOADCSAR_FAIL;
+                    LOG.error("Download csar file failed! " + e.getMessage(), e);
+                }
+            } catch(Exception e) {
+                status = Constant.DOWNLOADCSAR_FAIL;
+                LOG.error("Download csar file failed! " + e.getMessage(), e);
             }
-
-            File file = new File(filepath);
-            file.getParentFile().mkdirs();
-            FileOutputStream fileout = new FileOutputStream(file);
-
-            byte[] buffer = new byte[CACHE];
-            int ch;
-            while((ch = is.read(buffer)) != -1) {
-                fileout.write(buffer, 0, ch);
-            }
-            is.close();
-            fileout.flush();
-            fileout.close();
-            client.close();
-            status = Constant.DOWNLOADCSAR_SUCCESS;
-
         } catch(Exception e) {
             status = Constant.DOWNLOADCSAR_FAIL;
             LOG.error("Download csar file failed! " + e.getMessage(), e);
         }
+
         return status;
     }
 
     /**
      * Retrieve file path from given response.
-     * 
+     *
      * @param response HttpResponse
      * @return
      */
@@ -127,7 +131,7 @@ public class DownloadCsarManager {
 
     /**
      * Retrieve file name from given response.
-     * 
+     *
      * @param response HttpResponse
      * @return
      */
@@ -152,7 +156,7 @@ public class DownloadCsarManager {
 
     /**
      * Provides random file name.
-     * 
+     *
      * @return
      */
     public static String getRandomFileName() {
@@ -161,7 +165,7 @@ public class DownloadCsarManager {
 
     /**
      * unzip CSAR packge
-     * 
+     *
      * @param fileName filePath
      * @return
      * @throws IOException

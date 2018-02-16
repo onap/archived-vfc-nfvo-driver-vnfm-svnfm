@@ -22,7 +22,7 @@ import java.text.MessageFormat;
  * The base class for all common exception.<br/>
  * <p>
  * </p>
- * 
+ *
  * @author
  * @version 28-May-2016
  */
@@ -43,7 +43,7 @@ public class ServiceException extends Exception {
      */
     private String id = DEFAULT_ID;
 
-    private Object[] args = null;
+    private Object[] args = null;  // NOSONAR
 
     private int httpCode = 500;
 
@@ -54,7 +54,7 @@ public class ServiceException extends Exception {
      * <p>
      * This method is only used as deserialized, in other cases, use parameterized constructor.
      * </p>
-     * 
+     *
      * @since
      */
     public ServiceException() {
@@ -65,7 +65,7 @@ public class ServiceException extends Exception {
      * Constructor<br/>
      * <p>
      * </p>
-     * 
+     *
      * @since
      * @param id: details.
      * @param cause: reason.
@@ -79,7 +79,7 @@ public class ServiceException extends Exception {
      * Constructor<br/>
      * <p>
      * </p>
-     * 
+     *
      * @since
      * @param message: details.
      */
@@ -91,7 +91,7 @@ public class ServiceException extends Exception {
      * Constructor<br/>
      * <p>
      * </p>
-     * 
+     *
      * @since
      * @param id: exception id.
      * @param message: details.
@@ -105,7 +105,7 @@ public class ServiceException extends Exception {
      * Constructor<br/>
      * <p>
      * </p>
-     * 
+     *
      * @since
      * @param id: exception id.
      * @param httpCode: http status code.
@@ -121,7 +121,7 @@ public class ServiceException extends Exception {
      * <p>
      * the exception include the httpcode and message.
      * </p>
-     * 
+     *
      * @since
      * @param httpCode http code.
      * @param message details.
@@ -135,7 +135,7 @@ public class ServiceException extends Exception {
      * Constructor<br/>
      * <p>
      * </p>
-     * 
+     *
      * @since
      * @param id: exception id.
      * @param httpCode: http code.
@@ -153,7 +153,7 @@ public class ServiceException extends Exception {
      * <p>
      * Have a placeholder exception, use args formatted message.
      * </p>
-     * 
+     *
      * @since
      * @param id: exception id.
      * @param message: details.
@@ -170,7 +170,7 @@ public class ServiceException extends Exception {
      * <p>
      * Have a placeholder exception, use args formatted message
      * </p>
-     * 
+     *
      * @since
      * @param id: exception id.
      * @param message: details.
@@ -187,7 +187,7 @@ public class ServiceException extends Exception {
      * Constructor<br/>
      * <p>
      * </p>
-     * 
+     *
      * @since
      * @param id: exception id.
      * @param message: details.
@@ -202,7 +202,7 @@ public class ServiceException extends Exception {
      * Constructor<br/>
      * <p>
      * </p>
-     * 
+     *
      * @since
      * @param cause: reason.
      */
@@ -212,7 +212,7 @@ public class ServiceException extends Exception {
 
     /**
      * Get exceptoin id.<br/>
-     * 
+     *
      * @return
      * @since
      */
@@ -237,7 +237,7 @@ public class ServiceException extends Exception {
 
     /**
      * Obtain the ROA exception handling framework parameters<br/>
-     * 
+     *
      * @return exception args.
      * @since
      */
@@ -251,7 +251,7 @@ public class ServiceException extends Exception {
 
     /**
      * Gets the parameter information<br/>
-     * 
+     *
      * @return parameter list.
      * @since
      */
