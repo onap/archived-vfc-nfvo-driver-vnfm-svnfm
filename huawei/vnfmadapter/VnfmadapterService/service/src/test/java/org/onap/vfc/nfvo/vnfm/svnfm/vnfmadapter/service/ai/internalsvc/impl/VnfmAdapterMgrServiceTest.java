@@ -20,9 +20,13 @@ import mockit.Mock;
 import mockit.MockUp;
 import net.sf.json.JSONObject;
 import org.junit.Test;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.impl.VnfmAdapter2DriverMgrService;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.impl.VnfmAdapterMgrService;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
 
+import junit.framework.Assert;
+
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -41,5 +45,19 @@ public class VnfmAdapterMgrServiceTest {
         VnfmAdapterMgrService mgr = new VnfmAdapterMgrService();
         mgr.register();
 
+    }
+
+
+    @Test
+    public void testReadJson() {
+        File file = new File("./demo.json");
+        try {
+            file.createNewFile();
+            String content = VnfmAdapter2DriverMgrService.readJson("./demo.json");
+            Assert.assertEquals("",  "");
+            file.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
