@@ -81,14 +81,19 @@ public class VnfmAdapterMgrService implements IVnfmAdapterMgrService {
      * @throws IOException
      */
     public String readVnfmAdapterInfoFromJson() throws IOException {
-        String fileContent = "";
-
         String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
                 + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
                 + "adapterInfo" + System.getProperty(Constant.FILE_SEPARATOR) + VNFMADAPTERINFO;
 
-        try (InputStream ins = new FileInputStream(fileName)) {
-            try (BufferedInputStream bins = new BufferedInputStream(ins)){
+
+        return readJson(fileName);
+    }
+
+    public static String readJson(String fileName) throws IOException {
+        String fileContent = "";
+
+        try (InputStream ins = new FileInputStream(fileName)){
+            try(BufferedInputStream bins = new BufferedInputStream(ins)){
 
                 byte[] contentByte = new byte[ins.available()];
                 int num = bins.read(contentByte);
@@ -103,6 +108,7 @@ public class VnfmAdapterMgrService implements IVnfmAdapterMgrService {
 
         return fileContent;
     }
+
 
     private static class RegisterVnfmAdapterThread implements Runnable {
 
