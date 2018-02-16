@@ -82,7 +82,7 @@ public class AbstractSslContext {
         KeyManager[] kms = null;
         try {
             String CERT_STORE = "etc/conf/server.p12";
-            String CERT_STORE_PASSWORD = "Changeme_123";
+            String CERT_STORE_PASSWORD = "Changeme_123";  // NOSONAR
             String KEY_STORE_TYPE = "PKCS12";
             if(sslConf != null) {
                 CERT_STORE = sslConf.getString("keyStore");
@@ -90,17 +90,17 @@ public class AbstractSslContext {
                 KEY_STORE_TYPE = sslConf.getString("keyStoreType");
             }
             // load jks file
-            FileInputStream f_certStore = new FileInputStream(CERT_STORE);
-            KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE);
-            ks.load(f_certStore, CERT_STORE_PASSWORD.toCharArray());
-            f_certStore.close();
+            try(FileInputStream f_certStore = new FileInputStream(CERT_STORE)) {
+                KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE);
+                ks.load(f_certStore, CERT_STORE_PASSWORD.toCharArray());
 
-            // init and create
-            String alg = KeyManagerFactory.getDefaultAlgorithm();
-            KeyManagerFactory kmFact = KeyManagerFactory.getInstance(alg);
-            kmFact.init(ks, CERT_STORE_PASSWORD.toCharArray());
+                // init and create
+                String alg = KeyManagerFactory.getDefaultAlgorithm();
+                KeyManagerFactory kmFact = KeyManagerFactory.getInstance(alg);
+                kmFact.init(ks, CERT_STORE_PASSWORD.toCharArray());
 
-            kms = kmFact.getKeyManagers();
+                kms = kmFact.getKeyManagers();
+            }
         } catch(Exception e) {
             LOG.error("create KeyManager fail!", e);
         }
@@ -112,23 +112,22 @@ public class AbstractSslContext {
         try {
 
             String TRUST_STORE = "etc/conf/trust.jks";
-            String TRUST_STORE_PASSWORD = "Changeme_123";
+            String TRUST_STORE_PASSWORD = "Changeme_123";  // NOSONAR
             String TRUST_STORE_TYPE = "jks";
             if(sslConf != null) {
                 TRUST_STORE = sslConf.getString("trustStore");
                 TRUST_STORE_PASSWORD = sslConf.getString("trustStorePass");
                 TRUST_STORE_TYPE = sslConf.getString("trustStoreType");
             }
-            FileInputStream f_trustStore = new FileInputStream(TRUST_STORE);
-            KeyStore ks = KeyStore.getInstance(TRUST_STORE_TYPE);
-            ks.load(f_trustStore, TRUST_STORE_PASSWORD.toCharArray());
-            f_trustStore.close();
+            try(FileInputStream f_trustStore = new FileInputStream(TRUST_STORE)) {
+                KeyStore ks = KeyStore.getInstance(TRUST_STORE_TYPE);
+                ks.load(f_trustStore, TRUST_STORE_PASSWORD.toCharArray());
 
-            String alg = TrustManagerFactory.getDefaultAlgorithm();
-            TrustManagerFactory tmFact = TrustManagerFactory.getInstance(alg);
-            tmFact.init(ks);
-            tms = tmFact.getTrustManagers();
-
+                String alg = TrustManagerFactory.getDefaultAlgorithm();
+                TrustManagerFactory tmFact = TrustManagerFactory.getInstance(alg);
+                tmFact.init(ks);
+                tms = tmFact.getTrustManagers();
+            }
         } catch(Exception e) {
             LOG.error("create TrustManager fail!", e);
         }
@@ -137,43 +136,35 @@ public class AbstractSslContext {
 
     /**
      * readSSLConfToJson
-     * 
+     *
      * @return
      * @throws IOException
      * @since VFC 1.0
      */
     public static JSONObject readSSLConfToJson() throws IOException {
         JSONObject sslJson = null;
-        InputStream ins = null;
-        BufferedInputStream bins = null;
+
         String fileContent = "";
 
         String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
                 + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
                 + "conf" + System.getProperty(Constant.FILE_SEPARATOR) + "sslconf.json";
 
-        try {
-            ins = new FileInputStream(fileName);
-            bins = new BufferedInputStream(ins);
+        try (InputStream ins = new FileInputStream(fileName)) {
+            try(BufferedInputStream bins = new BufferedInputStream(ins)) {
 
-            byte[] contentByte = new byte[ins.available()];
-            int num = bins.read(contentByte);
+                byte[] contentByte = new byte[ins.available()];
+                int num = bins.read(contentByte);
 
-            if(num > 0) {
-                fileContent = new String(contentByte);
+                if(num > 0) {
+                    fileContent = new String(contentByte);
+                }
+                sslJson = JSONObject.fromObject(fileContent);
             }
-            sslJson = JSONObject.fromObject(fileContent);
         } catch(FileNotFoundException e) {
             LOG.error(fileName + "is not found!", e);
         } catch(Exception e) {
-            LOG.error("read sslconf file fail.please check if the 'sslconf.json' is exist.");
-        } finally {
-            if(ins != null) {
-                ins.close();
-            }
-            if(bins != null) {
-                bins.close();
-            }
+            LOG.error("read sslconf file fail.please check if the 'sslconf.json' is exist.", e);
         }
 
         return sslJson;
