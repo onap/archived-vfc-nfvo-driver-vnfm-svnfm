@@ -308,12 +308,15 @@ public class AdapterResourceManager implements IResourceManager {
             LOG.info("changeWorkingDirectory: " + ftpClient.changeWorkingDirectory(vnfpkg.getString(VNFD_FILE_PATH)));
             String vnfdPath = csarfilepath + "Artifacts/Deployment/OTHER/";
             LOG.info("vnfd_file_name: " + vnfdPath + vnfpkg.getString("vnfd_file_name"));
-            InputStream inputStream = new FileInputStream(new File(vnfdPath + vnfpkg.getString("vnfd_file_name")));
-            flag = ftpClient.storeFile(vnfpkg.getString("vnfd_file_name"), inputStream);
-            if(flag) {
-                resJson.put("message", "upload Csar success!");
+            try(InputStream inputStream = new FileInputStream(new File(vnfdPath + vnfpkg.getString("vnfd_file_name")))){
+                flag = ftpClient.storeFile(vnfpkg.getString("vnfd_file_name"), inputStream);
+                if(flag) {
+                    resJson.put("message", "upload Csar success!");
+                }
+            } catch(Exception e) {
+                LOG.error("Exception: " + e);
             }
-            inputStream.close();
+
             ftpClient.logout();
         } catch(Exception e) {
             LOG.error("Exception: " + e);
@@ -607,33 +610,23 @@ public class AdapterResourceManager implements IResourceManager {
      * @since VFC 1.0
      */
     public static String readVfnPkgInfoFromJson() throws IOException {
-        InputStream ins = null;
-        BufferedInputStream bins = null;
         String fileContent = "";
 
         String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
                 + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
                 + "vnfpkginfo" + System.getProperty(Constant.FILE_SEPARATOR) + Constant.VNFPKGINFO;
 
-        try {
-            ins = new FileInputStream(fileName);
-            bins = new BufferedInputStream(ins);
+        try (InputStream ins = new FileInputStream(fileName)) {
+            try(BufferedInputStream bins = new BufferedInputStream(ins)){
+                byte[] contentByte = new byte[ins.available()];
+                int num = bins.read(contentByte);
 
-            byte[] contentByte = new byte[ins.available()];
-            int num = bins.read(contentByte);
-
-            if(num > 0) {
-                fileContent = new String(contentByte);
+                if(num > 0) {
+                    fileContent = new String(contentByte);
+                }
             }
         } catch(FileNotFoundException e) {
             LOG.error(fileName + "is not found!", e);
-        } finally {
-            if(ins != null) {
-                ins.close();
-            }
-            if(bins != null) {
-                bins.close();
-            }
         }
 
         return fileContent;
@@ -641,35 +634,28 @@ public class AdapterResourceManager implements IResourceManager {
 
     private static JSONObject readVnfdIdInfoFromJson() {
         JSONObject jsonObject = new JSONObject();
-        InputStream ins = null;
-        BufferedInputStream bins = null;
+
         String fileContent = "";
 
         String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
                 + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
                 + "vnfpkginfo" + System.getProperty(Constant.FILE_SEPARATOR) + "vnfd_ids.json";
 
-        try {
-            ins = new FileInputStream(fileName);
-            bins = new BufferedInputStream(ins);
+        try (InputStream ins = new FileInputStream(fileName)) {
+            try (BufferedInputStream bins = new BufferedInputStream(ins)){
+                byte[] contentByte = new byte[ins.available()];
+                int num = bins.read(contentByte);
 
-            byte[] contentByte = new byte[ins.available()];
-            int num = bins.read(contentByte);
-
-            if(num > 0) {
-                fileContent = new String(contentByte);
+                if(num > 0) {
+                    fileContent = new String(contentByte);
+                }
+                if(fileContent != null) {
+                    jsonObject = JSONObject.fromObject(fileContent).getJSONObject("vnfdIds");
+                }
             }
-            if(fileContent != null) {
-                jsonObject = JSONObject.fromObject(fileContent).getJSONObject("vnfdIds");
-            }
-            ins.close();
-            bins.close();
         } catch(Exception e) {
             LOG.error(fileName + " read error!", e);
-        } finally {
-
         }
-
         return jsonObject;
     }
 
