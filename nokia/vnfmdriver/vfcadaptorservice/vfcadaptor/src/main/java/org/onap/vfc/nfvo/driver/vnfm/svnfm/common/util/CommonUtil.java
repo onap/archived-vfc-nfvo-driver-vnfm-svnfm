@@ -37,74 +37,72 @@ public final class CommonUtil {
 	}
 
 	public static String getJsonStrFromFilePath(String fileName) throws IOException {
-		InputStream ins = null;
-        BufferedInputStream bins = null;
-        String fileContent = "";
+		String fileContent = null;
+		try{
+			InputStream ins = new FileInputStream(fileName);
+			BufferedInputStream bins = new BufferedInputStream(ins);
 
-        try {
-            ins = new FileInputStream(fileName);
-            bins = new BufferedInputStream(ins);
+			try {
+				byte[] contentByte = new byte[ins.available()];
+				int num = bins.read(contentByte);
 
-            byte[] contentByte = new byte[ins.available()];
-            int num = bins.read(contentByte);
-
-            if(num > 0) {
-                fileContent = new String(contentByte);
-            }
-        } catch(FileNotFoundException e) {
-        	logger.error(fileName + " is not found!", e);
-        } finally {
-            if(ins != null) {
-                ins.close();
-            }
-            if(bins != null) {
-                bins.close();
-            }
-        }
+				if(num > 0) {
+					fileContent = new String(contentByte);
+				}
+			} finally {
+				bins.close();
+				ins.close();
+			}
+		} catch(FileNotFoundException e) {
+			logger.error(fileName + " is not found!", e);
+		}
 		return fileContent;
 	}
 	
 	public static String getAppRoot() {
-        String appRoot = System.getProperty("catalina.base");
-        if(appRoot != null) {
-            appRoot = getCanonicalPath(appRoot);
-        }
-        return appRoot;
-    }
+		String appRoot = System.getProperty("catalina.base");
+		if(appRoot != null) {
+			appRoot = getCanonicalPath(appRoot);
+		}
+		return appRoot;
+	}
 
-    private static String getCanonicalPath(final String inPath) {
-        String path = null;
-        try {
-            if(inPath != null) {
-                final File file = new File(inPath);
-                path = file.getCanonicalPath();
-            }
-        } catch(final IOException e) {
-            logger.error("file.getCanonicalPath() IOException:", e);
-        }
-        return path;
-    }
+	private static String getCanonicalPath(final String inPath) {
+		String path = null;
+		try {
+			if(inPath != null) {
+				final File file = new File(inPath);
+				path = file.getCanonicalPath();
+			}
+		} catch(final IOException e) {
+			logger.error("file.getCanonicalPath() IOException:", e);
+		}
+		return path;
+	}
     
-    public static byte[] getBytes(String filePath){  
-        byte[] buffer = null;  
-        try {  
-            File file = new File(filePath);  
-            FileInputStream fis = new FileInputStream(file);  
-            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);  
-            byte[] b = new byte[1000];  
-            int n;  
-            while ((n = fis.read(b)) != -1) {  
-                bos.write(b, 0, n);  
-            }  
-            fis.close();  
-            bos.close();  
-            buffer = bos.toByteArray();  
-        } catch (FileNotFoundException e) {  
-        	logger.error("file " + filePath + " is not found.", e);
-        } catch (IOException e) {  
-        	logger.error("file " + filePath + " IOException.", e); 
-        }  
-        return buffer;  
-    }  
+	public static byte[] getBytes(String filePath){  
+		byte[] buffer = null;  
+		try {  
+			File file = new File(filePath);  
+			FileInputStream fis = new FileInputStream(file);  
+			ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);  
+			try{
+				byte[] b = new byte[1000];  
+				int n;  
+				while ((n = fis.read(b)) != -1) {  
+					bos.write(b, 0, n);  
+				}
+			}finally{  
+				bos.close();  
+				fis.close();  
+			}
+			buffer = bos.toByteArray();  
+		} catch (FileNotFoundException e) {  
+			logger.error("file " + filePath + " is not found.", e);
+		} catch (IOException e) {  
+			logger.error("file " + filePath + " IOException.", e); 
+		}  
+		return buffer;  
+	}  
  
 }
