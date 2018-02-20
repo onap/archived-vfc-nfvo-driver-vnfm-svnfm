@@ -192,17 +192,17 @@ public class DownloadCsarManager {
                 if(parent != null && (!parent.exists())) {
                     parent.mkdirs();
                 }
-                FileOutputStream fos = new FileOutputStream(file);
-                BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER);
+                try(FileOutputStream fos = new FileOutputStream(file)){
+                    try(BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER)){
 
-                int count;
-                byte data[] = new byte[BUFFER];
-                while((count = bis.read(data, 0, BUFFER)) != -1) {
-                    bos.write(data, 0, count);
+                    int count;
+                    byte data[] = new byte[BUFFER];
+                    while((count = bis.read(data, 0, BUFFER)) != -1) {
+                        bos.write(data, 0, count);
+                    }
+                    bos.flush();
+                    }
                 }
-                bos.flush();
-                bos.close();
-                bis.close();
             }
 
             status = Constant.UNZIP_SUCCESS;
