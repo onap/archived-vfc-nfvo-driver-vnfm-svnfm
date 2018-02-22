@@ -107,9 +107,6 @@ public class VnfmAdapter2DriverMgrService implements IVnfmAdapter2DriverMgrServi
 
     private static class RegisterVnfm2DriverMgrThread implements Runnable {
 
-        // Thread lock Object
-        private final Object lockObject = new Object();
-
         private IVnfmAdapter2DriverManager adapter2DriverMgr = new VnfmAdapter2DriverManager();
 
         // url and mothedtype
@@ -153,9 +150,7 @@ public class VnfmAdapter2DriverMgrService implements IVnfmAdapter2DriverMgrServi
 
                 // if registration fails,wait one minute and try again
                 try {
-                    synchronized(lockObject) {
-                        lockObject.wait(Constant.REPEAT_REG_TIME);
-                    }
+                    Thread.sleep(Constant.REPEAT_REG_TIME);
                 } catch(InterruptedException e) {
                     LOG.error(e.getMessage(), e);
                     // Restore interrupted state...
