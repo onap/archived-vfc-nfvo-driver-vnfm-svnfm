@@ -1,0 +1,7 @@
+Code-Review+2: Kanagaraj Manickam <kanagaraj.manickam@huawei.com>
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Submitted-by: Kanagaraj Manickam <kanagaraj.manickam@huawei.com>
+Submitted-at: Thu, 22 Feb 2018 15:16:41 +0000
+Reviewed-on: https://gerrit.onap.org/r/32481
+Project: vfc/nfvo/driver/vnfm/svnfm
+Branch: refs/heads/master
