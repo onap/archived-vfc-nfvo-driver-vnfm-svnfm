@@ -237,7 +237,8 @@ class QueryVnf(APIView):
             logger.debug("[%s] request.data=%s", fun_name(), request.data)
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             vnfm_info = json.JSONDecoder().decode(ret[1])
             logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
             ret = restcall.call_req(
@@ -249,15 +250,20 @@ class QueryVnf(APIView):
                 method='get',
                 content=json.JSONEncoder().encode({}))
             if ret[0] != 0:
-                return Response(data={'error': ret[1]}, status=ret[2])
+                raise Exception(ret[1])
+
             resp = json.JSONDecoder().decode(ret[1])
             vnf_status = ignorcase_get(resp, "vnfinstancestatus")
             resp_data = {"vnfInfo": {"vnfStatus": vnf_status}}
             logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
+            queryVnfResponseSerializer = QueryVnfResponseSerializer(data=resp_data)
+            if not queryVnfResponseSerializer.is_valid():
+                raise Exception(queryVnfResponseSerializer.errors)
+            return Response(data=queryVnfResponseSerializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error("Error occurred when querying VNF information.")
-            raise e
-        return Response(data=resp_data, status=ret[2])
+            logger.error("Error occurred when querying VNF information,error:%s", e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'QueryVnf expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class JobView(APIView):
