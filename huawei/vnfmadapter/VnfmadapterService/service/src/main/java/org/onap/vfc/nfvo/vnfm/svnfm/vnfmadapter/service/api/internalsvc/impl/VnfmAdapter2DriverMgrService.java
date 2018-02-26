@@ -82,11 +82,15 @@ public class VnfmAdapter2DriverMgrService implements IVnfmAdapter2DriverMgrServi
      * @throws IOException
      */
     public static String readVnfmAdapterInfoFromJson() throws IOException {
-        String fileContent = "";
-
         String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
                 + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
                 + "adapterInfo" + System.getProperty(Constant.FILE_SEPARATOR) + VNFMADAPTER2DRIVERMGR;
+
+        return readJson(fileName);
+    }
+
+    public static String readJson(String fileName) throws IOException {
+        String fileContent = "";
 
         try (InputStream ins = new FileInputStream(fileName)){
             try(BufferedInputStream bins = new BufferedInputStream(ins)){
