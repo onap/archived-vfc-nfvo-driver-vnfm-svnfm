@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
@@ -575,6 +576,60 @@ public class VnfRoaTest {
 
         assertNotNull(result);
 
+    }
+
+    @Test
+    public void testGetVnfmById() throws ServiceException {
+        new MockUp<VnfmUtil>() {
+
+            @Mock
+            public JSONObject getVnfmById(String vnfmId) {
+                JSONObject json = new JSONObject();
+                json.put("vnfm", "1234");
+                return json;
+            }
+        };
+        String result = vnfRoa.getVnfmById("1234", null);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetJobFromVnfm() throws ServiceException {
+        new MockUp<VnfMgr>() {
+
+            @Mock
+            public JSONObject getJobFromVnfm(String jobId, String vnfmId) {
+                JSONObject json = new JSONObject();
+                json.put("retCode", "1");
+                return json;
+            }
+
+            @Mock
+            public String transferToLcm(JSONObject restJson) {
+                return "success";
+            }
+        };
+        String result = vnfRoa.getJobFromVnfm("jobId", "vnfmId", null, "responseId");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetJobFromVnfmFail() throws ServiceException {
+
+        new MockUp<VnfMgr>() {
+
+            @Mock
+            public JSONObject getJobFromVnfm(String jobId, String vnfmId) {
+                JSONObject json = new JSONObject();
+                json.put("retCode", "-1");
+                return json;
+            }
+
+        };
+        MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
+        HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
+        String result = vnfRoa.getJobFromVnfm("jobId", "vnfmId", mockResInstance, "responseId");
+        assertNotNull(result);
     }
 
 }

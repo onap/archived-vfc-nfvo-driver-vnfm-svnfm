@@ -16,10 +16,9 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect.ConnectMgrVnfm;
 
 import mockit.Mock;
@@ -29,14 +28,15 @@ import net.sf.json.JSONObject;
 public class ResultRequestUtilTest {
 
     @Test
-    public void callTestInternalError(){
-        new MockUp<ConnectMgrVnfm>(){
+    public void callTestInternalError() {
+        new MockUp<ConnectMgrVnfm>() {
+
             @Mock
             public int connect(JSONObject vnfmObj) {
                 return 500;
             }
         };
-        JSONObject vnfmObject = new JSONObject();;
+        JSONObject vnfmObject = new JSONObject();
         String path = "http://localhost:8080";
         String methodName = "get";
         String paramsJson = "";
@@ -45,8 +45,9 @@ public class ResultRequestUtilTest {
     }
 
     @Test
-    public void callTestConnectionErrot(){
-        new MockUp<ConnectMgrVnfm>(){
+    public void callTestConnectionErrot() {
+        new MockUp<ConnectMgrVnfm>() {
+
             @Mock
             public int connect(JSONObject vnfmObj) {
                 return 200;
@@ -55,6 +56,36 @@ public class ResultRequestUtilTest {
         JSONObject vnfmObject = new JSONObject();
         vnfmObject.put("url", "/test/123");
         String path = "http://localhost:8080";
+        String methodName = "get";
+        String paramsJson = "";
+        JSONObject resp = ResultRequestUtil.call(vnfmObject, path, methodName, paramsJson);
+        assertTrue(resp.get("data").equals("get connection error"));
+    }
+
+    @Test
+    public void callTest() {
+        new MockUp<ConnectMgrVnfm>() {
+
+            @Mock
+            public int connect(JSONObject vnfmObj) {
+                return 200;
+            }
+
+            @Mock
+            public String getRoaRand() {
+                return "1234";
+            }
+
+            @Mock
+            public String getAccessSession() {
+                return "1234";
+            }
+
+        };
+
+        JSONObject vnfmObject = new JSONObject();
+        vnfmObject.put("url", "/test/123");
+        String path = "https://localhost:8080/%s";
         String methodName = "get";
         String paramsJson = "";
         JSONObject resp = ResultRequestUtil.call(vnfmObject, path, methodName, paramsJson);
