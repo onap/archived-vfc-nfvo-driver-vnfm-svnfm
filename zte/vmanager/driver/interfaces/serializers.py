@@ -97,6 +97,20 @@ class TerminateVnfRequestSerializer(serializers.Serializer):
         required=False)
 
 
+class VnfInfoSerializer(serializers.Serializer):
+    vnfStatus = serializers.CharField(
+        help_text="vnfStatus",
+        required=True,
+        max_length=255,
+        allow_null=True)
+
+
+class QueryVnfResponseSerializer(serializers.Serializer):
+    vnfInfo = VnfInfoSerializer(
+        help_text="vnfInfo",
+        required=True)
+
+
 class JobHistorySerializer(serializers.Serializer):
     status = serializers.CharField(
         help_text="Status of job",
