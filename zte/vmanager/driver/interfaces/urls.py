@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/terminate$',
         views.TerminateVnf.as_view(), name='terminate_vnf'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)$',
-        views.query_vnf, name='query_vnf'),
+        views.QueryVnf.as_view(), name='query_vnf'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/jobs/(?P<jobid>[0-9a-zA-Z\-\_]+)$',
         views.JobView.as_view(), name='operation_status'),
     url(r'^api/ztevnfmdriver/v1/resource/grant$', views.GrantVnf.as_view(), name='grantvnf'),

@@ -27,7 +27,7 @@ from rest_framework.views import APIView
 
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
     NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer, \
-    InstantiateVnfRequestSerializer
+    InstantiateVnfRequestSerializer, QueryVnfResponseSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -135,11 +135,11 @@ class InstamtiateVnf(APIView):
 
             data["VNFURL"] = data["VNFD"]
 
-            for name, value in ignorcase_get(ignorcase_get(instantiateVnfRequestSerializer.data, "additionalParam"), "inputs").items():
+            additionalParam = ignorcase_get(instantiateVnfRequestSerializer.data, "additionalParam")
+            for name, value in ignorcase_get(additionalParam, "inputs").items():
                 inputs.append({"name": name, "value": value})
 
             data["extension"]["inputs"] = json.dumps(inputs)
-            additionalParam = ignorcase_get(instantiateVnfRequestSerializer.data, "additionalParam")
             data["extension"]["extVirtualLinks"] = ignorcase_get(additionalParam, "extVirtualLinks")
             data["extension"]["vnfinstancename"] = ignorcase_get(instantiateVnfRequestSerializer.data, "vnfInstanceName")
             data["extension"]["vnfid"] = data["VNFD"]
@@ -225,34 +225,39 @@ class TerminateVnf(APIView):
             return Response(data={'error': 'TerminateVnf expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(http_method_names=['GET'])
-def query_vnf(request, *args, **kwargs):
-    try:
-        logger.debug("[%s] request.data=%s", fun_name(), request.data)
-        vnfm_id = ignorcase_get(kwargs, "vnfmid")
-        ret = get_vnfminfo_from_nslcm(vnfm_id)
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        vnfm_info = json.JSONDecoder().decode(ret[1])
-        logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
-        ret = restcall.call_req(
-            base_url=ignorcase_get(vnfm_info, "url"),
-            user=ignorcase_get(vnfm_info, "userName"),
-            passwd=ignorcase_get(vnfm_info, "password"),
-            auth_type=restcall.rest_no_auth,
-            resource="v1/vnfs/%s" % (ignorcase_get(kwargs, "vnfInstanceID")),
-            method='get',
-            content=json.JSONEncoder().encode({}))
-        if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=ret[2])
-        resp = json.JSONDecoder().decode(ret[1])
-        vnf_status = ignorcase_get(resp, "vnfinstancestatus")
-        resp_data = {"vnfInfo": {"vnfStatus": vnf_status}}
-        logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-    except Exception as e:
-        logger.error("Error occurred when querying VNF information.")
-        raise e
-    return Response(data=resp_data, status=ret[2])
+class QueryVnf(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: QueryVnfResponseSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
+    def get(self, request, vnfmid, vnfInstanceId):
+        try:
+            logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            ret = get_vnfminfo_from_nslcm(vnfmid)
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            vnfm_info = json.JSONDecoder().decode(ret[1])
+            logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+            ret = restcall.call_req(
+                base_url=ignorcase_get(vnfm_info, "url"),
+                user=ignorcase_get(vnfm_info, "userName"),
+                passwd=ignorcase_get(vnfm_info, "password"),
+                auth_type=restcall.rest_no_auth,
+                resource="v1/vnfs/%s" % vnfInstanceId,
+                method='get',
+                content=json.JSONEncoder().encode({}))
+            if ret[0] != 0:
+                return Response(data={'error': ret[1]}, status=ret[2])
+            resp = json.JSONDecoder().decode(ret[1])
+            vnf_status = ignorcase_get(resp, "vnfinstancestatus")
+            resp_data = {"vnfInfo": {"vnfStatus": vnf_status}}
+            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
+        except Exception as e:
+            logger.error("Error occurred when querying VNF information.")
+            raise e
+        return Response(data=resp_data, status=ret[2])
 
 
 class JobView(APIView):
