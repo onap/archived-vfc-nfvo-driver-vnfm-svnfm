@@ -16,12 +16,15 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.ai.internalsvc.impl;
 
-import mockit.Mock;
-import mockit.MockUp;
+import java.io.File;
+import java.io.IOException;
+
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.api.internalsvc.impl.VnfmAdapter2DriverMgrService;
 
-import java.io.IOException;
+import junit.framework.Assert;
+import mockit.Mock;
+import mockit.MockUp;
 
 /**
  * Created by QuanZhong on 2017/3/20.
@@ -47,5 +50,18 @@ public class VnfmAdapter2DriverMgrServiceTest {
         VnfmAdapter2DriverMgrService mgr = new VnfmAdapter2DriverMgrService();
         mgr.register();
         mgr.unregister();
+    }
+
+    @Test
+    public void testReadJson() {
+        File file = new File("./demo.json");
+        try {
+            file.createNewFile();
+            String content = VnfmAdapter2DriverMgrService.readJson("./demo.json");
+            Assert.assertEquals(content,  "");
+            file.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
