@@ -60,14 +60,6 @@ def ignorcase_get(args, key):
     return ""
 
 
-def mapping_conv(keyword_map, rest_return):
-    resp_data = {}
-    for param in keyword_map:
-        if keyword_map[param]:
-            resp_data[keyword_map[param]] = ignorcase_get(rest_return, param)
-    return resp_data
-
-
 # Query vnfm_info from nslcm
 def get_vnfminfo_from_nslcm(vnfmid):
     ret = req_by_msb("api/nslcm/v1/vnfms/%s" % vnfmid, "GET")
@@ -177,6 +169,7 @@ class InstamtiateVnf(APIView):
             if not instRespSerializer.is_valid():
                 raise Exception(instRespSerializer.errors)
 
+            logger.debug("[%s] instRespSerializer.data=%s", fun_name(), instRespSerializer.data)
             return Response(data=instRespSerializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when instantiating VNF,error:%s", e.message)
