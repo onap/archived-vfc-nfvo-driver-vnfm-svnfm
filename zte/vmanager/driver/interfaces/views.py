@@ -612,6 +612,10 @@ def get_vdus(nf_model, aspect_id):
     return members
 
 
-@api_view(http_method_names=['GET'])
-def samples(request, *args, **kwargs):
-    return Response(data={"status": "ok"})
+class SampleList(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: 'Successfully'})
+    def get(self, request):
+        logger.debug("get")
+        return Response({"status": "active"})
