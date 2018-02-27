@@ -21,7 +21,6 @@ import traceback
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -612,6 +611,10 @@ def get_vdus(nf_model, aspect_id):
     return members
 
 
-@api_view(http_method_names=['GET'])
-def samples(request, *args, **kwargs):
-    return Response(data={"status": "ok"})
+class SampleList(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: 'Successfully'})
+    def get(self, request):
+        logger.debug("get")
+        return Response({"status": "active"})
