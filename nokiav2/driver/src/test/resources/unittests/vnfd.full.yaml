@@ -1,0 +1,24 @@
+topology_template:
+  substitution_mappings:
+    capabilities:
+      deployment_flavour:
+        properties:
+          flavour_id: myFlavorId
+          instantiation_levels:
+            level1:
+              vdu_levels:
+                vdu1:
+                  number_of_instances: 1
+                vdu2:
+                  number_of_instances: 2
+            level2:
+              vdu_levels:
+                vdu1:
+                  number_of_instances: 2
+    interfaces:
+      Basic:
+        scale:
+          inputs:
+            additional_parameters:
+              jobId: kuku
+              a: valueInVnfd

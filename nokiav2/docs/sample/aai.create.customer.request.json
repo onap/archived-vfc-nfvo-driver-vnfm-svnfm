@@ -1,0 +1,21 @@
+{
+  "global-customer-id": "123456",
+  "subscriber-name": "CbamCustomer",
+  "subscriber-type": "INFRA",
+  "service-subscriptions": {
+    "service-subscription": [
+      {
+        "service-type": "Database",
+        "relationship-list": {
+          "relationship": [{
+            "related-to": "tenant",
+            "relationship-data": [
+              {"relationship-key": "cloud-region.cloud-owner", "relationship-value": "Nokia"},
+              {"relationship-key": "cloud-region.cloud-region-id", "relationship-value": "RegionOne"},
+              {"relationship-key": "tenant.tenant-id", "relationship-value": "2ca57d2dbeda4e8a84739319bab769f4"}
+            ]
+          }]
+        }
+      }
+    ]}
+}

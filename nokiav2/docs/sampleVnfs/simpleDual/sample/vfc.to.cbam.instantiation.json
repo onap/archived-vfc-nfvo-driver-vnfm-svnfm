@@ -1,0 +1,65 @@
+{
+  "vnfInstanceName": "vnf669e8f94-b3a4-47ff-9245-c02",
+  "extVirtualLink": [
+    {
+      "resourceSubnetId": "23abdbc0-7c16-4dbc-a879-2d68f87c0ecf",
+      "resourceId": "da9a2d26-e70b-4402-b343-d0060f2ab298",
+      "vlInstanceId": "c1d78629-7121-400d-9ced-84340508feec",
+      "cpdId": "vnftovnf_cp",
+      "vim": {
+        "vimid": "Nokia_RegionOne"
+      }
+    }
+  ],
+  "vnfPackageId": "669e8f94-b3a4-47ff-9245-c023c9fd5657",
+  "additionalParam": {
+    "inputs": {
+      "vnfs": {
+        "669e8f94-b3a4-47ff-9245-c023c9fd5657": {
+          "extVirtualLinks": [
+            {
+              "resourceId": "external",
+              "extCps": [
+                {
+                  "cpdId": "commisioning_ecp"
+                }
+              ]
+            }
+          ],
+          "vimType": "OPENSTACK_V2_INFO",
+          "instantiationLevel": "default",
+          "softwareImages": [
+            {
+              "vnfdSoftwareImageId": "server_image",
+              "resourceId": "ubuntu-16.04"
+            }
+          ],
+          "flavourId": "scalable",
+          "zones": [
+            {
+              "resourceId": "nova",
+              "id": "zoneInfoId"
+            }
+          ],
+          "computeResourceFlavours": [
+            {
+              "resourceId": "m1.small",
+              "vnfdVirtualComputeDescId": "server_compute"
+            }
+          ]
+        }
+      },
+      "location": "Nokia_RegionOne"
+    },
+    "extVirtualLinks": [
+      {
+        "key_name": "vnftovnf_cp.virtual_link",
+        "vl_instance_id": "c1d78629-7121-400d-9ced-84340508feec",
+        "network_name": "myNetworkName",
+        "subnetwork_name": "mySubnetName"
+      }
+    ],
+    "vimId": "Nokia_RegionOne"
+  },
+  "vnfDescriptorId": "669e8f94-b3a4-47ff-9245-c023c9fd5657"
+}
