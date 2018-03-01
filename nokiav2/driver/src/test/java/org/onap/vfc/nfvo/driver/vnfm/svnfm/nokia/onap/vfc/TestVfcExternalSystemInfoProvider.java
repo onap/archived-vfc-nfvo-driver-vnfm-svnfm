@@ -63,8 +63,8 @@ public class TestVfcExternalSystemInfoProvider extends TestBase {
             vfcExternalSystemInfoProvider.getVimInfo(VIM_ID);
             fail();
         } catch (Exception e) {
-            assertEquals("Unable to query VIM from VF-C with myVimId identifier", e.getMessage());
-            verify(logger).error("Unable to query VIM from VF-C with myVimId identifier", expectedException);
+            assertEquals("Unable to query VIM from VF-C with " + VIM_ID +" identifier", e.getMessage());
+            verify(logger).error("Unable to query VIM from VF-C with " + VIM_ID+" identifier", expectedException);
         }
     }
 

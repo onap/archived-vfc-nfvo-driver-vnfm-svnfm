@@ -52,10 +52,10 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>20.0</version>
-      <!-- parsing VNFDs -->
+      <version>24.0-jre</version>
     </dependency>
     <dependency>
+      <!-- parsing VNFDs -->
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <version>1.19</version>
@@ -96,9 +96,9 @@
       <version>1.2.0</version>
     </dependency>
     <dependency>
-  <groupId>org.onap.aai</groupId>
-        <artifactId>rest-client</artifactId>
-        <version>1.2.0</version>
+      <groupId>org.onap.aai</groupId>
+      <artifactId>rest-client</artifactId>
+      <version>1.2.0</version>
     </dependency>
   </dependencies>
   <build>
