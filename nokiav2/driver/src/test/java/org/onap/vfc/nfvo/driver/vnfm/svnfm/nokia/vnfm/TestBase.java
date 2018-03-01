@@ -66,7 +66,7 @@ public class TestBase {
     public static final String VNF_ID = "myVnfId";
     public static final String VNFM_ID = "myVnfmId";
     public static final String ONAP_CSAR_ID = "myOnapCsarId";
-    public static final String VIM_ID = "myVimId";
+    public static final String VIM_ID = "myCloudOwnerId_myRegionName";
     public static final String JOB_ID = "myJobId";
     public static final String CBAM_VNFD_ID = "cbamVnfdId";
     @Mock

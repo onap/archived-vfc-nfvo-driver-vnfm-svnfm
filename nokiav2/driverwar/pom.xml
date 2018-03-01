@@ -23,11 +23,9 @@
   <name>vfc/nfvo/driver/vnfm/svnfm/nokiav2/driverwar</name>
   <description>svnfm vnfm driver</description>
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.5.9.RELEASE</version>
-    <relativePath/>
-    <!-- lookup parent from repository -->
+    <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2</groupId>
+    <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokiav2</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -43,15 +41,28 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-      <version>1.5.9.RELEASE</version>
+      <version>1.5.10.RELEASE</version>
     </dependency>
   </dependencies>
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <archive>
+            <manifest>
+              <mainClass>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication</mainClass>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>1.5.7.RELEASE</version>
+        <version>1.5.10.RELEASE</version>
         <configuration>
           <mainClass>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication</mainClass>
           <layout>ZIP</layout>
