@@ -34,7 +34,7 @@
         <sonar.language>py</sonar.language>
         <sonar.pluginname>python</sonar.pluginname>
         <sonar.inclusions>**/**.py</sonar.inclusions>
-        <sonar.exclusions>tests/*,setup.py</sonar.exclusions>
+        <sonar.exclusions>**/tests/**.py,**/test*.py,**/__init__.py,setup.py</sonar.exclusions>
     </properties>
     <description>vfc nfvo driver-vnfm-svnfm-zte-vmanager</description>
     <build>
