@@ -15,7 +15,7 @@
 from rest_framework import serializers
 
 
-class additionalParamSerializer(serializers.Serializer):
+class AdditionalParamSerializer(serializers.Serializer):
     sdncontroller = serializers.CharField(
         help_text="sdncontroller",
         required=True,
@@ -79,7 +79,7 @@ class InstantiateVnfRequestSerializer(serializers.Serializer):
         required=True,
         max_length=255,
         allow_null=True)
-    additionalParam = additionalParamSerializer(
+    additionalParam = AdditionalParamSerializer(
         help_text="additionalParam",
         required=True,
         allow_null=True)
