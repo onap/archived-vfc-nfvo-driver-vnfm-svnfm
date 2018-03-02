@@ -14,7 +14,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.huawei.vnfmadapter</groupId>
@@ -26,7 +27,7 @@
     <name>vfc/nfvo/drivers/vnfm/svnfm/huawei/vnfmadapter/VnfmadapterService/service</name>
     <packaging>war</packaging>
 
-<dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-core</artifactId>
@@ -58,9 +59,9 @@
             <version>2.5.0</version>
         </dependency>
         <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.1</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -94,10 +95,17 @@
             <artifactId>jetty-all</artifactId>
             <version>8.1.16.v20140903</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.36</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>2.2.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -105,14 +113,14 @@
             <version>3.1.6</version>
         </dependency>
         <dependency>
-               <groupId>org.mybatis</groupId>
-               <artifactId>mybatis-spring</artifactId>
-               <version>1.2.0</version>
-           </dependency>
-           <dependency>
-             <groupId>org.mybatis</groupId>
-             <artifactId>mybatis</artifactId>
-             <version>3.2.7</version>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.2.7</version>
         </dependency>
 
         <dependency>
@@ -176,7 +184,7 @@
             <version>1.12</version>
         </dependency>
         <dependency>
-              <groupId>org.springframework</groupId>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
             <version>3.1.2.RELEASE</version>
         </dependency>
@@ -232,7 +240,7 @@
         </dependency>
 
         <!-- UT coverage dependency start -->
-       <dependency>
+        <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
             <version>1.19</version>
@@ -251,8 +259,6 @@
             <scope>test</scope>
         </dependency>
         <!-- UT coverage dependency end -->
-
-
 
 
     </dependencies>
