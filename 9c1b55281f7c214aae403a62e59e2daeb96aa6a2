@@ -1,0 +1,7 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Yan Yang <yangyanyj@chinamobile.com>
+Submitted-by: Yan Yang <yangyanyj@chinamobile.com>
+Submitted-at: Fri, 02 Mar 2018 06:44:23 +0000
+Reviewed-on: https://gerrit.onap.org/r/31941
+Project: vfc/nfvo/driver/vnfm/svnfm
+Branch: refs/heads/master
