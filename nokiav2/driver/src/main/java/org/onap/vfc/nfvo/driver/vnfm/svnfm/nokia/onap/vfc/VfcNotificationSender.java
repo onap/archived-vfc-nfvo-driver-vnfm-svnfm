@@ -15,6 +15,7 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
+import com.google.common.base.Optional;
 import com.google.gson.Gson;
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.ScaleVnfRequest;
@@ -33,6 +34,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Optional.of;
+import static com.google.common.collect.Iterables.tryFind;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.ILifecycleChangeNotificationManager.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager.extractOnapJobId;
@@ -84,7 +87,7 @@ public class VfcNotificationSender implements INotificationSender {
         }
     }
 
-    private AffectedCp buildAffectedCp(String vimId, String vnfId, ReportedAffectedCp affectedCp) {
+    private AffectedCp buildAffectedCp(String vimId, String vnfId, VnfCpNotificationType changeType, ReportedAffectedCp affectedCp) {
         AffectedCp onapAffectedCp = new AffectedCp();
         AffectedCpPortResource port = new AffectedCpPortResource();
         port.setInstId(affectedCp.getServerProviderId());
@@ -98,21 +101,11 @@ public class VfcNotificationSender implements INotificationSender {
         onapAffectedCp.setCpdid(affectedCp.getCpId());
         onapAffectedCp.setCpinstanceid(vnfId + SEPARATOR + affectedCp.getCpId());
         onapAffectedCp.setVirtualLinkInstanceId(affectedCp.getNetworkProviderId());
-        onapAffectedCp.setChangeType(transform(affectedCp.getChangeType()));
+        onapAffectedCp.setChangeType(changeType);
         //owner id & type can be left empty it will default to VNF id on VF-C
         return onapAffectedCp;
     }
 
-    private VnfCpNotificationType transform(com.nokia.cbam.lcm.v32.model.ChangeType changeType) {
-        switch (changeType) {
-            case ADDED:
-                return VnfCpNotificationType.ADDED;
-            case REMOVED:
-                return VnfCpNotificationType.REMOVED;
-            default: //can only be MODIFIED
-                return VnfCpNotificationType.CHANGED;
-        }
-    }
 
     private void addAffectedVnfcs(String vimId, String vnfId, VNFLCMNotification notificationToSend, VnfLifecycleChangeNotification request) {
         if (request.getAffectedVnfcs() != null) {
@@ -147,21 +140,46 @@ public class VfcNotificationSender implements INotificationSender {
         }
     }
 
+    private Optional<VnfCpNotificationType> getChangeType(ReportedAffectedConnectionPoints affectedCps, ReportedAffectedCp affectedCp) {
+        Optional<ReportedAffectedCp> cpBeforeOperation = tryFind(affectedCps.getPre(), pre -> affectedCp.getCpId().equals(pre.getCpId()));
+        Optional<ReportedAffectedCp> cpAfterOperation = tryFind(affectedCps.getPost(), post -> affectedCp.getCpId().equals(post.getCpId()));
+        if(cpBeforeOperation.isPresent() && cpAfterOperation.isPresent()){
+            return cpAfterOperation.get().equals(cpBeforeOperation.get()) ? Optional.absent() : of(VnfCpNotificationType.CHANGED);
+        }
+        else{
+            //the affected CP must be present in the pre or post
+            return of((cpAfterOperation.isPresent() ? VnfCpNotificationType.ADDED : VnfCpNotificationType.REMOVED));
+        }
+    }
+
     private void addAffectedCps(String vimId, VNFLCMNotification notificationToSend, ReportedAffectedConnectionPoints affectedCps) {
         if (affectedCps != null) {
             notificationToSend.setAffectedCp(new ArrayList<>());
-            for (ReportedAffectedCp affectedCp : affectedCps.getPost()) {
-                if (affectedCp.getCpdId() != null) {
-                    AffectedCp onapAffectedCp = buildAffectedCp(vimId, notificationToSend.getVnfInstanceId(), affectedCp);
-                    onapAffectedCp.setCpdid(affectedCp.getCpdId());
-                    notificationToSend.getAffectedCp().add(onapAffectedCp);
-                }
-                if (affectedCp.getEcpdId() != null) {
-                    AffectedCp onapAffectedCp = buildAffectedCp(vimId, notificationToSend.getVnfInstanceId(), affectedCp);
-                    onapAffectedCp.setCpdid(affectedCp.getEcpdId());
-                    notificationToSend.getAffectedCp().add(onapAffectedCp);
+            for (ReportedAffectedCp pre : affectedCps.getPre()) {
+                Optional<VnfCpNotificationType> changeType = getChangeType(affectedCps, pre);
+                if(of(VnfCpNotificationType.REMOVED).equals(changeType)){
+                    addModifiedCp(vimId, notificationToSend, pre, changeType);
                 }
             }
+            for (ReportedAffectedCp post : affectedCps.getPost()) {
+                Optional<VnfCpNotificationType> changeType = getChangeType(affectedCps, post);
+                if(of(VnfCpNotificationType.ADDED).equals(changeType) || of(VnfCpNotificationType.CHANGED).equals(changeType)){
+                    addModifiedCp(vimId, notificationToSend, post, changeType);
+                }
+            }
+        }
+    }
+
+    private void addModifiedCp(String vimId, VNFLCMNotification notificationToSend, ReportedAffectedCp post, Optional<VnfCpNotificationType> changeType) {
+        if (post.getCpdId() != null) {
+            AffectedCp onapAffectedCp = buildAffectedCp(vimId, notificationToSend.getVnfInstanceId(), changeType.get(), post);
+            onapAffectedCp.setCpdid(post.getCpdId());
+            notificationToSend.getAffectedCp().add(onapAffectedCp);
+        }
+        if (post.getEcpdId() != null) {
+            AffectedCp onapAffectedCp = buildAffectedCp(vimId, notificationToSend.getVnfInstanceId(), changeType.get(), post);
+            onapAffectedCp.setCpdid(post.getEcpdId());
+            notificationToSend.getAffectedCp().add(onapAffectedCp);
         }
     }
 

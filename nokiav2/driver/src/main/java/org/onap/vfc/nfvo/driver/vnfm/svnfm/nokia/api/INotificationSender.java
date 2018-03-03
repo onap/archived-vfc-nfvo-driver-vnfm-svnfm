@@ -33,4 +33,5 @@ public interface INotificationSender {
      * @param vimId                    the identifier of the VIM in ONAP
      */
     void processNotification(VnfLifecycleChangeNotification receivedNotification, OperationExecution operationExecution, ReportedAffectedConnectionPoints affectedConnectionPoints, String vimId);
+
 }

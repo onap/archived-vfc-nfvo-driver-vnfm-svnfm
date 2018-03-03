@@ -40,7 +40,7 @@
             </goals>
             <configuration>
               <inputSpec>${basedir}/src/main/resources/nokia.vnfm.api.v3.lcm.json</inputSpec>
-              <language>com.nokia.cbam.swagger.CbamJavaClientCodegen</language>
+              <language>java</language>
               <output>${project.build.directory}/generated-sources/cbam</output>
               <apiPackage>com.nokia.cbam.lcm.v32.api</apiPackage>
               <modelPackage>com.nokia.cbam.lcm.v32.model</modelPackage>
@@ -59,7 +59,7 @@
             </goals>
             <configuration>
               <inputSpec>${basedir}/src/main/resources/nokia.vnfm.api.v3.lcn.subscription.json</inputSpec>
-              <language>com.nokia.cbam.swagger.CbamJavaClientCodegen</language>
+              <language>java</language>
               <output>${project.build.directory}/generated-sources/cbam</output>
               <apiPackage>com.nokia.cbam.lcn.v32.api</apiPackage>
               <modelPackage>com.nokia.cbam.lcn.v32.model</modelPackage>
@@ -76,7 +76,7 @@
             </goals>
             <configuration>
               <inputSpec>${basedir}/src/main/resources/nokia.catalog.json</inputSpec>
-              <language>com.nokia.cbam.swagger.CbamJavaClientCodegen</language>
+              <language>java</language>
               <output>${project.build.directory}/generated-sources/cbam</output>
               <apiPackage>com.nokia.cbam.catalog.v1.api</apiPackage>
               <modelPackage>com.nokia.cbam.catalog.v1.model</modelPackage>

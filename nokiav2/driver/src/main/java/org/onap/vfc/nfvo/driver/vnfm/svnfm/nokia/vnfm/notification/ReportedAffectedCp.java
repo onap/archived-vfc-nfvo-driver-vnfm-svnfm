@@ -33,7 +33,6 @@ public class ReportedAffectedCp {
     private String serverProviderId;
     private String name;
     private String networkProviderId;
-    private ChangeType changeType;
 
     /**
      * @return the provider id of the port
@@ -175,20 +174,6 @@ public class ReportedAffectedCp {
         this.networkProviderId = networkProviderId;
     }
 
-    /**
-     * @return the state of the port in the current operation
-     */
-    public ChangeType getChangeType() {
-        return changeType;
-    }
-
-    /**
-     * @param changeType the state of the port in the current operation
-     */
-    public void setChangeType(ChangeType changeType) {
-        this.changeType = changeType;
-    }
-
     @Override
     public String toString() {
         return "ReportedAffectedCp{" +
@@ -202,7 +187,6 @@ public class ReportedAffectedCp {
                 ", serverProviderId='" + serverProviderId + '\'' +
                 ", name='" + name + '\'' +
                 ", networkProviderId='" + networkProviderId + '\'' +
-                ", changeType=" + changeType +
                 '}';
     }
 
@@ -220,12 +204,11 @@ public class ReportedAffectedCp {
                 Objects.equals(macAddress, that.macAddress) &&
                 Objects.equals(serverProviderId, that.serverProviderId) &&
                 Objects.equals(name, that.name) &&
-                Objects.equals(networkProviderId, that.networkProviderId) &&
-                changeType == that.changeType;
+                Objects.equals(networkProviderId, that.networkProviderId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerId, cpdId, ecpdId, cpId, tenantId, ipAddress, macAddress, serverProviderId, name, networkProviderId, changeType);
+        return Objects.hash(providerId, cpdId, ecpdId, cpId, tenantId, ipAddress, macAddress, serverProviderId, name, networkProviderId);
     }
 }
