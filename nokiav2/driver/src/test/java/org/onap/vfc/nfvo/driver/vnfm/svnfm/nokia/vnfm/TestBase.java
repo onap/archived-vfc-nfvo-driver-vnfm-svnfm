@@ -116,7 +116,7 @@ public class TestBase {
     @Before
     public void genericSetup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        ReflectionTestUtils.setField(SystemFunctions.class, "INSTANCE", systemFunctions);
+        ReflectionTestUtils.setField(SystemFunctions.class, "singletonInstance", systemFunctions);
         when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID)).thenReturn(vnfApi);
         when(cbamRestApiProvider.getCbamOperationExecutionApi(VNFM_ID)).thenReturn(operationExecutionApi);
         when(cbamRestApiProvider.getCbamLcnApi(VNFM_ID)).thenReturn(lcnApi);
@@ -133,7 +133,7 @@ public class TestBase {
 
     @After
     public void tearGeneric() {
-        ReflectionTestUtils.setField(SystemFunctions.class, "INSTANCE", null);
+        ReflectionTestUtils.setField(SystemFunctions.class, "singletonInstance", null);
     }
 
     protected void assertFileInZip(byte[] zip, String path, byte[] expectedContent) throws Exception {

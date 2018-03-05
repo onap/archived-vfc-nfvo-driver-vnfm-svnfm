@@ -77,7 +77,9 @@ public class TestGenericExternalSystemInfoProvider extends TestBase {
         assertEquals(expectedVnfmInfo, vnfmInfo);
         //when
         //sleeping is required to make time pass (for cache to notice the change)
-        Thread.sleep(10);
+        //cache is configured with 1 ms cache eviction without sleep it is not
+        //deterministic that at least 1 ms time will pass between calls
+        Thread.sleep(10);  //NO SONAR
         VnfmInfo vnfmInfo2 = genericExternalSystemInfoProvider.getVnfmInfo(VNFM_ID);
         //verify source system called again
         verify(logger, times(2)).info("Quering VNFM info from source with " + VNFM_ID + " identifier");

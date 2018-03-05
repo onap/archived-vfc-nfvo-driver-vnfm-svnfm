@@ -28,9 +28,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import java.io.IOException;
+
+import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -56,10 +63,10 @@ public class ConverterApi {
         logger.info("REST: convert package");
         Part part = request.getParts().iterator().next();
         byte[] bytes = vnfPackageConverter.covert(part.getInputStream());
-        httpResponse.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_OCTET_STREAM.getMimeType());
-        httpResponse.setStatus(HttpStatus.OK.value());
-        httpResponse.addHeader(HttpHeaders.CONTENT_LENGTH, Integer.toString(bytes.length));
-        httpResponse.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "core.csar" + "\"");
+        httpResponse.addHeader(CONTENT_TYPE, APPLICATION_OCTET_STREAM.getMimeType());
+        httpResponse.setStatus(OK.value());
+        httpResponse.addHeader(CONTENT_LENGTH, Integer.toString(bytes.length));
+        httpResponse.addHeader(CONTENT_DISPOSITION, "attachment; filename=\"" + "core.csar" + "\"");
         httpResponse.getOutputStream().write(bytes);
         httpResponse.getOutputStream().flush();
     }
@@ -72,10 +79,10 @@ public class ConverterApi {
      */
     @RequestMapping(value = "/convert", method = GET, produces = TEXT_HTML_VALUE)
     @ResponseBody
-    public void getUploadPageForConvertingVnfd(HttpServletResponse httpResponse) throws Exception {
+    public void getUploadPageForConvertingVnfd(HttpServletResponse httpResponse) throws IOException {
         logger.info("REST: get converter main page");
         byte[] bytes = systemFunctions().loadFile("upload.html");
-        httpResponse.addHeader(HttpHeaders.CONTENT_LENGTH, Integer.toString(bytes.length));
+        httpResponse.addHeader(CONTENT_LENGTH, Integer.toString(bytes.length));
         httpResponse.getOutputStream().write(bytes);
     }
 }
