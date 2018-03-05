@@ -28,19 +28,19 @@ import java.io.PrintStream;
  * the classes that uses static calls.
  */
 public class SystemFunctions {
-    private static SystemFunctions INSTANCE;
+    private static SystemFunctions singletonInstance;
 
     /**
      * @return singleton instance
      */
     public static SystemFunctions systemFunctions() {
-        if (INSTANCE != null) {
-            return INSTANCE;
+        if (singletonInstance != null) {
+            return singletonInstance;
         } else {
             synchronized (SystemFunctions.class) {
-                INSTANCE = new SystemFunctions();
+                singletonInstance = new SystemFunctions();
             }
-            return INSTANCE;
+            return singletonInstance;
         }
     }
 
@@ -56,6 +56,7 @@ public class SystemFunctions {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }
@@ -108,7 +109,7 @@ public class SystemFunctions {
      * destination that is typically not continuously monitored.
      */
     public PrintStream err() {
-        return System.err;
+        return System.err; //NO SONAR (intentional wrapping of system err
     }
 
     /**
@@ -137,7 +138,7 @@ public class SystemFunctions {
      * @see java.io.PrintStream#println(java.lang.String)
      */
     public PrintStream out() {
-        return System.out;
+        return System.out; //NO SONAR (intentional wrapping of system out)
     }
 
     /**
@@ -147,7 +148,7 @@ public class SystemFunctions {
      * the host environment or user.
      */
     public InputStream in() {
-        return System.in;
+        return System.in; //NO SONAR (intentional wrapping of system in)
     }
 
     /**

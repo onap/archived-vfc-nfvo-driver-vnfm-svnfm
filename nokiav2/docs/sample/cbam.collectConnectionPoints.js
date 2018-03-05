@@ -26,21 +26,7 @@ function collectPorts(resourceModel, diff){
         transformedPort.macAddress = port.attributes.mac_address;
         transformedPort.serverProviderId = port.attributes.device_id;
         transformedPort.networkProviderId = port.attributes.network_id;
-        transformedPort.changeType = 'untouched';
-        var added = contains(diff.add, path);
-        var removed = contains(diff.remove, path);
-        if(added && removed){
-            transformedPort.changeType = "MODIFIED";
-        }
-        else{
-            if(removed){
-                transformedPort.changeType = "REMOVED";
-            }
-            if(added){
-                transformedPort.changeType = "ADDED";
-            }
-        }
-        if('untouched' != transformedPort.changeType && managedPort){
+        if(managedPort){
             transformedPorts.push(transformedPort)
         }
     })

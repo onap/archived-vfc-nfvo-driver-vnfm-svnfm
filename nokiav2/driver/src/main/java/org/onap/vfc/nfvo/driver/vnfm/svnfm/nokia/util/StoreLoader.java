@@ -18,6 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
 import org.apache.commons.codec.binary.Base64;
 
+import javax.swing.text.html.Option;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyFactory;
@@ -34,6 +35,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -41,7 +45,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public final class StoreLoader {
 
-    public static final String PASSWORD = "password";
+    public static final String PASS_ALIAS = "password";
     private static final String RSA = "RSA";
     private static final String X_509 = "X.509";
     private static final String SUN = "SUN";
@@ -59,8 +63,7 @@ public final class StoreLoader {
         if (rindex == -1 || lindex == -1) {
             return "";
         }
-        String substring = content.substring(rindex, lindex) + end(scope);
-        return substring;
+        return content.substring(rindex, lindex) + end(scope);
     }
 
     /**
@@ -105,17 +108,17 @@ public final class StoreLoader {
      */
     public static KeyStore loadStore(String pem, String storePassword, String keyPassword) {
         Optional<PrivateKey> privateKey = generatePrivateKey(pem);
-        Certificate[] certs = createCertificates(pem);
+        Optional<Certificate[]> certs = createCertificates(pem);
         try {
             KeyStore ks = KeyStore.getInstance(JKS, SUN);
             ks.load(null, storePassword.toCharArray());
             if (privateKey.isPresent()) {
-                ks.setKeyEntry(PASSWORD, privateKey.get(), keyPassword.toCharArray(), certs);
-            } else if (certs != null) {
+                ks.setKeyEntry(PASS_ALIAS, privateKey.get(), keyPassword.toCharArray(), certs.orElse(null));
+            } else if (certs.isPresent()) {
                 int index = 0;
-                for (Certificate cert : certs) {
+                for (Certificate cert : certs.get()) {
                     TrustedCertificateEntry ts = new TrustedCertificateEntry(cert);
-                    ks.setEntry(PASSWORD + index, ts, null);
+                    ks.setEntry(PASS_ALIAS + index, ts, null);
                     index++;
                 }
             }
@@ -125,7 +128,7 @@ public final class StoreLoader {
         }
     }
 
-    private static Certificate[] createCertificates(String pem) {
+    private static Optional<Certificate[]> createCertificates(String pem) {
         Set<Certificate> certificates = new HashSet<>();
         try {
             for (String certificate : getCertifacates(pem)) {
@@ -136,14 +139,13 @@ public final class StoreLoader {
                 certificates.addAll(c);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new RuntimeException("Unable to load certificates", e);
+            throw fatalFailure(logger, "Unable to load certificates", e);
         }
 
         if (certificates.size() > 0) {
-            return certificates.toArray(new Certificate[certificates.size()]);
+            return of(certificates.toArray(new Certificate[certificates.size()]));
         } else {
-            return null;
+            return empty();
         }
     }
 
@@ -153,12 +155,11 @@ public final class StoreLoader {
             if (!key.isEmpty()) {
                 KeyFactory keyFactory = KeyFactory.getInstance(RSA);
                 PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(toDer(key, RSA_PRIVATE_KEY));
-                return Optional.of(keyFactory.generatePrivate(keySpec));
+                return of(keyFactory.generatePrivate(keySpec));
             }
-            return Optional.empty();
+            return empty();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            logger.error("Unable to load key", e);
-            throw new RuntimeException("Unable to load key", e);
+            throw fatalFailure(logger, "Unable to load key", e);
         }
     }
 

@@ -26,8 +26,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
@@ -52,11 +57,11 @@ public class SwaggerApi {
      */
     @RequestMapping(value = "/swagger.json", method = GET)
     @ResponseBody
-    public void getSwaggerApiDefinition(HttpServletResponse httpResponse) throws Exception {
+    public void getSwaggerApiDefinition(HttpServletResponse httpResponse) throws IOException {
         logger.info("REST: get swagger definition");
-        httpResponse.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        httpResponse.addHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
         byte[] bytes = selfRegistrationManager.getSwaggerApiDefinition();
-        httpResponse.addHeader(HttpHeaders.CONTENT_LENGTH, Integer.toString(bytes.length));
+        httpResponse.addHeader(CONTENT_LENGTH, Integer.toString(bytes.length));
         httpResponse.getOutputStream().write(bytes);
     }
 }

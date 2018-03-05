@@ -20,7 +20,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 
+/**
+ * Collection of utility functions
+ */
 public class CbamUtils {
+
+    private static class OperationMustBeAborted extends RuntimeException{
+        OperationMustBeAborted(String msg){
+            super(msg);
+        }
+        OperationMustBeAborted(Exception e, String msg){
+            super(msg, e);
+        }
+    }
 
     private CbamUtils() {
         //use static way
@@ -43,7 +55,7 @@ public class CbamUtils {
     public static JsonElement childElement(JsonObject parent, String name) {
         JsonElement child = parent.get(name);
         if (child == null) {
-            throw new RuntimeException("Missing child " + name);
+            throw new OperationMustBeAborted("Missing child " + name);
         }
         return child;
     }
@@ -58,7 +70,7 @@ public class CbamUtils {
      */
     public static RuntimeException fatalFailure(Logger logger, String msg, Exception e) {
         logger.error(msg, e);
-        throw new RuntimeException(msg, e);
+        throw new OperationMustBeAborted(e, msg);
     }
 
     /**
@@ -70,6 +82,6 @@ public class CbamUtils {
      */
     public static RuntimeException fatalFailure(Logger logger, String msg) {
         logger.error(msg);
-        throw new RuntimeException(msg);
+        throw new OperationMustBeAborted(msg);
     }
 }
