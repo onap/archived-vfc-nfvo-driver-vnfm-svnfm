@@ -171,7 +171,6 @@ public class TestVfcNotificationSender extends TestBase {
 
         ReportedAffectedConnectionPoints affectedConnectionPoints = new ReportedAffectedConnectionPoints();
         ReportedAffectedCp affectedCp = new ReportedAffectedCp();
-        affectedCp.setChangeType(ChangeType.ADDED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
         affectedCp.setMacAddress("myMac");
@@ -255,7 +254,6 @@ public class TestVfcNotificationSender extends TestBase {
 
         ReportedAffectedConnectionPoints affectedConnectionPoints = new ReportedAffectedConnectionPoints();
         ReportedAffectedCp affectedCp = new ReportedAffectedCp();
-        affectedCp.setChangeType(ChangeType.ADDED);
         //affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
         affectedCp.setMacAddress("myMac");
@@ -336,7 +334,6 @@ public class TestVfcNotificationSender extends TestBase {
 
         ReportedAffectedConnectionPoints affectedConnectionPoints = new ReportedAffectedConnectionPoints();
         ReportedAffectedCp affectedCp = new ReportedAffectedCp();
-        affectedCp.setChangeType(ChangeType.REMOVED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
         affectedCp.setMacAddress("myMac");
@@ -348,7 +345,7 @@ public class TestVfcNotificationSender extends TestBase {
         affectedCp.setProviderId("portProviderId");
         affectedCp.setServerProviderId("serverProviderId");
         affectedCp.setTenantId("tenantId");
-        affectedConnectionPoints.getPost().add(affectedCp);
+        affectedConnectionPoints.getPre().add(affectedCp);
 
         OperationResult operationResult = new OperationResult();
         operationResult.operationResult = affectedConnectionPoints;
@@ -443,7 +440,6 @@ public class TestVfcNotificationSender extends TestBase {
 
         ReportedAffectedConnectionPoints affectedConnectionPoints = new ReportedAffectedConnectionPoints();
         ReportedAffectedCp affectedCp = new ReportedAffectedCp();
-        affectedCp.setChangeType(ChangeType.MODIFIED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
         affectedCp.setMacAddress("myMac");
@@ -455,7 +451,21 @@ public class TestVfcNotificationSender extends TestBase {
         affectedCp.setProviderId("portProviderId");
         affectedCp.setServerProviderId("serverProviderId");
         affectedCp.setTenantId("tenantId");
-        affectedConnectionPoints.getPost().add(affectedCp);
+        affectedConnectionPoints.getPre().add(affectedCp);
+
+        ReportedAffectedCp after = new ReportedAffectedCp();
+        after.setCpdId("cpVnfdId");
+        after.setIpAddress("1.2.3.5");
+        after.setMacAddress("myMac");
+        after.setName("myPortName");
+        after.setCpId("cpId");
+
+        // affectedCp.setEcpdId("ecpdId");
+        after.setNetworkProviderId("networkProviderId");
+        after.setProviderId("portProviderId");
+        after.setServerProviderId("serverProviderId");
+        after.setTenantId("tenantId");
+        affectedConnectionPoints.getPost().add(after);
 
 
         OperationResult operationResult = new OperationResult();
@@ -491,7 +501,7 @@ public class TestVfcNotificationSender extends TestBase {
         assertEquals(null, actualAffectedCp.getOwnerId());
         assertEquals(null, actualAffectedCp.getOwnerType());
         assertEquals("networkProviderId", actualAffectedCp.getVirtualLinkInstanceId());
-        assertEquals("1.2.3.4", actualAffectedCp.getPortResource().getIpAddress());
+        assertEquals("1.2.3.5", actualAffectedCp.getPortResource().getIpAddress());
         assertEquals("myMac", actualAffectedCp.getPortResource().getMacAddress());
         assertEquals("tenantId", actualAffectedCp.getPortResource().getTenant());
         assertEquals(VIM_ID, actualAffectedCp.getPortResource().getVimid());
@@ -557,7 +567,6 @@ public class TestVfcNotificationSender extends TestBase {
 
         ReportedAffectedConnectionPoints affectedConnectionPoints = new ReportedAffectedConnectionPoints();
         ReportedAffectedCp affectedCp = new ReportedAffectedCp();
-        affectedCp.setChangeType(ChangeType.ADDED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
         affectedCp.setMacAddress("myMac");
@@ -669,7 +678,6 @@ public class TestVfcNotificationSender extends TestBase {
 
         ReportedAffectedConnectionPoints affectedConnectionPoints = new ReportedAffectedConnectionPoints();
         ReportedAffectedCp affectedCp = new ReportedAffectedCp();
-        affectedCp.setChangeType(ChangeType.REMOVED);
         affectedCp.setCpdId("cpVnfdId");
         affectedCp.setIpAddress("1.2.3.4");
         affectedCp.setMacAddress("myMac");
@@ -681,7 +689,7 @@ public class TestVfcNotificationSender extends TestBase {
         affectedCp.setProviderId("portProviderId");
         affectedCp.setServerProviderId("serverProviderId");
         affectedCp.setTenantId("tenantId");
-        affectedConnectionPoints.getPost().add(affectedCp);
+        affectedConnectionPoints.getPre().add(affectedCp);
 
 
         OperationResult operationResult = new OperationResult();

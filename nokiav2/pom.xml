@@ -28,7 +28,6 @@
   <packaging>pom</packaging>
   <name>vfc/nfvo/driver/vnfm/svnfm/nokiav2</name>
   <modules>
-    <module>generatortools</module>
     <module>generatedapis</module>
     <module>driver</module>
     <module>driverwar</module>
