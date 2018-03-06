@@ -18,7 +18,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
 import org.apache.commons.codec.binary.Base64;
 
-import javax.swing.text.html.Option;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyFactory;
@@ -124,7 +123,7 @@ public final class StoreLoader {
             }
             return ks;
         } catch (Exception e) {
-            throw new RuntimeException("Unable to create keystore", e);
+            throw new UserInvisibleError("Unable to create keystore", e);
         }
     }
 
@@ -142,7 +141,7 @@ public final class StoreLoader {
             throw fatalFailure(logger, "Unable to load certificates", e);
         }
 
-        if (certificates.size() > 0) {
+        if (!certificates.isEmpty()) {
             return of(certificates.toArray(new Certificate[certificates.size()]));
         } else {
             return empty();

@@ -15,8 +15,6 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification;
 
-import com.nokia.cbam.lcm.v32.model.ChangeType;
-
 import java.util.Objects;
 
 /**

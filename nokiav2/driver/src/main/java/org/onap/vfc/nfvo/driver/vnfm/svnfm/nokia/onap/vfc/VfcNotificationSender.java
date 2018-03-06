@@ -32,12 +32,11 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.google.common.base.Optional.of;
 import static com.google.common.collect.Iterables.tryFind;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.ILifecycleChangeNotificationManager.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager.extractOnapJobId;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -61,7 +60,7 @@ public class VfcNotificationSender implements INotificationSender {
     public void processNotification(VnfLifecycleChangeNotification recievedNotification, OperationExecution operationExecution, ReportedAffectedConnectionPoints affectedCps, String vimId) {
         VNFLCMNotification notificationToSend = new VNFLCMNotification();
         notificationToSend.setJobId(extractOnapJobId(operationExecution.getOperationParams()));
-        notificationToSend.setOperation(getOperation(driverProperties.getVnfmId(), recievedNotification.getVnfInstanceId(), operationExecution, recievedNotification.getOperation(), recievedNotification.getAffectedVnfcs()));
+        notificationToSend.setOperation(getOperation(operationExecution, recievedNotification.getOperation()));
         notificationToSend.setVnfInstanceId(recievedNotification.getVnfInstanceId());
         switch (recievedNotification.getStatus()) {
             case FINISHED:
@@ -80,7 +79,9 @@ public class VfcNotificationSender implements INotificationSender {
 
     private void sendNotification(VNFLCMNotification notification) {
         try {
-            logger.info("Sending LCN: " + new Gson().toJson(notification));
+            if (logger.isInfoEnabled()) {
+                logger.info("Sending LCN: " + new Gson().toJson(notification));
+            }
             vfcRestApiProvider.getNsLcmApi().vNFLCMNotification(driverProperties.getVnfmId(), notification.getVnfInstanceId(), notification);
         } catch (Exception e) {
             fatalFailure(logger, "Unable to send LCN to VF-C", e);
@@ -143,10 +144,9 @@ public class VfcNotificationSender implements INotificationSender {
     private Optional<VnfCpNotificationType> getChangeType(ReportedAffectedConnectionPoints affectedCps, ReportedAffectedCp affectedCp) {
         Optional<ReportedAffectedCp> cpBeforeOperation = tryFind(affectedCps.getPre(), pre -> affectedCp.getCpId().equals(pre.getCpId()));
         Optional<ReportedAffectedCp> cpAfterOperation = tryFind(affectedCps.getPost(), post -> affectedCp.getCpId().equals(post.getCpId()));
-        if(cpBeforeOperation.isPresent() && cpAfterOperation.isPresent()){
+        if (cpBeforeOperation.isPresent() && cpAfterOperation.isPresent()) {
             return cpAfterOperation.get().equals(cpBeforeOperation.get()) ? Optional.absent() : of(VnfCpNotificationType.CHANGED);
-        }
-        else{
+        } else {
             //the affected CP must be present in the pre or post
             return of((cpAfterOperation.isPresent() ? VnfCpNotificationType.ADDED : VnfCpNotificationType.REMOVED));
         }
@@ -157,13 +157,13 @@ public class VfcNotificationSender implements INotificationSender {
             notificationToSend.setAffectedCp(new ArrayList<>());
             for (ReportedAffectedCp pre : affectedCps.getPre()) {
                 Optional<VnfCpNotificationType> changeType = getChangeType(affectedCps, pre);
-                if(of(VnfCpNotificationType.REMOVED).equals(changeType)){
+                if (of(VnfCpNotificationType.REMOVED).equals(changeType)) {
                     addModifiedCp(vimId, notificationToSend, pre, changeType);
                 }
             }
             for (ReportedAffectedCp post : affectedCps.getPost()) {
                 Optional<VnfCpNotificationType> changeType = getChangeType(affectedCps, post);
-                if(of(VnfCpNotificationType.ADDED).equals(changeType) || of(VnfCpNotificationType.CHANGED).equals(changeType)){
+                if (of(VnfCpNotificationType.ADDED).equals(changeType) || of(VnfCpNotificationType.CHANGED).equals(changeType)) {
                     addModifiedCp(vimId, notificationToSend, post, changeType);
                 }
             }
@@ -183,7 +183,7 @@ public class VfcNotificationSender implements INotificationSender {
         }
     }
 
-    private org.onap.vnfmdriver.model.OperationType getOperation(String vnfmId, String vnfId, OperationExecution operationExecution, com.nokia.cbam.lcm.v32.model.OperationType type, List<com.nokia.cbam.lcm.v32.model.AffectedVnfc> affectedVnfcs) {
+    private org.onap.vnfmdriver.model.OperationType getOperation(OperationExecution operationExecution, com.nokia.cbam.lcm.v32.model.OperationType type) {
         switch (type) {
             case TERMINATE:
                 return org.onap.vnfmdriver.model.OperationType.TERMINAL;
@@ -191,11 +191,10 @@ public class VfcNotificationSender implements INotificationSender {
                 return org.onap.vnfmdriver.model.OperationType.INSTANTIATE;
             case SCALE:
                 ScaleVnfRequest originalRequest = new Gson().fromJson(new Gson().toJson(operationExecution.getOperationParams()), ScaleVnfRequest.class);
-                switch (originalRequest.getType()) {
-                    case IN:
-                        return org.onap.vnfmdriver.model.OperationType.SCALEIN;
-                    default: //OUT
-                        return org.onap.vnfmdriver.model.OperationType.SCALEOUT;
+                if (originalRequest.getType() == com.nokia.cbam.lcm.v32.model.ScaleDirection.IN) {
+                    return OperationType.SCALEIN;
+                } else {
+                    return OperationType.SCALEOUT;
                 }
             default:
                 return org.onap.vnfmdriver.model.OperationType.HEAL;

@@ -23,15 +23,6 @@ import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
  * Responsible for handling CBAM notifications
  */
 public interface ILifecycleChangeNotificationManager {
-    /**
-     * The key of the CBAM VNF extension for the identifier of the VNFM in ONAP
-     */
-    String EXTERNAL_VNFM_ID = "externalVnfmId";
-
-    /**
-     * Separator for multiple keys concatenated into a single string
-     */
-    String SEPARATOR = "_";
 
     /**
      * Order the operations by start time (latest first)

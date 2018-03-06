@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.ILifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.threeten.bp.OffsetDateTime;
 
@@ -93,7 +93,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         vnfs.add(vnf);
         vnf.setId(VNF_ID);
         VnfProperty prop = new VnfProperty();
-        prop.setName(ILifecycleChangeNotificationManager.EXTERNAL_VNFM_ID);
+        prop.setName(LifecycleManager.EXTERNAL_VNFM_ID);
         prop.setValue(VNFM_ID);
         vnf.setExtensions(new ArrayList<>());
         vnf.getExtensions().add(prop);

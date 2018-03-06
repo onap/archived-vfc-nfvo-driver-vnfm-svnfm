@@ -42,10 +42,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -321,7 +317,7 @@ public class TestCbamTokenProvider extends TestBase {
             //verify
             fail();
         } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("unable to find valid certification path"));
+            assertTrue(e.getCause().getCause().getMessage().contains("unable to find valid certification path"));
             assertTrue(e.getCause() instanceof SSLHandshakeException);
         }
     }
@@ -361,7 +357,7 @@ public class TestCbamTokenProvider extends TestBase {
             //verify
             fail();
         } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Hostname 127.0.0.1 not verified"));
+            assertTrue(e.getCause().getMessage().contains("Hostname 127.0.0.1 not verified"));
             assertTrue(e.getCause() instanceof SSLPeerUnverifiedException);
         }
     }
@@ -382,7 +378,7 @@ public class TestCbamTokenProvider extends TestBase {
             //verify
             fail();
         } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Unable to load certificates"));
+            assertEquals("Unable to load certificates", e.getMessage());
             assertTrue(e.getCause() instanceof GeneralSecurityException);
         }
     }
@@ -411,7 +407,7 @@ public class TestCbamTokenProvider extends TestBase {
             }
 
             @Override
-            TrustManager[] buildTrustManager() throws KeyStoreException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException {
+            TrustManager[] buildTrustManager() throws KeyStoreException {
                 throw expectedException;
             }
         }

@@ -283,7 +283,6 @@ public class TestVfcGrantManager extends TestBase {
         assertBasicGrantAttributes(request, org.onap.vnfmdriver.model.OperationType.SCALEIN);
     }
 
-
     /**
      * test grant request for healing
      */
@@ -301,6 +300,13 @@ public class TestVfcGrantManager extends TestBase {
         assertVduInGrant(request.getAddResource(), "vdu1", 1);
         assertVduInGrant(request.getRemoveResource(), "vdu1", 1);
         assertBasicGrantAttributes(request, org.onap.vnfmdriver.model.OperationType.HEAL);
+    }
+
+    @Test
+    public void testPOJO() {
+        VfcGrantManager.AdditionalGrantParams additionalGrantParams = new VfcGrantManager.AdditionalGrantParams(VNFM_ID, VIM_ID);
+        assertEquals(VNFM_ID, additionalGrantParams.getVnfmId());
+        assertEquals(VIM_ID, additionalGrantParams.getVimId());
     }
 
     private void assertBasicGrantAttributes(GrantVNFRequest request, org.onap.vnfmdriver.model.OperationType type) {
