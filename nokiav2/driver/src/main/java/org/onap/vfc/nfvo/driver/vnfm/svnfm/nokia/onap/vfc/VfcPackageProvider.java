@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -67,7 +66,7 @@ public class VfcPackageProvider implements IPackageProvider {
             JsonElement vnfdModel = new JsonParser().parse(vnfPackageDetails.getPackageInfo().getVnfdModel());
             return vnfdModel.getAsJsonObject().get("metadata").getAsJsonObject().get("resourceVendorModelNumber").getAsString();
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to query VNF package with " + csarId + " from VF-C", e);
+            throw fatalFailure(logger, "Unable to query VNF package with " + csarId, e);
         }
     }
 
@@ -83,12 +82,12 @@ public class VfcPackageProvider implements IPackageProvider {
                 downloadUrl = downloadUrl.replaceFirst("://" + host, "://" + ipMappingProvider.mapPrivateIpToPublicIp(host));
             }
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to query VNF package with " + csarId + " from VF-C", e);
+            throw fatalFailure(logger, "Unable to query VNF package with " + csarId, e);
         }
         try {
             return downloadCbamVnfPackage(downloadUrl);
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to download package from " + downloadUrl + " from VF-C", e);
+            throw fatalFailure(logger, "Unable to download package from " + downloadUrl, e);
         }
     }
 
@@ -99,7 +98,6 @@ public class VfcPackageProvider implements IPackageProvider {
         CloseableHttpResponse response = client.execute(httpget);
         HttpEntity entity = response.getEntity();
         InputStream is = entity.getContent();
-        ByteArrayOutputStream cbamInZip = new ByteArrayOutputStream();
         byte[] bytes = ByteStreams.toByteArray(is);
         client.close();
         return bytes;

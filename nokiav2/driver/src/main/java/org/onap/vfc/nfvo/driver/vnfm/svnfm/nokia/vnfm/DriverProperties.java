@@ -29,7 +29,7 @@ import java.util.Objects;
 public class DriverProperties {
     public static final String BASE_SUFFIX = "/" + SelfRegistrationManager.SERVICE_NAME + "/v1";
     public static final String BASE_URL = "/api" + BASE_SUFFIX;
-    public static final String LCN_PATH = "/lcn";
+    public static final String LCN_URL = "/lcn";
 
     @Value("${cbamCatalogUrl}")
     private String cbamCatalogUrl;

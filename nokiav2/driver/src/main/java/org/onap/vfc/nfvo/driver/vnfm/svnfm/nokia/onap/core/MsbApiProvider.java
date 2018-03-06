@@ -63,11 +63,10 @@ public class MsbApiProvider extends IpMappingProvider {
         //FIXME the enable_ssl field should be used, but it is not available in SDK depends on MSB-151 jira issue
         String protocol = (ipAnPort.endsWith(":8443") || ipAnPort.endsWith(":443")) ? "https://" : "http://";
         //the field name in A&AI is misleading the URL is relative path postfixed to http(s)://ip:port
-        String fullUrl = protocol + ipAnPort + microServiceFullInfo.getUrl();
-        return fullUrl;
+        return protocol + ipAnPort + microServiceFullInfo.getUrl();
     }
 
-    private MicroServiceFullInfo getMicroServiceInfo(String name, String version) throws RuntimeException {
+    private MicroServiceFullInfo getMicroServiceInfo(String name, String version) {
         try {
             return getMsbClient().queryMicroServiceInfo(name, version);
         } catch (RouteException e) {
@@ -77,10 +76,14 @@ public class MsbApiProvider extends IpMappingProvider {
 
     private String getNodeIpAnPort(MicroServiceFullInfo microServiceFullInfo) {
         for (NodeInfo nodeInfo : microServiceFullInfo.getNodes()) {
-            if (!nodeInfo.getIp().startsWith("172.")) { // FIXME how to know which of the multiple addresses to use?
+            if (isADokcerInternalAddress(nodeInfo)) {
                 return mapPrivateIpToPublicIp(nodeInfo.getIp()) + ":" + nodeInfo.getPort();
             }
         }
         throw fatalFailure(logger, "The " + microServiceFullInfo.getServiceName() + " service with " + microServiceFullInfo.getVersion() + " does not have any valid nodes" + microServiceFullInfo.getNodes());
+    }
+
+    private boolean isADokcerInternalAddress(NodeInfo nodeInfo) {
+        return !nodeInfo.getIp().startsWith("172.");
     }
 }

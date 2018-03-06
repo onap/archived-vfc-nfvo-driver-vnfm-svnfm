@@ -30,11 +30,12 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestConditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestRealConfig;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestServletInitializer;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestCbamUtils;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestStoreLoader;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestSystemFunctions;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestLifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestProcessedNotification;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedAffectedConnectionPoints;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedAffectedCp;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -68,6 +69,13 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestLifecycle
         TestCbamUtils.class,
         TestStoreLoader.class,
         TestSystemFunctions.class,
+        TestUserInvisibleError.class,
+        TestUserVisibleError.class,
+
+        TestLifecycleChangeNotificationManager.class,
+        TestProcessedNotification.class,
+        TestReportedAffectedConnectionPoints.class,
+        TestReportedAffectedCp.class,
 
         TestAdditionalParams.class,
         TestCbamCatalogManager.class,
@@ -75,10 +83,8 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestLifecycle
         TestDriverProperties.class,
         TestJobManager.class,
         TestVfcGrantManager.class,
-        TestLifecycleChangeNotificationManager.class,
         TestLifecycleManager.class,
         TestSelfRegistrationManager.class,
-
         TestNokiaSvnfmApplication.class,
 
 })

@@ -107,7 +107,7 @@ public class TestVfcPackageProvider extends TestBase {
             vfcPackageProvider.getCbamVnfdId(CSAR_ID);
             fail();
         } catch (Exception e) {
-            verify(logger).error("Unable to query VNF package with csarId from VF-C", expectedException);
+            verify(logger).error("Unable to query VNF package with csarId", expectedException);
             assertEquals(expectedException, e.getCause());
         }
     }
@@ -132,7 +132,7 @@ public class TestVfcPackageProvider extends TestBase {
             vfcPackageProvider.getPackage(CSAR_ID);
             fail();
         } catch (Exception e) {
-            verify(logger).error("Unable to download package from http://1.2.3.4/a.csar from VF-C", expectedException);
+            verify(logger).error("Unable to download package from http://1.2.3.4/a.csar", expectedException);
             assertEquals(expectedException, e.getCause());
         }
     }
@@ -149,7 +149,7 @@ public class TestVfcPackageProvider extends TestBase {
             vfcPackageProvider.getPackage(CSAR_ID);
             fail();
         } catch (Exception e) {
-            verify(logger).error("Unable to query VNF package with csarId from VF-C", expectedException);
+            verify(logger).error("Unable to query VNF package with csarId", expectedException);
             assertEquals(expectedException, e.getCause());
         }
     }

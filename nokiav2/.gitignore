@@ -3,3 +3,5 @@ bin
 *.iml
 .DS_Store
 tmp
+logs
+debug-logs

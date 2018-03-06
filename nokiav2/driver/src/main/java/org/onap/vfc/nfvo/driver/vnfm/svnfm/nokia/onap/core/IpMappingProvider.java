@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Lists.newArrayList;
@@ -48,12 +47,9 @@ public class IpMappingProvider implements InitializingBean {
      */
     @Override
     public void afterPropertiesSet() throws Exception {
-        on(",").trimResults().omitEmptyStrings().split(environment.getProperty(IP_MAP, String.class, "")).forEach(new Consumer<String>() {
-            @Override
-            public void accept(String item) {
-                ArrayList<String> ip = newArrayList(on("->").trimResults().split(item));
-                ipMap.put(ip.get(0), ip.get(1));
-            }
+        on(",").trimResults().omitEmptyStrings().split(environment.getProperty(IP_MAP, String.class, "")).forEach(item -> {
+            ArrayList<String> ip = newArrayList(on("->").trimResults().split(item));
+            ipMap.put(ip.get(0), ip.get(1));
         });
     }
 

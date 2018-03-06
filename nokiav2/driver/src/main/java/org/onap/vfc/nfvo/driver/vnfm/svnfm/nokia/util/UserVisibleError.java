@@ -13,24 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
+
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
 /**
- * Provides a VNF package from ONAP repositories
+ * Represents an error that is meaningful for an end user
+ * using the REST interface
  */
-public interface IPackageProvider {
+public class UserVisibleError extends RuntimeException {
 
     /**
-     * Download the package from ONAP
-     *
-     * @param csarId the CSAR identifier of the package in ONAP
-     * @return the binary content of the package
+     * @param message the error message
      */
-    byte[] getPackage(String csarId);
+    public UserVisibleError(String message) {
+        super(message);
+    }
 
     /**
-     * @param csarId the CSAR identifier of the package in ONAP
-     * @return the identifier of the package in CBAM
+     * @param message the error message
+     * @param cause   the cause of the error
      */
-    String getCbamVnfdId(String csarId);
+    public UserVisibleError(String message, Exception cause) {
+        super(message, cause);
+    }
 }

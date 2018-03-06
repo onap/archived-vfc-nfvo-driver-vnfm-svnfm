@@ -23,16 +23,6 @@ import org.onap.vnfmdriver.model.VnfmInfo;
 public interface VnfmInfoProvider {
 
     /**
-     * The name of the VNFM info cache eviction in the properties file
-     */
-    String VNFM_INFO_CACHE_EVICTION_IN_MS = "vnfmInfoCacheEvictionInMs";
-
-    /**
-     * The default VNFM info cache eviction in milliseconds
-     */
-    int DEFAULT_CACHE_EVICTION_TIMEOUT_IN_MS = 10 * 60 * 1000;
-
-    /**
      * @param vnfmId the identifier of the VNFM
      * @return the description of the VNFM
      */
