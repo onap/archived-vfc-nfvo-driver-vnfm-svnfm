@@ -26,7 +26,7 @@
   <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokiav2</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>vfc/nfvo/driver/vnfm/svnfm/nokiav2</name>
+  <name>vfc-nfvo-driver-vnfm-svnfm-nokiav2</name>
   <modules>
     <module>generatedapis</module>
     <module>driver</module>
