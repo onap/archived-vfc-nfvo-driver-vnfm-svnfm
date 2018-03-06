@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
 
-/**
- * Provides a VNF package from ONAP repositories
- */
-public interface IPackageProvider {
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
-    /**
-     * Download the package from ONAP
-     *
-     * @param csarId the CSAR identifier of the package in ONAP
-     * @return the binary content of the package
-     */
-    byte[] getPackage(String csarId);
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class TestUserInvisibleError {
 
     /**
-     * @param csarId the CSAR identifier of the package in ONAP
-     * @return the identifier of the package in CBAM
+     * test POJO
      */
-    String getCbamVnfdId(String csarId);
+    @Test
+    public void testPojo() throws Exception {
+        UserInvisibleError e = new UserInvisibleError("msg");
+        assertEquals("msg", e.getMessage());
+        Exception cause = new Exception();
+        UserInvisibleError e2 = new UserInvisibleError("msg", cause);
+        assertEquals("msg", e2.getMessage());
+        assertEquals(cause, e2.getCause());
+    }
+
 }

@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.LCN_PATH;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.LCN_URL;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -54,7 +54,7 @@ public class LcnApi {
      *
      * @param httpResponse the HTTP response
      */
-    @RequestMapping(value = LCN_PATH, method = GET)
+    @RequestMapping(value = LCN_URL, method = GET)
     public void testLcnConnectivity(HttpServletResponse httpResponse) {
         //used to test connectivity from CBAM to driver
     }
@@ -65,7 +65,7 @@ public class LcnApi {
      * @param lcn          the LCN notification
      * @param httpResponse the HTTP response
      */
-    @RequestMapping(value = LCN_PATH, method = POST, consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = LCN_URL, method = POST, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
     @ResponseStatus(code = NO_CONTENT)
     public void handleLcn(@RequestBody VnfLifecycleChangeNotification lcn, HttpServletResponse httpResponse) {

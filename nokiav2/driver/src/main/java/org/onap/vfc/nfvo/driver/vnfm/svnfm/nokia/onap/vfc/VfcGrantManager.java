@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -37,7 +38,10 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
 
+import static com.nokia.cbam.lcm.v32.model.InstantiationState.INSTANTIATED;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
+import static org.onap.vnfmdriver.model.OperationType.TERMINAL;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -79,47 +83,39 @@ public class VfcGrantManager implements IGrantManager {
             com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
             String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, vnf.getVnfdId());
             Set<ResourceChange> resourceChanges = calculateResourceChangeDuringScaling(vnfdContent, request.getAspectId(), Integer.parseInt(request.getNumberOfSteps()));
-            switch (request.getType()) {
-                case IN:
-                    grantRequest.getRemoveResource().addAll(resourceChanges);
-                    break;
-                case OUT:
-                    grantRequest.getAddResource().addAll(resourceChanges);
-                    break;
+            if (request.getType() == ScaleDirection.IN) {
+                grantRequest.getRemoveResource().addAll(resourceChanges);
+
+            } else {
+                grantRequest.getAddResource().addAll(resourceChanges);
             }
             grantRequest.setVnfInstanceId(vnfId);
             requestGrant(grantRequest);
         } catch (ApiException e) {
-            logger.error("Unable to query VNF " + vnfId, e);
-            throw new RuntimeException("Unable to query VNF " + vnfId, e);
+            fatalFailure(logger, "Unable to query VNF " + vnfId, e);
         }
     }
 
     @Override
     public void requestGrantForTerminate(String vnfmId, String vnfId, String vimId, String onapVnfdId, VnfInfo vnf, String jobId) {
-        switch (vnf.getInstantiationState()) {
-            case NOT_INSTANTIATED:
-                break;
-            case INSTANTIATED:
-                GrantVNFRequest grantRequest;
-                try {
-                    grantRequest = buildGrantRequest(vnfmId, vimId, onapVnfdId, jobId, OperationType.TERMINAL);
-                    if (vnf.getInstantiatedVnfInfo().getVnfcResourceInfo() != null) {
-                        for (VnfcResourceInfo vnfc : vnf.getInstantiatedVnfInfo().getVnfcResourceInfo()) {
-                            ResourceChange resourceChange = new ResourceChange();
-                            grantRequest.getRemoveResource().add(resourceChange);
-                            resourceChange.setVdu(vnfc.getVduId());
-                            resourceChange.setType(ChangeType.VDU);
-                            resourceChange.setResourceDefinitionId(UUID.randomUUID().toString());
-                        }
+        if (vnf.getInstantiationState() == INSTANTIATED) {
+            GrantVNFRequest grantRequest;
+            try {
+                grantRequest = buildGrantRequest(vnfmId, vimId, onapVnfdId, jobId, TERMINAL);
+                if (vnf.getInstantiatedVnfInfo().getVnfcResourceInfo() != null) {
+                    for (VnfcResourceInfo vnfc : vnf.getInstantiatedVnfInfo().getVnfcResourceInfo()) {
+                        ResourceChange resourceChange = new ResourceChange();
+                        grantRequest.getRemoveResource().add(resourceChange);
+                        resourceChange.setVdu(vnfc.getVduId());
+                        resourceChange.setType(ChangeType.VDU);
+                        resourceChange.setResourceDefinitionId(UUID.randomUUID().toString());
                     }
-                    grantRequest.setVnfInstanceId(vnfId);
-                } catch (Exception e) {
-                    logger.error("Unable to prepare grant request for termination", e);
-                    throw new RuntimeException("Unable to prepare grant request for termination", e);
                 }
-                requestGrant(grantRequest);
-                break;
+                grantRequest.setVnfInstanceId(vnfId);
+            } catch (Exception e) {
+                throw fatalFailure(logger, "Unable to prepare grant request for termination", e);
+            }
+            requestGrant(grantRequest);
         }
     }
 
@@ -132,8 +128,7 @@ public class VfcGrantManager implements IGrantManager {
             grantRequest.setAddResource(new ArrayList<>());
             grantRequest.getAddResource().addAll(calculateResourceChangeDuringInstantiate(cbamVnfdContent, instantiationLevelId));
         } catch (Exception e) {
-            logger.error("Unable to prepare grant request for instantiation", e);
-            throw new RuntimeException("Unable to prepare grant request for instantiation", e);
+            throw fatalFailure(logger, "Unable to prepare grant request for instantiation", e);
         }
         return requestGrant(grantRequest);
     }
@@ -154,8 +149,7 @@ public class VfcGrantManager implements IGrantManager {
         try {
             return vfcRestApiProvider.getNsLcmApi().grantvnf(grantRequest).getVim();
         } catch (org.onap.vnfmdriver.ApiException e) {
-            logger.error("Unable to request grant", e);
-            throw new RuntimeException(e);
+            throw fatalFailure(logger, "Unable to request grant", e);
         }
     }
 
@@ -166,8 +160,8 @@ public class VfcGrantManager implements IGrantManager {
         JsonObject instantiationLevels = CbamUtils.child(deploymentFlavorProperties, "instantiation_levels");
         Set<ResourceChange> resourceChanges = new HashSet<>();
         for (Map.Entry<String, JsonElement> vdu_level : CbamUtils.child(CbamUtils.child(instantiationLevels, instantiationLevelId), ("vdu_levels")).entrySet()) {
-            JsonElement number_of_instances = vdu_level.getValue().getAsJsonObject().get("number_of_instances");
-            for (int i = 0; i < number_of_instances.getAsLong(); i++) {
+            JsonElement numberOfInstances = vdu_level.getValue().getAsJsonObject().get("number_of_instances");
+            for (int i = 0; i < numberOfInstances.getAsLong(); i++) {
                 ResourceChange resourceChange = new ResourceChange();
                 resourceChanges.add(resourceChange);
                 resourceChange.setVdu(vdu_level.getKey());
@@ -187,34 +181,58 @@ public class VfcGrantManager implements IGrantManager {
                 JsonObject aspects = policy.getAsJsonObject().entrySet().iterator().next().getValue().getAsJsonObject().get("properties").getAsJsonObject().get("aspects").getAsJsonObject();
                 JsonObject aspect = aspects.get(aspectId).getAsJsonObject();
                 if (aspect.has("vdus")) {
-                    for (Map.Entry<String, JsonElement> vdu : aspect.get("vdus").getAsJsonObject().entrySet()) {
-                        String vduId = vdu.getKey();
-                        for (int step = 0; step < steps; step++) {
-                            for (int i = 0; i < vdu.getValue().getAsJsonArray().size(); i++) {
-                                ResourceChange resourceChange = new ResourceChange();
-                                resourceChange.setVdu(vduId);
-                                resourceChange.setType(ChangeType.VDU);
-                                resourceChange.setResourceDefinitionId(UUID.randomUUID().toString());
-                                resourceChanges.add(resourceChange);
-                            }
-                        }
-                    }
+                    addChangesForAspect(steps, resourceChanges, aspect);
                 }
             }
         }
         return resourceChanges;
     }
 
+    private void addChangesForAspect(int steps, Set<ResourceChange> resourceChanges, JsonObject aspect) {
+        for (Map.Entry<String, JsonElement> vdu : aspect.get("vdus").getAsJsonObject().entrySet()) {
+            String vduId = vdu.getKey();
+            for (int step = 0; step < steps; step++) {
+                for (int i = 0; i < vdu.getValue().getAsJsonArray().size(); i++) {
+                    ResourceChange resourceChange = new ResourceChange();
+                    resourceChange.setVdu(vduId);
+                    resourceChange.setType(ChangeType.VDU);
+                    resourceChange.setResourceDefinitionId(UUID.randomUUID().toString());
+                    resourceChanges.add(resourceChange);
+                }
+            }
+        }
+    }
+
     /**
      * Represents the mandatory parameters that must be sent during grant request to VF-C
      */
-    private static class AdditionalGrantParams {
+    @VisibleForTesting
+    static class AdditionalGrantParams {
         private final String vnfmId;
         private final String vimId;
 
         AdditionalGrantParams(String vnfmId, String vimId) {
             this.vnfmId = vnfmId;
             this.vimId = vimId;
+        }
+
+        /**
+         * @return the identifier of the VNFM requesting the grant
+         */
+        public String getVnfmId() {
+            return vnfmId;
+        }
+
+        /**
+         * @return the identifier of the VIM for which the grant is requested
+         */
+        public String getVimId() {
+            //FIXME
+            //Currently the grant request sent to VF-C must contain the VIM identifier in the
+            //grant response (normally in ETSI VIM identifier is received in the grant response
+            //from ETSI orchestrator the vimId parameter should be removed from this POJO
+            //to be able to fix this https://jira.onap.org/browse/VFC-603 must be solved
+            return vimId;
         }
     }
 }

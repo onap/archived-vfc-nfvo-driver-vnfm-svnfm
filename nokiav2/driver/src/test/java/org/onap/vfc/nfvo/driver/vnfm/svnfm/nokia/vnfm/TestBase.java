@@ -129,6 +129,10 @@ public class TestBase {
         when(response.getEntity()).thenReturn(entity);
         when(driverProperties.getVnfmId()).thenReturn(VNFM_ID);
         when(systemFunctions.getHttpClient()).thenReturn(httpClient);
+        when(logger.isInfoEnabled()).thenReturn(true);
+        when(logger.isDebugEnabled()).thenReturn(true);
+        when(logger.isWarnEnabled()).thenReturn(true);
+        when(logger.isErrorEnabled()).thenReturn(true);
     }
 
     @After

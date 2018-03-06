@@ -20,6 +20,7 @@ import com.google.common.io.ByteStreams;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
@@ -49,7 +50,7 @@ public class OnapVnfPackageBuilder {
      * @param zip the original CBAM package
      * @return the converted ONAP package
      */
-    public byte[] covert(InputStream zip) throws Exception {
+    public byte[] covert(InputStream zip) throws IOException {
         byte[] cbamVnfPackage = ByteStreams.toByteArray(zip);
         String vnfdLocation = getVnfdLocation(new ByteArrayInputStream(cbamVnfPackage));
         ByteArrayOutputStream vnfdContent = getFileInZip(new ByteArrayInputStream(cbamVnfPackage), vnfdLocation);
@@ -59,7 +60,7 @@ public class OnapVnfPackageBuilder {
         return buildNewOnapPackage(modifiedCbamPackage, onapVnfd);
     }
 
-    private byte[] buildNewOnapPackage(byte[] modifiedCbamPackage, String onapVnfd) throws Exception {
+    private byte[] buildNewOnapPackage(byte[] modifiedCbamPackage, String onapVnfd) throws IOException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         ZipOutputStream out = new ZipOutputStream(result);
         out.putNextEntry(new ZipEntry("Artifacts/Deployment/OTHER/cbam.package.zip"));

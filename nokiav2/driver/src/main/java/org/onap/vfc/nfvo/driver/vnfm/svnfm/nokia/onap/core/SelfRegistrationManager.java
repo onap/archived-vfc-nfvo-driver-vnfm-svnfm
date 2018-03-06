@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import static com.nokia.cbam.lcn.v32.model.SubscriptionAuthentication.TypeEnum.NONE;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCN_API_VERSION;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -93,10 +94,9 @@ public class SelfRegistrationManager {
         } catch (RouteException e) {
             //ONAP throws 500 internal server error, but deletes the micro service
             try {
-                MicroServiceFullInfo microServiceFullInfo = msbApiProvider.getMsbClient().queryMicroServiceInfo(SERVICE_NAME, DRIVER_VERSION);
-                logger.error("Unable to deRegister Nokia VNFM driver", e);
+                msbApiProvider.getMsbClient().queryMicroServiceInfo(SERVICE_NAME, DRIVER_VERSION);
                 //the micro service still exists
-                throw new RuntimeException(e);
+                fatalFailure(logger, "Unable to deRegister Nokia VNFM driver", e);
             } catch (RouteException e1) {
                 // the micro service was deleted (even though 500 HTTP code was reported)
             }
@@ -119,15 +119,14 @@ public class SelfRegistrationManager {
         logger.info("Deleting CBAM LCN subscription");
         SubscriptionsApi lcnApi = cbamRestApiProvider.getCbamLcnApi(vnfmId);
         try {
-            String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_PATH;
+            String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_URL;
             for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION)) {
                 if (subscription.getCallbackUrl().equals(callbackUrl)) {
                     lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION);
                 }
             }
         } catch (ApiException e) {
-            logger.error("Unable to delete CBAM LCN subscription");
-            throw new RuntimeException(e);
+            fatalFailure(logger, "Unable to delete CBAM LCN subscription", e);
         }
     }
 
@@ -151,14 +150,13 @@ public class SelfRegistrationManager {
         try {
             return msbApiProvider.getMsbClient().registerMicroServiceInfo(microServiceInfo);
         } catch (RouteException e) {
-            logger.error("Unable to register Nokia VNFM driver", e);
-            throw new RuntimeException(e);
+            throw fatalFailure(logger, "Unable to register Nokia VNFM driver", e);
         }
     }
 
     private void subscribeToLcn(String vnfmId) {
-        String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_PATH;
-        logger.info("Subscribing to CBAM LCN " + driverProperties.getCbamLcnUrl() + " with callback to " + callbackUrl);
+        String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_URL;
+        logger.info("Subscribing to CBAM LCN {} with callback to {}", driverProperties.getCbamLcnUrl(), callbackUrl);
         SubscriptionsApi lcnApi = cbamRestApiProvider.getCbamLcnApi(vnfmId);
         try {
             for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION)) {
@@ -176,12 +174,11 @@ public class SelfRegistrationManager {
             request.getFilter().addOperationTypesItem(OperationType.SCALE);
             request.getFilter().addOperationTypesItem(OperationType.TERMINATE);
             SubscriptionAuthentication subscriptionAuthentication = new SubscriptionAuthentication();
-            subscriptionAuthentication.setType(NONE);//FIXME improve authentication
+            subscriptionAuthentication.setType(NONE);
             request.setAuthentication(subscriptionAuthentication);
             lcnApi.subscriptionsPost(request, NOKIA_LCN_API_VERSION);
         } catch (ApiException e) {
-            logger.error("Unable to subscribe to CBAM LCN", e);
-            throw new RuntimeException(e);
+            fatalFailure(logger, "Unable to subscribe to CBAM LCN", e);
         }
     }
 

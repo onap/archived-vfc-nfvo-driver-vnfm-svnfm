@@ -57,7 +57,7 @@ public class SystemFunctions {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw new UserInvisibleError("Interrupted while sleep", e);
         }
     }
 
@@ -92,7 +92,7 @@ public class SystemFunctions {
             InputStream stream = SystemFunctions.class.getClassLoader().getResourceAsStream(url);
             return ByteStreams.toByteArray(stream);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to load " + url, e);
+            throw new UserVisibleError("Unable to load " + url, e);
         }
     }
 
@@ -108,8 +108,9 @@ public class SystemFunctions {
      * variable <code>out</code>, has been redirected to a file or other
      * destination that is typically not continuously monitored.
      */
+    @SuppressWarnings("squid:S106") // (intentional wrapping of system err)
     public PrintStream err() {
-        return System.err; //NO SONAR (intentional wrapping of system err
+        return System.err;
     }
 
     /**
@@ -137,8 +138,9 @@ public class SystemFunctions {
      * @see java.io.PrintStream#println(java.lang.Object)
      * @see java.io.PrintStream#println(java.lang.String)
      */
+    @SuppressWarnings("squid:S106") // (intentional wrapping of system err)
     public PrintStream out() {
-        return System.out; //NO SONAR (intentional wrapping of system out)
+        return System.out;
     }
 
     /**

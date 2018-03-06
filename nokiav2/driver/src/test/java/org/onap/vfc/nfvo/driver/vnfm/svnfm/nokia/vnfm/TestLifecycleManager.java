@@ -245,7 +245,7 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(2, actualVnfModifyRequest.getValue().getExtensions().size());
         assertEquals(LifecycleManager.ONAP_CSAR_ID, actualVnfModifyRequest.getValue().getExtensions().get(0).getName());
         assertEquals(ONAP_CSAR_ID, actualVnfModifyRequest.getValue().getExtensions().get(0).getValue());
-        assertEquals(ILifecycleChangeNotificationManager.EXTERNAL_VNFM_ID, actualVnfModifyRequest.getValue().getExtensions().get(1).getName());
+        assertEquals(LifecycleManager.EXTERNAL_VNFM_ID, actualVnfModifyRequest.getValue().getExtensions().get(1).getName());
         assertEquals(VNFM_ID, actualVnfModifyRequest.getValue().getExtensions().get(1).getValue());
 
         //the 3.2 API does not accept empty array
@@ -301,6 +301,34 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(StoreLoader.getCertifacates(caCert).iterator().next(), new String(actualVim.getInterfaceInfo().getTrustedCertificates().get(0)));
         assertTrue(!actualVim.getInterfaceInfo().isSkipCertificateVerification());
         assertTrue(!actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
+    }
+
+
+    /**
+     * non specified SSL verification means not verified
+     */
+    @Test
+    public void testInstantiationV2WithoutSsl() throws Exception {
+        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
+
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        grantResponse.setVimId(VIM_ID);
+        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
+        accessInfo.setTenant(TENANT);
+        vimInfo.setSslInsecure(null);
+        grantResponse.setAccessInfo(accessInfo);
+        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        //when
+        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
+        //verify
+        OPENSTACKV2INFO actualVim = (OPENSTACKV2INFO) actualInstantiationRequest.getValue().getVims().get(0);
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
     }
 
     /**
@@ -380,6 +408,42 @@ public class TestLifecycleManager extends TestBase {
     }
 
     /**
+     * non specified SSL verification meams not verified for KeyStone V3 based
+     */
+    @Test
+    public void testInstantiationV3WithNonSpecifiedSsl() throws Exception {
+        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO);
+
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        grantResponse.setVimId(VIM_ID);
+        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
+        accessInfo.setTenant(TENANT);
+        vimInfo.setSslInsecure(null);
+        grantResponse.setAccessInfo(accessInfo);
+        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        //when
+        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
+        //verify
+        OPENSTACKV3INFO actualVim = (OPENSTACKV3INFO) actualInstantiationRequest.getValue().getVims().get(0);
+        assertEquals(VIM_ID, actualVim.getId());
+        assertEquals(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO, actualVim.getVimInfoType());
+        assertEquals("cloudUrl", actualVim.getInterfaceInfo().getEndpoint());
+        //FIXME assertEquals();actualVim.getInterfaceInfo().getTrustedCertificates());
+        assertEquals("vimPassword", actualVim.getAccessInfo().getPassword());
+        assertEquals("regionId", actualVim.getAccessInfo().getRegion());
+        assertEquals("myTenant", actualVim.getAccessInfo().getProject());
+        assertEquals("myDomain", actualVim.getAccessInfo().getDomain());
+        assertEquals("vimUsername", actualVim.getAccessInfo().getUsername());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
+    }
+
+    /**
      * test instantiation with vcloud
      */
     @Test
@@ -449,6 +513,40 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(StoreLoader.getCertifacates(caCert).iterator().next(), new String(actualVim.getInterfaceInfo().getTrustedCertificates().get(0)));
         assertTrue(!actualVim.getInterfaceInfo().isSkipCertificateVerification());
         assertTrue(!actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
+    }
+
+    /**
+     * test instantiation with vCloud with SSL
+     */
+    @Test
+    public void testInstantiationVcloudWithNonSecifedSSl() throws Exception {
+        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO);
+
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        grantResponse.setVimId(VIM_ID);
+        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
+        accessInfo.setTenant(TENANT);
+        vimInfo.setSslInsecure(null);
+        grantResponse.setAccessInfo(accessInfo);
+        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        //when
+        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
+        //verify
+        VMWAREVCLOUDINFO actualVim = (VMWAREVCLOUDINFO) actualInstantiationRequest.getValue().getVims().get(0);
+        assertEquals(VIM_ID, actualVim.getId());
+        assertEquals(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO, actualVim.getVimInfoType());
+        assertEquals("cloudUrl", actualVim.getInterfaceInfo().getEndpoint());
+        //FIXME assertEquals();actualVim.getInterfaceInfo().getTrustedCertificates());
+        assertEquals("vimPassword", actualVim.getAccessInfo().getPassword());
+        assertEquals("regionId", actualVim.getAccessInfo().getOrganization());
+        assertEquals("vimUsername", actualVim.getAccessInfo().getUsername());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
     }
 
     /**
@@ -1058,6 +1156,40 @@ public class TestLifecycleManager extends TestBase {
         verify(jobManager).spawnJob(VNF_ID, restResponse);
     }
 
+    /**
+     * the VNFM should tolerate that no additional params were supplied
+     */
+    @Test
+    public void testScaleWithoutAddtionalParams() throws Exception {
+        VnfScaleRequest scaleRequest = new VnfScaleRequest();
+        scaleRequest.setNumberOfSteps("2");
+        scaleRequest.setAspectId("myAspect");
+        scaleRequest.setType(ScaleDirection.IN);
+        scaleRequest.setAdditionalParam(null);
+        scaleOperationExecution.setStatus(OperationStatus.FINISHED);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        VnfProperty prop = new VnfProperty();
+        prop.setValue(ONAP_CSAR_ID);
+        prop.setName(LifecycleManager.ONAP_CSAR_ID);
+        vnfInfo.getExtensions().add(prop);
+        vnfInfo.getOperationExecutions().add(instantiationOperationExecution);
+        String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new JsonParser().parse(instantiationParams));
+        //when
+        JobInfo job = lifecycleManager.scaleVnf(VNFM_ID, VNF_ID, scaleRequest, restResponse);
+        //verify
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(1, actualScaleRequest.getAllValues().size());
+        ScaleVnfRequest sRequest = actualScaleRequest.getValue();
+        InOrder workflowOrder = Mockito.inOrder(vfcGrantManager, vnfApi);
+        workflowOrder.verify(vfcGrantManager).requestGrantForScale(eq(VNFM_ID), eq(VNF_ID), eq(VIM_ID), eq(ONAP_CSAR_ID), eq(scaleRequest), eq(JOB_ID));
+        workflowOrder.verify(vnfApi).vnfsVnfInstanceIdScalePost(VNF_ID, sRequest, NOKIA_LCM_API_VERSION);
+        assertEquals("myAspect", sRequest.getAspectId());
+        assertEquals(com.nokia.cbam.lcm.v32.model.ScaleDirection.IN, sRequest.getType());
+        assertEquals(Integer.valueOf(2), sRequest.getNumberOfSteps());
+        assertEquals("{\"jobId\":\"myJobId\"}", new Gson().toJson(sRequest.getAdditionalParams()));
+        verify(jobManager).spawnJob(VNF_ID, restResponse);
+    }
     /**
      * test scale out basic scenario
      */

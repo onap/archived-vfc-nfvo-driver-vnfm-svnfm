@@ -30,6 +30,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.ILifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -99,7 +100,9 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
 
     @Override
     public void handleLcn(VnfLifecycleChangeNotification recievedNotification) {
-        logger.info("Received LCN: " + new Gson().toJson(recievedNotification));
+        if(logger.isInfoEnabled()) {
+            logger.info("Received LCN: " + new Gson().toJson(recievedNotification));
+        }
         VnfsApi cbamLcmApi = restApiProvider.getCbamLcmApi(driverProperties.getVnfmId());
         try {
             List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION);
@@ -110,7 +113,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
                 return;
             } else {
                 VnfInfo vnf = cbamLcmApi.vnfsVnfInstanceIdGet(recievedNotification.getVnfInstanceId(), NOKIA_LCN_API_VERSION);
-                com.google.common.base.Optional<VnfProperty> externalVnfmId = tryFind(vnf.getExtensions(), prop -> prop.getName().equals(EXTERNAL_VNFM_ID));
+                com.google.common.base.Optional<VnfProperty> externalVnfmId = tryFind(vnf.getExtensions(), prop -> prop.getName().equals(LifecycleManager.EXTERNAL_VNFM_ID));
                 if (!externalVnfmId.isPresent()) {
                     logger.warn("The VNF with " + vnf.getId() + " identifier is not a managed VNF");
                     return;
@@ -121,29 +124,29 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
                 }
             }
         } catch (Exception e) {
-            logger.error("Unable to list VNFs / query VNF", e);
-            throw new RuntimeException("Unable to list VNFs / query VNF", e);
+            fatalFailure(logger, "Unable to list VNFs / query VNF", e);
         }
         OperationExecutionsApi cbamOperationExecutionApi = restApiProvider.getCbamOperationExecutionApi(driverProperties.getVnfmId());
         try {
             List<OperationExecution> operationExecutions = cbamLcmApi.vnfsVnfInstanceIdOperationExecutionsGet(recievedNotification.getVnfInstanceId(), NOKIA_LCM_API_VERSION);
             OperationExecution operationExecution = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdGet(recievedNotification.getLifecycleOperationOccurrenceId(), NOKIA_LCM_API_VERSION);
             OperationExecution closestInstantiationToOperation = findLastInstantiationBefore(operationExecutions, operationExecution);
-            String vimId;
-            try {
-                Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(closestInstantiationToOperation.getId(), NOKIA_LCM_API_VERSION);
-                vimId = getVimId(operationParams);
-            } catch (Exception e) {
-                logger.error("Unable to detect last instantiation operation", e);
-                throw new RuntimeException("Unable to detect last instantiation operation", e);
-            }
+            String vimId = getVimId(cbamOperationExecutionApi, closestInstantiationToOperation);
             notificationSender.processNotification(recievedNotification, operationExecution, buildAffectedCps(operationExecution), vimId);
             if (OperationType.TERMINATE.equals(recievedNotification.getOperation()) && terminalStatus.contains(recievedNotification.getStatus())) {
                 processedNotifications.add(new ProcessedNotification(recievedNotification.getLifecycleOperationOccurrenceId(), recievedNotification.getStatus()));
             }
         } catch (ApiException e) {
-            logger.error("Unable to retrieve the current VNF " + recievedNotification.getVnfInstanceId(), e);
-            throw new RuntimeException("Unable to retrieve the current VNF " + recievedNotification.getVnfInstanceId(), e);
+            fatalFailure(logger, "Unable to retrieve the current VNF " + recievedNotification.getVnfInstanceId(), e);
+        }
+    }
+
+    private String getVimId(OperationExecutionsApi cbamOperationExecutionApi, OperationExecution closestInstantiationToOperation) {
+        try {
+            Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(closestInstantiationToOperation.getId(), NOKIA_LCM_API_VERSION);
+            return getVimId(operationParams);
+        } catch (Exception e) {
+            throw fatalFailure(logger, "Unable to detect last instantiation operation", e);
         }
     }
 
@@ -165,15 +168,14 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
     }
 
     private ReportedAffectedConnectionPoints buildAffectedCps(OperationExecution operationExecution) {
-        switch (operationExecution.getOperationType()) {
-            case TERMINATE:
-                String terminationType = childElement(new Gson().toJsonTree(operationExecution.getOperationParams()).getAsJsonObject(), "terminationType").getAsString();
-                if (TerminationType.FORCEFUL.name().equals(terminationType)) {
-                    //in case of force full termination the Ansible is not executed, so the connection points can not be
-                    //calculated from operation execution result
-                    logger.warn("Unable to send information related to affected connection points during forceful termination");
-                    return null;
-                }
+        if (operationExecution.getOperationType() == OperationType.TERMINATE) {
+            String terminationType = childElement(new Gson().toJsonTree(operationExecution.getOperationParams()).getAsJsonObject(), "terminationType").getAsString();
+            if (TerminationType.FORCEFUL.name().equals(terminationType)) {
+                //in case of force full termination the Ansible is not executed, so the connection points can not be
+                //calculated from operation execution result
+                logger.warn("Unable to send information related to affected connection points during forceful termination");
+                return null;
+            }
         }
         try {
             JsonElement root = new Gson().toJsonTree(operationExecution.getAdditionalData());

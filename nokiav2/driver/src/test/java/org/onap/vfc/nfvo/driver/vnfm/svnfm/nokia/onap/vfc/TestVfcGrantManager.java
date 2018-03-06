@@ -26,12 +26,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.AdditionalParams;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vnfmdriver.ApiException;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.ScaleDirection;
+import org.springframework.test.context.TestPropertySource;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 
 public class TestVfcGrantManager extends TestBase {
 
@@ -283,7 +286,6 @@ public class TestVfcGrantManager extends TestBase {
         assertBasicGrantAttributes(request, org.onap.vnfmdriver.model.OperationType.SCALEIN);
     }
 
-
     /**
      * test grant request for healing
      */
@@ -301,6 +303,13 @@ public class TestVfcGrantManager extends TestBase {
         assertVduInGrant(request.getAddResource(), "vdu1", 1);
         assertVduInGrant(request.getRemoveResource(), "vdu1", 1);
         assertBasicGrantAttributes(request, org.onap.vnfmdriver.model.OperationType.HEAL);
+    }
+
+    @Test
+    public void testPOJO(){
+        VfcGrantManager.AdditionalGrantParams additionalGrantParams = new VfcGrantManager.AdditionalGrantParams(VNFM_ID, VIM_ID);
+        assertEquals(VNFM_ID, additionalGrantParams.getVnfmId());
+        assertEquals(VIM_ID, additionalGrantParams.getVimId());
     }
 
     private void assertBasicGrantAttributes(GrantVNFRequest request, org.onap.vnfmdriver.model.OperationType type) {

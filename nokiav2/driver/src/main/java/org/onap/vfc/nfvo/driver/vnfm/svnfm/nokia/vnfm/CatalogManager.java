@@ -21,7 +21,6 @@ import com.nokia.cbam.catalog.v1.ApiException;
 import com.nokia.cbam.catalog.v1.api.DefaultApi;
 import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IPackageProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcPackageProvider;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,6 +48,10 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 @Component
 public class CatalogManager {
+    /**
+     * The location of the CBAM package within the ONAP package
+     */
+    public static final String CBAM_PACKAGE_NAME_IN_ZIP = "Artifacts/Deployment/OTHER/cbam.package.zip";
     private static final String TOSCA_META_PATH = "TOSCA-Metadata/TOSCA.meta";
     private static final String TOSCA_VNFD_KEY = "Entry-Definitions";
     private static Logger logger = getLogger(CatalogManager.class);
@@ -94,7 +97,7 @@ public class CatalogManager {
                 return byteArrayOutputStream;
             }
         }
-        logger.error("Unable to find the " + path + " in archive found: " + items);
+        logger.error("Unable to find the {} in archive found: {}", path, items);
         throw new NoSuchElementException("Unable to find the " + path + " in archive found: " + items);
     }
 
@@ -111,7 +114,7 @@ public class CatalogManager {
         if (!isPackageReplicated(cbamVnfdId, cbamCatalogApi)) {
             try {
                 Path tempFile = createTempFile("cbam", "zip");
-                ByteArrayOutputStream cbamPackage = getFileInZip(new ByteArrayInputStream(packageProvider.getPackage(csarId)), VfcPackageProvider.CBAM_PACKAGE_NAME_IN_ZIP);
+                ByteArrayOutputStream cbamPackage = getFileInZip(new ByteArrayInputStream(packageProvider.getPackage(csarId)), CBAM_PACKAGE_NAME_IN_ZIP);
                 write(tempFile, cbamPackage.toByteArray());
                 //FIXME delete file
                 return cbamCatalogApi.create(tempFile.toFile());
@@ -139,7 +142,6 @@ public class CatalogManager {
      */
     public String getCbamVnfdContent(String vnfmId, String vnfdId) {
         try {
-            DefaultApi cbamCatalogApi = cbamRestApiProvider.getCbamCatalogApi(vnfmId);
             File content = cbamRestApiProvider.getCbamCatalogApi(vnfmId).content(vnfdId);
             String vnfdPath = getVnfdLocation(new FileInputStream(content));
             return new String(getFileInZip(new FileInputStream(content), vnfdPath).toByteArray());
