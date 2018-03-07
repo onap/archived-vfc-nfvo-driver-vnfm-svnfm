@@ -65,21 +65,21 @@ public class TestGenericExternalSystemInfoProvider extends TestBase {
      * the VNFM info is retrieved without the cache eviction period
      */
     @Test
+    //sleeping is required to make time pass (for cache to notice the change)
+    //cache is configured with 1 ms cache eviction without sleep it is not
+    //deterministic that at least 1 ms time will pass between calls
+    @SuppressWarnings("squid:S2925")
     public void testQueryVnfmInfoOutside() throws Exception {
         VnfmInfo expectedVnfmInfo = Mockito.mock(VnfmInfo.class);
         when(genericExternalSystemInfoProvider.queryVnfmInfoFromSource(VNFM_ID)).thenReturn(expectedVnfmInfo);
         when(environment.getProperty(GenericExternalSystemInfoProvider.VNFM_INFO_CACHE_EVICTION_IN_MS, Long.class, valueOf(GenericExternalSystemInfoProvider.DEFAULT_CACHE_EVICTION_TIMEOUT_IN_MS))).thenReturn(Long.valueOf(1));
         genericExternalSystemInfoProvider.afterPropertiesSet();
-
         //when
         VnfmInfo vnfmInfo = genericExternalSystemInfoProvider.getVnfmInfo(VNFM_ID);
         //verify
         assertEquals(expectedVnfmInfo, vnfmInfo);
         //when
-        //sleeping is required to make time pass (for cache to notice the change)
-        //cache is configured with 1 ms cache eviction without sleep it is not
-        //deterministic that at least 1 ms time will pass between calls
-        Thread.sleep(10);  //NO SONAR
+        Thread.sleep(10);
         VnfmInfo vnfmInfo2 = genericExternalSystemInfoProvider.getVnfmInfo(VNFM_ID);
         //verify source system called again
         verify(logger, times(2)).info("Quering VNFM info from source with " + VNFM_ID + " identifier");

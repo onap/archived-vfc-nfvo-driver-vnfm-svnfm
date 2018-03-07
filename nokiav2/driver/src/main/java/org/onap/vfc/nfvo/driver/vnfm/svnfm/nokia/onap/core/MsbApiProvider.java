@@ -26,7 +26,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import static java.lang.Integer.valueOf;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -70,7 +70,7 @@ public class MsbApiProvider extends IpMappingProvider {
         try {
             return getMsbClient().queryMicroServiceInfo(name, version);
         } catch (RouteException e) {
-            throw fatalFailure(logger, "Unable to get micro service URL for " + name + " with version " + version, e);
+            throw buildFatalFailure(logger, "Unable to get micro service URL for " + name + " with version " + version, e);
         }
     }
 
@@ -80,7 +80,7 @@ public class MsbApiProvider extends IpMappingProvider {
                 return mapPrivateIpToPublicIp(nodeInfo.getIp()) + ":" + nodeInfo.getPort();
             }
         }
-        throw fatalFailure(logger, "The " + microServiceFullInfo.getServiceName() + " service with " + microServiceFullInfo.getVersion() + " does not have any valid nodes" + microServiceFullInfo.getNodes());
+        throw buildFatalFailure(logger, "The " + microServiceFullInfo.getServiceName() + " service with " + microServiceFullInfo.getVersion() + " does not have any valid nodes" + microServiceFullInfo.getNodes());
     }
 
     private boolean isADokcerInternalAddress(NodeInfo nodeInfo) {

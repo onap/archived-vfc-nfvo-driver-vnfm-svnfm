@@ -23,11 +23,9 @@ import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStore.TrustedCertificateEntry;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,7 +34,7 @@ import java.util.Set;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -138,7 +136,7 @@ public final class StoreLoader {
                 certificates.addAll(c);
             }
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to load certificates", e);
+            throw buildFatalFailure(logger, "Unable to load certificates", e);
         }
 
         if (!certificates.isEmpty()) {
@@ -157,8 +155,8 @@ public final class StoreLoader {
                 return of(keyFactory.generatePrivate(keySpec));
             }
             return empty();
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw fatalFailure(logger, "Unable to load key", e);
+        } catch (Exception e) {
+            throw buildFatalFailure(logger, "Unable to load key", e);
         }
     }
 

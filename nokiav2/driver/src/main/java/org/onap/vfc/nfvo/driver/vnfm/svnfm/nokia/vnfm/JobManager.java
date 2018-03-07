@@ -44,7 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -107,11 +107,11 @@ public class JobManager {
         synchronized (this) {
             if (preparingForShutDown) {
                 response.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);
-                fatalFailure(logger, "The service is preparing to shut down");
+                throw buildFatalFailure(logger, "The service is preparing to shut down");
             }
             if (!selfRegistrationManager.isReady()) {
                 response.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);
-                fatalFailure(logger, "The service is not yet ready");
+                throw buildFatalFailure(logger, "The service is not yet ready");
             }
         }
         ongoingJobs.add(jobId);
@@ -190,6 +190,7 @@ public class JobManager {
             OperationExecution operation = findOperationByJobId(vnfmId, vnf, jobId);
             return getJobDetailInfo(vnfmId, jobId, vnfId, operation);
         } catch (NoSuchElementException e) {
+            logger.warn("No operation could be identified for job with {} identifier", jobId, e);
             if (ongoingJobs.contains(jobId)) {
                 return reportOngoing(jobId);
             } else {
@@ -204,24 +205,28 @@ public class JobManager {
                 return reportOngoing(jobId);
             case FINISHED:
             case OTHER:
-                //termination includes VNF deletion in ONAP terminology
-                if (operation.getOperationType() == com.nokia.cbam.lcm.v32.model.OperationType.TERMINATE) {
-                    if (ongoingJobs.contains(jobId)) {
-                        return reportOngoing(jobId);
-                    } else {
-                        //the VNF must be queried again since it could have been deleted since the VNF has been terminated
-                        if (getVnf(vnfmId, vnfId).isPresent()) {
-                            return reportFailed(jobId, "unable to delete VNF");
-                        } else {
-                            return reportFinished(jobId);
-                        }
-                    }
-                } else {
-                    return reportFinished(jobId);
-                }
+                return getJobForTerminalOperationState(vnfmId, jobId, vnfId, operation);
             case FAILED:
             default: //all cases handled
                 return reportFailed(jobId, operation.getError().getTitle() + ": " + operation.getError().getDetail());
+        }
+    }
+
+    private JobDetailInfo getJobForTerminalOperationState(String vnfmId, String jobId, String vnfId, OperationExecution operation) {
+        //termination includes VNF deletion in ONAP terminology
+        if (operation.getOperationType() == com.nokia.cbam.lcm.v32.model.OperationType.TERMINATE) {
+            if (ongoingJobs.contains(jobId)) {
+                return reportOngoing(jobId);
+            } else {
+                //the VNF must be queried again since it could have been deleted since the VNF has been terminated
+                if (getVnf(vnfmId, vnfId).isPresent()) {
+                    return reportFailed(jobId, "unable to delete VNF");
+                } else {
+                    return reportFinished(jobId);
+                }
+            }
+        } else {
+            return reportFinished(jobId);
         }
     }
 
@@ -274,17 +279,24 @@ public class JobManager {
         //performance optimization that usually the core system is interested in the operations executed last
         if (vnf.getOperationExecutions() != null) {
             for (OperationExecution operationExecution : LifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(vnf.getOperationExecutions())) {
-                try {
-                    Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operationExecution.getId(), NOKIA_LCM_API_VERSION);
-                    if (extractOnapJobId(operationParams).equals(jobId)) {
-                        return operationExecution;
-                    }
-                } catch (ApiException e) {
-                    fatalFailure(logger, "Unable to retrieve operation parameters", e);
+                if (isCurrentOperationTriggeredByJob(jobId, cbamOperationExecutionApi, operationExecution)) {
+                    return operationExecution;
                 }
             }
         }
         throw new NoSuchElementException();
+    }
+
+    private boolean isCurrentOperationTriggeredByJob(String jobId, OperationExecutionsApi cbamOperationExecutionApi, OperationExecution operationExecution) {
+        try {
+            Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operationExecution.getId(), NOKIA_LCM_API_VERSION);
+            if (extractOnapJobId(operationParams).equals(jobId)) {
+                return true;
+            }
+        } catch (ApiException e) {
+            throw buildFatalFailure(logger, "Unable to retrieve operation parameters", e);
+        }
+        return false;
     }
 
     private Optional<VnfInfo> getVnf(String vnfmId, String vnfId) {
@@ -303,7 +315,7 @@ public class JobManager {
                 return of(cbamLcmApi.vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION));
             }
         } catch (ApiException e) {
-            throw fatalFailure(logger, "Unable to retrieve VNF", e);
+            throw buildFatalFailure(logger, "Unable to retrieve VNF", e);
         }
     }
 }

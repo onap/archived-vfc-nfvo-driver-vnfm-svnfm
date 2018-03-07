@@ -37,7 +37,7 @@ import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.filter;
 import static java.nio.file.Files.createTempFile;
 import static java.nio.file.Files.write;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
@@ -126,7 +126,7 @@ public class CatalogManager {
                 if (isPackageReplicated(cbamVnfdId, cbamCatalogApi)) {
                     return queryPackageFromCBAM(cbamVnfdId, cbamCatalogApi);
                 } else {
-                    throw fatalFailure(logger, "Unable to create VNF with " + csarId + " CSAR identifier in package in CBAM", e);
+                    throw buildFatalFailure(logger, "Unable to create VNF with " + csarId + " CSAR identifier in package in CBAM", e);
                 }
             }
         }
@@ -146,7 +146,7 @@ public class CatalogManager {
             String vnfdPath = getVnfdLocation(new FileInputStream(content));
             return new String(getFileInZip(new FileInputStream(content), vnfdPath).toByteArray());
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to get package with (" + vnfdId + ")", e);
+            throw buildFatalFailure(logger, "Unable to get package with (" + vnfdId + ")", e);
         }
     }
 
@@ -154,7 +154,7 @@ public class CatalogManager {
         try {
             return isPackageReplicatedToCbam(cbamVnfdId, cbamCatalogApi);
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to determine if the VNF package has been replicated in CBAM", e);
+            throw buildFatalFailure(logger, "Unable to determine if the VNF package has been replicated in CBAM", e);
         }
     }
 
@@ -162,7 +162,7 @@ public class CatalogManager {
         try {
             return cbamCatalogApi.getById(cbamVnfdId);
         } catch (ApiException e) {
-            throw fatalFailure(logger, "Unable to query VNF package with " + cbamVnfdId + " from CBAM", e);
+            throw buildFatalFailure(logger, "Unable to query VNF package with " + cbamVnfdId + " from CBAM", e);
         }
     }
 

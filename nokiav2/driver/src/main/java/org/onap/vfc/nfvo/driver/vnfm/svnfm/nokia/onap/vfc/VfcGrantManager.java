@@ -39,7 +39,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.util.*;
 
 import static com.nokia.cbam.lcm.v32.model.InstantiationState.INSTANTIATED;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.onap.vnfmdriver.model.OperationType.TERMINAL;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -92,7 +92,7 @@ public class VfcGrantManager implements IGrantManager {
             grantRequest.setVnfInstanceId(vnfId);
             requestGrant(grantRequest);
         } catch (ApiException e) {
-            fatalFailure(logger, "Unable to query VNF " + vnfId, e);
+            throw buildFatalFailure(logger, "Unable to query VNF " + vnfId, e);
         }
     }
 
@@ -102,20 +102,24 @@ public class VfcGrantManager implements IGrantManager {
             GrantVNFRequest grantRequest;
             try {
                 grantRequest = buildGrantRequest(vnfmId, vimId, onapVnfdId, jobId, TERMINAL);
-                if (vnf.getInstantiatedVnfInfo().getVnfcResourceInfo() != null) {
-                    for (VnfcResourceInfo vnfc : vnf.getInstantiatedVnfInfo().getVnfcResourceInfo()) {
-                        ResourceChange resourceChange = new ResourceChange();
-                        grantRequest.getRemoveResource().add(resourceChange);
-                        resourceChange.setVdu(vnfc.getVduId());
-                        resourceChange.setType(ChangeType.VDU);
-                        resourceChange.setResourceDefinitionId(UUID.randomUUID().toString());
-                    }
-                }
                 grantRequest.setVnfInstanceId(vnfId);
+                addVnfsToGrant(vnf, grantRequest);
             } catch (Exception e) {
-                throw fatalFailure(logger, "Unable to prepare grant request for termination", e);
+                throw buildFatalFailure(logger, "Unable to prepare grant request for termination", e);
             }
             requestGrant(grantRequest);
+        }
+    }
+
+    private void addVnfsToGrant(VnfInfo vnf, GrantVNFRequest grantRequest) {
+        if (vnf.getInstantiatedVnfInfo().getVnfcResourceInfo() != null) {
+            for (VnfcResourceInfo vnfc : vnf.getInstantiatedVnfInfo().getVnfcResourceInfo()) {
+                ResourceChange resourceChange = new ResourceChange();
+                grantRequest.getRemoveResource().add(resourceChange);
+                resourceChange.setVdu(vnfc.getVduId());
+                resourceChange.setType(ChangeType.VDU);
+                resourceChange.setResourceDefinitionId(UUID.randomUUID().toString());
+            }
         }
     }
 
@@ -128,14 +132,19 @@ public class VfcGrantManager implements IGrantManager {
             grantRequest.setAddResource(new ArrayList<>());
             grantRequest.getAddResource().addAll(calculateResourceChangeDuringInstantiate(cbamVnfdContent, instantiationLevelId));
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to prepare grant request for instantiation", e);
+            throw buildFatalFailure(logger, "Unable to prepare grant request for instantiation", e);
         }
         return requestGrant(grantRequest);
     }
 
     private GrantVNFRequest buildGrantRequest(String vnfmId, String vimId, String onapCsarId, String jobId, OperationType operationType) {
-        //FIXME the vimId should not be required for grant request see VFC-603 issue
         GrantVNFRequest grantVNFRequest = new GrantVNFRequest();
+        //FIXME
+        //Currently the grant request sent to VF-C must contain the VIM identifier in the
+        //grant response (normally in ETSI VIM identifier is received in the grant response
+        //from ETSI orchestrator the vimId parameter should be removed from this POJO
+        //to be able to fix this https://jira.onap.org/browse/VFC-603 must be solved
+        //the vimId should be removed from the AdditionalGrantParams structure
         grantVNFRequest.setAdditionalParam(new AdditionalGrantParams(vnfmId, vimId));
         grantVNFRequest.setVnfDescriptorId(onapCsarId);
         grantVNFRequest.setJobId(jobId);
@@ -149,7 +158,7 @@ public class VfcGrantManager implements IGrantManager {
         try {
             return vfcRestApiProvider.getNsLcmApi().grantvnf(grantRequest).getVim();
         } catch (org.onap.vnfmdriver.ApiException e) {
-            throw fatalFailure(logger, "Unable to request grant", e);
+            throw buildFatalFailure(logger, "Unable to request grant", e);
         }
     }
 
@@ -177,7 +186,7 @@ public class VfcGrantManager implements IGrantManager {
         Set<ResourceChange> resourceChanges = new HashSet<>();
         JsonArray policies = CbamUtils.child(root, "topology_template").getAsJsonObject().get("policies").getAsJsonArray();
         for (JsonElement policy : policies) {
-            if (policy.getAsJsonObject().entrySet().iterator().next().getKey().equals("heat_mapping")) {
+            if ("heat_mapping".equals(policy.getAsJsonObject().entrySet().iterator().next().getKey())) {
                 JsonObject aspects = policy.getAsJsonObject().entrySet().iterator().next().getValue().getAsJsonObject().get("properties").getAsJsonObject().get("aspects").getAsJsonObject();
                 JsonObject aspect = aspects.get(aspectId).getAsJsonObject();
                 if (aspect.has("vdus")) {
@@ -227,11 +236,6 @@ public class VfcGrantManager implements IGrantManager {
          * @return the identifier of the VIM for which the grant is requested
          */
         public String getVimId() {
-            //FIXME
-            //Currently the grant request sent to VF-C must contain the VIM identifier in the
-            //grant response (normally in ETSI VIM identifier is received in the grant response
-            //from ETSI orchestrator the vimId parameter should be removed from this POJO
-            //to be able to fix this https://jira.onap.org/browse/VFC-603 must be solved
             return vimId;
         }
     }
