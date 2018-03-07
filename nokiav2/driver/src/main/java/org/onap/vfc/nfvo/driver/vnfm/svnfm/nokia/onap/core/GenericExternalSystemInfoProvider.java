@@ -34,7 +34,15 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * Responsible for providing access to core systems
  */
-abstract public class GenericExternalSystemInfoProvider extends IpMappingProvider implements VnfmInfoProvider, VimInfoProvider, InitializingBean {
+public abstract class GenericExternalSystemInfoProvider extends IpMappingProvider implements VnfmInfoProvider, VimInfoProvider, InitializingBean {
+    /**
+     * The name of the VNFM info cache eviction in the properties file
+     */
+    public static final String VNFM_INFO_CACHE_EVICTION_IN_MS = "vnfmInfoCacheEvictionInMs";
+    /**
+     * The default VNFM info cache eviction in milliseconds
+     */
+    public static final int DEFAULT_CACHE_EVICTION_TIMEOUT_IN_MS = 10 * 60 * 1000;
     private static Logger logger = getLogger(GenericExternalSystemInfoProvider.class);
     private final Environment environment;
     private LoadingCache<String, VnfmInfo> vnfmInfoCache;

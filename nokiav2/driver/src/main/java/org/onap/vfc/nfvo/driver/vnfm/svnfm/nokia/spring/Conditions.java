@@ -29,21 +29,24 @@ import static com.google.common.collect.Sets.newHashSet;
  * Collects the possibilities of sources
  */
 public class Conditions {
-
     private static final String USE_DIRECT_INTEGRATION = "direct";
 
-    private static Set<Condition> getAllSources() {
-        return newHashSet(new UseForVfc(), new UseForDirect());
+    private Conditions() {
+        //use static way
     }
 
     /**
      * Represents the condition for using VF-C
      */
     public static class UseForVfc implements Condition {
+        private static Set<Condition> getAllSources() {
+            return newHashSet(new UseForVfc(), new UseForDirect());
+        }
+
         @Override
         public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
             boolean anyOtherSourceAvailable = false;
-            for (Condition condition : Conditions.getAllSources()) {
+            for (Condition condition : UseForVfc.getAllSources()) {
                 if (!(condition instanceof UseForVfc) && condition.matches(conditionContext, annotatedTypeMetadata)) {
                     anyOtherSourceAvailable = true;
                 }

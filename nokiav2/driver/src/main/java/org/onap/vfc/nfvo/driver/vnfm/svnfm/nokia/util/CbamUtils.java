@@ -25,14 +25,10 @@ import org.slf4j.Logger;
  */
 public class CbamUtils {
 
-    private static class OperationMustBeAborted extends RuntimeException{
-        OperationMustBeAborted(String msg){
-            super(msg);
-        }
-        OperationMustBeAborted(Exception e, String msg){
-            super(msg, e);
-        }
-    }
+    /**
+     * Separator for multiple keys concatenated into a single string
+     */
+    public static final String SEPARATOR = "_";
 
     private CbamUtils() {
         //use static way
@@ -83,5 +79,15 @@ public class CbamUtils {
     public static RuntimeException fatalFailure(Logger logger, String msg) {
         logger.error(msg);
         throw new OperationMustBeAborted(msg);
+    }
+
+    private static class OperationMustBeAborted extends RuntimeException {
+        OperationMustBeAborted(String msg) {
+            super(msg);
+        }
+
+        OperationMustBeAborted(Exception e, String msg) {
+            super(msg, e);
+        }
     }
 }

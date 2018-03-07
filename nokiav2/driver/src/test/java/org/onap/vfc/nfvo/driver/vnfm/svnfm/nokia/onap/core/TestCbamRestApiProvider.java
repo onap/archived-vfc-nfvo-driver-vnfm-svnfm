@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
 import org.onap.msb.sdk.discovery.entity.NodeInfo;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamTokenProvider;
@@ -61,7 +60,7 @@ public class TestCbamRestApiProvider extends TestBase {
         setField(real, "skipCertificateVerification", true);
         cbamRestApiProvider = spy(real);
         when(environment.getProperty(IpMappingProvider.IP_MAP, String.class, "")).thenReturn("");
-        when(environment.getProperty(VnfmInfoProvider.VNFM_INFO_CACHE_EVICTION_IN_MS, Long.class, Long.valueOf(10 * 60 * 1000))).thenReturn(10 * 60 * 1000L);
+        when(environment.getProperty(GenericExternalSystemInfoProvider.VNFM_INFO_CACHE_EVICTION_IN_MS, Long.class, Long.valueOf(10 * 60 * 1000))).thenReturn(10 * 60 * 1000L);
     }
 
     /**

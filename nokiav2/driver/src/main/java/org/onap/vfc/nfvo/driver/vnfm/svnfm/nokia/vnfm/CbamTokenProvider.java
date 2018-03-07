@@ -25,6 +25,7 @@ import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.UserVisibleError;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Set;
 
+import static java.util.UUID.randomUUID;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
@@ -51,7 +53,9 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 @Component
 public class CbamTokenProvider {
     public static final int MAX_RETRY_COUNT = 5;
-    private static final String CBAM_TOKEN_PATH = "/realms/cbam/protocol/openid-connect/token";
+    public static final String GRANT_TYPE = "password";
+    public static final String CLIENT_SECRET = "password";
+    private static final String CBAM_TOKEN_URL = "/realms/cbam/protocol/openid-connect/token";
     private static Logger logger = getLogger(CbamTokenProvider.class);
     private final VnfmInfoProvider vnfmInfoProvider;
     @Value("${cbamKeyCloakBaseUrl}")
@@ -89,26 +93,24 @@ public class CbamTokenProvider {
                 if (token == null) {
                     logger.debug("No token: getting first token");
                 } else {
-                    logger.debug("Token expired " + (now - token.refreshAfter) + " ms ago");
+                    logger.debug("Token expired {} ms ago", (now - token.refreshAfter));
                 }
                 refresh(clientId, clientSecret);
             } else {
-                logger.debug("Token will expire in " + (now - token.refreshAfter) + " ms");
+                logger.debug("Token will expire in {} ms", (now - token.refreshAfter));
             }
         }
         return token.token.accessToken;
     }
 
-    ;
-
     private void refresh(String clientId, String clientSecret) {
         FormBody body = new FormBody.Builder()
-                .add("grant_type", "password")
+                .add("grant_type", GRANT_TYPE)
                 .add("client_id", clientId)
                 .add("client_secret", clientSecret)
                 .add("username", username)
-                .add("password", password).build();
-        Request request = new Request.Builder().url(cbamKeyCloakBaseUrl + CBAM_TOKEN_PATH).addHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE).post(body).build();
+                .add(CLIENT_SECRET, password).build();
+        Request request = new Request.Builder().url(cbamKeyCloakBaseUrl + CBAM_TOKEN_URL).addHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE).post(body).build();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         SSLSocketFactory sslSocketFac = buildSSLSocketFactory();
         HostnameVerifier hostnameVerifier = buildHostnameVerifier();
@@ -124,15 +126,14 @@ public class CbamTokenProvider {
                     token = new CurrentToken(tokenResponse, getTokenRefreshTime(tokenResponse));
                     return;
                 } else {
-                    throw new RuntimeException();
+                    fatalFailure(logger, "Bad response from CBAM KeyStone");
                 }
             } catch (Exception e) {
                 lastException = e;
                 logger.warn("Unable to get token to access CBAM API (" + (i + 1) + "/" + MAX_RETRY_COUNT + ")", e);
             }
         }
-        logger.error("Unable to get token to access CBAM API (giving up retries)", lastException);
-        throw new RuntimeException(lastException);
+        throw fatalFailure(logger, "Unable to get token to access CBAM API (giving up retries)", lastException);
     }
 
     @VisibleForTesting
@@ -153,12 +154,7 @@ public class CbamTokenProvider {
 
     private HostnameVerifier buildHostnameVerifier() {
         if (skipHostnameVerification) {
-            return new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            };
+            return (hostname, session) -> true;
         } else {
             return new DefaultHostnameVerifier();
         }
@@ -172,13 +168,12 @@ public class CbamTokenProvider {
             sslContext.init(null, trustManagers, new SecureRandom());
             return sslContext.getSocketFactory();
         } catch (GeneralSecurityException e) {
-            logger.error("Unable to create SSL socket factory", e);
-            throw new RuntimeException(e);
+            throw fatalFailure(logger, "Unable to create SSL socket factory", e);
         }
     }
 
     @VisibleForTesting
-    TrustManager[] buildTrustManager() throws KeyStoreException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException {
+    TrustManager[] buildTrustManager() throws KeyStoreException, NoSuchAlgorithmException {
         if (skipCertificateVerification) {
             return new TrustManager[]{new AllTrustedTrustManager()};
         } else {
@@ -189,9 +184,9 @@ public class CbamTokenProvider {
             try {
                 trustedPems = StoreLoader.getCertifacates(new String(BaseEncoding.base64().decode(trustedCertificates), StandardCharsets.UTF_8));
             } catch (Exception e) {
-                throw new RuntimeException("The trustedCertificates must be a base64 encoded collection of PEM certificates", e);
+                throw new UserVisibleError("The trustedCertificates must be a base64 encoded collection of PEM certificates", e);
             }
-            KeyStore keyStore = StoreLoader.loadStore(Joiner.on("\n").join(trustedPems), "password", "password");
+            KeyStore keyStore = StoreLoader.loadStore(Joiner.on("\n").join(trustedPems), randomUUID().toString(), randomUUID().toString());
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keyStore);
             return trustManagerFactory.getTrustManagers();
@@ -212,11 +207,12 @@ public class CbamTokenProvider {
     static class AllTrustedTrustManager implements X509TrustManager {
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
+            //no need to check certificates if everything is trusted
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            //no need to check certificates if everything is trusted
         }
 
         @Override
@@ -228,7 +224,6 @@ public class CbamTokenProvider {
     /**
      * Represents the token received from CBAM
      */
-    //FIXME use authentication swagger client instead
     private static class TokenResponse {
         @SerializedName("access_token")
         String accessToken;

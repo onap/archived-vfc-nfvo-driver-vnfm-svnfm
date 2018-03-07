@@ -43,10 +43,10 @@ import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.ILifecycleChangeNotificationManager.SEPARATOR;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -58,6 +58,7 @@ import static org.springframework.util.StringUtils.isEmpty;
  */
 @Component
 public class JobManager {
+    public static final String OPERATION_STARTED_DESCRIPTION = "Operation started";
     private static final Ordering<JobResponseInfo> OLDEST_FIRST = new Ordering<JobResponseInfo>() {
         @Override
         public int compare(JobResponseInfo left, JobResponseInfo right) {
@@ -130,7 +131,7 @@ public class JobManager {
      * @return the system has any ongoing jobs
      */
     public boolean hasOngoingJobs() {
-        return ongoingJobs.size() != 0;
+        return !ongoingJobs.isEmpty();
     }
 
 
@@ -155,7 +156,7 @@ public class JobManager {
      * @return detailed information of the job
      */
     public JobDetailInfo getJob(String vnfmId, String jobId) {
-        logger.debug("Retrieving the details for job with " + jobId);
+        logger.debug("Retrieving the details for job with {} identifier", jobId);
         ArrayList<String> jobParts = newArrayList(on(SEPARATOR).split(jobId));
         if (jobParts.size() != 2) {
             throw new IllegalArgumentException("The jobId should be in the <vnfId>" + SEPARATOR + "<UUID> format, but was " + jobId);
@@ -172,7 +173,7 @@ public class JobManager {
         if (!vnf.isPresent()) {
             return getJobDetailInfoForMissingVnf(jobId);
         } else {
-            return getJobInfoForExistingVnf(vnfmId, jobId, vnfId, vnf);
+            return getJobInfoForExistingVnf(vnfmId, jobId, vnfId, vnf.get());
         }
     }
 
@@ -184,40 +185,43 @@ public class JobManager {
         }
     }
 
-    private JobDetailInfo getJobInfoForExistingVnf(String vnfmId, String jobId, String vnfId, Optional<VnfInfo> vnf) {
+    private JobDetailInfo getJobInfoForExistingVnf(String vnfmId, String jobId, String vnfId, VnfInfo vnf) {
         try {
             OperationExecution operation = findOperationByJobId(vnfmId, vnf, jobId);
-            switch (operation.getStatus()) {
-                case STARTED:
-                    return reportOngoing(jobId);
-                case FINISHED:
-                case OTHER:
-                    switch (operation.getOperationType()) {
-                        case TERMINATE:
-                            //termination includes VNF deletion in ONAP terminology
-                            if (ongoingJobs.contains(jobId)) {
-                                return reportOngoing(jobId);
-                            } else {
-                                //the VNF must be queried again since it could have been deleted since the VNF has been terminated
-                                if (getVnf(vnfmId, vnfId).isPresent()) {
-                                    return reportFailed(jobId, "unable to delete VNF");
-                                } else {
-                                    return reportFinished(jobId);
-                                }
-                            }
-                        default:
-                            return reportFinished(jobId);
-                    }
-                default: //all cases handled
-                case FAILED:
-                    return reportFailed(jobId, operation.getError().getTitle() + ": " + operation.getError().getDetail());
-            }
+            return getJobDetailInfo(vnfmId, jobId, vnfId, operation);
         } catch (NoSuchElementException e) {
             if (ongoingJobs.contains(jobId)) {
                 return reportOngoing(jobId);
             } else {
                 return reportFailed(jobId, "The requested operation was not able to start on CBAM");
             }
+        }
+    }
+
+    private JobDetailInfo getJobDetailInfo(String vnfmId, String jobId, String vnfId, OperationExecution operation) {
+        switch (operation.getStatus()) {
+            case STARTED:
+                return reportOngoing(jobId);
+            case FINISHED:
+            case OTHER:
+                //termination includes VNF deletion in ONAP terminology
+                if (operation.getOperationType() == com.nokia.cbam.lcm.v32.model.OperationType.TERMINATE) {
+                    if (ongoingJobs.contains(jobId)) {
+                        return reportOngoing(jobId);
+                    } else {
+                        //the VNF must be queried again since it could have been deleted since the VNF has been terminated
+                        if (getVnf(vnfmId, vnfId).isPresent()) {
+                            return reportFailed(jobId, "unable to delete VNF");
+                        } else {
+                            return reportFinished(jobId);
+                        }
+                    }
+                } else {
+                    return reportFinished(jobId);
+                }
+            case FAILED:
+            default: //all cases handled
+                return reportFailed(jobId, operation.getError().getTitle() + ": " + operation.getError().getDetail());
         }
     }
 
@@ -247,37 +251,36 @@ public class JobManager {
     }
 
     private JobDetailInfo reportOngoing(String jobId) {
-        return buildJob(jobId, buildJobPart("Operation started", JobStatus.STARTED, 50, 1));
+        return buildJob(jobId, buildJobPart(OPERATION_STARTED_DESCRIPTION, JobStatus.STARTED, 50, 1));
     }
 
     private JobDetailInfo reportFailed(String jobId, String reason) {
         return buildJob(jobId,
-                buildJobPart("Operation started", JobStatus.STARTED, 50, 1),
+                buildJobPart(OPERATION_STARTED_DESCRIPTION, JobStatus.STARTED, 50, 1),
                 buildJobPart("Operation failed due to " + reason, JobStatus.ERROR, 100, 2)
         );
     }
 
     private JobDetailInfo reportFinished(String jobId) {
         return buildJob(jobId,
-                buildJobPart("Operation started", JobStatus.STARTED, 50, 1),
+                buildJobPart(OPERATION_STARTED_DESCRIPTION, JobStatus.STARTED, 50, 1),
                 buildJobPart("Operation finished", JobStatus.FINISHED, 100, 2)
         );
     }
 
-    private OperationExecution findOperationByJobId(String vnfmId, Optional<VnfInfo> vnf, String jobId) {
+    private OperationExecution findOperationByJobId(String vnfmId, VnfInfo vnf, String jobId) {
         OperationExecutionsApi cbamOperationExecutionApi = cbamRestApiProvider.getCbamOperationExecutionApi(vnfmId);
         //the operations are sorted so that the newest operations are queried first
         //performance optimization that usually the core system is interested in the operations executed last
-        if (vnf.get().getOperationExecutions() != null) {
-            for (OperationExecution operationExecution : LifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(vnf.get().getOperationExecutions())) {
+        if (vnf.getOperationExecutions() != null) {
+            for (OperationExecution operationExecution : LifecycleChangeNotificationManager.NEWEST_OPERATIONS_FIRST.sortedCopy(vnf.getOperationExecutions())) {
                 try {
                     Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operationExecution.getId(), NOKIA_LCM_API_VERSION);
                     if (extractOnapJobId(operationParams).equals(jobId)) {
                         return operationExecution;
                     }
                 } catch (ApiException e) {
-                    logger.error("Unable to retrieve operation parameters", e);
-                    throw new RuntimeException(e);
+                    fatalFailure(logger, "Unable to retrieve operation parameters", e);
                 }
             }
         }
@@ -292,17 +295,15 @@ public class JobManager {
             List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION);
             com.google.common.base.Optional<VnfInfo> vnf = tryFind(vnfs, vnfInfo -> vnfId.equals(vnfInfo.getId()));
             if (!vnf.isPresent()) {
-                logger.debug("VNF with " + vnfId + " is missing");
+                logger.debug("VNF with {} identifier is missing", vnfId);
                 return empty();
             } else {
-                logger.debug("VNF with " + vnfId + " still exists");
+                logger.debug("VNF with {} identifier still exists", vnfId);
                 //query the VNF again to get operation execution result
                 return of(cbamLcmApi.vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION));
             }
         } catch (ApiException e) {
-            logger.error("Unable to retrieve VNF", e);
-            throw new RuntimeException(e);
+            throw fatalFailure(logger, "Unable to retrieve VNF", e);
         }
     }
-
 }

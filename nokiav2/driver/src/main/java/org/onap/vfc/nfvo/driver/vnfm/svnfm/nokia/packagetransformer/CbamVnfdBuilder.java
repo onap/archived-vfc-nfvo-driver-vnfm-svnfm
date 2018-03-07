@@ -37,13 +37,13 @@ public class CbamVnfdBuilder {
      */
     public String build(String cbamVnfdContent) throws IOException {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(cbamVnfdContent)).getAsJsonObject();
-        JsonObject substitution_mappings = child(child(root, "topology_template"), "substitution_mappings");
-        JsonObject extensions = addChild(addChild(addChild(addChild(addChild(substitution_mappings, "capabilities"), "vnf"), "properties"), "modifiable_attributes"), "extensions");
+        JsonObject substitutionMappings = child(child(root, "topology_template"), "substitution_mappings");
+        JsonObject extensions = addChild(addChild(addChild(addChild(addChild(substitutionMappings, "capabilities"), "vnf"), "properties"), "modifiable_attributes"), "extensions");
         JsonObject onapCsarId = addChild(extensions, "onapCsarId");
         onapCsarId.add("default", new JsonPrimitive("kuku"));
         JsonObject vimId = addChild(extensions, "vimId");
         vimId.add("default", new JsonPrimitive("kuku"));
-        JsonObject interfaces = child(substitution_mappings, "interfaces");
+        JsonObject interfaces = child(substitutionMappings, "interfaces");
         JsonObject basic = addChild(interfaces, "Basic");
         addOperationParams(addChild(basic, "instantiate"));
         addOperationParams(addChild(basic, "terminate"));
@@ -60,12 +60,12 @@ public class CbamVnfdBuilder {
     private void addOperationParams(JsonObject operation) {
         JsonObject inputs = addChild(operation, "inputs");
         JsonObject extensions = addChild(inputs, "extensions");
-        JsonArray pre_actions = addChildArray(extensions, "pre_actions");
-        pre_actions.add(addAction("javascript/cbam.pre.collectConnectionPoints.js"));
-        JsonArray post_actions = addChildArray(extensions, "post_actions");
-        post_actions.add(addAction("javascript/cbam.post.collectConnectionPoints.js"));
-        JsonObject additional_parameters = addChild(inputs, "additional_parameters");
-        additional_parameters.addProperty("jobId", "kuku");
+        JsonArray preActions = addChildArray(extensions, "pre_actions");
+        preActions.add(addAction("javascript/cbam.pre.collectConnectionPoints.js"));
+        JsonArray postActions = addChildArray(extensions, "post_actions");
+        postActions.add(addAction("javascript/cbam.post.collectConnectionPoints.js"));
+        JsonObject additionalParameters = addChild(inputs, "additional_parameters");
+        additionalParameters.addProperty("jobId", "kuku");
     }
 
     private JsonElement addAction(String jsAction) {
