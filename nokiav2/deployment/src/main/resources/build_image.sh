@@ -68,5 +68,7 @@ build_image
 if [ "a$2" != "apushImage" ]; then
    echo "Skipping image pushing"
    echo "If you would like to push the docker image by maven execute mvn package -Dexec.args=\"buildDocker pushImage\""
+else
+   echo "Pushing image"
    push_image
 fi

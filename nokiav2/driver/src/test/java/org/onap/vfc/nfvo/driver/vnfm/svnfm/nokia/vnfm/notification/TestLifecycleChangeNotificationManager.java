@@ -262,7 +262,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         lifecycleChangeNotificationManager.handleLcn(recievedLcn);
         //verify
         Mockito.verifyZeroInteractions(operationExecutionApi);
-        verify(logger).warn("The VNF with " + VNF_ID + " disappeared before being able to process the LCN");
+        verify(logger).warn("The VNF with " + VNF_ID + " identifier disappeared before being able to process the LCN");
     }
 
     /**

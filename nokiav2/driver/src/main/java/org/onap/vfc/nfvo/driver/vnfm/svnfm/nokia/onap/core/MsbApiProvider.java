@@ -26,7 +26,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import static java.lang.Integer.valueOf;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -60,7 +60,8 @@ public class MsbApiProvider extends IpMappingProvider {
     public String getMicroServiceUrl(String name, String version) {
         MicroServiceFullInfo microServiceFullInfo = getMicroServiceInfo(name, version);
         String ipAnPort = getNodeIpAnPort(microServiceFullInfo);
-        //FIXME the enable_ssl field should be used, but it is not available in SDK depends on MSB-151 jira issue
+        //FIXME the enable_ssl field should be used, but it is not available in SDK
+        //depends on https://jira.onap.org/browse/MSB-151
         String protocol = (ipAnPort.endsWith(":8443") || ipAnPort.endsWith(":443")) ? "https://" : "http://";
         //the field name in A&AI is misleading the URL is relative path postfixed to http(s)://ip:port
         return protocol + ipAnPort + microServiceFullInfo.getUrl();
@@ -70,7 +71,7 @@ public class MsbApiProvider extends IpMappingProvider {
         try {
             return getMsbClient().queryMicroServiceInfo(name, version);
         } catch (RouteException e) {
-            throw fatalFailure(logger, "Unable to get micro service URL for " + name + " with version " + version, e);
+            throw buildFatalFailure(logger, "Unable to get micro service URL for " + name + " with version " + version, e);
         }
     }
 
@@ -80,7 +81,7 @@ public class MsbApiProvider extends IpMappingProvider {
                 return mapPrivateIpToPublicIp(nodeInfo.getIp()) + ":" + nodeInfo.getPort();
             }
         }
-        throw fatalFailure(logger, "The " + microServiceFullInfo.getServiceName() + " service with " + microServiceFullInfo.getVersion() + " does not have any valid nodes" + microServiceFullInfo.getNodes());
+        throw buildFatalFailure(logger, "The " + microServiceFullInfo.getServiceName() + " service with " + microServiceFullInfo.getVersion() + " does not have any valid nodes" + microServiceFullInfo.getNodes());
     }
 
     private boolean isADokcerInternalAddress(NodeInfo nodeInfo) {

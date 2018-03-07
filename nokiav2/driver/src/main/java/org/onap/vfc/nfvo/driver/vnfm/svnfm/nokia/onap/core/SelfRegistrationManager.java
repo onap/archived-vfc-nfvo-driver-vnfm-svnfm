@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import static com.nokia.cbam.lcn.v32.model.SubscriptionAuthentication.TypeEnum.NONE;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCN_API_VERSION;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -96,8 +96,9 @@ public class SelfRegistrationManager {
             try {
                 msbApiProvider.getMsbClient().queryMicroServiceInfo(SERVICE_NAME, DRIVER_VERSION);
                 //the micro service still exists
-                fatalFailure(logger, "Unable to deRegister Nokia VNFM driver", e);
+                throw buildFatalFailure(logger, "Unable to deRegister Nokia VNFM driver", e);
             } catch (RouteException e1) {
+                logger.info("Unable to query " + SERVICE_NAME + " from MSB (so the service was successfully deleted)", e1);
                 // the micro service was deleted (even though 500 HTTP code was reported)
             }
         }
@@ -126,7 +127,7 @@ public class SelfRegistrationManager {
                 }
             }
         } catch (ApiException e) {
-            fatalFailure(logger, "Unable to delete CBAM LCN subscription", e);
+            throw buildFatalFailure(logger, "Unable to delete CBAM LCN subscription", e);
         }
     }
 
@@ -139,7 +140,7 @@ public class SelfRegistrationManager {
         microServiceInfo.setVisualRange(INTERNAL_SERVICE);
         microServiceInfo.setServiceName(SERVICE_NAME);
         microServiceInfo.setVersion(DRIVER_VERSION);
-        //FIXME set enable_ssl to false after the field has been added to MSB SDK
+        //FIXME set enable_ssl to false after the field has been added to MSB SDK https://jira.onap.org/browse/MSB-151
         //currently defaults to false, which is good
         Node node = new Node();
         microServiceInfo.setNodes(new HashSet<>());
@@ -150,7 +151,7 @@ public class SelfRegistrationManager {
         try {
             return msbApiProvider.getMsbClient().registerMicroServiceInfo(microServiceInfo);
         } catch (RouteException e) {
-            throw fatalFailure(logger, "Unable to register Nokia VNFM driver", e);
+            throw buildFatalFailure(logger, "Unable to register Nokia VNFM driver", e);
         }
     }
 
@@ -178,7 +179,7 @@ public class SelfRegistrationManager {
             request.setAuthentication(subscriptionAuthentication);
             lcnApi.subscriptionsPost(request, NOKIA_LCN_API_VERSION);
         } catch (ApiException e) {
-            fatalFailure(logger, "Unable to subscribe to CBAM LCN", e);
+            throw buildFatalFailure(logger, "Unable to subscribe to CBAM LCN", e);
         }
     }
 

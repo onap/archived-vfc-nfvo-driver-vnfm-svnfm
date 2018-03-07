@@ -102,14 +102,10 @@ public class TestCbamUtils {
     public void testFatalFailure() throws Exception {
         Exception expectedException = new Exception();
         Logger logger = Mockito.mock(Logger.class);
-        try {
-            CbamUtils.fatalFailure(logger, "msg", expectedException);
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("msg", e.getMessage());
-            assertEquals(expectedException, e.getCause());
-            verify(logger).error("msg", expectedException);
-        }
+        RuntimeException e = CbamUtils.buildFatalFailure(logger, "msg", expectedException);
+        assertEquals("msg", e.getMessage());
+        assertEquals(expectedException, e.getCause());
+        verify(logger).error("msg", expectedException);
     }
 
     /**
@@ -118,13 +114,9 @@ public class TestCbamUtils {
     @Test
     public void testFatalFailureWithNoException() throws Exception {
         Logger logger = Mockito.mock(Logger.class);
-        try {
-            CbamUtils.fatalFailure(logger, "msg");
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("msg", e.getMessage());
-            verify(logger).error("msg");
-        }
+        RuntimeException e = CbamUtils.buildFatalFailure(logger, "msg");
+        assertEquals("msg", e.getMessage());
+        verify(logger).error("msg");
     }
 
     @Test

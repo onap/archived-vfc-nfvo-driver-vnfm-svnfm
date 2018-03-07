@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
@@ -66,7 +66,7 @@ public class VfcPackageProvider implements IPackageProvider {
             JsonElement vnfdModel = new JsonParser().parse(vnfPackageDetails.getPackageInfo().getVnfdModel());
             return vnfdModel.getAsJsonObject().get("metadata").getAsJsonObject().get("resourceVendorModelNumber").getAsString();
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to query VNF package with " + csarId, e);
+            throw buildFatalFailure(logger, "Unable to query VNF package with " + csarId, e);
         }
     }
 
@@ -76,18 +76,16 @@ public class VfcPackageProvider implements IPackageProvider {
         try {
             VnfpackageApi onapCatalogApi = restApiProvider.getOnapCatalogApi();
             VnfPkgDetailInfo vnfPackageDetails = onapCatalogApi.queryVnfPackage(csarId);
-            downloadUrl = vnfPackageDetails.getPackageInfo().getDownloadUrl();
-            String host = new URL(downloadUrl).getHost();
-            if (!ipMappingProvider.mapPrivateIpToPublicIp(host).equals(host)) {
-                downloadUrl = downloadUrl.replaceFirst("://" + host, "://" + ipMappingProvider.mapPrivateIpToPublicIp(host));
-            }
+            String urlFromVfc = vnfPackageDetails.getPackageInfo().getDownloadUrl();
+            String host = new URL(urlFromVfc).getHost();
+            downloadUrl = urlFromVfc.replaceFirst("://" + host, "://" + ipMappingProvider.mapPrivateIpToPublicIp(host));
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to query VNF package with " + csarId, e);
+            throw buildFatalFailure(logger, "Unable to query VNF package with " + csarId, e);
         }
         try {
             return downloadCbamVnfPackage(downloadUrl);
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to download package from " + downloadUrl, e);
+            throw buildFatalFailure(logger, "Unable to download package from " + downloadUrl, e);
         }
     }
 

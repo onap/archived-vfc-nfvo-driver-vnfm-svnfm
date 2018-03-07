@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -49,7 +49,7 @@ public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProv
         try {
             return vfcRestApiProvider.getNsLcmApi().queryVnfmInfo(vnfmId);
         } catch (ApiException e) {
-            throw fatalFailure(logger, "Unable to query VNFM from VF-C with " + vnfmId + " identifier", e);
+            throw buildFatalFailure(logger, "Unable to query VNFM from VF-C with " + vnfmId + " identifier", e);
         }
     }
 
@@ -58,7 +58,7 @@ public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProv
         try {
             return vfcRestApiProvider.getNsLcmApi().queryVIMInfo(vimId);
         } catch (org.onap.vnfmdriver.ApiException e) {
-            throw fatalFailure(logger, "Unable to query VIM from VF-C with " + vimId + " identifier", e);
+            throw buildFatalFailure(logger, "Unable to query VIM from VF-C with " + vimId + " identifier", e);
         }
     }
 }

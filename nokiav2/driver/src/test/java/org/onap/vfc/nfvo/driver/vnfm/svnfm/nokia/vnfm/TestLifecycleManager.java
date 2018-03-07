@@ -80,7 +80,7 @@ public class TestLifecycleManager extends TestBase {
     private VimInfoProvider vimInfoProvider;
 
     private ArgumentCaptor<CreateVnfRequest> createRequest = ArgumentCaptor.forClass(CreateVnfRequest.class);
-    private AdditionalParams additionalParam = new AdditionalParams();
+    private AdditionalParameters additionalParam = new AdditionalParameters();
     private String INSTANTIATION_LEVEL = "level1";
     private GrantVNFResponseVim grantResponse = new GrantVNFResponseVim();
     private String cbamVnfdContent;
@@ -178,7 +178,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         //verify
         assertEquals(VNF_ID, response.getVnfInstanceId());
@@ -251,6 +251,8 @@ public class TestLifecycleManager extends TestBase {
         //the 3.2 API does not accept empty array
         assertNull(actualVnfModifyRequest.getValue().getVnfConfigurableProperties());
         verify(jobManager).spawnJob(VNF_ID, restResponse);
+        //verify(logger).info(eq("Additional parameters for instantiation: {}"), anyString());
+        //FIXME
     }
 
     /**
@@ -261,15 +263,17 @@ public class TestLifecycleManager extends TestBase {
         //given
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO);
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(logger.isDebugEnabled()).thenReturn(false);
         //when
         try {
-            lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+            lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
             //verify
             fail();
         } catch (Exception e) {
             assertEquals("Only OPENSTACK_V2_INFO, OPENSTACK_V3_INFO and VMWARE_VCLOUD_INFO is the supported VIM types", e.getMessage());
         }
         verify(vnfApi, never()).vnfsPost(Mockito.any(), Mockito.any());
+        verify(logger, never()).debug(eq("Additional parameters for instantiation: {}"), anyString());
         verify(logger).error("Only OPENSTACK_V2_INFO, OPENSTACK_V3_INFO and VMWARE_VCLOUD_INFO is the supported VIM types");
     }
 
@@ -293,7 +297,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
         //verify
@@ -322,7 +326,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
         //verify
@@ -348,7 +352,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
         //verify
@@ -387,7 +391,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
         //verify
@@ -425,7 +429,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
         //verify
@@ -460,7 +464,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
         //verify
@@ -497,7 +501,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
         //verify
@@ -533,7 +537,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
         //verify
@@ -567,7 +571,7 @@ public class TestLifecycleManager extends TestBase {
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenThrow(expectedException);
 
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         //verfiy
         waitForJobToFinishInJobManager(finished);
         assertEquals(VNF_ID, response.getVnfInstanceId());
@@ -595,7 +599,7 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
         assertEquals(0, actualInstantiationRequest.getAllValues().size());
         //verify
@@ -632,7 +636,7 @@ public class TestLifecycleManager extends TestBase {
             }
         });
         //when
-        VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         //verfiy
         waitForJobToFinishInJobManager(finished);
         assertEquals(VNF_ID, response.getVnfInstanceId());
@@ -656,7 +660,7 @@ public class TestLifecycleManager extends TestBase {
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenThrow(expectedException);
         //when
         try {
-            lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+            lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
             //verify
             fail();
         } catch (RuntimeException e) {
@@ -679,7 +683,7 @@ public class TestLifecycleManager extends TestBase {
 
         //when
         try {
-            lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+            lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
             //verify
             fail();
         } catch (RuntimeException e) {
@@ -704,7 +708,7 @@ public class TestLifecycleManager extends TestBase {
 
         when(vimInfoProvider.getVimInfo(VIM_ID)).thenThrow(new RuntimeException());
         //when
-        lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+        lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         verify(vnfApi, never()).vnfsVnfInstanceIdInstantiatePost(Mockito.any(), Mockito.any(), Mockito.any());
@@ -941,7 +945,7 @@ public class TestLifecycleManager extends TestBase {
         instantiationRequest.setAdditionalParam(new JsonParser().parse(src));
         //when
         try {
-            VnfInstantiateResponse response = lifecycleManager.instantiate(VNFM_ID, instantiationRequest, restResponse);
+            VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
             fail();
         } catch (Exception e) {
             assertEquals("The additional parameter section does not contain setting for VNF with myOnapCsarId CSAR id", e.getMessage());

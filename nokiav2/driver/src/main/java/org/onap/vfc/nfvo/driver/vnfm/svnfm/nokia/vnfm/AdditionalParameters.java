@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * Represents the additional parameters to be sent during instantiation from VF-C to the driver
  */
-public class AdditionalParams {
+public class AdditionalParameters {
     private VimInfoTypeEnum vimType;
     private String domain;
     private String instantiationLevel;
@@ -35,7 +35,7 @@ public class AdditionalParams {
     private List<ExtVirtualLinkData> extVirtualLinks = new ArrayList<>();
     private Object additionalParams;
 
-    AdditionalParams() {
+    AdditionalParameters() {
         //only used through reflection (gson)
     }
 
@@ -75,7 +75,7 @@ public class AdditionalParams {
     }
 
     /**
-     * @param domain
+     * @param domain the domain of the OpenStack (required for v3 API)
      */
     public void setDomain(String domain) {
         this.domain = domain;
@@ -174,10 +174,12 @@ public class AdditionalParams {
     }
 
     @Override
+    //generated code. This is the recommended way to formulate equals
+    @SuppressWarnings({"squid:S00122", "squid:S1067"})
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AdditionalParams that = (AdditionalParams) o;
+        AdditionalParameters that = (AdditionalParameters) o;
         return vimType == that.vimType &&
                 Objects.equals(domain, that.domain) &&
                 Objects.equals(instantiationLevel, that.instantiationLevel) &&
@@ -192,12 +194,13 @@ public class AdditionalParams {
 
     @Override
     public int hashCode() {
+
         return Objects.hash(vimType, domain, instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, additionalParams);
     }
 
     @Override
     public String toString() {
-        return "AdditionalParams{" +
+        return "AdditionalParameters{" +
                 "vimType=" + vimType +
                 ", domain='" + domain + '\'' +
                 ", instantiationLevel='" + instantiationLevel + '\'' +

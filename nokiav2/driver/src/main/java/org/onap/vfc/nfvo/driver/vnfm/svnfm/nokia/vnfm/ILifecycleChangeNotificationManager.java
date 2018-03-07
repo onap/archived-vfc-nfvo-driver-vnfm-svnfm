@@ -15,24 +15,12 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
-import com.google.common.collect.Ordering;
-import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 
 /**
  * Responsible for handling CBAM notifications
  */
 public interface ILifecycleChangeNotificationManager {
-
-    /**
-     * Order the operations by start time (latest first)
-     */
-    Ordering<OperationExecution> NEWEST_OPERATIONS_FIRST = new Ordering<OperationExecution>() {
-        @Override
-        public int compare(OperationExecution left, OperationExecution right) {
-            return right.getStartTime().toLocalDate().compareTo(left.getStartTime().toLocalDate());
-        }
-    };
 
     /**
      * Transform a CBAM LCN into ONAP LCN
