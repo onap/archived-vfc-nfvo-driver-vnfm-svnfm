@@ -23,11 +23,9 @@ import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStore.TrustedCertificateEntry;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Collection;
 import java.util.HashSet;
@@ -157,7 +155,7 @@ public final class StoreLoader {
                 return of(keyFactory.generatePrivate(keySpec));
             }
             return empty();
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+        } catch (Exception e) {
             throw fatalFailure(logger, "Unable to load key", e);
         }
     }

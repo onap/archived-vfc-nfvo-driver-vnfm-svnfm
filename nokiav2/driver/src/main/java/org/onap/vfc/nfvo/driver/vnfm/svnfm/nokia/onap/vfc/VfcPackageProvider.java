@@ -76,11 +76,9 @@ public class VfcPackageProvider implements IPackageProvider {
         try {
             VnfpackageApi onapCatalogApi = restApiProvider.getOnapCatalogApi();
             VnfPkgDetailInfo vnfPackageDetails = onapCatalogApi.queryVnfPackage(csarId);
-            downloadUrl = vnfPackageDetails.getPackageInfo().getDownloadUrl();
-            String host = new URL(downloadUrl).getHost();
-            if (!ipMappingProvider.mapPrivateIpToPublicIp(host).equals(host)) {
-                downloadUrl = downloadUrl.replaceFirst("://" + host, "://" + ipMappingProvider.mapPrivateIpToPublicIp(host));
-            }
+            String urlFromVfc = vnfPackageDetails.getPackageInfo().getDownloadUrl();
+            String host = new URL(urlFromVfc).getHost();
+            downloadUrl = urlFromVfc.replaceFirst("://" + host, "://" + ipMappingProvider.mapPrivateIpToPublicIp(host));
         } catch (Exception e) {
             throw fatalFailure(logger, "Unable to query VNF package with " + csarId, e);
         }

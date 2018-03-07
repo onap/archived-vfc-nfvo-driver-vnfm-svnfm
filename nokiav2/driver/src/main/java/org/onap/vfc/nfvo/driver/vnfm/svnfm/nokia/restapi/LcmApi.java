@@ -64,7 +64,9 @@ public class LcmApi {
     @ResponseBody
     public VnfInstantiateResponse instantiateVnf(@RequestBody VnfInstantiateRequest request, @PathVariable("vnfmId") String vnfmId, HttpServletResponse httpResponse) {
         logger.info("REST: Instantiate VNF");
-        VnfInstantiateResponse response = lifecycleManager.instantiate(vnfmId, request, httpResponse);
+        //FIXME
+
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(vnfmId, request, httpResponse);
         httpResponse.setStatus(SC_CREATED);
         return response;
     }
