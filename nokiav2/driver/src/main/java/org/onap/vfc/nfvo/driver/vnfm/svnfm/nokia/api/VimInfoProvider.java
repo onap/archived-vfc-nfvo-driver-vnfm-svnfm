@@ -20,6 +20,7 @@ import org.onap.vnfmdriver.model.VimInfo;
 /**
  * Responsible for providing information from the VIM to be used for the VNF
  */
+@FunctionalInterface
 public interface VimInfoProvider {
 
     /**

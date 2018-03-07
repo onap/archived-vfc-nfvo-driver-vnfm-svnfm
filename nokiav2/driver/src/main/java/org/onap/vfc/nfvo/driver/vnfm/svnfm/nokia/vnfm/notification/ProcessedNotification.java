@@ -62,6 +62,8 @@ class ProcessedNotification {
     }
 
     @Override
+    //generated code. This is the recommended way to formulate equals
+    @SuppressWarnings({"squid:S00122", "squid:S1067"})
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

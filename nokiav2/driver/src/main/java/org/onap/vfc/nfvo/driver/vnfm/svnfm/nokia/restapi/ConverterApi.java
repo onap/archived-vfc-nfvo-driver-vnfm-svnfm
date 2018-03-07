@@ -15,6 +15,7 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
+import com.google.common.io.ByteStreams;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfPackageBuilder;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -24,9 +25,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -53,15 +56,26 @@ public class ConverterApi {
      */
     @RequestMapping(value = "/convert", method = POST)
     @ResponseBody
-    public void convert(HttpServletResponse httpResponse, HttpServletRequest request) throws Exception {
+    public void convert(HttpServletResponse httpResponse, HttpServletRequest request) throws IOException {
         logger.info("REST: convert package");
-        Part part = request.getParts().iterator().next();
-        byte[] bytes = vnfPackageConverter.covert(part.getInputStream());
+        byte[] content;
+        try {
+            Part part = request.getParts().iterator().next();
+            content = ByteStreams.toByteArray(part.getInputStream());
+        } catch (Exception e) {
+            throw fatalFailure(logger, "Unable to extract package from REST parameters", e);
+        }
+        byte[] convertedPackage;
+        try {
+            convertedPackage = vnfPackageConverter.covert(new ByteArrayInputStream(content));
+        } catch (IOException e) {
+            throw fatalFailure(logger, "Unable to convert VNF package", e);
+        }
         httpResponse.addHeader(CONTENT_TYPE, APPLICATION_OCTET_STREAM.getMimeType());
         httpResponse.setStatus(OK.value());
-        httpResponse.addHeader(CONTENT_LENGTH, Integer.toString(bytes.length));
+        httpResponse.addHeader(CONTENT_LENGTH, Integer.toString(convertedPackage.length));
         httpResponse.addHeader(CONTENT_DISPOSITION, "attachment; filename=\"" + "core.csar" + "\"");
-        httpResponse.getOutputStream().write(bytes);
+        httpResponse.getOutputStream().write(convertedPackage);
         httpResponse.getOutputStream().flush();
     }
 

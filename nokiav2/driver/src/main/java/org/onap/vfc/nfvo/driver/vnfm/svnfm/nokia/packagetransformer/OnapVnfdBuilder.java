@@ -16,6 +16,8 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -118,42 +120,45 @@ public class OnapVnfdBuilder {
                 memorySize = childElement(child(child(virtualCompute, PROPERTIES), "virtual_memory"), "virtual_mem_size").getAsString();
 
             } else if ("virtual_storage".equals(s)) {
-                String item =
-                        "        - virtual_storage:\n" +
-                                "            capability: tosca.capabilities.nfv.VirtualStorage\n" +
-                                "            node: " + next.getValue().getAsString() + "\n";
+                String item = indent(
+                        "- virtual_storage:\n" +
+                                "    capability: tosca.capabilities.nfv.VirtualStorage\n" +
+                                "    node: " + next.getValue().getAsString() + "\n", 4);
                 body.append(item);
 
             }
             next.getValue();
         }
-        String header = "    " + name + ":\n" +
-                "      type: tosca.nodes.nfv.VDU.Compute\n" +
-                "      capabilities:\n" +
-                "        virtual_compute:\n" +
-                "          properties:\n" +
-                "            virtual_memory:\n" +
-                "              virtual_mem_size: " + memorySize + "\n" +
-                "            virtual_cpu:\n" +
-                "              num_virtual_cpu: " + cpuCount + "\n" +
-                "      " + REQUIREMENTS + ":\n";
+        String header = indent(name + ":\n" +
+                "  type: tosca.nodes.nfv.VDU.Compute\n" +
+                "  capabilities:\n" +
+                "    virtual_compute:\n" +
+                indent(
+                        "properties:\n" +
+                                "  virtual_memory:\n" +
+                                "    virtual_mem_size: " + memorySize + "\n" +
+                                "  virtual_cpu:\n" +
+                                "    num_virtual_cpu: " + cpuCount + "\n" +
+                                REQUIREMENTS + ":\n", 3), 2);
         return header + body.toString();
     }
 
     private String buildEcp(String name, JsonElement ecp, Set<Map.Entry<String, JsonElement>> nodes) {
         if (ecp.getAsJsonObject().has(REQUIREMENTS)) {
-            JsonArray requirements = ecp.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray();
-            String icpName = getIcpName(requirements);
+            String icpName = getIcpName(ecp.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray());
             if (icpName != null) {
-                JsonObject icpNode = get(icpName, nodes).getAsJsonObject();
-                if (icpNode.has(REQUIREMENTS)) {
-                    requirements = icpNode.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray();
-                    String vdu = getVdu(requirements);
-                    if (vdu != null) {
-                        JsonObject properties = child(icpNode, PROPERTIES);
-                        return buildVduCpd(name, vdu, properties);
-                    }
-                }
+                return buildIcp(name, icpName, nodes);
+            }
+        }
+        return "";
+    }
+
+    private String buildIcp(String name, String icpName, Set<Map.Entry<String, JsonElement>> nodes) {
+        JsonObject icpNode = get(icpName, nodes).getAsJsonObject();
+        if (icpNode.has(REQUIREMENTS)) {
+            String vdu = getVdu(icpNode.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray());
+            if (vdu != null) {
+                return buildVduCpd(name, vdu, child(icpNode, PROPERTIES));
             }
         }
         return "";
@@ -188,15 +193,24 @@ public class OnapVnfdBuilder {
     }
 
     private String buildVduCpd(String name, String vdu, JsonObject properties) {
-        return "    " + name + ":\n" +
-                "      type: tosca.nodes.nfv.VduCpd\n" +
-                "      " + PROPERTIES + ":\n" +
-                "        layer_protocol: " + childElement(properties, "layer_protocol").getAsString() + "\n" +
-                "        role: leaf\n" +
+        return indent("    " + name + ":\n" +
+                "  type: tosca.nodes.nfv.VduCpd\n" +
+                "  " + PROPERTIES + ":\n" +
+                "    layer_protocol: " + childElement(properties, "layer_protocol").getAsString() + "\n" +
+                "    role: leaf\n" +
                 (properties.has(DESCRIPTION) ?
                         "        description: " + childElement(properties, DESCRIPTION).getAsString() + "\n" : "") +
-                "      requirements:\n" +
-                "        - virtual_binding: " + vdu + "\n";
+                "  requirements:\n" +
+                "    - virtual_binding: " + vdu + "\n", 2);
+    }
+
+
+    private String indent(String content, int prefixSize) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < prefixSize; i++) {
+            sb.append("  ");
+        }
+        return Joiner.on(sb.toString()).join(Splitter.on("\n").split(content));
     }
 
     private String buildIcp(String name, JsonObject icp) {

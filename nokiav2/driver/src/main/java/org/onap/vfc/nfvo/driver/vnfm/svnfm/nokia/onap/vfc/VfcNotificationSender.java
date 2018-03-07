@@ -35,6 +35,7 @@ import java.util.ArrayList;
 
 import static com.google.common.base.Optional.of;
 import static com.google.common.collect.Iterables.tryFind;
+import static com.nokia.cbam.lcm.v32.model.ScaleDirection.IN;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager.extractOnapJobId;
@@ -190,8 +191,7 @@ public class VfcNotificationSender implements INotificationSender {
             case INSTANTIATE:
                 return org.onap.vnfmdriver.model.OperationType.INSTANTIATE;
             case SCALE:
-                ScaleVnfRequest originalRequest = new Gson().fromJson(new Gson().toJson(operationExecution.getOperationParams()), ScaleVnfRequest.class);
-                if (originalRequest.getType() == com.nokia.cbam.lcm.v32.model.ScaleDirection.IN) {
+                if (IN == new Gson().fromJson(new Gson().toJson(operationExecution.getOperationParams()), ScaleVnfRequest.class).getType()) {
                     return OperationType.SCALEIN;
                 } else {
                     return OperationType.SCALEOUT;

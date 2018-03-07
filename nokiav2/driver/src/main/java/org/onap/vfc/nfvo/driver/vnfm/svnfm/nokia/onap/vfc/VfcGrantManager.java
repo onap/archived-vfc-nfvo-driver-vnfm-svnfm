@@ -102,20 +102,24 @@ public class VfcGrantManager implements IGrantManager {
             GrantVNFRequest grantRequest;
             try {
                 grantRequest = buildGrantRequest(vnfmId, vimId, onapVnfdId, jobId, TERMINAL);
-                if (vnf.getInstantiatedVnfInfo().getVnfcResourceInfo() != null) {
-                    for (VnfcResourceInfo vnfc : vnf.getInstantiatedVnfInfo().getVnfcResourceInfo()) {
-                        ResourceChange resourceChange = new ResourceChange();
-                        grantRequest.getRemoveResource().add(resourceChange);
-                        resourceChange.setVdu(vnfc.getVduId());
-                        resourceChange.setType(ChangeType.VDU);
-                        resourceChange.setResourceDefinitionId(UUID.randomUUID().toString());
-                    }
-                }
                 grantRequest.setVnfInstanceId(vnfId);
+                addVnfsToGrant(vnf, grantRequest);
             } catch (Exception e) {
                 throw fatalFailure(logger, "Unable to prepare grant request for termination", e);
             }
             requestGrant(grantRequest);
+        }
+    }
+
+    private void addVnfsToGrant(VnfInfo vnf, GrantVNFRequest grantRequest) {
+        if (vnf.getInstantiatedVnfInfo().getVnfcResourceInfo() != null) {
+            for (VnfcResourceInfo vnfc : vnf.getInstantiatedVnfInfo().getVnfcResourceInfo()) {
+                ResourceChange resourceChange = new ResourceChange();
+                grantRequest.getRemoveResource().add(resourceChange);
+                resourceChange.setVdu(vnfc.getVduId());
+                resourceChange.setType(ChangeType.VDU);
+                resourceChange.setResourceDefinitionId(UUID.randomUUID().toString());
+            }
         }
     }
 
@@ -134,8 +138,13 @@ public class VfcGrantManager implements IGrantManager {
     }
 
     private GrantVNFRequest buildGrantRequest(String vnfmId, String vimId, String onapCsarId, String jobId, OperationType operationType) {
-        //FIXME the vimId should not be required for grant request see VFC-603 issue
         GrantVNFRequest grantVNFRequest = new GrantVNFRequest();
+        //FIXME
+        //Currently the grant request sent to VF-C must contain the VIM identifier in the
+        //grant response (normally in ETSI VIM identifier is received in the grant response
+        //from ETSI orchestrator the vimId parameter should be removed from this POJO
+        //to be able to fix this https://jira.onap.org/browse/VFC-603 must be solved
+        //the vimId should be removed from the AdditionalGrantParams structure
         grantVNFRequest.setAdditionalParam(new AdditionalGrantParams(vnfmId, vimId));
         grantVNFRequest.setVnfDescriptorId(onapCsarId);
         grantVNFRequest.setJobId(jobId);
@@ -177,7 +186,7 @@ public class VfcGrantManager implements IGrantManager {
         Set<ResourceChange> resourceChanges = new HashSet<>();
         JsonArray policies = CbamUtils.child(root, "topology_template").getAsJsonObject().get("policies").getAsJsonArray();
         for (JsonElement policy : policies) {
-            if (policy.getAsJsonObject().entrySet().iterator().next().getKey().equals("heat_mapping")) {
+            if ("heat_mapping".equals(policy.getAsJsonObject().entrySet().iterator().next().getKey())) {
                 JsonObject aspects = policy.getAsJsonObject().entrySet().iterator().next().getValue().getAsJsonObject().get("properties").getAsJsonObject().get("aspects").getAsJsonObject();
                 JsonObject aspect = aspects.get(aspectId).getAsJsonObject();
                 if (aspect.has("vdus")) {
@@ -227,11 +236,6 @@ public class VfcGrantManager implements IGrantManager {
          * @return the identifier of the VIM for which the grant is requested
          */
         public String getVimId() {
-            //FIXME
-            //Currently the grant request sent to VF-C must contain the VIM identifier in the
-            //grant response (normally in ETSI VIM identifier is received in the grant response
-            //from ETSI orchestrator the vimId parameter should be removed from this POJO
-            //to be able to fix this https://jira.onap.org/browse/VFC-603 must be solved
             return vimId;
         }
     }
