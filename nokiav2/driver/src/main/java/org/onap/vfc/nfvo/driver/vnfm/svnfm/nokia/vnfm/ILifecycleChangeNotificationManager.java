@@ -25,16 +25,6 @@ import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 public interface ILifecycleChangeNotificationManager {
 
     /**
-     * Order the operations by start time (latest first)
-     */
-    Ordering<OperationExecution> NEWEST_OPERATIONS_FIRST = new Ordering<OperationExecution>() {
-        @Override
-        public int compare(OperationExecution left, OperationExecution right) {
-            return right.getStartTime().toLocalDate().compareTo(left.getStartTime().toLocalDate());
-        }
-    };
-
-    /**
      * Transform a CBAM LCN into ONAP LCN
      *
      * @param receivedNotification the CBAM LCN

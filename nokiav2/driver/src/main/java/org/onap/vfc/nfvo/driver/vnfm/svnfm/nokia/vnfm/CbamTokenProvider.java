@@ -51,6 +51,9 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * Responsible for providing a token to access CBAM APIs
  */
 @Component
+//even if the value for grant type an user password is the same they do not mean the same thing
+//the duplication of this is intentional
+@SuppressWarnings("squid:S1192")
 public class CbamTokenProvider {
     public static final int MAX_RETRY_COUNT = 5;
     public static final String GRANT_TYPE = "password";

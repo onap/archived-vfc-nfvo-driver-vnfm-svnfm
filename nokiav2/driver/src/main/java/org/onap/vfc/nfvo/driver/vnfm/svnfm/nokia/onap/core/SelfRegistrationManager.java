@@ -98,6 +98,7 @@ public class SelfRegistrationManager {
                 //the micro service still exists
                 fatalFailure(logger, "Unable to deRegister Nokia VNFM driver", e);
             } catch (RouteException e1) {
+                logger.info("Unable to query " + SERVICE_NAME + " from MSB (so the service was successfully deleted)", e1);
                 // the micro service was deleted (even though 500 HTTP code was reported)
             }
         }
@@ -139,7 +140,7 @@ public class SelfRegistrationManager {
         microServiceInfo.setVisualRange(INTERNAL_SERVICE);
         microServiceInfo.setServiceName(SERVICE_NAME);
         microServiceInfo.setVersion(DRIVER_VERSION);
-        //FIXME set enable_ssl to false after the field has been added to MSB SDK
+        //FIXME set enable_ssl to false after the field has been added to MSB SDK https://jira.onap.org/browse/MSB-151
         //currently defaults to false, which is good
         Node node = new Node();
         microServiceInfo.setNodes(new HashSet<>());

@@ -23,6 +23,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffec
  * Responsible for processing the preprocessed notification from CBAM and making the changes
  * based on the notification in various ONAP sub systems.
  */
+@FunctionalInterface
 public interface INotificationSender {
     /**
      * Execute changes in the ONAP subsystem based on the received notification
@@ -33,5 +34,4 @@ public interface INotificationSender {
      * @param vimId                    the identifier of the VIM in ONAP
      */
     void processNotification(VnfLifecycleChangeNotification receivedNotification, OperationExecution operationExecution, ReportedAffectedConnectionPoints affectedConnectionPoints, String vimId);
-
 }
