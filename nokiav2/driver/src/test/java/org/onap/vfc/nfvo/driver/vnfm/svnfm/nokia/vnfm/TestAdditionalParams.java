@@ -56,6 +56,6 @@ public class TestAdditionalParams {
         }
 
         final AbstractFieldValueChanger valueChanger = new MapValueChanger().attachNext(DefaultFieldValueChanger.INSTANCE);
-        assertPojoMethodsFor(AdditionalParams.class).using(valueChanger).areWellImplemented();
+        assertPojoMethodsFor(AdditionalParameters.class).using(valueChanger).areWellImplemented();
     }
 }

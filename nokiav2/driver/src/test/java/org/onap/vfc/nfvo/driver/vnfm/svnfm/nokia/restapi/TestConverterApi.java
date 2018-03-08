@@ -37,9 +37,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager.getFileInZip;
@@ -47,7 +51,6 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 
 public class TestConverterApi extends TestBase {
-
 
     @InjectMocks
     private ConverterApi converterApi;
@@ -60,9 +63,10 @@ public class TestConverterApi extends TestBase {
     }
 
     /**
+     * test VNF package conversion success scenario
      */
     @Test
-    public void test() throws Exception {
+    public void testConversion() throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         PrintStream actualOut = new PrintStream(bos, true);
         when(systemFunctions.out()).thenReturn(actualOut);
@@ -97,8 +101,11 @@ public class TestConverterApi extends TestBase {
         assertItenticalZips(expectedModifiedCbamPackage, actualModifiedCbamVnfPackage.toByteArray());
     }
 
+    /**
+     * the HTML based converted page works
+     */
     @Test
-    public void testDownloaderPage() throws Exception {
+    public void testConverterPage() throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         PrintStream actualOut = new PrintStream(bos, true);
         when(httpResponse.getOutputStream()).thenReturn(new DelegatingServletOutputStream(actualOut));
@@ -106,9 +113,25 @@ public class TestConverterApi extends TestBase {
         //when
         converterApi.getUploadPageForConvertingVnfd(httpResponse);
         //verify
-        TestCase.assertTrue(Arrays.equals(TestUtil.loadFile("upload.html"), bos.toByteArray()));
+        assertTrue(Arrays.equals(TestUtil.loadFile("upload.html"), bos.toByteArray()));
         verify(httpResponse).addHeader(HttpHeaders.CONTENT_LENGTH, Integer.toString(bos.toByteArray().length));
-
     }
 
+    /**
+     * error is propagated if unable to extract package from HTTP request
+     */
+    @Test
+    public void testUnableToExtractPackageToBeConverted() throws Exception{
+        IOException expectedException = new IOException();
+        when(httpRequest.getParts()).thenThrow(expectedException);
+        try {
+            converterApi.convert(httpResponse, httpRequest);
+            fail();
+        }
+        catch (Exception e){
+            verify(logger).error("Unable to extract package from REST parameters", expectedException);
+            assertEquals("Unable to extract package from REST parameters", e.getMessage());
+            assertEquals(expectedException, e.getCause());
+        }
+    }
 }

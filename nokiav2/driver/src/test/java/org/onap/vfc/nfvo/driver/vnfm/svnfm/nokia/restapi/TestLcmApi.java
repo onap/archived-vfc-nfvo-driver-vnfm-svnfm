@@ -56,7 +56,7 @@ public class TestLcmApi extends TestBase {
         //when
         lcmApi.instantiateVnf(req, VNFM_ID, httpResponse);
         //verify
-        verify(lifecycleManager).instantiate(VNFM_ID, req, httpResponse);
+        verify(lifecycleManager).createAndInstantiate(VNFM_ID, req, httpResponse);
         verify(httpResponse).setStatus(SC_CREATED);
         verify(logger).info("REST: Instantiate VNF");
     }

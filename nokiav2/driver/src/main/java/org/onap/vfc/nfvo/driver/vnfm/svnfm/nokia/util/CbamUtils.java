@@ -57,28 +57,28 @@ public class CbamUtils {
     }
 
     /**
-     * Logs and throws a runtime exception
+     * Logs and returns a runtime exception
      *
      * @param logger the logger
      * @param msg    the error message
      * @param e      the exception to be wrapped
      * @return never reached (runtime exception is thrown)
      */
-    public static RuntimeException fatalFailure(Logger logger, String msg, Exception e) {
+    public static RuntimeException buildFatalFailure(Logger logger, String msg, Exception e) {
         logger.error(msg, e);
-        throw new OperationMustBeAborted(e, msg);
+        return new OperationMustBeAborted(e, msg);
     }
 
     /**
-     * Logs and throws a runtime exception
+     * Logs and returns a runtime exception
      *
      * @param logger the logger
      * @param msg    the error message
      * @return never reached (runtime exception is thrown)
      */
-    public static RuntimeException fatalFailure(Logger logger, String msg) {
+    public static RuntimeException buildFatalFailure(Logger logger, String msg) {
         logger.error(msg);
-        throw new OperationMustBeAborted(msg);
+        return new OperationMustBeAborted(msg);
     }
 
     private static class OperationMustBeAborted extends RuntimeException {

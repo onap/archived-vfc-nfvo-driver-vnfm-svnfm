@@ -42,7 +42,7 @@ import java.security.cert.X509Certificate;
 import java.util.Set;
 
 import static java.util.UUID.randomUUID;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
@@ -51,6 +51,9 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * Responsible for providing a token to access CBAM APIs
  */
 @Component
+//even if the value for grant type an user password is the same they do not mean the same thing
+//the duplication of this is intentional
+@SuppressWarnings("squid:S1192")
 public class CbamTokenProvider {
     public static final int MAX_RETRY_COUNT = 5;
     public static final String GRANT_TYPE = "password";
@@ -126,14 +129,14 @@ public class CbamTokenProvider {
                     token = new CurrentToken(tokenResponse, getTokenRefreshTime(tokenResponse));
                     return;
                 } else {
-                    fatalFailure(logger, "Bad response from CBAM KeyStone");
+                    throw buildFatalFailure(logger, "Bad response from CBAM KeyStone");
                 }
             } catch (Exception e) {
                 lastException = e;
                 logger.warn("Unable to get token to access CBAM API (" + (i + 1) + "/" + MAX_RETRY_COUNT + ")", e);
             }
         }
-        throw fatalFailure(logger, "Unable to get token to access CBAM API (giving up retries)", lastException);
+        throw buildFatalFailure(logger, "Unable to get token to access CBAM API (giving up retries)", lastException);
     }
 
     @VisibleForTesting
@@ -168,7 +171,7 @@ public class CbamTokenProvider {
             sslContext.init(null, trustManagers, new SecureRandom());
             return sslContext.getSocketFactory();
         } catch (GeneralSecurityException e) {
-            throw fatalFailure(logger, "Unable to create SSL socket factory", e);
+            throw buildFatalFailure(logger, "Unable to create SSL socket factory", e);
         }
     }
 

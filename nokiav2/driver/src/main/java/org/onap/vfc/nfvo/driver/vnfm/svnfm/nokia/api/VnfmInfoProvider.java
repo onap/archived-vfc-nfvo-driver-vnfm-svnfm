@@ -20,6 +20,7 @@ import org.onap.vnfmdriver.model.VnfmInfo;
 /**
  * Responsible for providing information from the VNFM itself
  */
+@FunctionalInterface
 public interface VnfmInfoProvider {
 
     /**

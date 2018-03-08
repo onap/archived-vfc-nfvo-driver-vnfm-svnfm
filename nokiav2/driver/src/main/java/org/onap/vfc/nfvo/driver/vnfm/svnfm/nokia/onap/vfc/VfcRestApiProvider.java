@@ -68,7 +68,9 @@ public class VfcRestApiProvider {
      */
     private String fixIncorrectUrl() {
         String urlInMsb = msbApiProvider.getMicroServiceUrl(NSLCM_API_SERVICE_NAME, NSLCM_API_VERION);
-        //FIXME in VF-C swagger API definitions
+        //FIXME VF-C exposes multiple APIs in the single swagger definition, since the base path of different
+        //API is different the some API calls are incorrectly prefixed
+        //VF-C team refuses to fix this in Amsterdam https://jira.onap.org/browse/VFC-597?filter=-2
         return urlInMsb.replaceFirst("/nslcm/v1", "");
     }
 }

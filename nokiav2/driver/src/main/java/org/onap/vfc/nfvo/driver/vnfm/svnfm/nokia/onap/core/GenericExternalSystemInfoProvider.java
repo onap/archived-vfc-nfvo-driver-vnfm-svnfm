@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.cache.CacheBuilder.newBuilder;
 import static java.lang.Long.valueOf;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.fatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -63,7 +63,7 @@ public abstract class GenericExternalSystemInfoProvider extends IpMappingProvide
         vnfmInfoCache = newBuilder().expireAfterWrite(environment.getProperty(VNFM_INFO_CACHE_EVICTION_IN_MS, Long.class, valueOf(DEFAULT_CACHE_EVICTION_TIMEOUT_IN_MS)), TimeUnit.MILLISECONDS).concurrencyLevel(1).build(new CacheLoader<String, VnfmInfo>() {
             @Override
             public VnfmInfo load(String vnfmId) throws Exception {
-                logger.info("Quering VNFM info from source with " + vnfmId + " identifier");
+                logger.info("Querying VNFM info from source with " + vnfmId + " identifier");
                 return queryVnfmInfoFromSource(vnfmId);
             }
         });
@@ -77,7 +77,7 @@ public abstract class GenericExternalSystemInfoProvider extends IpMappingProvide
         try {
             return vnfmInfoCache.get(vnfmId);
         } catch (Exception e) {
-            throw fatalFailure(logger, "Unable to query VNFM info for " + vnfmId, e);
+            throw buildFatalFailure(logger, "Unable to query VNFM info for " + vnfmId, e);
         }
     }
 

@@ -518,17 +518,16 @@ public class TestJobManager extends TestBase {
      * Ongoing job are out waited during the the preparation for shutdown
      */
     @Test
+    //need to wait for an asynchronous execution to finish
+    //this is the most optimal way to do it
+    @SuppressWarnings("squid:S2925")
     public void onGoingJobsAreOutwaitedDuringShutdown() throws Exception {
         String firstJobId = jobManager.spawnJob(VNF_ID, httpResponse);
         ExecutorService executorService = Executors.newCachedThreadPool();
         ArgumentCaptor<Integer> sleeps = ArgumentCaptor.forClass(Integer.class);
         doNothing().when(systemFunctions).sleep(sleeps.capture());
-        Future<?> shutDown = executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                jobManager.prepareForShutdown();
-            }
-        });
+        //when prepare job manager for shutdown
+        Future<?> shutDown = executorService.submit(() -> jobManager.prepareForShutdown());
         while (sleeps.getAllValues().size() == 0) {
             try {
                 Thread.sleep(1);

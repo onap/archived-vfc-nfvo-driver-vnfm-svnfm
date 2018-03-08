@@ -28,6 +28,15 @@ import static junit.framework.TestCase.fail;
 public class TestOnapVnfdBuilder extends TestBase {
     private OnapVnfdBuilder packageTransformer = new OnapVnfdBuilder();
 
+    @Test
+    public void indent() {
+        assertEquals("    x", packageTransformer.indent("x", 2));
+        assertEquals("    x\n", packageTransformer.indent("x\n", 2));
+        assertEquals("    x\n    y", packageTransformer.indent("x\ny", 2));
+        assertEquals("    x\n    y\n", packageTransformer.indent("x\ny\n", 2));
+        assertEquals("    \n", packageTransformer.indent("\n", 2));
+    }
+
     /**
      * Test empty VNFD conversion
      */
