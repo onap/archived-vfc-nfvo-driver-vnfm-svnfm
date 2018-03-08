@@ -1,5 +1,13 @@
 topology_template:
   policies:
+    - unkown_policy:
+        properties:
+          aspects:
+            aspect1:
+              vdus:
+                vdu1:
+                  - heatResource: wrapper_rg.0.server
+                  - heatResource: wrapper_rg.1.server
     - heat_mapping:
         properties:
           aspects:
@@ -10,3 +18,6 @@ topology_template:
                   - heatResource: wrapper_rg.1.server
                 vdu2:
                   - heatResource: wrapper_rg2.0.server
+            emptyAspect: # does not make sense
+            aspectWithOutVdu: # does not make sense
+              network:

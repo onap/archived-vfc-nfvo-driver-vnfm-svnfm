@@ -17,7 +17,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
 import com.google.common.collect.Lists;
-import junit.framework.TestCase;
 import org.apache.http.entity.ContentType;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +40,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
+import static junit.framework.TestCase.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager.getFileInZip;
@@ -121,17 +120,33 @@ public class TestConverterApi extends TestBase {
      * error is propagated if unable to extract package from HTTP request
      */
     @Test
-    public void testUnableToExtractPackageToBeConverted() throws Exception{
+    public void testUnableToExtractPackageToBeConverted() throws Exception {
         IOException expectedException = new IOException();
         when(httpRequest.getParts()).thenThrow(expectedException);
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             verify(logger).error("Unable to extract package from REST parameters", expectedException);
             assertEquals("Unable to extract package from REST parameters", e.getMessage());
             assertEquals(expectedException, e.getCause());
+        }
+    }
+
+    /**
+     * error is propagated if unable to extract package from HTTP request
+     */
+    @Test
+    public void testUnableToConvertPackage() throws Exception {
+        Part part = Mockito.mock(Part.class);
+        when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
+        when(httpRequest.getParts()).thenReturn(Lists.newArrayList(part));
+        try {
+            converterApi.convert(httpResponse, httpRequest);
+            fail();
+        } catch (Exception e) {
+            verify(logger).error(eq("Unable to convert VNF package"), any(RuntimeException.class));
+            assertEquals("Unable to convert VNF package", e.getMessage());
         }
     }
 }

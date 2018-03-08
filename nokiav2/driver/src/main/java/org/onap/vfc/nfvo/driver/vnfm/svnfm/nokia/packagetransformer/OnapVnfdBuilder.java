@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.Map;
@@ -31,15 +31,16 @@ import java.util.regex.Pattern;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.child;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.childElement;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Transforms a CBAM package into an ONAP package
  */
 public class OnapVnfdBuilder {
-
     public static final String DESCRIPTION = "description";
     public static final String PROPERTIES = "properties";
     public static final String REQUIREMENTS = "requirements";
+    private static Logger logger = getLogger(OnapVnfdBuilder.class);
 
     @VisibleForTesting
     static String indent(String content, int prefixSize) {
@@ -157,28 +158,36 @@ public class OnapVnfdBuilder {
         if (ecp.getAsJsonObject().has(REQUIREMENTS)) {
             String icpName = getIcpName(ecp.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray());
             if (icpName != null) {
-                return buildIcp(name, icpName, nodes);
+                return buildEcpInternal(name, icpName, nodes);
+            } else {
+                logger.warn("The {} ecp does not have an internal connection point", name);
             }
+        } else {
+            logger.warn("The {} ecp does not have an requirements section", name);
         }
         return "";
     }
 
-    private String buildIcp(String name, String icpName, Set<Map.Entry<String, JsonElement>> nodes) {
+    private String buildEcpInternal(String ecpName, String icpName, Set<Map.Entry<String, JsonElement>> nodes) {
         JsonObject icpNode = get(icpName, nodes).getAsJsonObject();
         if (icpNode.has(REQUIREMENTS)) {
-            String vdu = getVdu(icpNode.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray());
+            String vdu = getVduOfIcp(icpNode.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray());
+            //internal connection point is bound to VDU
             if (vdu != null) {
-                return buildVduCpd(name, vdu, child(icpNode, PROPERTIES));
+                return buildVduCpd(ecpName, vdu, child(icpNode, PROPERTIES));
+            } else {
+                logger.warn("The {} internal connection point of the {} ecp does not have a VDU", icpName, ecpName);
             }
+        } else {
+            logger.warn("The {} internal connection point of the {} ecp does not have a requirements section", icpName, ecpName);
         }
         return "";
     }
 
-    @Nullable
-    private String getVdu(JsonArray requirements) {
+    private String getVduOfIcp(JsonArray icpRequirements) {
         String vdu = null;
-        for (int i = 0; i < requirements.size(); i++) {
-            JsonElement requirement = requirements.get(i);
+        for (int i = 0; i < icpRequirements.size(); i++) {
+            JsonElement requirement = icpRequirements.get(i);
             Map.Entry<String, JsonElement> next = requirement.getAsJsonObject().entrySet().iterator().next();
             String s = next.getKey();
             if ("virtual_binding".equals(s)) {
@@ -188,7 +197,6 @@ public class OnapVnfdBuilder {
         return vdu;
     }
 
-    @Nullable
     private String getIcpName(JsonArray requirements) {
         String icpName = null;
         for (int i = 0; i < requirements.size(); i++) {
@@ -200,6 +208,43 @@ public class OnapVnfdBuilder {
             }
         }
         return icpName;
+    }
+
+    private String buildIcp(String name, JsonObject icp) {
+        if (icp.has(REQUIREMENTS)) {
+            JsonArray requirements = icp.get(REQUIREMENTS).getAsJsonArray();
+            String vdu = null;
+            String vl = null;
+            for (int i = 0; i < requirements.size(); i++) {
+                JsonElement requirement = requirements.get(i);
+                Map.Entry<String, JsonElement> next = requirement.getAsJsonObject().entrySet().iterator().next();
+                String s = next.getKey();
+                if ("virtual_binding".equals(s)) {
+                    vdu = next.getValue().getAsString();
+                } else if ("virtual_link".equals(s)) {
+                    vl = next.getValue().getAsString();
+                }
+            }
+            if (vdu == null) {
+                logger.warn("The {} internal connection point does not have a VDU", name);
+            } else if (vl == null) {
+                logger.warn("The {} internal connection point does not have a VL", name);
+            } else {
+                JsonObject properties = child(icp, PROPERTIES);
+                return indent(name + ":\n" +
+                        "  type: tosca.nodes.nfv.VduCpd\n" +
+                        "  " + PROPERTIES + ":\n" +
+                        "    layer_protocol: " + childElement(properties, "layer_protocol").getAsString() + "\n" +
+                        "    role: leaf\n" + (properties.has(DESCRIPTION) ?
+                        "    description: " + childElement(properties, DESCRIPTION).getAsString() + "\n" : "") +
+                        "  requirements:\n" +
+                        "    - virtual_binding: " + vdu + "\n" +
+                        "    - virtual_link: " + vl + "\n", 2);
+            }
+        } else {
+            logger.warn("The {} internal connection point does not have a requirements section", name);
+        }
+        return "";
     }
 
     private String buildVduCpd(String name, String vdu, JsonObject properties) {
@@ -214,53 +259,21 @@ public class OnapVnfdBuilder {
                 "    - virtual_binding: " + vdu + "\n", 2);
     }
 
-    private String buildIcp(String name, JsonObject icp) {
-        if (icp.has(REQUIREMENTS)) {
-            JsonArray requirements = icp.get(REQUIREMENTS).getAsJsonArray();
-            String vdu = null;
-            String vl = null;
-            for (int i = 0; i < requirements.size(); i++) {
-                JsonElement requirement = requirements.get(i);
-                Map.Entry<String, JsonElement> next = requirement.getAsJsonObject().entrySet().iterator().next();
-                String s = next.getKey();
-                if ("virtual_binding".equals(s)) {
-                    vdu = next.getValue().getAsString();
-
-                } else if ("virtual_link".equals(s)) {
-                    vl = next.getValue().getAsString();
-                }
-            }
-            if (vdu != null && vl != null) {
-                JsonObject properties = child(icp, PROPERTIES);
-                return "    " + name + ":\n" +
-                        "      type: tosca.nodes.nfv.VduCpd\n" +
-                        "      " + PROPERTIES + ":\n" +
-                        "        layer_protocol: " + childElement(properties, "layer_protocol").getAsString() + "\n" +
-                        "        role: leaf\n" + (properties.has(DESCRIPTION) ?
-                        "        description: " + childElement(properties, DESCRIPTION).getAsString() + "\n" : "") +
-                        "      requirements:\n" +
-                        "        - virtual_binding: " + vdu + "\n" +
-                        "        - virtual_link: " + vl + "\n";
-            }
-        }
-        return "";
-    }
-
     private String buildVolume(String nodeName, JsonObject volume) {
-        return "    " + nodeName + ":\n" +
-                "      type: tosca.nodes.nfv.VDU.VirtualStorage\n" +
-                "      properties:\n" +
-                "        id: " + nodeName + "\n" +
-                "        type_of_storage: volume\n" +
-                "        size_of_storage: " + childElement(child(volume, PROPERTIES), "size_of_storage").getAsString() + "\n";
+        return indent(nodeName + ":\n" +
+                "  type: tosca.nodes.nfv.VDU.VirtualStorage\n" +
+                "  properties:\n" +
+                "    id: " + nodeName + "\n" +
+                "    type_of_storage: volume\n" +
+                "    size_of_storage: " + childElement(child(volume, PROPERTIES), "size_of_storage").getAsString() + "\n", 2);
     }
 
     private String buildVl(String name) {
-        return "    " + name + ":\n" +
-                "      type: tosca.nodes.nfv.VnfVirtualLinkDesc\n" +
-                "      properties:\n" +
-                "        vl_flavours:\n" +
-                "          flavours:\n" +
-                "            flavourId: notUsed\n";
+        return indent(name + ":\n" +
+                "  type: tosca.nodes.nfv.VnfVirtualLinkDesc\n" +
+                "  properties:\n" +
+                "    vl_flavours:\n" +
+                "      flavours:\n" +
+                "        flavourId: notUsed\n", 2);
     }
 }

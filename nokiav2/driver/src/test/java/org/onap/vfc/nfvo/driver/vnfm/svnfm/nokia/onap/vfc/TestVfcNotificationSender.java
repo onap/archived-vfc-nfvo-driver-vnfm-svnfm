@@ -41,6 +41,8 @@ import org.threeten.bp.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -114,7 +116,7 @@ public class TestVfcNotificationSender extends TestBase {
         recievedLcn.setStatus(OperationStatus.STARTED);
         recievedLcn.setOperation(OperationType.INSTANTIATE);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, affectedCp, VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, empty(), VIM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
         assertNull(sentLcnToVfc.getValue().getAffectedVl());
@@ -188,7 +190,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, affectedConnectionPoints, VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, of(affectedConnectionPoints), VIM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -271,7 +273,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, affectedConnectionPoints, VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, of(affectedConnectionPoints), VIM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -352,7 +354,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, terminationOperation, affectedConnectionPoints, VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, terminationOperation, of(affectedConnectionPoints), VIM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -473,7 +475,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, healOperation, affectedConnectionPoints, VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, healOperation, of(affectedConnectionPoints), VIM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -585,7 +587,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         scaleOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, affectedConnectionPoints, VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, of(affectedConnectionPoints), VIM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -698,7 +700,7 @@ public class TestVfcNotificationSender extends TestBase {
         scaleOperation.setAdditionalData(additionalData);
         scaleOperation.setOperationType(OperationType.SCALE);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, affectedConnectionPoints, VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, of(affectedConnectionPoints), VIM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -742,6 +744,99 @@ public class TestVfcNotificationSender extends TestBase {
         assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
     }
 
+
+    /**
+     * en empty LCN is sent even if nothing has changed
+     */
+    @Test
+    public void testNothingChanged() {
+        //given
+        recievedLcn.setOperation(OperationType.SCALE);
+        recievedLcn.setStatus(OperationStatus.FINISHED);
+        recievedLcn.setLifecycleOperationOccurrenceId(scaleOperation.getId());
+        ScaleVnfRequest request = new ScaleVnfRequest();
+        request.setAdditionalParams(new JsonParser().parse("{ \"jobId\" : \"" + JOB_ID + "\" }"));
+        request.setType(ScaleDirection.IN);
+        scaleOperation.setOperationParams(request);
+        OperationResult operationResult = new OperationResult();
+        JsonElement additionalData = new Gson().toJsonTree(operationResult);
+        scaleOperation.setAdditionalData(additionalData);
+        scaleOperation.setOperationType(OperationType.SCALE);
+        when(logger.isInfoEnabled()).thenReturn(false);
+        //when
+        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, empty(), VIM_ID);
+        //verify
+        assertEquals(1, sentLcnToVfc.getAllValues().size());
+
+        assertNull(sentLcnToVfc.getValue().getAffectedVl());
+        assertNull(sentLcnToVfc.getValue().getAffectedVnfc());
+        assertNull(sentLcnToVfc.getValue().getAffectedCp());
+        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
+        assertEquals(org.onap.vnfmdriver.model.OperationType.SCALEIN, sentLcnToVfc.getValue().getOperation());
+        assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());
+        assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
+        verify(logger, never()).info(eq("Sending LCN: {}"), anyString());
+    }
+
+    /**
+     * If a connection point is not modified it is not contained in the LCN
+     */
+    @Test
+    public void testNonModifiedCP() {
+        //given
+        recievedLcn.setOperation(OperationType.HEAL);
+        recievedLcn.setStatus(OperationStatus.FINISHED);
+
+        ReportedAffectedConnectionPoints affectedConnectionPoints = new ReportedAffectedConnectionPoints();
+        ReportedAffectedCp affectedCp = new ReportedAffectedCp();
+        affectedCp.setCpdId("cpVnfdId");
+        affectedCp.setIpAddress("1.2.3.4");
+        affectedCp.setMacAddress("myMac");
+        affectedCp.setName("myPortName");
+        affectedCp.setCpId("cpId");
+
+        // affectedCp.setEcpdId("ecpdId");
+        affectedCp.setNetworkProviderId("networkProviderId");
+        affectedCp.setProviderId("portProviderId");
+        affectedCp.setServerProviderId("serverProviderId");
+        affectedCp.setTenantId("tenantId");
+        affectedConnectionPoints.getPre().add(affectedCp);
+
+        ReportedAffectedCp after = new ReportedAffectedCp();
+        after.setCpdId("cpVnfdId");
+        after.setIpAddress("1.2.3.4");
+        after.setMacAddress("myMac");
+        after.setName("myPortName");
+        after.setCpId("cpId");
+
+        // affectedCp.setEcpdId("ecpdId");
+        after.setNetworkProviderId("networkProviderId");
+        after.setProviderId("portProviderId");
+        after.setServerProviderId("serverProviderId");
+        after.setTenantId("tenantId");
+        affectedConnectionPoints.getPost().add(after);
+
+
+        OperationResult operationResult = new OperationResult();
+        operationResult.operationResult = affectedConnectionPoints;
+        JsonElement additionalData = new Gson().toJsonTree(operationResult);
+        instantiationOperation.setAdditionalData(additionalData);
+        //when
+        vfcNotificationSender.processNotification(recievedLcn, healOperation, of(affectedConnectionPoints), VIM_ID);
+        //verify
+        assertEquals(1, sentLcnToVfc.getAllValues().size());
+
+        assertNull(sentLcnToVfc.getValue().getAffectedVl());
+        assertNull(sentLcnToVfc.getValue().getAffectedVnfc());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedCp().size());
+        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
+        assertEquals(org.onap.vnfmdriver.model.OperationType.HEAL, sentLcnToVfc.getValue().getOperation());
+        assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());
+        assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
+    }
+
     /**
      * Unable to send notification to VF-C results in error
      */
@@ -753,7 +848,7 @@ public class TestVfcNotificationSender extends TestBase {
         recievedLcn.setOperation(OperationType.INSTANTIATE);
         //when
         try {
-            vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, affectedCp, VIM_ID);
+            vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, empty(), VIM_ID);
             //verify
             fail();
         } catch (Exception e) {

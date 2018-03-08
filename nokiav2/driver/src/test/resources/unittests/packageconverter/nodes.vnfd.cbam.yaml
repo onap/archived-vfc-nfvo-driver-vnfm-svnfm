@@ -18,6 +18,7 @@ topology_template:
         - virtual_compute: myCompute
         - virtual_storage: myStorage1
         - virtual_storage: myStorage2
+        - unhandled_type: unknown
 
 
     myCompute:
@@ -64,6 +65,30 @@ topology_template:
         - virtual_binding: vduNode
         - virtual_link: myNetwork1
 
+    icpWithOutDescription:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - virtual_binding: vduNode
+        - virtual_link: myNetwork1
+
+    icpWithoutVdu:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        description: myDescription
+      requirements:
+        - virtual_link: myNetwork1
+
+    icpWithOutVl:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        description: myDescription
+      requirements:
+        - virtual_binding: vduNode
+
     myEcp:
       type: tosca.nodes.nfv.ECP
       properties:
@@ -71,7 +96,43 @@ topology_template:
       requirements:
         - internal_connection_point: icpWithEcp
 
+    myEcpWithDescription:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - internal_connection_point: icpWithOutDescription
+
+    myEcpWithoutIcpWithoutVdu:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - internal_connection_point: icpWithoutVdu
+
+    myEcpWithoutIcpWithoutIcpReq:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - internal_connection_point: icpWithOutRequiements
+
+    myEcpWithoutIcp:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        - not_valid: d
+
     icpWithOutVdu:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        description: myDescription
+      requirements:
+        - not_valid: a
+
+    icpWithOutRequiements:
       type: tosca.nodes.nfv.ICP
       properties:
         layer_protocol: ipv4
@@ -83,3 +144,8 @@ topology_template:
         layer_protocol: ipv4
       requirements:
         - internal_connection_point: icpWithOutVdu
+
+    ecpWithIcpWithOutRequirements:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4

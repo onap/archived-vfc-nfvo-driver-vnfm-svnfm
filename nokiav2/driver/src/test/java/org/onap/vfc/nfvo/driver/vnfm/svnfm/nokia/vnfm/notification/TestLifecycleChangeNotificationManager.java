@@ -31,10 +31,8 @@ import org.threeten.bp.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.Optional;
+import java.util.concurrent.*;
 
 import static com.nokia.cbam.lcm.v32.model.OperationType.*;
 import static junit.framework.TestCase.*;
@@ -56,7 +54,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
     private OperationExecution terminationOperation = new OperationExecution();
 
     private ArgumentCaptor<OperationExecution> currentOperationExecution = ArgumentCaptor.forClass(OperationExecution.class);
-    private ArgumentCaptor<ReportedAffectedConnectionPoints> affectedConnectionPoints = ArgumentCaptor.forClass(ReportedAffectedConnectionPoints.class);
+    private ArgumentCaptor<Optional> affectedConnectionPoints = ArgumentCaptor.forClass(Optional.class);
 
     private List<VnfInfo> vnfs = new ArrayList<>();
     private VnfInfo vnf = new VnfInfo();
@@ -240,6 +238,19 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
     }
 
     /**
+     * LCN is not logged in case of non info log level
+     */
+    @Test
+    public void testNoLogging() throws Exception {
+        vnf.getExtensions().clear();
+        when(logger.isInfoEnabled()).thenReturn(false);
+        //when
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        //verify
+        verify(logger, never()).info(eq("Received LCN: {}"), anyString());
+    }
+
+    /**
      * if the VNF is not managed by this VNFM the LCN is dropped
      */
     @Test
@@ -345,6 +356,38 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
     }
 
     /**
+     * the processing of the start notification does not trigger the deletion of the VNF
+     */
+    @Test
+    public void testStartLcnForTerminate() throws Exception {
+        recievedLcn.setOperation(OperationType.TERMINATE);
+        recievedLcn.setStatus(OperationStatus.STARTED);
+        recievedLcn.setLifecycleOperationOccurrenceId(terminationOperation.getId());
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        Future<Boolean> waitExitedWithSuccess = executorService.submit(() -> {
+            try {
+                lifecycleChangeNotificationManager.waitForTerminationToBeProcessed(terminationOperation.getId());
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+        //processing the start notification
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        //verify
+        try {
+            waitExitedWithSuccess.get(10, TimeUnit.MILLISECONDS);
+            fail();
+        } catch (Exception e) {
+        }
+        recievedLcn.setStatus(OperationStatus.FINISHED);
+        //when
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        //verify
+        assertTrue(waitExitedWithSuccess.get());
+    }
+
+    /**
      * Forceful termination results in an empty affected connection points
      */
     @Test
@@ -361,8 +404,47 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         terminationOperation.setOperationType(OperationType.TERMINATE);
         //when
         lifecycleChangeNotificationManager.handleLcn(recievedLcn);
-        assertNull(affectedConnectionPoints.getValue());
+        assertFalse(affectedConnectionPoints.getValue().isPresent());
         verify(logger).warn("Unable to send information related to affected connection points during forceful termination");
+    }
+
+    /**
+     * Failures in affected connection point processing are tolerated for failed operation
+     * (because the POST script was not able to run)
+     */
+    @Test
+    public void testFailedOperations() throws Exception {
+        //given
+        recievedLcn.setOperation(OperationType.INSTANTIATE);
+        recievedLcn.setStatus(OperationStatus.FAILED);
+        recievedLcn.setLifecycleOperationOccurrenceId(instantiationOperation.getId());
+        instantiationOperation.setAdditionalData(null);
+        instantiationOperation.setStatus(OperationStatus.FAILED);
+        //when
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        //verify
+        assertFalse(affectedConnectionPoints.getValue().isPresent());
+        verify(logger).warn("The operation failed and the affected connection points were not reported");
+    }
+
+    /**
+     * Failures in affected connection point processing are tolerated for failed operation
+     * (because the POST script was not able to run)
+     */
+    @Test
+    public void testMissingOperationResult() throws Exception {
+        //given
+        recievedLcn.setOperation(OperationType.INSTANTIATE);
+        recievedLcn.setStatus(OperationStatus.FAILED);
+        recievedLcn.setLifecycleOperationOccurrenceId(instantiationOperation.getId());
+        instantiationOperation.setStatus(OperationStatus.FAILED);
+        JsonObject additionalData = (JsonObject) instantiationOperation.getAdditionalData();
+        additionalData.remove("operationResult");
+        //when
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        //verify
+        assertFalse(affectedConnectionPoints.getValue().isPresent());
+        verify(logger).warn("The operation failed and the affected connection points were not reported");
     }
 
     /**
@@ -384,10 +466,56 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         scaleOperation.setOperationType(OperationType.SCALE);
         //when
         lifecycleChangeNotificationManager.handleLcn(recievedLcn);
-        assertEquals(0, affectedConnectionPoints.getValue().getPost().size());
-        assertEquals(0, affectedConnectionPoints.getValue().getPre().size());
+        assertFalse(affectedConnectionPoints.getValue().isPresent());
         verify(logger).warn("The operation failed and the affected connection points were not reported");
     }
+
+    /**
+     * if the cbam_post is missing error handling should be applied
+     */
+    @Test
+    public void testMissingPostResultForFailedOperation() {
+        //given
+        recievedLcn.setOperation(OperationType.SCALE);
+        recievedLcn.setStatus(OperationStatus.FAILED);
+        recievedLcn.setLifecycleOperationOccurrenceId(scaleOperation.getId());
+        ScaleVnfRequest request = new ScaleVnfRequest();
+        request.setAdditionalParams(new JsonParser().parse("{ \"type\" : \"IN\", \"jobId\" : \"" + JOB_ID + "\" }"));
+        request.setType(ScaleDirection.OUT);
+        scaleOperation.setOperationParams(request);
+        scaleOperation.setStatus(OperationStatus.FAILED);
+        ((JsonObject) scaleOperation.getAdditionalData()).get("operationResult").getAsJsonObject().remove("cbam_post");
+        scaleOperation.setOperationType(OperationType.SCALE);
+        //when
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        assertFalse(affectedConnectionPoints.getValue().isPresent());
+        verify(logger).warn("The operation failed and the affected connection points were not reported");
+    }
+
+    /**
+     * if invalid type is specified for cbam_post error handling should be applied
+     */
+    @Test
+    public void testInvalidPost() {
+        //given
+        recievedLcn.setOperation(OperationType.SCALE);
+        recievedLcn.setStatus(OperationStatus.FAILED);
+        recievedLcn.setLifecycleOperationOccurrenceId(scaleOperation.getId());
+        ScaleVnfRequest request = new ScaleVnfRequest();
+        request.setAdditionalParams(new JsonParser().parse("{ \"type\" : \"IN\", \"jobId\" : \"" + JOB_ID + "\" }"));
+        request.setType(ScaleDirection.OUT);
+        scaleOperation.setOperationParams(request);
+        scaleOperation.setStatus(OperationStatus.FAILED);
+        JsonObject operationResult = ((JsonObject) scaleOperation.getAdditionalData()).get("operationResult").getAsJsonObject();
+        operationResult.remove("cbam_post");
+        operationResult.addProperty("cbam_post", "");
+        scaleOperation.setOperationType(OperationType.SCALE);
+        //when
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        assertFalse(affectedConnectionPoints.getValue().isPresent());
+        verify(logger).warn("The operation failed and the affected connection points were not reported");
+    }
+
 
     /**
      * test end notification success scenario for scale-out
@@ -417,24 +545,6 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         } catch (Exception e) {
             assertEquals("All operations must return the { \"operationResult\" : { \"cbam_pre\" : [<fillMeOut>], \"cbam_post\" : [<fillMeOut>] } } structure", e.getMessage());
         }
-    }
-
-    /**
-     * missing connection points are tolerated in case of failed operations
-     */
-    @Test
-    public void testMissingConnectionPoints() {
-        //given
-        recievedLcn.setOperation(OperationType.INSTANTIATE);
-        recievedLcn.setStatus(OperationStatus.FAILED);
-        recievedLcn.setLifecycleOperationOccurrenceId(instantiationOperation.getId());
-        instantiationOperation.setAdditionalData(null);
-        instantiationOperation.setStatus(OperationStatus.FAILED);
-        //when
-        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
-        assertEquals(0, affectedConnectionPoints.getValue().getPost().size());
-        assertEquals(0, affectedConnectionPoints.getValue().getPre().size());
-        verify(logger).warn("The operation failed and the affected connection points were not reported");
     }
 
     private JsonObject buildTerminationParams() {

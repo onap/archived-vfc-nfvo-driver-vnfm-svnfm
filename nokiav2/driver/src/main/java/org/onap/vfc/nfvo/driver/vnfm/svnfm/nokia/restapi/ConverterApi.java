@@ -68,7 +68,7 @@ public class ConverterApi {
         byte[] convertedPackage;
         try {
             convertedPackage = vnfPackageConverter.covert(new ByteArrayInputStream(content));
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to convert VNF package", e);
         }
         httpResponse.addHeader(CONTENT_TYPE, APPLICATION_OCTET_STREAM.getMimeType());

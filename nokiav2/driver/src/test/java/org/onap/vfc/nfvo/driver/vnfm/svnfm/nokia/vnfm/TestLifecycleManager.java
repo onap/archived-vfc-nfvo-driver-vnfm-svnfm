@@ -52,6 +52,7 @@ import static java.nio.file.Files.readAllBytes;
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.child;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -251,8 +252,8 @@ public class TestLifecycleManager extends TestBase {
         //the 3.2 API does not accept empty array
         assertNull(actualVnfModifyRequest.getValue().getVnfConfigurableProperties());
         verify(jobManager).spawnJob(VNF_ID, restResponse);
-        //verify(logger).info(eq("Additional parameters for instantiation: {}"), anyString());
-        //FIXME
+        verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("creation"), eq("not yet specified"), anyString());
+        verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("instantiation"), eq(VNF_ID), anyString());
     }
 
     /**
@@ -263,7 +264,7 @@ public class TestLifecycleManager extends TestBase {
         //given
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO);
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
-        when(logger.isDebugEnabled()).thenReturn(false);
+        when(logger.isInfoEnabled()).thenReturn(false);
         //when
         try {
             lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
@@ -273,7 +274,8 @@ public class TestLifecycleManager extends TestBase {
             assertEquals("Only OPENSTACK_V2_INFO, OPENSTACK_V3_INFO and VMWARE_VCLOUD_INFO is the supported VIM types", e.getMessage());
         }
         verify(vnfApi, never()).vnfsPost(Mockito.any(), Mockito.any());
-        verify(logger, never()).debug(eq("Additional parameters for instantiation: {}"), anyString());
+        verify(logger, never()).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("creation"), eq("not yet specified"), anyString());
+        verify(logger, never()).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("instantiation"), eq(VNF_ID), anyString());
         verify(logger).error("Only OPENSTACK_V2_INFO, OPENSTACK_V3_INFO and VMWARE_VCLOUD_INFO is the supported VIM types");
     }
 
@@ -296,6 +298,9 @@ public class TestLifecycleManager extends TestBase {
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        JsonObject inputs = child((JsonObject) instantiationRequest.getAdditionalParam(), "inputs");
+        JsonObject vnfs = child(child(inputs, "vnfs"), ONAP_CSAR_ID);
+        vnfs.remove("additionalParams");
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -305,8 +310,8 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(StoreLoader.getCertifacates(caCert).iterator().next(), new String(actualVim.getInterfaceInfo().getTrustedCertificates().get(0)));
         assertTrue(!actualVim.getInterfaceInfo().isSkipCertificateVerification());
         assertTrue(!actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
+        verify(logger).warn("No additional parameters were specified for the operation");
     }
-
 
     /**
      * non specified SSL verification means not verified
@@ -753,6 +758,7 @@ public class TestLifecycleManager extends TestBase {
         notificationIsProcessedBeforeDeletingTheVnf.verify(notificationManager).waitForTerminationToBeProcessed("terminationId");
         notificationIsProcessedBeforeDeletingTheVnf.verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
         verify(jobManager).spawnJob(VNF_ID, restResponse);
+        verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("termination"), eq(VNF_ID), anyString());
     }
 
     /**
@@ -1158,6 +1164,8 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(Integer.valueOf(2), sRequest.getNumberOfSteps());
         assertTrue("{\"jobId\":\"myJobId\",\"a\":\"b\"}".equals(new Gson().toJson(sRequest.getAdditionalParams())) || "{\"a\":\"b\",\"jobId\":\"myJobId\"}".equals(new Gson().toJson(sRequest.getAdditionalParams())));
         verify(jobManager).spawnJob(VNF_ID, restResponse);
+        verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("scale"), eq(VNF_ID), anyString());
+
     }
 
     /**
@@ -1322,6 +1330,7 @@ public class TestLifecycleManager extends TestBase {
         assertEquals("vmName", root.get("vmName").getAsString());
         assertEquals(JOB_ID, root.get("jobId").getAsString());
         verify(jobManager).spawnJob(VNF_ID, restResponse);
+        verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("heal"), eq(VNF_ID), anyString());
     }
 
     /**

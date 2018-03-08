@@ -19,6 +19,8 @@ import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedConnectionPoints;
 
+import java.util.Optional;
+
 /**
  * Responsible for processing the preprocessed notification from CBAM and making the changes
  * based on the notification in various ONAP sub systems.
@@ -33,5 +35,5 @@ public interface INotificationSender {
      * @param affectedConnectionPoints the affected connection points during the operation
      * @param vimId                    the identifier of the VIM in ONAP
      */
-    void processNotification(VnfLifecycleChangeNotification receivedNotification, OperationExecution operationExecution, ReportedAffectedConnectionPoints affectedConnectionPoints, String vimId);
+    void processNotification(VnfLifecycleChangeNotification receivedNotification, OperationExecution operationExecution, Optional<ReportedAffectedConnectionPoints> affectedConnectionPoints, String vimId);
 }

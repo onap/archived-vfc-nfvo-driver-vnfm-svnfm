@@ -41,6 +41,8 @@ import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.nokia.cbam.lcm.v32.model.OperationStatus.FAILED;
+import static com.nokia.cbam.lcm.v32.model.OperationStatus.STARTED;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
@@ -201,15 +203,12 @@ public class JobManager {
     }
 
     private JobDetailInfo getJobDetailInfo(String vnfmId, String jobId, String vnfId, OperationExecution operation) {
-        switch (operation.getStatus()) {
-            case STARTED:
-                return reportOngoing(jobId);
-            case FINISHED:
-            case OTHER:
-                return getJobForTerminalOperationState(vnfmId, jobId, vnfId, operation);
-            case FAILED:
-            default: //all cases handled
-                return reportFailed(jobId, operation.getError().getTitle() + ": " + operation.getError().getDetail());
+        if (operation.getStatus() == STARTED) {
+            return reportOngoing(jobId);
+        } else if (operation.getStatus() == FAILED) {
+            return reportFailed(jobId, operation.getError().getTitle() + ": " + operation.getError().getDetail());
+        } else {
+            return getJobForTerminalOperationState(vnfmId, jobId, vnfId, operation);
         }
     }
 
