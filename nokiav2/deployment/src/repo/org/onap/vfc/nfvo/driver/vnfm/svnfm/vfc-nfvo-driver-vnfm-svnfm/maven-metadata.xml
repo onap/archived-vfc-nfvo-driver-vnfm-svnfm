@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm</groupId>
+  <artifactId>vfc-nfvo-driver-vnfm-svnfm</artifactId>
+  <versioning>
+    <versions>
+      <version>1.1.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20180308094402</lastUpdated>
+  </versioning>
+</metadata>
