@@ -26,72 +26,20 @@
     <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokiav2</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
-  <repositories>
-    <repository>
-      <id>project.local</id>
-      <name>project</name>
-      <url>file:${project.basedir}/src/repo</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.0.2</version>
-        <executions>
-          <execution>
-            <id>copy</id>
-            <phase>install</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <excludeTypes>pom</excludeTypes>
-          <artifactItems>
-            <artifactItem>
-              <artifactId>driverwar</artifactId>
-              <version>1.1.0-SNAPSHOT</version>
-              <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2</groupId>
-              <type>war</type>
-              <overWrite>true</overWrite>
-              <outputDirectory>${project.basedir}/src/main/resources</outputDirectory>
-              <destFileName>driver.war</destFileName>
-            </artifactItem>
-          </artifactItems>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.1.0</version>
-        <configuration>
-          <descriptors>
-            <descriptor>src/assembly/assembly.xml</descriptor>
-          </descriptors>
-        </configuration>
-        <executions>
-          <execution>
-            <id>create-archive</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+      <!-- fail the bulid if xmlstarlet is not present in Jenkins env -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
         <configuration>
-          <executable>${project.basedir}/src/main/resources/build_image.sh</executable>
+          <executable>${project.basedir}/src/main/resources/test_xmlstarlet.sh</executable>
           <workingDirectory>${project.build.directory}</workingDirectory>
         </configuration>
         <executions>
           <execution>
-            <phase>package</phase>
+            <phase>compile</phase>
             <goals>
               <goal>exec</goal>
             </goals>

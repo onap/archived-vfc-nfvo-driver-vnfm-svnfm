@@ -17,34 +17,43 @@
 
 if [ "a$1" != "abuildDocker" ] ; then
   echo "Skipping building Docker image"
+  echo "If you would like to build the docker image by script execute $0 buildDocker" 
+  echo "If you would like to build and push the docker image by script execute $0 buildDocker pushImage" 
   echo "If you would like to build the docker image by maven execute mvn package -Dexec.args=\"buildDocker\"" 
+  echo "If you would like to push the docker image by maven execute mvn package -Dexec.args=\"buildDocker pushImage\""
   exit
 fi 
 
 DIRNAME=`dirname $0`
 DOCKER_BUILD_DIR=`cd $DIRNAME/; pwd`
-echo "DOCKER_BUILD_DIR=${DOCKER_BUILD_DIR}"
+echo "----- Build directory ${DOCKER_BUILD_DIR}"
 cd ${DOCKER_BUILD_DIR}
 
-BUILD_ARGS="--no-cache --squash"
-ORG="onap"
-VERSION="1.1.0"
+VERSION=`xmlstarlet sel -t -v "/_:project/_:version" ../../../pom.xml | sed 's/-SNAPSHOT//g'`
+echo "------ Detected version: $VERSION"
+
 PROJECT="vfc"
 IMAGE="nfvo/svnfm/nokiav2"
 DOCKER_REPOSITORY="nexus3.onap.org:10003"
+ORG="onap"
+BUILD_ARGS="--no-cache --squash"
 IMAGE_NAME="${DOCKER_REPOSITORY}/${ORG}/${PROJECT}/${IMAGE}"
 TIMESTAMP=$(date +"%Y%m%dT%H%M%S")
 
 if [ $HTTP_PROXY ]; then
+    echo "----- Using HTTP proxy ${HTTP_PROXY}"
     BUILD_ARGS+=" --build-arg HTTP_PROXY=${HTTP_PROXY}"
 fi
+
 if [ $HTTPS_PROXY ]; then
+    echo "----- Using HTTPS proxy ${HTTPS_PROXY}"
     BUILD_ARGS+=" --build-arg HTTPS_PROXY=${HTTPS_PROXY}"
 fi
 
 function build_image {
     echo "Start build docker image: ${IMAGE_NAME}"
-    docker build ${BUILD_ARGS} -t ${IMAGE_NAME}:latest .
+    echo "docker build --build-arg VERSION=${VERSION} ${BUILD_ARGS} -t ${IMAGE_NAME}:latest ."
+    docker build --build-arg VERSION=${VERSION} ${BUILD_ARGS} -t ${IMAGE_NAME}:latest .
 }
 
 function push_image_tag {
