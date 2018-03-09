@@ -47,7 +47,6 @@ public class AuthMgr {
         restJson.put(Constant.RETCODE, Constant.REST_FAIL);
         try {
             String userName = params.getString(Constant.USERNAME);
-
             restJson = getStatusResult(userName);
         } catch(JSONException e) {
             LOG.error("function=login, msg=Params error occurs, e={}.", e);

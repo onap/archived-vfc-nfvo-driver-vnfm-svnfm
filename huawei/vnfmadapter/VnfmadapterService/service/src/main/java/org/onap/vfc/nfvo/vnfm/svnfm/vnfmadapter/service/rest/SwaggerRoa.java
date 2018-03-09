@@ -38,7 +38,6 @@ public class SwaggerRoa {
     /**
      * API doc.
      * 
-     * @param filename
      * @return
      * @throws IOException
      */

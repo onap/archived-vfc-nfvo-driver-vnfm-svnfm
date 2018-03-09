@@ -46,7 +46,6 @@ public class VnfAdapterResourceRoa {
      * Provide function of grant resource.
      * <br/>
      *
-     * @param context
      * @return
      * @since VFC 1.0
      */

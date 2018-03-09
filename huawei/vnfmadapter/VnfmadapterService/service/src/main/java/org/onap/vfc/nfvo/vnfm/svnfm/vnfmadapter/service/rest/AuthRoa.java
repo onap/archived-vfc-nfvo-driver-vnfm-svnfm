@@ -46,7 +46,7 @@ import net.sf.json.JSONObject;
  * auth tokens interface is provided by platform
  * not in nfvo for vnfm
  * differences from other interface
-  * </p>
+ * </p>
  *
  * @author
  * @version VFC 1.0 Aug 24, 2016
@@ -91,16 +91,13 @@ public class AuthRoa {
         LOG.warn("authResult: {}", authResult);
         if(authResult.getInt(Constant.RETCODE) == Constant.REST_SUCCESS) {
             JSONObject data = authResult.getJSONObject("data");
-
             resp.setStatus(Constant.HTTP_OK);
             return data.toString();
         } else if(authResult.getInt(Constant.RETCODE) == Constant.HTTP_INNERERROR) {
             Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(authResult.getString("data")).build();
-
             return String.format(ParamConstants.GET_TOKEN_FAIL_RESP, authResult.getString("data"));
         } else {
             Response.status(Response.Status.UNAUTHORIZED).entity(authResult.getString("data")).build();
-
             return String.format(ParamConstants.GET_TOKEN_FAIL_RESP, authResult.getString("data"));
         }
     }
@@ -109,7 +106,6 @@ public class AuthRoa {
      * Provide interface for delete authInfo
      * <br/>
      *
-     * @param context
      * @param userName
      * @param roarand
      * @return
@@ -132,7 +128,6 @@ public class AuthRoa {
      * Provide interface for handshake authInfo
      * <br/>
      *
-     * @param context
      * @param roattr
      * @return
      * @since VFC 1.0

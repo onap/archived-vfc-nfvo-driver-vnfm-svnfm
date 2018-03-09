@@ -16,11 +16,12 @@
  -->
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
-    xmlns:ctx="http://www.springframework.org/schema/context"
-    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
-    xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
-    xsi:schemaLocation="
+       xmlns:osgi="http://www.springframework.org/schema/osgi"
+       xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+       xmlns:ctx="http://www.springframework.org/schema/context"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+       xsi:schemaLocation="
     http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/osgi
@@ -37,37 +38,38 @@
     http://www.springframework.org/schema/aop/spring-aop-3.0.xsd ">
 
     <!-- these are included in the dependency jar -->
-    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
 
-    <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
+    <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
 
-    <bean id="source"  class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <bean id="source" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <!-- <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/vnfmdb"/> -->
+        <property name="url" value="jdbc:mysql://localhost:3306/vnfmdb"/>
+        Change mysql-connector to mariadb -->
         <property name="driverClassName" value="org.mariadb.jdbc.Driver"/>
         <property name="url" value="jdbc:mariadb://localhost:3306/vnfmdb"/>
         <property name="username" value="root"/>
         <property name="password" value="rootpass"/>
     </bean>
 
-    <bean id="sessionFactory"  class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="source" />
-        <property name="mapperLocations" value="classpath*:mybatis/mysql/*.xml" />
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="source"/>
+        <property name="mapperLocations" value="classpath*:mybatis/mysql/*.xml"/>
         <!-- <property name="configLocation" value="classpath:mybatis-config.xml" />  -->
     </bean>
 
     <bean id="session" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="sessionFactory" />
+        <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
 
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="source" />
+        <property name="dataSource" ref="source"/>
     </bean>
 
     <bean id="vnfmDao"
-        class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.impl.VnfmDaoImpl">
+          class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.impl.VnfmDaoImpl">
         <property name="session" ref="session"></property>
     </bean>
 
@@ -80,14 +82,14 @@
     </bean>
 
     <bean id="vnfResourceMgr"
-        class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfResourceMgr">
+          class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfResourceMgr">
     </bean>
 
     <bean id="VnfResourceRoa" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.VnfResourceRoa">
         <property name="vnfResourceMgr" ref="vnfResourceMgr"></property>
     </bean>
 
-    <bean id="authMgr" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.AuthMgr" />
+    <bean id="authMgr" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.AuthMgr"/>
 
     <bean id="AuthRoa" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.AuthRoa">
         <property name="authMgr" ref="authMgr"></property>
@@ -104,16 +106,16 @@
 
     <jaxrs:server id="restContainer" address="/">
         <jaxrs:serviceBeans>
-            <ref bean="AuthRoa" />
-            <ref bean="VnfResourceRoa" />
-            <ref bean="VnfRoa" />
-            <ref bean="VnfAdaResRoa" />
-            <ref bean="SwaggerRoa" />
+            <ref bean="AuthRoa"/>
+            <ref bean="VnfResourceRoa"/>
+            <ref bean="VnfRoa"/>
+            <ref bean="VnfAdaResRoa"/>
+            <ref bean="SwaggerRoa"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
-            <ref bean="jsonProvider" />
-            <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.exceptionmapper.ServiceExceptionMapper" />
-            <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.exceptionmapper.GenericExceptionMapper" />
+            <ref bean="jsonProvider"/>
+            <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.exceptionmapper.ServiceExceptionMapper"/>
+            <bean class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.exceptionmapper.GenericExceptionMapper"/>
         </jaxrs:providers>
     </jaxrs:server>
 </beans>
