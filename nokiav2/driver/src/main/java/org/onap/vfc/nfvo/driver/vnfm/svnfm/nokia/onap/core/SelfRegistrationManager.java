@@ -140,8 +140,7 @@ public class SelfRegistrationManager {
         microServiceInfo.setVisualRange(INTERNAL_SERVICE);
         microServiceInfo.setServiceName(SERVICE_NAME);
         microServiceInfo.setVersion(DRIVER_VERSION);
-        //FIXME set enable_ssl to false after the field has been added to MSB SDK https://jira.onap.org/browse/MSB-151
-        //currently defaults to false, which is good
+        microServiceInfo.setEnable_ssl(true);
         Node node = new Node();
         microServiceInfo.setNodes(new HashSet<>());
         microServiceInfo.getNodes().add(node);

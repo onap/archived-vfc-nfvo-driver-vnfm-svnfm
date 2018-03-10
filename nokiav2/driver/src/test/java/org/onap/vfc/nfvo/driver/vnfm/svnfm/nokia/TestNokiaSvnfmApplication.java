@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.ContextClosedEvent;
@@ -135,6 +136,16 @@ public class TestNokiaSvnfmApplication {
             assertEquals(e, expectedException);
         }
         verify(logger).error("Self de-registration failed", expectedException);
+    }
+
+    /**
+     * Spring will instantiate using reflection
+     */
+    @Test
+    public void testUseStaticWay() throws Exception {
+        //verify
+        //the constructor is public even if has no private fields
+        new NokiaSvnfmApplication();
     }
 
     /**

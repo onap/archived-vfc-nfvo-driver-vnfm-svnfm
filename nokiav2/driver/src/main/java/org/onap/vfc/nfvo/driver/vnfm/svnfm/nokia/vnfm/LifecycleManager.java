@@ -131,12 +131,10 @@ public class LifecycleManager {
      * @param csarId          the identifier of the VNF package
      * @param vnfName         the name of the VNF
      * @param description     the description of the VNF
-     * @param addtionalParams additional parameters for the VNF instantiation request
      * @return the VNF creation result
      */
-    public VnfCreationResult create(String vnfmId, String csarId, String vnfName, String description, AdditionalParameters addtionalParams) {
-        logOperationInput("not yet specified", "creation", addtionalParams);
-        validateVimType(addtionalParams.getVimType());
+    public VnfCreationResult create(String vnfmId, String csarId, String vnfName, String description) {
+        logOperationInput("not yet specified", "creation", csarId);
         try {
             CatalogAdapterVnfpackage cbamPackage = catalogManager.preparePackageInCbam(vnfmId, csarId);
             CreateVnfRequest vnfCreateRequest = new CreateVnfRequest();
@@ -206,7 +204,8 @@ public class LifecycleManager {
      */
     public VnfInstantiateResponse createAndInstantiate(String vnfmId, VnfInstantiateRequest request, HttpServletResponse httpResponse) {
         AdditionalParameters additionalParameters = convertInstantiationAdditionalParams(request.getVnfPackageId(), request.getAdditionalParam());
-        VnfCreationResult creationResult = create(vnfmId, request.getVnfDescriptorId(), request.getVnfInstanceName(), request.getVnfInstanceDescription(), additionalParameters);
+        validateVimType(additionalParameters.getVimType());
+        VnfCreationResult creationResult = create(vnfmId, request.getVnfDescriptorId(), request.getVnfInstanceName(), request.getVnfInstanceDescription());
         return instantiate(vnfmId, request, httpResponse, additionalParameters, creationResult.vnfInfo.getId(), creationResult.vnfdId);
     }
 
@@ -557,9 +556,10 @@ public class LifecycleManager {
      * @param vnfId        the identifier of the VNF
      * @param request      the heal request
      * @param httpResponse the HTTP response
+     * @param vnfcId the identifer of thr VNFC to be healed
      * @return the job for tracking the heal
      */
-    public JobInfo healVnf(String vnfmId, String vnfId, VnfHealRequest request, HttpServletResponse httpResponse) {
+    public JobInfo healVnf(String vnfmId, String vnfId, VnfHealRequest request, Optional<String> vnfcId, HttpServletResponse httpResponse) {
         logOperationInput(vnfId, "heal", request);
         return scheduleExecution(vnfId, httpResponse, "heal", job -> {
             HealVnfRequest cbamHealRequest = new HealVnfRequest();
@@ -567,6 +567,7 @@ public class LifecycleManager {
             additionalParams.put("vmName", request.getAffectedvm().getVmname());
             additionalParams.put("action", request.getAction());
             additionalParams.put("jobId", job.getJobId());
+            additionalParams.put("vnfcId", vnfcId.orElse("unknown"));
             cbamHealRequest.setAdditionalParams(additionalParams);
             com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
             String vimId = getVimIdFromInstantiationRequest(vnfmId, vnf);
@@ -621,15 +622,19 @@ public class LifecycleManager {
     @FunctionalInterface
     private interface AsynchronousExecution {
         void execute(JobInfo job) throws ApiException;
+
     }
-
-    private static class VnfCreationResult {
-        private com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo;
-        private String vnfdId;
-
+    public static class VnfCreationResult {
+        private final com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo;
+        private final String vnfdId;
         VnfCreationResult(com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo, String vnfdId) {
             this.vnfInfo = vnfInfo;
             this.vnfdId = vnfdId;
         }
+
+        public com.nokia.cbam.lcm.v32.model.VnfInfo getVnfInfo() {
+            return vnfInfo;
+        }
+
     }
 }

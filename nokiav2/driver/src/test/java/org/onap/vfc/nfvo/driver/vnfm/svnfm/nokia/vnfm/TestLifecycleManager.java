@@ -49,6 +49,7 @@ import java.util.*;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.nio.file.Files.readAllBytes;
+import static java.util.Optional.empty;
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -1317,7 +1318,7 @@ public class TestLifecycleManager extends TestBase {
         String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new JsonParser().parse(instantiationParams));
         //when
-        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, restResponse);
+        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, empty(), restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualHealRequest.getAllValues().size());
@@ -1366,7 +1367,7 @@ public class TestLifecycleManager extends TestBase {
             }
         });
         //when
-        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, restResponse);
+        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, empty(),  restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(100, expectedExceptions.size());
@@ -1389,7 +1390,7 @@ public class TestLifecycleManager extends TestBase {
         healRequest.setAffectedvm(affectedVm);
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //when
-        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, restResponse);
+        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest,  empty(), restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         verify(logger).error("Unable to heal VNF with myVnfId identifier", expectedException);

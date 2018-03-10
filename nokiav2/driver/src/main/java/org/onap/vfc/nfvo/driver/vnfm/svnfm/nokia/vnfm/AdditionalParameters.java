@@ -35,7 +35,7 @@ public class AdditionalParameters {
     private List<ExtVirtualLinkData> extVirtualLinks = new ArrayList<>();
     private Object additionalParams;
 
-    AdditionalParameters() {
+    public AdditionalParameters() {
         //only used through reflection (gson)
     }
 
