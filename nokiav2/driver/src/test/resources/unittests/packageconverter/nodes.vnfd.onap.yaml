@@ -70,11 +70,26 @@ topology_template:
       requirements:
         - virtual_binding: vduNode
         - virtual_link: myNetwork1
+    icpWithOutDescription:
+      type: tosca.nodes.nfv.VduCpd
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+      requirements:
+        - virtual_binding: vduNode
+        - virtual_link: myNetwork1
     myEcp:
       type: tosca.nodes.nfv.VduCpd
       properties:
         layer_protocol: ipv4
         role: leaf
         description: myDescription
+      requirements:
+        - virtual_binding: vduNode
+    myEcpWithDescription:
+      type: tosca.nodes.nfv.VduCpd
+      properties:
+        layer_protocol: ipv4
+        role: leaf
       requirements:
         - virtual_binding: vduNode

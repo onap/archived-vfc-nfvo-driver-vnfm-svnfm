@@ -26,7 +26,6 @@ import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import com.nokia.cbam.lcm.v32.model.VnfcResourceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vnfmdriver.model.*;
@@ -40,6 +39,7 @@ import java.util.*;
 
 import static com.nokia.cbam.lcm.v32.model.InstantiationState.INSTANTIATED;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.child;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.onap.vnfmdriver.model.OperationType.TERMINAL;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -103,7 +103,7 @@ public class VfcGrantManager implements IGrantManager {
             try {
                 grantRequest = buildGrantRequest(vnfmId, vimId, onapVnfdId, jobId, TERMINAL);
                 grantRequest.setVnfInstanceId(vnfId);
-                addVnfsToGrant(vnf, grantRequest);
+                addVnfcsToGrant(vnf, grantRequest);
             } catch (Exception e) {
                 throw buildFatalFailure(logger, "Unable to prepare grant request for termination", e);
             }
@@ -111,7 +111,8 @@ public class VfcGrantManager implements IGrantManager {
         }
     }
 
-    private void addVnfsToGrant(VnfInfo vnf, GrantVNFRequest grantRequest) {
+    private void addVnfcsToGrant(VnfInfo vnf, GrantVNFRequest grantRequest) {
+        //VNF is instantiated but has no VNFC
         if (vnf.getInstantiatedVnfInfo().getVnfcResourceInfo() != null) {
             for (VnfcResourceInfo vnfc : vnf.getInstantiatedVnfInfo().getVnfcResourceInfo()) {
                 ResourceChange resourceChange = new ResourceChange();
@@ -164,11 +165,11 @@ public class VfcGrantManager implements IGrantManager {
 
     private Set<ResourceChange> calculateResourceChangeDuringInstantiate(String vnfdContent, String instantiationLevelId) {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(vnfdContent)).getAsJsonObject();
-        JsonObject capabilities = CbamUtils.child(CbamUtils.child(CbamUtils.child(root, "topology_template"), "substitution_mappings"), "capabilities");
-        JsonObject deploymentFlavorProperties = CbamUtils.child(CbamUtils.child(capabilities, "deployment_flavour"), "properties");
-        JsonObject instantiationLevels = CbamUtils.child(deploymentFlavorProperties, "instantiation_levels");
+        JsonObject capabilities = child(child(child(root, "topology_template"), "substitution_mappings"), "capabilities");
+        JsonObject deploymentFlavorProperties = child(child(capabilities, "deployment_flavour"), "properties");
+        JsonObject instantiationLevels = child(deploymentFlavorProperties, "instantiation_levels");
         Set<ResourceChange> resourceChanges = new HashSet<>();
-        for (Map.Entry<String, JsonElement> vdu_level : CbamUtils.child(CbamUtils.child(instantiationLevels, instantiationLevelId), ("vdu_levels")).entrySet()) {
+        for (Map.Entry<String, JsonElement> vdu_level : child(child(instantiationLevels, instantiationLevelId), ("vdu_levels")).entrySet()) {
             JsonElement numberOfInstances = vdu_level.getValue().getAsJsonObject().get("number_of_instances");
             for (int i = 0; i < numberOfInstances.getAsLong(); i++) {
                 ResourceChange resourceChange = new ResourceChange();
@@ -184,11 +185,11 @@ public class VfcGrantManager implements IGrantManager {
     private Set<ResourceChange> calculateResourceChangeDuringScaling(String vnfdContent, String aspectId, int steps) {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(vnfdContent)).getAsJsonObject();
         Set<ResourceChange> resourceChanges = new HashSet<>();
-        JsonArray policies = CbamUtils.child(root, "topology_template").getAsJsonObject().get("policies").getAsJsonArray();
+        JsonArray policies = child(root, "topology_template").getAsJsonObject().get("policies").getAsJsonArray();
         for (JsonElement policy : policies) {
             if ("heat_mapping".equals(policy.getAsJsonObject().entrySet().iterator().next().getKey())) {
                 JsonObject aspects = policy.getAsJsonObject().entrySet().iterator().next().getValue().getAsJsonObject().get("properties").getAsJsonObject().get("aspects").getAsJsonObject();
-                JsonObject aspect = aspects.get(aspectId).getAsJsonObject();
+                JsonObject aspect = child(aspects, aspectId);
                 if (aspect.has("vdus")) {
                     addChangesForAspect(steps, resourceChanges, aspect);
                 }

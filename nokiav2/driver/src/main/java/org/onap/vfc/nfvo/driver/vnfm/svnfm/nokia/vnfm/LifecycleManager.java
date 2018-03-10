@@ -43,7 +43,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.google.common.base.Splitter.on;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -71,6 +70,7 @@ public class LifecycleManager {
      * The key of the CBAM VNF extension for the identifier of the VNFM in ONAP
      */
     public static final String EXTERNAL_VNFM_ID = "externalVnfmId";
+    public static final String SCALE_OPERATION_NAME = "scale";
     private static Logger logger = getLogger(LifecycleManager.class);
     private final CatalogManager catalogManager;
     private final IGrantManager grantManager;
@@ -135,7 +135,7 @@ public class LifecycleManager {
      * @return the VNF creation result
      */
     public VnfCreationResult create(String vnfmId, String csarId, String vnfName, String description, AdditionalParameters addtionalParams) {
-        logOperationInput("not yet specified", "create", addtionalParams);
+        logOperationInput("not yet specified", "creation", addtionalParams);
         validateVimType(addtionalParams.getVimType());
         try {
             CatalogAdapterVnfpackage cbamPackage = catalogManager.preparePackageInCbam(vnfmId, csarId);
@@ -151,8 +151,8 @@ public class LifecycleManager {
         }
     }
 
-    private void logOperationInput(String vnfId, String operationName, Object payload){
-        if(logger.isInfoEnabled()){
+    private void logOperationInput(String vnfId, String operationName, Object payload) {
+        if (logger.isInfoEnabled()) {
             logger.info("Starting {} operation on VNF with {} identifier with {} parameter", operationName, vnfId, new Gson().toJson(payload));
         }
     }
@@ -169,7 +169,7 @@ public class LifecycleManager {
      * @return the instantiation response
      */
     public VnfInstantiateResponse instantiate(String vnfmId, VnfInstantiateRequest request, HttpServletResponse httpResponse, AdditionalParameters additionalParameters, String vnfId, String vnfdId) {
-        logOperationInput(vnfId, "instantiate", request);
+        logOperationInput(vnfId, "instantiation", request);
         validateVimType(additionalParameters.getVimType());
         VnfInstantiateResponse response = new VnfInstantiateResponse();
         response.setVnfInstanceId(vnfId);
@@ -219,7 +219,7 @@ public class LifecycleManager {
         VimInfo vimInfo = vimInfoProvider.getVimInfo(vim.getVimId());
         InstantiateVnfRequest instantiationRequest = new InstantiateVnfRequest();
         addExternalLinksToRequest(request.getExtVirtualLink(), additionalParameters, instantiationRequest, vimId);
-        instantiationRequest.getVims().add(addVim(additionalParameters, vimId, vim, vimInfo, instantiationRequest));
+        instantiationRequest.getVims().add(addVim(additionalParameters, vimId, vim, vimInfo));
         instantiationRequest.setFlavourId(getFlavorId(vnfdContent));
         instantiationRequest.setComputeResourceFlavours(additionalParameters.getComputeResourceFlavours());
         instantiationRequest.setGrantlessMode(true);
@@ -231,17 +231,19 @@ public class LifecycleManager {
             instantiationRequest.addExtVirtualLinksItem(extVirtualLinkData);
         }
         JsonObject root = new Gson().toJsonTree(jobInfo).getAsJsonObject();
-        if (additionalParameters.getAdditionalParams() != null && !isNullOrEmpty(additionalParameters.getAdditionalParams().toString())) {
+        if (additionalParameters.getAdditionalParams() != null) {
             for (Map.Entry<String, JsonElement> item : new Gson().toJsonTree(additionalParameters.getAdditionalParams()).getAsJsonObject().entrySet()) {
                 root.add(item.getKey(), item.getValue());
             }
+        } else {
+            logger.warn("No additional parameters were specified for the operation");
         }
         instantiationRequest.setAdditionalParams(root);
         OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdInstantiatePost(vnfId, instantiationRequest, NOKIA_LCM_API_VERSION);
         waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
     }
 
-    private com.nokia.cbam.lcm.v32.model.VimInfo addVim(AdditionalParameters additionalParameters, String vimId, GrantVNFResponseVim vim, VimInfo vimInfo, InstantiateVnfRequest instantiationRequest) {
+    private com.nokia.cbam.lcm.v32.model.VimInfo addVim(AdditionalParameters additionalParameters, String vimId, GrantVNFResponseVim vim, VimInfo vimInfo) {
         if (additionalParameters.getVimType() == OPENSTACK_V2_INFO) {
             return buildOpenStackV2INFO(vimId, vim, vimInfo);
 
@@ -255,7 +257,7 @@ public class LifecycleManager {
     }
 
     private void validateVimType(com.nokia.cbam.lcm.v32.model.VimInfo.VimInfoTypeEnum vimType) {
-        if(com.nokia.cbam.lcm.v32.model.VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO.equals(vimType)){
+        if (com.nokia.cbam.lcm.v32.model.VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO.equals(vimType)) {
             throw buildFatalFailure(logger, "Only " + OPENSTACK_V2_INFO + ", " + OPENSTACK_V3_INFO + " and " + VMWARE_VCLOUD_INFO + " is the supported VIM types");
         }
     }
@@ -517,8 +519,8 @@ public class LifecycleManager {
      * @return the job for tracking the scale
      */
     public JobInfo scaleVnf(String vnfmId, String vnfId, VnfScaleRequest request, HttpServletResponse httpResponse) {
-        logOperationInput(vnfId, "scale", request);
-        return scheduleExecution(vnfId, httpResponse, "scale", jobInfo -> {
+        logOperationInput(vnfId, SCALE_OPERATION_NAME, request);
+        return scheduleExecution(vnfId, httpResponse, SCALE_OPERATION_NAME, jobInfo -> {
             ScaleVnfRequest cbamRequest = new ScaleVnfRequest();
             cbamRequest.setAspectId(request.getAspectId());
             cbamRequest.setNumberOfSteps(Integer.valueOf(request.getNumberOfSteps()));
@@ -527,7 +529,7 @@ public class LifecycleManager {
             JsonObject root = new Gson().toJsonTree(jobInfo).getAsJsonObject();
             com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
             String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, cbamVnfInfo.getVnfdId());
-            Set<String> acceptableOperationParameters = getAcceptableOperationParameters(vnfdContent, "Basic", "scale");
+            Set<String> acceptableOperationParameters = getAcceptableOperationParameters(vnfdContent, "Basic", SCALE_OPERATION_NAME);
             buildAdditionalParameters(request, root, acceptableOperationParameters);
             cbamRequest.setAdditionalParams(root);
             grantManager.requestGrantForScale(vnfmId, vnfId, getVimIdFromInstantiationRequest(vnfmId, vnf), getVnfdIdFromModifyableAttributes(vnf), request, jobInfo.getJobId());

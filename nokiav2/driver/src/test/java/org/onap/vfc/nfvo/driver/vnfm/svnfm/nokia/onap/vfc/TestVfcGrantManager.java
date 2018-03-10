@@ -159,6 +159,32 @@ public class TestVfcGrantManager extends TestBase {
     }
 
     /**
+     * grant is requested for termination if the the VNF is instantiated even if has no VNFCs
+     */
+    @Test
+    public void testGrantIsRequestedIfInstantiatedWithNoVnfcs() {
+        VnfInfo vnf = new VnfInfo();
+        vnf.setId(VNF_ID);
+        vnf.setInstantiationState(InstantiationState.INSTANTIATED);
+        InstantiatedVnfInfo instantiatedVnfInfo = new InstantiatedVnfInfo();
+        vnf.setInstantiatedVnfInfo(instantiatedVnfInfo);
+        VnfProperty prop = new VnfProperty();
+        prop.setName(LifecycleManager.ONAP_CSAR_ID);
+        prop.setValue(ONAP_CSAR_ID);
+        vnf.setVnfConfigurableProperties(new ArrayList<>());
+        vnf.getVnfConfigurableProperties().add(prop);
+        //when
+        vfcGrantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
+        //verify
+        assertEquals(1, grantRequest.getAllValues().size());
+        GrantVNFRequest request = grantRequest.getValue();
+        assertVduInGrant(request.getRemoveResource(), "vdu1", 0);
+        assertVduInGrant(request.getRemoveResource(), "vdu2", 0);
+        assertEquals(0, request.getAddResource().size());
+        assertBasicGrantAttributes(request, org.onap.vnfmdriver.model.OperationType.TERMINAL);
+    }
+
+    /**
      * test failure logging & propagation during grant request for instantiation
      */
     @Test
@@ -179,7 +205,7 @@ public class TestVfcGrantManager extends TestBase {
     }
 
     /**
-     * failuire is to request grant is logged
+     * failure is to request grant is logged
      */
     @Test
     public void testFailureToRequestGrantIsLogged() throws Exception {
@@ -211,7 +237,7 @@ public class TestVfcGrantManager extends TestBase {
     }
 
     /**
-     * failuire is to request grant is logged
+     * failure is to request grant is logged
      */
     @Test
     public void testFailureToRequestGrantForScaleIsLogged() throws Exception {
@@ -256,6 +282,54 @@ public class TestVfcGrantManager extends TestBase {
         assertVduInGrant(request.getAddResource(), "vdu2", 2);
         assertEquals(0, request.getRemoveResource().size());
         assertBasicGrantAttributes(request, org.onap.vnfmdriver.model.OperationType.SCALEOUT);
+    }
+
+    /**
+     * test grant request for scale out without VDUs
+     */
+    @Test
+    public void testGrantDuringScaleOutWithoutVdus() throws Exception {
+        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.scale.yaml").toURI())));
+        VnfScaleRequest scaleRequest = new VnfScaleRequest();
+        scaleRequest.setType(ScaleDirection.OUT);
+        scaleRequest.setAspectId("aspectWithOutVdu");
+        scaleRequest.setNumberOfSteps("2");
+        VnfInfo vnf = new VnfInfo();
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnf);
+        vnf.setVnfdId(CBAM_VNFD_ID);
+        when(cbamCatalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
+        //when
+        vfcGrantManager.requestGrantForScale(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, scaleRequest, JOB_ID);
+        //verify
+        assertEquals(1, grantRequest.getAllValues().size());
+        GrantVNFRequest request = grantRequest.getValue();
+        assertVduInGrant(request.getAddResource(), "vdu1", 0);
+        assertVduInGrant(request.getAddResource(), "vdu2", 0);
+        assertEquals(0, request.getRemoveResource().size());
+        assertBasicGrantAttributes(request, org.onap.vnfmdriver.model.OperationType.SCALEOUT);
+    }
+
+    /**
+     * test grant request for scale out without resources
+     */
+    @Test
+    public void testGrantDuringScaleOutForEmptyAspect() throws Exception {
+        String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.scale.yaml").toURI())));
+        VnfScaleRequest scaleRequest = new VnfScaleRequest();
+        scaleRequest.setType(ScaleDirection.OUT);
+        scaleRequest.setAspectId("emptyAspect");
+        scaleRequest.setNumberOfSteps("2");
+        VnfInfo vnf = new VnfInfo();
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnf);
+        vnf.setVnfdId(CBAM_VNFD_ID);
+        when(cbamCatalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
+        //when
+        try {
+            vfcGrantManager.requestGrantForScale(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, scaleRequest, JOB_ID);
+            fail();
+        } catch (Exception e) {
+            assertEquals("Missing child emptyAspect", e.getMessage());
+        }
     }
 
     /**

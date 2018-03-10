@@ -16,9 +16,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -37,13 +35,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Sets.newConcurrentHashSet;
+import static com.google.common.collect.Sets.newHashSet;
 import static com.nokia.cbam.lcm.v32.model.OperationType.INSTANTIATE;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.childElement;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
@@ -80,7 +81,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
     /**
      * < Separates the VNF id and the resource id within a VNF
      */
-    private static final Set<OperationStatus> terminalStatus = Sets.newHashSet(OperationStatus.FINISHED, OperationStatus.FAILED);
+    private static final Set<OperationStatus> terminalStatus = newHashSet(OperationStatus.FINISHED, OperationStatus.FAILED);
     private static Logger logger = getLogger(LifecycleChangeNotificationManager.class);
 
     private final CbamRestApiProvider restApiProvider;
@@ -95,35 +96,37 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
         this.restApiProvider = restApiProvider;
     }
 
+    /**
+     * @param status the status of the operation
+     * @return has the operation finished
+     */
+    public static boolean isTerminal(OperationStatus status) {
+        return terminalStatus.contains(status);
+    }
+
     @VisibleForTesting
     static OperationExecution findLastInstantiationBefore(List<OperationExecution> operationExecutions, OperationExecution currentOperation) {
-        for (OperationExecution opExs : filter(NEWEST_OPERATIONS_FIRST.sortedCopy(operationExecutions), (OperationExecution opex2) -> !opex2.getStartTime().isAfter(currentOperation.getStartTime()))) {
-            if (INSTANTIATE.equals(opExs.getOperationType()) &&
-                    (opExs.getStartTime().toLocalDate().isBefore(currentOperation.getStartTime().toLocalDate()) ||
-                            opExs.getStartTime().toLocalDate().isEqual(currentOperation.getStartTime().toLocalDate())
-                    )) {
-                return opExs;
-            }
-        }
-        throw new NoSuchElementException();
+        return find(NEWEST_OPERATIONS_FIRST.sortedCopy(operationExecutions), (OperationExecution opex2) ->
+                !opex2.getStartTime().isAfter(currentOperation.getStartTime())
+                        && INSTANTIATE.equals(opex2.getOperationType()));
     }
 
     @Override
-    public void handleLcn(VnfLifecycleChangeNotification recievedNotification) {
+    public void handleLcn(VnfLifecycleChangeNotification receivedNotification) {
         if (logger.isInfoEnabled()) {
-            logger.info("Received LCN: " + new Gson().toJson(recievedNotification));
+            logger.info("Received LCN: {}", new Gson().toJson(receivedNotification));
         }
         VnfsApi cbamLcmApi = restApiProvider.getCbamLcmApi(driverProperties.getVnfmId());
         try {
             List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION);
-            com.google.common.base.Optional<VnfInfo> currentVnf = tryFind(vnfs, vnf -> vnf.getId().equals(recievedNotification.getVnfInstanceId()));
-            String vnfHeader = "The VNF with " + recievedNotification.getVnfInstanceId() + " identifier";
+            com.google.common.base.Optional<VnfInfo> currentVnf = tryFind(vnfs, vnf -> vnf.getId().equals(receivedNotification.getVnfInstanceId()));
+            String vnfHeader = "The VNF with " + receivedNotification.getVnfInstanceId() + " identifier";
             if (!currentVnf.isPresent()) {
                 logger.warn(vnfHeader + " disappeared before being able to process the LCN");
                 //swallow LCN
                 return;
             } else {
-                VnfInfo vnf = cbamLcmApi.vnfsVnfInstanceIdGet(recievedNotification.getVnfInstanceId(), NOKIA_LCN_API_VERSION);
+                VnfInfo vnf = cbamLcmApi.vnfsVnfInstanceIdGet(receivedNotification.getVnfInstanceId(), NOKIA_LCN_API_VERSION);
                 com.google.common.base.Optional<VnfProperty> externalVnfmId = tryFind(vnf.getExtensions(), prop -> prop.getName().equals(LifecycleManager.EXTERNAL_VNFM_ID));
                 if (!externalVnfmId.isPresent()) {
                     logger.warn(vnfHeader + " is not a managed VNF");
@@ -139,17 +142,22 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
         }
         OperationExecutionsApi cbamOperationExecutionApi = restApiProvider.getCbamOperationExecutionApi(driverProperties.getVnfmId());
         try {
-            List<OperationExecution> operationExecutions = cbamLcmApi.vnfsVnfInstanceIdOperationExecutionsGet(recievedNotification.getVnfInstanceId(), NOKIA_LCM_API_VERSION);
-            OperationExecution operationExecution = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdGet(recievedNotification.getLifecycleOperationOccurrenceId(), NOKIA_LCM_API_VERSION);
+            List<OperationExecution> operationExecutions = cbamLcmApi.vnfsVnfInstanceIdOperationExecutionsGet(receivedNotification.getVnfInstanceId(), NOKIA_LCM_API_VERSION);
+            OperationExecution operationExecution = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdGet(receivedNotification.getLifecycleOperationOccurrenceId(), NOKIA_LCM_API_VERSION);
             OperationExecution closestInstantiationToOperation = findLastInstantiationBefore(operationExecutions, operationExecution);
             String vimId = getVimId(cbamOperationExecutionApi, closestInstantiationToOperation);
-            notificationSender.processNotification(recievedNotification, operationExecution, buildAffectedCps(operationExecution), vimId);
-            if (OperationType.TERMINATE.equals(recievedNotification.getOperation()) && terminalStatus.contains(recievedNotification.getStatus())) {
-                processedNotifications.add(new ProcessedNotification(recievedNotification.getLifecycleOperationOccurrenceId(), recievedNotification.getStatus()));
+            notificationSender.processNotification(receivedNotification, operationExecution, buildAffectedCps(operationExecution), vimId);
+            if (isTerminationFinished(receivedNotification)) {
+                //signal LifecycleManager to continue the deletion of the VNF
+                processedNotifications.add(new ProcessedNotification(receivedNotification.getLifecycleOperationOccurrenceId(), receivedNotification.getStatus()));
             }
         } catch (ApiException e) {
-            throw buildFatalFailure(logger, "Unable to retrieve the current VNF " + recievedNotification.getVnfInstanceId(), e);
+            throw buildFatalFailure(logger, "Unable to retrieve the current VNF " + receivedNotification.getVnfInstanceId(), e);
         }
+    }
+
+    private boolean isTerminationFinished(VnfLifecycleChangeNotification receivedNotification) {
+        return OperationType.TERMINATE.equals(receivedNotification.getOperation()) && terminalStatus.contains(receivedNotification.getStatus());
     }
 
     private String getVimId(OperationExecutionsApi cbamOperationExecutionApi, OperationExecution closestInstantiationToOperation) {
@@ -164,7 +172,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
     @Override
     public void waitForTerminationToBeProcessed(String operationExecutionId) {
         while (true) {
-            com.google.common.base.Optional<ProcessedNotification> notification = Iterables.tryFind(processedNotifications, processedNotification -> processedNotification.getOperationExecutionId().equals(operationExecutionId));
+            com.google.common.base.Optional<ProcessedNotification> notification = tryFind(processedNotifications, processedNotification -> processedNotification.getOperationExecutionId().equals(operationExecutionId));
             if (notification.isPresent()) {
                 processedNotifications.remove(notification.get());
                 return;
@@ -178,47 +186,47 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
         return request.getVims().get(0).getId();
     }
 
-    private ReportedAffectedConnectionPoints buildAffectedCps(OperationExecution operationExecution) {
+    private Optional<ReportedAffectedConnectionPoints> buildAffectedCps(OperationExecution operationExecution) {
         if (operationExecution.getOperationType() == OperationType.TERMINATE) {
             String terminationType = childElement(new Gson().toJsonTree(operationExecution.getOperationParams()).getAsJsonObject(), "terminationType").getAsString();
             if (TerminationType.FORCEFUL.name().equals(terminationType)) {
                 //in case of force full termination the Ansible is not executed, so the connection points can not be
                 //calculated from operation execution result
                 logger.warn("Unable to send information related to affected connection points during forceful termination");
-                return null;
+                return empty();
             }
         }
         try {
             JsonElement root = new Gson().toJsonTree(operationExecution.getAdditionalData());
             if (root.getAsJsonObject().has("operationResult")) {
                 JsonObject operationResult = root.getAsJsonObject().get("operationResult").getAsJsonObject();
-                if (!isPresent(operationResult, "cbam_pre") || !isPresent(operationResult, "cbam_post")) {
-                    handleFailure(operationExecution, null);
+                if (isAbsent(operationResult, "cbam_pre") ||
+                        isAbsent(operationResult, "cbam_post")) {
+                    return handleFailure(operationExecution, null);
+                } else {
+                    return of(new Gson().fromJson(operationResult, ReportedAffectedConnectionPoints.class));
                 }
-                return new Gson().fromJson(operationResult, ReportedAffectedConnectionPoints.class);
+            } else {
+                return handleFailure(operationExecution, null);
             }
         } catch (Exception e) {
-            handleFailure(operationExecution, e);
+            return handleFailure(operationExecution, e);
         }
-        return new ReportedAffectedConnectionPoints();
     }
 
-    private boolean isPresent(JsonObject operationResult, String key) {
-        return operationResult.has(key) && operationResult.get(key).isJsonArray();
+    private boolean isAbsent(JsonObject operationResult, String key) {
+        return !operationResult.has(key) || !operationResult.get(key).isJsonArray();
     }
 
-    private void handleFailure(OperationExecution operationExecution, Exception e) {
-        switch (operationExecution.getStatus()) {
-            case FAILED:
-            case OTHER:
-                logger.warn("The operation failed and the affected connection points were not reported");
-                break;
-            case STARTED: //can not happen (the changed resources are only executed for terminal state
-            case FINISHED:
-                if (e != null) {
-                    throw buildFatalFailure(logger, PROBLEM, e);
-                }
-                throw buildFatalFailure(logger, PROBLEM);
+    private Optional<ReportedAffectedConnectionPoints> handleFailure(OperationExecution operationExecution, Exception e) {
+        if (operationExecution.getStatus() == OperationStatus.FAILED) {
+            logger.warn("The operation failed and the affected connection points were not reported");
+            return empty();
+        } else {
+            if (e != null) {
+                throw buildFatalFailure(logger, PROBLEM, e);
+            }
+            throw buildFatalFailure(logger, PROBLEM);
         }
     }
 }

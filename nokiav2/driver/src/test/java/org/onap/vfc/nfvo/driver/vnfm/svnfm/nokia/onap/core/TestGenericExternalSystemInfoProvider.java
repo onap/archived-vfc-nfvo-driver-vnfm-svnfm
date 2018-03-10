@@ -87,29 +87,11 @@ public class TestGenericExternalSystemInfoProvider extends TestBase {
         verify(genericExternalSystemInfoProvider, Mockito.times(2)).queryVnfmInfoFromSource(VNFM_ID);
     }
 
-    class TestClass extends GenericExternalSystemInfoProvider {
-
-        TestClass(Environment environment) {
-            super(environment);
-        }
-
-        @Override
-        public VnfmInfo queryVnfmInfoFromSource(String vnfmId) {
-            return null;
-        }
-
-        @Override
-        public VimInfo getVimInfo(String vimId) {
-            return null;
-        }
-    }
-
-
     /**
      * Unable to query VNFM results is propagated
      */
     @Test
-    public void testUnableToQueryVnfmInfoProvider() throws Exception{
+    public void testUnableToQueryVnfmInfoProvider() throws Exception {
         class TestClass extends GenericExternalSystemInfoProvider {
 
             TestClass(Environment environment) {
@@ -129,10 +111,26 @@ public class TestGenericExternalSystemInfoProvider extends TestBase {
         try {
             new TestClass(null).getVnfmInfo(VNFM_ID);
             fail();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             assertEquals("Unable to query VNFM info for myVnfmId", e.getMessage());
             verify(logger).error(eq("Unable to query VNFM info for myVnfmId"), any(RuntimeException.class));
+        }
+    }
+
+    class TestClass extends GenericExternalSystemInfoProvider {
+
+        TestClass(Environment environment) {
+            super(environment);
+        }
+
+        @Override
+        public VnfmInfo queryVnfmInfoFromSource(String vnfmId) {
+            return null;
+        }
+
+        @Override
+        public VimInfo getVimInfo(String vimId) {
+            return null;
         }
     }
 }
