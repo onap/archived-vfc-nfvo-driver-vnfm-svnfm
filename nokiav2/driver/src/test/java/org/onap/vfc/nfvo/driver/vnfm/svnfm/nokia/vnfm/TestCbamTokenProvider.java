@@ -45,6 +45,10 @@ import java.security.KeyStoreException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.eq;
@@ -54,10 +58,10 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 class HttpTestServer {
     Server _server;
-    List<String> requests = new ArrayList<>();
-    List<Integer> codes = new ArrayList<>();
-    List<String> respones = new ArrayList<>();
-
+    volatile List<String> requests = new ArrayList<>();
+    volatile List<Integer> codes = new ArrayList<>();
+    volatile List<String> respones = new ArrayList<>();
+    ExecutorService executorService = Executors.newCachedThreadPool();
     public void start() throws Exception {
         configureServer();
         startServer();
@@ -67,6 +71,18 @@ class HttpTestServer {
         requests.clear();
         codes.clear();
         _server.start();
+        Future<?> serverStarted = executorService.submit(() -> {
+            while(true){
+                try {
+                    Thread.sleep(10);
+                    if(_server.isStarted()){
+                        return;
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        });
+        serverStarted.get(30, TimeUnit.SECONDS);
     }
 
     protected void configureServer() throws Exception {
@@ -119,6 +135,8 @@ public class TestCbamTokenProvider extends TestBase {
         testServer.start();
         URI uri = testServer._server.getURI();
         setField(cbamTokenProvider, "cbamKeyCloakBaseUrl", uri.toString());
+
+
     }
 
     private void addGoodTokenResponse() {

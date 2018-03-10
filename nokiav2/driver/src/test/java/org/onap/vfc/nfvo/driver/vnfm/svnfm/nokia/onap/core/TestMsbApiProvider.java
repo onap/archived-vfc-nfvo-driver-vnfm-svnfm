@@ -121,16 +121,17 @@ public class TestMsbApiProvider extends TestBase {
 
 
     /**
-     * use HTTPS for known ports (443) should be removed if https://jira.onap.org/browse/MSB-151 is solved
+     * use HTTPS for known ports
      */
     @Test
-    public void testMsb151IssueHack() throws Exception {
+    public void testMsbServiceOverssl() throws Exception {
         NodeInfo nonDocker = new NodeInfo();
         nonDocker.setIp("173.1.2.3");
-        nonDocker.setPort("443");
+        nonDocker.setPort("123");
         microServiceInfo.setServiceName("serviceName");
         microServiceInfo.setVersion("v1");
         microServiceInfo.setUrl("/lead/nslcm/v1");
+        microServiceInfo.setEnable_ssl(true);
         when(environment.getProperty(IpMappingProvider.IP_MAP, String.class, "")).thenReturn("173.1.2.3->1.2.3.4");
         nodes.add(nonDocker);
         msbApiProvider = new MsbApiProvider(environment) {
@@ -142,32 +143,7 @@ public class TestMsbApiProvider extends TestBase {
         when(msbClient.queryMicroServiceInfo("serviceName", "v1")).thenReturn(microServiceInfo);
         msbApiProvider.afterPropertiesSet();
         //when
-        assertEquals("https://1.2.3.4:443/lead/nslcm/v1", msbApiProvider.getMicroServiceUrl("serviceName", "v1"));
-    }
-
-    /**
-     * use HTTPS for known ports (443) should be removed if https://jira.onap.org/browse/MSB-151 is solved
-     */
-    @Test
-    public void testMsb151IssueHack2() throws Exception {
-        NodeInfo nonDocker = new NodeInfo();
-        nonDocker.setIp("173.1.2.3");
-        nonDocker.setPort("8443");
-        microServiceInfo.setServiceName("serviceName");
-        microServiceInfo.setVersion("v1");
-        microServiceInfo.setUrl("/lead/nslcm/v1");
-        when(environment.getProperty(IpMappingProvider.IP_MAP, String.class, "")).thenReturn("173.1.2.3->1.2.3.4");
-        nodes.add(nonDocker);
-        msbApiProvider = new MsbApiProvider(environment) {
-            @Override
-            public MSBServiceClient getMsbClient() {
-                return msbClient;
-            }
-        };
-        when(msbClient.queryMicroServiceInfo("serviceName", "v1")).thenReturn(microServiceInfo);
-        msbApiProvider.afterPropertiesSet();
-        //when
-        assertEquals("https://1.2.3.4:8443/lead/nslcm/v1", msbApiProvider.getMicroServiceUrl("serviceName", "v1"));
+        assertEquals("https://1.2.3.4:123/lead/nslcm/v1", msbApiProvider.getMicroServiceUrl("serviceName", "v1"));
     }
 
     /**

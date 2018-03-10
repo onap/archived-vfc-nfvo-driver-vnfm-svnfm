@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;
 
@@ -61,6 +62,14 @@ public class TestConditions {
         //verify
         TestCase.assertFalse(new Conditions.UseForVfc().matches(conditionContext, null));
         TestCase.assertTrue(new Conditions.UseForDirect().matches(conditionContext, null));
+    }
+
+    /**
+     * use class in a static way
+     */
+    @Test
+    public void useStaticway(){
+        TestUtil.coveragePrivateConstructorForClassesWithStaticMethodsOnly(Conditions.class);
     }
 
 }

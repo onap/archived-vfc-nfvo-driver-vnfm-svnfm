@@ -60,9 +60,7 @@ public class MsbApiProvider extends IpMappingProvider {
     public String getMicroServiceUrl(String name, String version) {
         MicroServiceFullInfo microServiceFullInfo = getMicroServiceInfo(name, version);
         String ipAnPort = getNodeIpAnPort(microServiceFullInfo);
-        //FIXME the enable_ssl field should be used, but it is not available in SDK
-        //depends on https://jira.onap.org/browse/MSB-151
-        String protocol = (ipAnPort.endsWith(":8443") || ipAnPort.endsWith(":443")) ? "https://" : "http://";
+        String protocol = microServiceFullInfo.isEnable_ssl() ? "https://" : "http://";
         //the field name in A&AI is misleading the URL is relative path postfixed to http(s)://ip:port
         return protocol + ipAnPort + microServiceFullInfo.getUrl();
     }

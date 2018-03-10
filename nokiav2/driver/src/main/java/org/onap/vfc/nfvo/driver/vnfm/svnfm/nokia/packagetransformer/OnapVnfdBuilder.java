@@ -81,7 +81,7 @@ public class OnapVnfdBuilder {
                         body.append(buildEcp(node.getKey(), node.getValue(), nodeTemplates));
                         break;
                     default:
-                        //
+                        logger.warn("The {} type is not converted", type);
                 }
             }
             return buildHeader(topologyTemplate) + body.toString();

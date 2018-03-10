@@ -20,6 +20,8 @@ topology_template:
         - virtual_storage: myStorage2
         - unhandled_type: unknown
 
+    unknownType:
+      type: tosca.nodes.nfv.Unknown
 
     myCompute:
       type: tosca.nodes.nfv.VirtualCompute

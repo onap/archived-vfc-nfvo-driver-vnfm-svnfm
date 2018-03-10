@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.Optional;
+
+import static java.util.Optional.empty;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -146,6 +149,6 @@ public class LcmApi {
     @ResponseBody
     public JobInfo healVnf(@RequestBody VnfHealRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfInstanceId, HttpServletResponse httpResponse) {
         logger.info("REST: Heal VNF");
-        return lifecycleManager.healVnf(vnfmId, vnfInstanceId, request, httpResponse);
+        return lifecycleManager.healVnf(vnfmId, vnfInstanceId, request, empty(), httpResponse);
     }
 }

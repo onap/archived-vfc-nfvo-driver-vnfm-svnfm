@@ -28,6 +28,7 @@ import org.onap.vnfmdriver.model.VnfInstantiateRequest;
 import org.onap.vnfmdriver.model.VnfScaleRequest;
 import org.onap.vnfmdriver.model.VnfTerminateRequest;
 
+import static java.util.Optional.empty;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -70,7 +71,7 @@ public class TestLcmApi extends TestBase {
         //when
         lcmApi.healVnf(req, VNFM_ID, VNF_ID, httpResponse);
         //verify
-        verify(lifecycleManager).healVnf(VNFM_ID, VNF_ID, req, httpResponse);
+        verify(lifecycleManager).healVnf(VNFM_ID, VNF_ID, req, empty(), httpResponse);
         verify(logger).info("REST: Heal VNF");
     }
 

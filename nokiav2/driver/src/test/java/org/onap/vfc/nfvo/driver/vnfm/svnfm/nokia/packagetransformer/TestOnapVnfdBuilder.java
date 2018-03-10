@@ -63,14 +63,11 @@ public class TestOnapVnfdBuilder extends TestBase {
         verify(logger).warn("The {} ecp does not have an internal connection point", "myEcpWithoutIcp");
         verify(logger).warn("The {} ecp does not have an requirements section", "ecpWithIcpWithOutRequirements");
         verify(logger).warn("The {} internal connection point of the {} ecp does not have a VDU", "icpWithoutVdu", "myEcpWithoutIcpWithoutVdu");
-
         verify(logger).warn("The {} internal connection point of the {} ecp does not have a requirements section", "icpWithOutRequiements", "myEcpWithoutIcpWithoutIcpReq");
-
-
         verify(logger).warn("The {} internal connection point does not have a VDU", "icpWithOutVdu");
         verify(logger).warn("The {} internal connection point does not have a requirements section", "icpWithOutRequiements");
         verify(logger).warn("The {} internal connection point does not have a VL", "icpWithOutVl");
-
+        verify(logger).warn("The {} type is not converted", "tosca.nodes.nfv.Unknown");
     }
 
     /**
