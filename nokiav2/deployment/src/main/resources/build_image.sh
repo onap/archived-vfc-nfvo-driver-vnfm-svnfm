@@ -36,7 +36,10 @@ PROJECT="vfc"
 IMAGE="nfvo/svnfm/nokiav2"
 DOCKER_REPOSITORY="nexus3.onap.org:10003"
 ORG="onap"
-BUILD_ARGS="--no-cache --squash"
+BUILD_ARGS="--no-cache"
+# it looks like that ONAP jenkins does not support squash
+#BUILD_ARGS="--no-cache --squash"
+
 IMAGE_NAME="${DOCKER_REPOSITORY}/${ORG}/${PROJECT}/${IMAGE}"
 TIMESTAMP=$(date +"%Y%m%dT%H%M%S")
 
