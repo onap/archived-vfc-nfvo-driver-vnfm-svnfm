@@ -16,9 +16,9 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia;
 
-import org.apache.log4j.Logger;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,12 +28,14 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 /**
  * Represents the spring boot application
  */
 @SpringBootApplication
 public class NokiaSvnfmApplication {
-    private static Logger logger = Logger.getLogger(NokiaSvnfmApplication.class);
+    private static Logger logger = getLogger(NokiaSvnfmApplication.class);
 
     /**
      * Entry point for the Spring boot application

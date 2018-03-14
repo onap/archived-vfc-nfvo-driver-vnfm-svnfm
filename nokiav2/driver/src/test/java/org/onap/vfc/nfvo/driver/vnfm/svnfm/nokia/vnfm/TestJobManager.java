@@ -18,8 +18,8 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.*;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -62,7 +62,7 @@ public class TestJobManager extends TestBase {
     @Before
     public void initMocks() throws Exception {
         ReflectionTestUtils.setField(JobManager.class, "logger", logger);
-        when(vnfApi.vnfsGet(NOKIA_LCM_API_VERSION)).thenReturn(vnfs);
+        when(vnfApi.vnfsGet(NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfs));
         when(selfRegistrationManager.isReady()).thenReturn(true);
     }
 
@@ -179,7 +179,7 @@ public class TestJobManager extends TestBase {
         vnfs.add(vnf);
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(detailedVnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
         JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
         //verify
         assertResult(jobId, job, STARTED, "50", "Operation started");
@@ -198,7 +198,7 @@ public class TestJobManager extends TestBase {
         vnfs.add(vnf);
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(detailedVnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
         jobManager.jobFinished(jobId);
         JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
         //verify
@@ -218,7 +218,7 @@ public class TestJobManager extends TestBase {
         vnfs.add(vnf);
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(detailedVnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
         OperationExecution operation = new OperationExecution();
         operation.setId(UUID.randomUUID().toString());
         operation.setStartTime(OffsetDateTime.now());
@@ -226,7 +226,7 @@ public class TestJobManager extends TestBase {
         detailedVnf.setOperationExecutions(new ArrayList<>());
         detailedVnf.getOperationExecutions().add(operation);
         JsonElement operationParams = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(operationParams);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationParams));
         JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
         //verify
         assertResult(jobId, job, STARTED, "50", "Operation started");
@@ -246,11 +246,11 @@ public class TestJobManager extends TestBase {
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
         List<Integer> vnfQueryCallCounter = new ArrayList<>();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer(new Answer<VnfInfo>() {
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer(new Answer<Observable<VnfInfo>>() {
             @Override
-            public VnfInfo answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<VnfInfo> answer(InvocationOnMock invocation) throws Throwable {
                 vnfs.clear();
-                return detailedVnf;
+                return buildObservable(detailedVnf);
             }
         });
 
@@ -265,7 +265,7 @@ public class TestJobManager extends TestBase {
         detailedVnf.getOperationExecutions().add(operation);
 
         JsonElement operationParams = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(operationParams);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationParams));
         //when
         JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
         //verify
@@ -285,7 +285,7 @@ public class TestJobManager extends TestBase {
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
         List<Integer> vnfCounter = new ArrayList<>();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(detailedVnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
         OperationExecution operation = new OperationExecution();
         operation.setId(UUID.randomUUID().toString());
         operation.setStartTime(OffsetDateTime.now());
@@ -297,7 +297,7 @@ public class TestJobManager extends TestBase {
         detailedVnf.setOperationExecutions(new ArrayList<>());
         detailedVnf.getOperationExecutions().add(operation);
         JsonElement operationParams = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(operationParams);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationParams));
         //when
         JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
         //verify
@@ -350,7 +350,7 @@ public class TestJobManager extends TestBase {
         vnfs.add(vnf);
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(detailedVnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
         OperationExecution operation = new OperationExecution();
         operation.setId(UUID.randomUUID().toString());
         operation.setStartTime(OffsetDateTime.now());
@@ -359,7 +359,7 @@ public class TestJobManager extends TestBase {
         detailedVnf.setOperationExecutions(new ArrayList<>());
         detailedVnf.getOperationExecutions().add(operation);
         JsonElement operationParams = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(operationParams);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationParams));
         JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
         //verify
         assertResult(jobId, job, JobStatus.FINISHED, "100", "Operation finished");
@@ -379,7 +379,7 @@ public class TestJobManager extends TestBase {
         vnfs.add(vnf);
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(detailedVnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
         OperationExecution operation = new OperationExecution();
         operation.setId(UUID.randomUUID().toString());
         operation.setStartTime(OffsetDateTime.now());
@@ -388,7 +388,7 @@ public class TestJobManager extends TestBase {
         detailedVnf.setOperationExecutions(new ArrayList<>());
         detailedVnf.getOperationExecutions().add(operation);
         JsonElement operationParams = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(operationParams);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationParams));
         JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
         //verify
         assertResult(jobId, job, STARTED, "50", "Operation started");
@@ -412,12 +412,12 @@ public class TestJobManager extends TestBase {
         vnfs.add(vnf);
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(detailedVnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
         OperationExecution operation = new OperationExecution();
         operation.setId(UUID.randomUUID().toString());
         detailedVnf.setOperationExecutions(new ArrayList<>());
         detailedVnf.getOperationExecutions().add(operation);
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operation.getId(), NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //verify
         try {
@@ -439,7 +439,7 @@ public class TestJobManager extends TestBase {
         VnfInfo vnf = new VnfInfo();
         vnf.setId(VNF_ID);
         vnfs.add(vnf);
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //verify
         try {
@@ -464,7 +464,7 @@ public class TestJobManager extends TestBase {
         vnfs.add(vnf);
         VnfInfo detailedVnf = new VnfInfo();
         detailedVnf.setId(VNF_ID);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(detailedVnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
         OperationExecution olderOperation = new OperationExecution();
         olderOperation.setId(UUID.randomUUID().toString());
         olderOperation.setStartTime(OffsetDateTime.now());
@@ -481,14 +481,14 @@ public class TestJobManager extends TestBase {
         JsonElement operationParams = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}");
         List<String> queriedOperaionsInOrder = new ArrayList<>();
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(Mockito.anyString(), Mockito.eq(NOKIA_LCM_API_VERSION)))
-                .then(new Answer<Object>() {
+                .then(new Answer<Observable<Object>>() {
                     @Override
-                    public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    public Observable<Object> answer(InvocationOnMock invocationOnMock) throws Throwable {
                         queriedOperaionsInOrder.add(invocationOnMock.getArguments()[0].toString());
                         if (invocationOnMock.getArguments()[0].equals(olderOperation.getId())) {
-                            return new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}");
+                            return buildObservable(new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}"));
                         } else {
-                            return new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + "nonMatching" + "\"}}");
+                            return buildObservable(new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + "nonMatching" + "\"}}"));
                         }
                     }
                 });

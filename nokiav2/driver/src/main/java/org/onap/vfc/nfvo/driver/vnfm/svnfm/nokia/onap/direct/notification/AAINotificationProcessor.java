@@ -97,13 +97,11 @@ public class AAINotificationProcessor implements INotificationSender {
             for (ReportedAffectedCp affectedCp : affectedConnectionPoints.get().getPost()) {
                 if (!isEmpty(affectedCp.getServerProviderId())) {
                     lInterfaceManager.update(receivedNotification.getVnfInstanceId(), vimId, affectedCp, inMaintenance);
-                }
-                else{
+                } else {
                     logger.warn("The changed {} connection point is not linked to any server", affectedCp.getCpId());
                 }
             }
-        }
-        else{
+        } else {
             logger.warn("The changed connection points are not present in VNF with {} identifier", receivedNotification.getVnfInstanceId());
         }
     }
