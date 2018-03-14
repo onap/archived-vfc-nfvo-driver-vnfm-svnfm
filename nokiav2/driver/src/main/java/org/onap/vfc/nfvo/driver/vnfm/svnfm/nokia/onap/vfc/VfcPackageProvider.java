@@ -60,22 +60,23 @@ public class VfcPackageProvider implements IPackageProvider {
 
     @Override
     public String getCbamVnfdId(String csarId) {
+        VnfPkgDetailInfo vnfPackageDetails;
         try {
-            VnfpackageApi onapCatalogApi = restApiProvider.getOnapCatalogApi();
-            VnfPkgDetailInfo vnfPackageDetails = onapCatalogApi.queryVnfPackage(csarId);
-            JsonElement vnfdModel = new JsonParser().parse(vnfPackageDetails.getPackageInfo().getVnfdModel());
-            return vnfdModel.getAsJsonObject().get("metadata").getAsJsonObject().get("resourceVendorModelNumber").getAsString();
+            VnfpackageApi onapCatalogApi = restApiProvider.getVfcCatalogApi();
+            vnfPackageDetails = onapCatalogApi.queryVnfPackage(csarId).execute().body();
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNF package with " + csarId, e);
         }
+        JsonElement vnfdModel = new JsonParser().parse(vnfPackageDetails.getPackageInfo().getVnfdModel());
+        return vnfdModel.getAsJsonObject().get("metadata").getAsJsonObject().get("resourceVendorModelNumber").getAsString();
     }
 
     @Override
     public byte[] getPackage(String csarId) {
         String downloadUrl;
         try {
-            VnfpackageApi onapCatalogApi = restApiProvider.getOnapCatalogApi();
-            VnfPkgDetailInfo vnfPackageDetails = onapCatalogApi.queryVnfPackage(csarId);
+            VnfpackageApi onapCatalogApi = restApiProvider.getVfcCatalogApi();
+            VnfPkgDetailInfo vnfPackageDetails = onapCatalogApi.queryVnfPackage(csarId).execute().body();
             String urlFromVfc = vnfPackageDetails.getPackageInfo().getDownloadUrl();
             String host = new URL(urlFromVfc).getHost();
             downloadUrl = urlFromVfc.replaceFirst("://" + host, "://" + ipMappingProvider.mapPrivateIpToPublicIp(host));

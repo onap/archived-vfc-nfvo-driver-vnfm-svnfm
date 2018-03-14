@@ -203,7 +203,6 @@ public class TestAAINotificationProcessor extends TestBase {
     }
 
 
-
     /**
      * if changes connection points are not present a warning is logged
      */
