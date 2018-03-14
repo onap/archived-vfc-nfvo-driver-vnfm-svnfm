@@ -54,11 +54,11 @@ public class Driver2CbamRequestConverter {
 	}
 
 	public CBAMInstantiateVnfRequest instantiateRequestConvert(InstantiateVnfRequest driverRequest,
-			NslcmGrantVnfResponse nslc, GrantInfo grant, VimComputeResourceFlavour vimco) throws Exception {
-        Gson gson = new Gson();
+			NslcmGrantVnfResponse nslc, GrantInfo grant, VimComputeResourceFlavour vimco) throws IOException{
+		Gson gson = new Gson();
 		String inputJson = readcbamInputInfoFromJsonFile();
 		CBAMInstantiateVnfRequest request = gson.fromJson(inputJson, CBAMInstantiateVnfRequest.class);
-		
+
 		return request;
 	}
 
