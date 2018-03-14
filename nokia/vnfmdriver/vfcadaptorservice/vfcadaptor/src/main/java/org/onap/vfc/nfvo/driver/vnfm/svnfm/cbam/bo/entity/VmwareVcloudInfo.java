@@ -15,9 +15,10 @@
 */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
+import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class VmwareVcloudInfo {
+public class VmwareVcloudInfo implements Serializable{
 	
 	@JsonProperty("vimInfoType")
 	private VimInfoType vimInfoType;

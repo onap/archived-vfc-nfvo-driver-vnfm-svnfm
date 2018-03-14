@@ -15,9 +15,10 @@
 */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
+import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OtherVimInfo {
+public class OtherVimInfo implements Serializable {
 	@JsonProperty("vimInfoType")
 	private VimInfoType vimInfoType;
 	
@@ -40,6 +41,4 @@ public class OtherVimInfo {
 		this.id = id;
 	}
 	
-	
-
 }

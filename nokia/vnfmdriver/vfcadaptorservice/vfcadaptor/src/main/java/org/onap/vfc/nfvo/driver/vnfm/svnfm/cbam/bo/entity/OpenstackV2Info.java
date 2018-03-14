@@ -14,10 +14,10 @@
 * limitations under the License.
 */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
-
+import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OpenstackV2Info {
+public class OpenstackV2Info implements Serializable {
 
 	@JsonProperty("vimInfoType")
 	private VimInfoType vimInfoType;
@@ -52,7 +52,4 @@ public class OpenstackV2Info {
 		this.accessInfo = accessInfo;
 	}
 	
-	
-	
-
 }

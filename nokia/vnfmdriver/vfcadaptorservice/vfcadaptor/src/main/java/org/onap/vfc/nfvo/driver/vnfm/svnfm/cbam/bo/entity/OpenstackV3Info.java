@@ -16,8 +16,9 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
-public class OpenstackV3Info {
+public class OpenstackV3Info implements Serializable {
 	
 	@JsonProperty("vimInfoType")
 	private VimInfoType vimInfoType;
@@ -52,6 +53,4 @@ public class OpenstackV3Info {
 		this.accessInfo = accessInfo;
 	}
 	
-	
-
 }
