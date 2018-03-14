@@ -40,17 +40,22 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
 	@Autowired
 	private HttpClientBuilder httpClientBuilder;
 	
-	public HttpResult process(String url, RequestMethod methodType, HashMap<String, String> headerMap, String bodyString) throws ClientProtocolException, IOException
+	public HttpResult process(String url, RequestMethod methodType, HashMap<String, String> headerMap, String bodyString) throws IOException
 	{
 		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, methodType);
+		//Map<String, String> headerMap = new HashMap<String, String>();
 		if(headerMap != null && !headerMap.isEmpty())
 		{
-			for(String key : headerMap.keySet())
+			/*for(String key : headerMap.keySet())
 			{
 				processor.addHdeader(key, headerMap.get(key));
+			}*/
+
+			for (HashMap.Entry<String, String> entry : headerMap.entrySet()) {
+				processor.addHeader(entry.getKey(), entry.getValue());
 			}
 			
-			if(null != bodyString && bodyString.length() > 0 && !bodyString.equalsIgnoreCase("null"))
+			if(bodyString.length() > 0 && !"null".equalsIgnoreCase(bodyString))
 			{
 				processor.addPostEntity(bodyString);
 			}
@@ -59,15 +64,19 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
 		return processor.process(url);
 	}
 	
-	public HttpResult processBytes(String url, RequestMethod methodType, HashMap<String, String> headerMap, byte[] byteArray) throws ClientProtocolException, IOException
+	public HttpResult processBytes(String url, RequestMethod methodType, HashMap<String, String> headerMap, byte[] byteArray) throws IOException
 	{
 		HttpRequestProcessor processor = new HttpRequestProcessor(httpClientBuilder, methodType);
 		if(headerMap != null && !headerMap.isEmpty())
 		{
-			for(String key : headerMap.keySet())
+			for (HashMap.Entry<String, String> entry : headerMap.entrySet()) {
+				processor.addHeader(entry.getKey(), entry.getValue());
+			} //Iterate over the "entrySet" instead of the "keySet"
+
+			/*for(String key : headerMap.keySet())
 			{
-				processor.addHdeader(key, headerMap.get(key));
-			}
+				processor.addHeader(key, headerMap.get(key));
+			}*/
 			
 			if(null != byteArray && byteArray.length > 0)
 			{
@@ -96,12 +105,11 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
 	        if(!saveDir.exists()){
 	            saveDir.mkdir();
 	        }	   
-	        File file = new File(saveDir+File.separator+fileName);    
-	        FileOutputStream fos = new FileOutputStream(file);     
-	        fos.write(getData); 
-	        if(fos!=null){
-	            fos.close();  
-	        }
+		File file = new File(saveDir+File.separator+fileName);    
+		try(FileOutputStream fos = new FileOutputStream(file)){
+			fos.write(getData); 
+		}
+	        
 	        if(inputStream!=null){
 	            inputStream.close();
 	        }
@@ -119,11 +127,11 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
     public static byte[] readInputStream(InputStream inputStream) throws IOException {  
         byte[] buffer = new byte[1024];  
         int len = 0;  
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();  
+        try(ByteArrayOutputStream bos = new ByteArrayOutputStream()){
         while((len = inputStream.read(buffer)) != -1) {  
             bos.write(buffer, 0, len);  
         }  
-        bos.close();  
         return bos.toByteArray();  
+	}
     }
 }
