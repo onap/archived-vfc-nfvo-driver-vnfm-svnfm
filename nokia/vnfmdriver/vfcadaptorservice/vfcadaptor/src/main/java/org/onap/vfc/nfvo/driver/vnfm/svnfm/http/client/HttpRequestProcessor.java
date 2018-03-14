@@ -75,7 +75,7 @@ public class HttpRequestProcessor {
 		return httpResult;
 	}
 
-	public void addHdeader(String key, String value) {
+	public void addHeader(String key, String value) {
 		httpRequest.setHeader(key, value);
 		
 	}
