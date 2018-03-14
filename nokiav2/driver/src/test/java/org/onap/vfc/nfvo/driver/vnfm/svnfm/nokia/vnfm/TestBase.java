@@ -21,6 +21,9 @@ import com.nokia.cbam.catalog.v1.api.DefaultApi;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
+import io.reactivex.Observable;
+import okhttp3.RequestBody;
+import okio.Buffer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -31,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
@@ -45,15 +49,14 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -123,7 +126,7 @@ public class TestBase {
         when(cbamRestApiProvider.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
         when(msbApiProvider.getMsbClient()).thenReturn(msbClient);
         when(vfcRestApiProvider.getNsLcmApi()).thenReturn(nsLcmApi);
-        when(vfcRestApiProvider.getOnapCatalogApi()).thenReturn(vfcCatalogApi);
+        when(vfcRestApiProvider.getVfcCatalogApi()).thenReturn(vfcCatalogApi);
         when(systemFunctions.getHttpClient()).thenReturn(httpClient);
         when(httpClient.execute(request.capture())).thenReturn(response);
         when(response.getEntity()).thenReturn(entity);
@@ -146,6 +149,35 @@ public class TestBase {
 
     protected void assertItenticalZips(byte[] expected, byte[] actual) throws Exception {
         assertEquals(build(expected), build(actual));
+    }
+
+    protected static <T> Call<T> buildCall(T response) {
+        Call<T> call = Mockito.mock(Call.class);
+        try {
+            when(call.execute()).thenReturn(Response.success(response));
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+        return call;
+    }
+
+    byte[] getContent(RequestBody requestBody) {
+        try {
+            Buffer buffer = new Buffer();
+            requestBody.writeTo(buffer);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            buffer.copyTo(byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected static Call<Void> VOID_CALL = buildCall(null);
+
+    protected static <T> Observable<T> buildObservable(T response) {
+        return Observable.just(response);
     }
 
     private Map<String, List<Byte>> build(byte[] zip) throws Exception {

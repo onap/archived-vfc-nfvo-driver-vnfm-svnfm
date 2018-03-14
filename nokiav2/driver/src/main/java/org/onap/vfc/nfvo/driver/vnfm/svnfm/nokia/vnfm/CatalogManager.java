@@ -17,9 +17,10 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import com.google.common.io.ByteStreams;
-import com.nokia.cbam.catalog.v1.ApiException;
 import com.nokia.cbam.catalog.v1.api.DefaultApi;
 import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IPackageProvider;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.filter;
 import static java.nio.file.Files.createTempFile;
 import static java.nio.file.Files.write;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static okhttp3.MediaType.parse;
+import static okhttp3.RequestBody.create;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -113,11 +117,8 @@ public class CatalogManager {
         DefaultApi cbamCatalogApi = cbamRestApiProvider.getCbamCatalogApi(vnfmId);
         if (!isPackageReplicated(cbamVnfdId, cbamCatalogApi)) {
             try {
-                Path tempFile = createTempFile("cbam", "zip");
                 ByteArrayOutputStream cbamPackage = getFileInZip(new ByteArrayInputStream(packageProvider.getPackage(csarId)), CBAM_PACKAGE_NAME_IN_ZIP);
-                write(tempFile, cbamPackage.toByteArray());
-                //FIXME delete file
-                return cbamCatalogApi.create(tempFile.toFile());
+                return cbamCatalogApi.create(create(parse(APPLICATION_OCTET_STREAM), cbamPackage.toByteArray())).execute().body();
             } catch (Exception e) {
                 logger.debug("Probably concurrent package uploads", e);
                 //retest if the VNF package exists in CBAM. It might happen that an other operation
@@ -142,9 +143,9 @@ public class CatalogManager {
      */
     public String getCbamVnfdContent(String vnfmId, String vnfdId) {
         try {
-            File content = cbamRestApiProvider.getCbamCatalogApi(vnfmId).content(vnfdId);
-            String vnfdPath = getVnfdLocation(new FileInputStream(content));
-            return new String(getFileInZip(new FileInputStream(content), vnfdPath).toByteArray());
+            byte[] vnfdContent = cbamRestApiProvider.getCbamCatalogApi(vnfmId).content(vnfdId).execute().body().bytes();
+            String vnfdPath = getVnfdLocation(new ByteArrayInputStream(vnfdContent));
+            return new String(getFileInZip(new ByteArrayInputStream(vnfdContent), vnfdPath).toByteArray());
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to get package with (" + vnfdId + ")", e);
         }
@@ -160,14 +161,14 @@ public class CatalogManager {
 
     private CatalogAdapterVnfpackage queryPackageFromCBAM(String cbamVnfdId, DefaultApi cbamCatalogApi) {
         try {
-            return cbamCatalogApi.getById(cbamVnfdId);
-        } catch (ApiException e) {
+            return cbamCatalogApi.getById(cbamVnfdId).execute().body();
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNF package with " + cbamVnfdId + " from CBAM", e);
         }
     }
 
-    private boolean isPackageReplicatedToCbam(String cbamVnfdId, DefaultApi cbamCatalogApi) throws ApiException {
-        for (CatalogAdapterVnfpackage vnfPackage : cbamCatalogApi.list()) {
+    private boolean isPackageReplicatedToCbam(String cbamVnfdId, DefaultApi cbamCatalogApi) throws IOException {
+        for (CatalogAdapterVnfpackage vnfPackage : cbamCatalogApi.list().execute().body()) {
             if (vnfPackage.getVnfdId().equals(cbamVnfdId)) {
                 return true;
             }

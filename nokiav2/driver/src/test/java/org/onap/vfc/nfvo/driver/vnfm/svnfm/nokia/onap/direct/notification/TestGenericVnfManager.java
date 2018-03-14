@@ -15,7 +15,6 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,7 +112,7 @@ public class TestGenericVnfManager extends TestBase {
             }
             return vnfs.iterator().next();
         });
-        when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), payload.capture(), eq(Void.class))).thenAnswer(invocation -> {
             vnfs.add(vnfInAaai);
             return null;
@@ -141,7 +140,7 @@ public class TestGenericVnfManager extends TestBase {
         GenericVnf vnfInAaai = OBJECT_FACTORY.createGenericVnf();
         vnfInAaai.setResourceVersion("v1");
         when(aaiRestApiProvider.get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class)).thenReturn(vnfInAaai);
-        when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), payload.capture(), eq(Void.class))).thenReturn(null);
         vnfInfo.setName("vnfName");
         //when
@@ -166,7 +165,7 @@ public class TestGenericVnfManager extends TestBase {
         GenericVnf vnfInAaai = OBJECT_FACTORY.createGenericVnf();
         vnfInAaai.setResourceVersion("v1");
         when(aaiRestApiProvider.get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class)).thenReturn(vnfInAaai);
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), payload.capture(), eq(Void.class))).thenAnswer(invocation -> {
             vnfInAaai.setResourceVersion("v2");
@@ -198,7 +197,7 @@ public class TestGenericVnfManager extends TestBase {
             }
             throw new NoSuchElementException();
         });
-        when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         RuntimeException runtimeException = new RuntimeException();
         when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), payload.capture(), eq(Void.class))).thenAnswer(invocation -> {
             GenericVnf vnfSentToAAi = (GenericVnf) invocation.getArguments()[3];
