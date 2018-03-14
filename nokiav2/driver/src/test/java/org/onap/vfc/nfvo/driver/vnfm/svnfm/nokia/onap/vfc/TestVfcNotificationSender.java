@@ -30,11 +30,9 @@ import com.nokia.cbam.lcm.v32.model.ScaleDirection;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedConnectionPoints;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedCp;
-import org.onap.vnfmdriver.ApiException;
 import org.onap.vnfmdriver.model.*;
 import org.threeten.bp.OffsetDateTime;
 
@@ -66,7 +64,7 @@ public class TestVfcNotificationSender extends TestBase {
     public void init() throws Exception {
         vfcNotificationSender = new VfcNotificationSender(driverProperties, vfcRestApiProvider);
         setField(VfcNotificationSender.class, "logger", logger);
-        Mockito.doNothing().when(nsLcmApi).vNFLCMNotification(eq(VNFM_ID), eq(VNF_ID), sentLcnToVfc.capture());
+        when(nsLcmApi.vNFLCMNotification(eq(VNFM_ID), eq(VNF_ID), sentLcnToVfc.capture())).thenReturn(VOID_CALL);
         instantiationOperation.setId("instantiationOperationExecutionId");
         instantiationOperation.setStartTime(OffsetDateTime.now());
         instantiationOperation.setOperationType(OperationType.INSTANTIATE);
@@ -79,7 +77,7 @@ public class TestVfcNotificationSender extends TestBase {
         healOperation.setId("healOperaitonExecutionId");
         healOperation.setOperationType(OperationType.HEAL);
         healOperation.setStartTime(OffsetDateTime.now().plusDays(1));
-        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(operationExecutions);
+        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationExecutions));
         prepOperation(instantiationOperation);
         prepOperation(scaleOperation);
         prepOperation(healOperation);
@@ -87,7 +85,7 @@ public class TestVfcNotificationSender extends TestBase {
         recievedLcn.setVnfInstanceId(VNF_ID);
     }
 
-    private void prepOperation(OperationExecution operationExecution) throws com.nokia.cbam.lcm.v32.ApiException {
+    private void prepOperation(OperationExecution operationExecution) {
         addEmptyModifiedConnectionPoints(operationExecution);
         JsonElement root = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + JOB_ID + "\"}}");
         operationExecution.setOperationParams(root);
@@ -95,7 +93,7 @@ public class TestVfcNotificationSender extends TestBase {
             case TERMINATE:
                 root.getAsJsonObject().addProperty("terminationType", "GRACEFULL");
         }
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdGet(operationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(operationExecution);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdGet(operationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationExecution));
         operationExecutions.add(operationExecution);
     }
 
@@ -842,7 +840,7 @@ public class TestVfcNotificationSender extends TestBase {
      */
     @Test
     public void testUnableToSendNotificationToVfc() throws Exception {
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         doThrow(expectedException).when(nsLcmApi).vNFLCMNotification(any(), any(), any());
         recievedLcn.setStatus(OperationStatus.STARTED);
         recievedLcn.setOperation(OperationType.INSTANTIATE);

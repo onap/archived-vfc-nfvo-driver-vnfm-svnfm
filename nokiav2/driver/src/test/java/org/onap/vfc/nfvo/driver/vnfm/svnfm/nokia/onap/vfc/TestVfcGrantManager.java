@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,9 +30,9 @@ import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
-import org.onap.vnfmdriver.ApiException;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.ScaleDirection;
+import retrofit2.Call;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -57,7 +58,8 @@ public class TestVfcGrantManager extends TestBase {
     @Before
     public void initMocks() throws Exception {
         setField(VfcGrantManager.class, "logger", logger);
-        when(nsLcmApi.grantvnf(grantRequest.capture())).thenReturn(grantResponse);
+        Call<GrantVNFResponse> grantVNFResponseCall = buildCall(grantResponse);
+        when(nsLcmApi.grantvnf(grantRequest.capture())).thenReturn(grantVNFResponseCall);
         grantResponse.setVim(vim);
     }
 
@@ -101,7 +103,7 @@ public class TestVfcGrantManager extends TestBase {
     @Test
     public void testFailureDuringGrantRequest() throws Exception {
         String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
-        ApiException expectedException = new ApiException("a");
+        RuntimeException expectedException = new RuntimeException("a");
         when(nsLcmApi.grantvnf(Mockito.any())).thenThrow(expectedException);
         //when
         try {
@@ -224,7 +226,7 @@ public class TestVfcGrantManager extends TestBase {
         prop.setValue(ONAP_CSAR_ID);
         vnf.setVnfConfigurableProperties(new ArrayList<>());
         vnf.getVnfConfigurableProperties().add(prop);
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(nsLcmApi.grantvnf(Mockito.any())).thenThrow(expectedException);
         //when
         try {
@@ -246,7 +248,7 @@ public class TestVfcGrantManager extends TestBase {
         scaleRequest.setType(ScaleDirection.OUT);
         scaleRequest.setAspectId("aspect1");
         scaleRequest.setNumberOfSteps("2");
-        com.nokia.cbam.lcm.v32.ApiException expectedException = new com.nokia.cbam.lcm.v32.ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //when
         try {
@@ -270,7 +272,8 @@ public class TestVfcGrantManager extends TestBase {
         scaleRequest.setAspectId("aspect1");
         scaleRequest.setNumberOfSteps("2");
         VnfInfo vnf = new VnfInfo();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnf);
+        Observable<VnfInfo> vnfInfoObservable = buildObservable(vnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfoObservable);
         vnf.setVnfdId(CBAM_VNFD_ID);
         when(cbamCatalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
         //when
@@ -295,7 +298,8 @@ public class TestVfcGrantManager extends TestBase {
         scaleRequest.setAspectId("aspectWithOutVdu");
         scaleRequest.setNumberOfSteps("2");
         VnfInfo vnf = new VnfInfo();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnf);
+        Observable<VnfInfo> vnfInfoObservable = buildObservable(vnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfoObservable);
         vnf.setVnfdId(CBAM_VNFD_ID);
         when(cbamCatalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
         //when
@@ -320,7 +324,7 @@ public class TestVfcGrantManager extends TestBase {
         scaleRequest.setAspectId("emptyAspect");
         scaleRequest.setNumberOfSteps("2");
         VnfInfo vnf = new VnfInfo();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnf));
         vnf.setVnfdId(CBAM_VNFD_ID);
         when(cbamCatalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
         //when
@@ -343,7 +347,7 @@ public class TestVfcGrantManager extends TestBase {
         scaleRequest.setAspectId("aspect1");
         scaleRequest.setNumberOfSteps("2");
         VnfInfo vnf = new VnfInfo();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnf));
         vnf.setVnfdId(CBAM_VNFD_ID);
         when(cbamCatalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
         //when

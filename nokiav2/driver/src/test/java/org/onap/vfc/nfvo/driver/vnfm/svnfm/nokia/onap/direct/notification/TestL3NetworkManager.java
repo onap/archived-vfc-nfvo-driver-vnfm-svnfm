@@ -119,6 +119,7 @@ public class TestL3NetworkManager extends TestBase {
         assertRelation(payload.getValue().getRelationshipList(), "tenant", buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(VIM_ID)), buildRelationshipData("cloud-region.cloud-region-id", getRegionName(VIM_ID)), buildRelationshipData("tenant.tenant-id", "myTenantId"));
         assertRelation(payload.getValue().getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
     }
+
     /**
      * test L3 network deletion
      */

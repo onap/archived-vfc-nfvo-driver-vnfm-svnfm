@@ -16,7 +16,17 @@
 
 import com.nokia.cbam.lcm.v32.ApiClient;
 import com.nokia.cbam.lcm.v32.model.*;
+import okhttp3.Headers;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import okhttp3.internal.http.RealResponseBody;
+import okio.Buffer;
+import okio.BufferedSource;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
@@ -28,7 +38,7 @@ public class TestInhertence {
      * test OpenStack v2 inheritence handling in serialization and deserialization
      */
     @Test
-    public void testOpenStackV2(){
+    public void testOpenStackV2() throws IOException{
         InstantiateVnfRequest req = new InstantiateVnfRequest();
         OPENSTACKV2INFO vim = new OPENSTACKV2INFO();
         req.getVims().add(vim);
@@ -36,78 +46,32 @@ public class TestInhertence {
         OpenStackAccessInfoV2 accessInfo = new OpenStackAccessInfoV2();
         accessInfo.setPassword("myPassword");
         vim.setAccessInfo(accessInfo);
-        String serialize = new ApiClient().getJSON().serialize(req);
-        assertTrue(serialize.contains("myPassword"));
-        InstantiateVnfRequest deserialize = new ApiClient().getJSON().deserialize(serialize, InstantiateVnfRequest.class);
+        Annotation[] x = new Annotation[0];
+        RequestBody requestBody = new ApiClient().getAdapterBuilder().build().requestBodyConverter(InstantiateVnfRequest.class, x, new Annotation[0]).convert(req);
+        assertTrue(getContent(requestBody).contains("myPassword"));
+        ResponseBody responseBody = toResponse(requestBody);
+        InstantiateVnfRequest deserialize = (InstantiateVnfRequest) new ApiClient().getAdapterBuilder().build().responseBodyConverter(InstantiateVnfRequest.class, new Annotation[0]).convert(responseBody);
         assertEquals(1, deserialize.getVims().size());
         OPENSTACKV2INFO deserializedVim = (OPENSTACKV2INFO) deserialize.getVims().get(0);
         assertEquals("myPassword", deserializedVim.getAccessInfo().getPassword());
     }
 
-    /**
-     * test OpenStack v3 inheritence handling in serialization and deserialization
-     */
-    @Test
-    public void testOpenStackV3(){
-        InstantiateVnfRequest req = new InstantiateVnfRequest();
-        OPENSTACKV3INFO vim = new OPENSTACKV3INFO();
-        req.getVims().add(vim);
-        vim.setVimInfoType(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO);
-        OpenStackAccessInfoV3 accessInfo = new OpenStackAccessInfoV3();
-        accessInfo.setPassword("myPassword");
-        vim.setAccessInfo(accessInfo);
-        String serialize = new ApiClient().getJSON().serialize(req);
-        assertTrue(serialize.contains("myPassword"));
-        InstantiateVnfRequest deserialize = new ApiClient().getJSON().deserialize(serialize, InstantiateVnfRequest.class);
-        assertEquals(1, deserialize.getVims().size());
-        OPENSTACKV3INFO deserializedVim = (OPENSTACKV3INFO) deserialize.getVims().get(0);
-        assertEquals("myPassword", deserializedVim.getAccessInfo().getPassword());
+    private ResponseBody toResponse(RequestBody convert) throws IOException {
+        Headers headers = new Headers.Builder().build();
+        Buffer buffer = new Buffer();
+        convert.writeTo(buffer);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        buffer.copyTo(byteArrayOutputStream);
+        BufferedSource response = buffer;
+        return new RealResponseBody(headers, response);
     }
 
-    /**
-     * test vCloud  inheritence handling in serialization and deserialization
-     */
-    @Test
-    public void testVCloud(){
-        InstantiateVnfRequest req = new InstantiateVnfRequest();
-        VMWAREVCLOUDINFO vim = new VMWAREVCLOUDINFO();
-        req.getVims().add(vim);
-        vim.setVimInfoType(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO);
-        VCloudAccessInfo accessInfo = new VCloudAccessInfo();
-        accessInfo.setPassword("myPassword");
-        vim.setAccessInfo(accessInfo);
-        String serialize = new ApiClient().getJSON().serialize(req);
-        assertTrue(serialize.contains("myPassword"));
-        InstantiateVnfRequest deserialize = new ApiClient().getJSON().deserialize(serialize, InstantiateVnfRequest.class);
-        assertEquals(1, deserialize.getVims().size());
-        VMWAREVCLOUDINFO deserializedVim = (VMWAREVCLOUDINFO) deserialize.getVims().get(0);
-        assertEquals("myPassword", deserializedVim.getAccessInfo().getPassword());
+    private String getContent(RequestBody requestBody) throws IOException {
+        Buffer buffer = new Buffer();
+        requestBody.writeTo(buffer);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        buffer.copyTo(byteArrayOutputStream);
+        return new String(byteArrayOutputStream.toByteArray());
     }
 
-    /**
-     * test LCN serialization and deserialization
-     */
-    @Test
-    public void testLcn() throws  Exception{
-        VnfLifecycleChangeNotification vnfLifecycleChangeNotification = new VnfLifecycleChangeNotification();
-        vnfLifecycleChangeNotification.setNotificationType(VnfNotificationType.VNFLIFECYCLECHANGENOTIFICATION);
-        vnfLifecycleChangeNotification.setVnfInstanceId("myId");
-        String serialize = new ApiClient().getJSON().serialize(vnfLifecycleChangeNotification);
-        VnfLifecycleChangeNotification deserialize = new ApiClient().getJSON().deserialize(serialize, VnfLifecycleChangeNotification.class);
-        assertEquals("myId", deserialize.getVnfInstanceId());
-    }
-
-    /**
-     * test arrays are not initialized to empty arrays
-     */
-    @Test
-    public void testArrayBehaviour() throws  Exception{
-        VnfLifecycleChangeNotification vnfLifecycleChangeNotification = new VnfLifecycleChangeNotification();
-        vnfLifecycleChangeNotification.setNotificationType(VnfNotificationType.VNFLIFECYCLECHANGENOTIFICATION);
-        vnfLifecycleChangeNotification.setVnfInstanceId("myId");
-        String serialize = new ApiClient().getJSON().serialize(vnfLifecycleChangeNotification);
-        VnfLifecycleChangeNotification deserialize = new ApiClient().getJSON().deserialize(serialize, VnfLifecycleChangeNotification.class);
-        assertNull(deserialize.getAffectedVirtualLinks());
-    }
-    
 }
