@@ -16,7 +16,6 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
-import com.nokia.cbam.lcn.v32.ApiException;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
 import com.nokia.cbam.lcn.v32.model.*;
 import org.onap.msb.sdk.discovery.common.RouteException;
@@ -121,12 +120,12 @@ public class SelfRegistrationManager {
         SubscriptionsApi lcnApi = cbamRestApiProvider.getCbamLcnApi(vnfmId);
         try {
             String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_URL;
-            for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION)) {
+            for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION).blockingFirst()) {
                 if (subscription.getCallbackUrl().equals(callbackUrl)) {
                     lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION);
                 }
             }
-        } catch (ApiException e) {
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to delete CBAM LCN subscription", e);
         }
     }
@@ -159,7 +158,7 @@ public class SelfRegistrationManager {
         logger.info("Subscribing to CBAM LCN {} with callback to {}", driverProperties.getCbamLcnUrl(), callbackUrl);
         SubscriptionsApi lcnApi = cbamRestApiProvider.getCbamLcnApi(vnfmId);
         try {
-            for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION)) {
+            for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION).blockingFirst()) {
                 if (subscription.getCallbackUrl().equals(callbackUrl)) {
                     return;
                 }
@@ -177,7 +176,7 @@ public class SelfRegistrationManager {
             subscriptionAuthentication.setType(NONE);
             request.setAuthentication(subscriptionAuthentication);
             lcnApi.subscriptionsPost(request, NOKIA_LCN_API_VERSION);
-        } catch (ApiException e) {
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to subscribe to CBAM LCN", e);
         }
     }

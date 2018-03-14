@@ -21,6 +21,9 @@ import com.nokia.cbam.catalog.v1.api.DefaultApi;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
+import io.reactivex.Observable;
+import okhttp3.RequestBody;
+import okio.Buffer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -31,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
@@ -45,6 +49,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -69,6 +75,7 @@ public class TestBase {
     public static final String VIM_ID = "myCloudOwnerId_myRegionName";
     public static final String JOB_ID = "myJobId";
     public static final String CBAM_VNFD_ID = "cbamVnfdId";
+    protected static Call<Void> VOID_CALL = buildCall(null);
     @Mock
     protected CbamRestApiProvider cbamRestApiProvider;
     @Mock
@@ -113,6 +120,20 @@ public class TestBase {
     @Mock
     protected Environment environment;
 
+    protected static <T> Call<T> buildCall(T response) {
+        Call<T> call = Mockito.mock(Call.class);
+        try {
+            when(call.execute()).thenReturn(Response.success(response));
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+        return call;
+    }
+
+    protected static <T> Observable<T> buildObservable(T response) {
+        return Observable.just(response);
+    }
+
     @Before
     public void genericSetup() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -123,7 +144,7 @@ public class TestBase {
         when(cbamRestApiProvider.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
         when(msbApiProvider.getMsbClient()).thenReturn(msbClient);
         when(vfcRestApiProvider.getNsLcmApi()).thenReturn(nsLcmApi);
-        when(vfcRestApiProvider.getOnapCatalogApi()).thenReturn(vfcCatalogApi);
+        when(vfcRestApiProvider.getVfcCatalogApi()).thenReturn(vfcCatalogApi);
         when(systemFunctions.getHttpClient()).thenReturn(httpClient);
         when(httpClient.execute(request.capture())).thenReturn(response);
         when(response.getEntity()).thenReturn(entity);
@@ -146,6 +167,18 @@ public class TestBase {
 
     protected void assertItenticalZips(byte[] expected, byte[] actual) throws Exception {
         assertEquals(build(expected), build(actual));
+    }
+
+    byte[] getContent(RequestBody requestBody) {
+        try {
+            Buffer buffer = new Buffer();
+            requestBody.writeTo(buffer);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            buffer.copyTo(byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Map<String, List<Byte>> build(byte[] zip) throws Exception {
