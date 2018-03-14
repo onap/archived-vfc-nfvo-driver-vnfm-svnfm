@@ -32,6 +32,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.security.NoSuchAlgorithmException;
+import java.security.KeyManagementException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -74,7 +76,7 @@ public class MultipartUtility {
      * @throws IOException
      */
     public MultipartUtility(String requestURL, String charset)
-            throws Exception {
+            throws CertificateException, IOException, NoSuchAlgorithmException, KeyManagementException{
         this.charset = charset;
          
         // creates a unique boundary based on time stamp
@@ -165,10 +167,10 @@ public class MultipartUtility {
                 KEY_STORE_TYPE = sslConf.getKeyStoreType();
             }
             // load jks file
-            FileInputStream f_certStore = new FileInputStream(CommonUtil.getAppRoot() + CERT_STORE);
-            KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE);
-            ks.load(f_certStore, CERT_STORE_PASSWORD.toCharArray());
-            f_certStore.close();
+	    try(FileInputStream f_certStore = new FileInputStream(CommonUtil.getAppRoot() + CERT_STORE)){
+		    KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE);
+		    ks.load(f_certStore, CERT_STORE_PASSWORD.toCharArray());
+	    
 
             // init and create
             String alg = KeyManagerFactory.getDefaultAlgorithm();
@@ -176,6 +178,7 @@ public class MultipartUtility {
             kmFact.init(ks, CERT_STORE_PASSWORD.toCharArray());
 
             kms = kmFact.getKeyManagers();
+	    }
         } catch(Exception e) {
             logger.error("create KeyManager fail!", e);
         }
@@ -196,15 +199,16 @@ public class MultipartUtility {
             }
             String jksFilePath1 =CommonUtil.getAppRoot() + TRUST_STORE;
             logger.info("jks path is " + jksFilePath1);
-            FileInputStream f_trustStore = new FileInputStream(jksFilePath1);
-            KeyStore ks = KeyStore.getInstance(TRUST_STORE_TYPE);
-            ks.load(f_trustStore, TRUST_STORE_PASSWORD.toCharArray());
-            f_trustStore.close();
+	    try(FileInputStream f_trustStore = new FileInputStream(jksFilePath1)){
+		    KeyStore ks = KeyStore.getInstance(TRUST_STORE_TYPE);
+		    ks.load(f_trustStore, TRUST_STORE_PASSWORD.toCharArray());
+	    
 
             String alg = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory tmFact = TrustManagerFactory.getInstance(alg);
             tmFact.init(ks);
             tms = tmFact.getTrustManagers();
+	    }
 
         } catch(Exception e) {
             logger.error("create TrustManager fail!", e);
@@ -235,14 +239,14 @@ public class MultipartUtility {
         writer.append(LINE_FEED);
         writer.flush();
  
-        FileInputStream inputStream = new FileInputStream(uploadFile);
-        byte[] buffer = new byte[4096];
-        int bytesRead = -1;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, bytesRead);
-        }
-        outputStream.flush();
-        inputStream.close();
+	try(FileInputStream inputStream = new FileInputStream(uploadFile)){
+		byte[] buffer = new byte[4096];
+		int bytesRead = -1;
+		while ((bytesRead = inputStream.read(buffer)) != -1) {
+			outputStream.write(buffer, 0, bytesRead);
+		}
+		outputStream.flush();
+	}
          
         writer.append(LINE_FEED);
         writer.flush();    
