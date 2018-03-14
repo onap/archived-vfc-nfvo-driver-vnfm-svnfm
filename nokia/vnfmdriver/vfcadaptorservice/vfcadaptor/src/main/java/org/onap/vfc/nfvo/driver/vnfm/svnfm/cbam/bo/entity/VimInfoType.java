@@ -14,28 +14,22 @@
 * limitations under the License.
 */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
+import java.io.Serializable;
 
-public enum VimInfoType {
-	
-	  OPENSTACK_V2_INFO  {
+public enum VimInfoType implements Serializable{
+
+	OPENSTACK_V2_INFO  {
 		private OpenstackV2Info openstackv2;
-		
-	  },
-      OPENSTACK_V3_INFO{
-		  private OpenstackV3Info openstackv3;
-	  },
-	 VMWARE_VCLOUD_INFO{
-		  private VmwareVcloudInfo vmwareInfo;
-	  },
-	 OTHER_VIM_INFO{
-		  private OtherVimInfo other;
-	  }
-	
-		 
-		
-	 	
-	 
-	 
-	 
+
+	},
+	OPENSTACK_V3_INFO{
+		private OpenstackV3Info openstackv3;
+	},
+	VMWARE_VCLOUD_INFO{
+		private VmwareVcloudInfo vmwareInfo;
+	},
+	OTHER_VIM_INFO{
+		private OtherVimInfo other;
+	}
 
 }
