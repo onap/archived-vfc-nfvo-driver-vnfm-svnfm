@@ -17,7 +17,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vnfmdriver.ApiException;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
@@ -47,8 +46,8 @@ public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProv
     @Override
     public VnfmInfo queryVnfmInfoFromSource(String vnfmId) {
         try {
-            return vfcRestApiProvider.getNsLcmApi().queryVnfmInfo(vnfmId);
-        } catch (ApiException e) {
+            return vfcRestApiProvider.getNsLcmApi().queryVnfmInfo(vnfmId).execute().body();
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNFM from VF-C with " + vnfmId + " identifier", e);
         }
     }
@@ -56,8 +55,8 @@ public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProv
     @Override
     public VimInfo getVimInfo(String vimId) {
         try {
-            return vfcRestApiProvider.getNsLcmApi().queryVIMInfo(vimId);
-        } catch (org.onap.vnfmdriver.ApiException e) {
+            return vfcRestApiProvider.getNsLcmApi().queryVIMInfo(vimId).execute().body();
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VIM from VF-C with " + vimId + " identifier", e);
         }
     }

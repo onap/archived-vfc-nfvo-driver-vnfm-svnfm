@@ -38,11 +38,11 @@ public class RealConfig {
      *
      * @return the message converter
      */
-    @Bean
+   //FIXME? @Bean
     public HttpMessageConverters customConverters() {
         Collection<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
         GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
-        gsonHttpMessageConverter.setGson(new ApiClient().getJSON().getGson());
+        //FIXME gsonHttpMessageConverter.setGson(new ApiClient().getAdapterBuilder().build()..getJSON().getGson());
         messageConverters.add(gsonHttpMessageConverter);
         return new HttpMessageConverters(true, messageConverters);
     }

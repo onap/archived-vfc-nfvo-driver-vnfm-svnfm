@@ -19,7 +19,6 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
@@ -35,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 import static com.google.common.base.Splitter.on;
@@ -285,12 +285,13 @@ public class JobManager {
     }
 
     private boolean isCurrentOperationTriggeredByJob(String jobId, OperationExecutionsApi cbamOperationExecutionApi, OperationExecution operationExecution) {
+
         try {
-            Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operationExecution.getId(), NOKIA_LCM_API_VERSION);
+            Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operationExecution.getId(), NOKIA_LCM_API_VERSION).blockingFirst();
             if (extractOnapJobId(operationParams).equals(jobId)) {
                 return true;
             }
-        } catch (ApiException e) {
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to retrieve operation parameters", e);
         }
         return false;
@@ -301,7 +302,7 @@ public class JobManager {
             //test if the VNF exists (required to be able to distingush between failed request )
             VnfsApi cbamLcmApi = cbamRestApiProvider.getCbamLcmApi(vnfmId);
             logger.debug("Listing VNFs");
-            List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION);
+            List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION).blockingSingle();
             com.google.common.base.Optional<VnfInfo> vnf = tryFind(vnfs, vnfInfo -> vnfId.equals(vnfInfo.getId()));
             if (!vnf.isPresent()) {
                 logger.debug("VNF with {} identifier is missing", vnfId);
@@ -309,9 +310,9 @@ public class JobManager {
             } else {
                 logger.debug("VNF with {} identifier still exists", vnfId);
                 //query the VNF again to get operation execution result
-                return of(cbamLcmApi.vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION));
+                return of(cbamLcmApi.vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst());
             }
-        } catch (ApiException e) {
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to retrieve VNF", e);
         }
     }

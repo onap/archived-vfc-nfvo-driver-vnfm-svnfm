@@ -17,6 +17,8 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import com.google.common.io.ByteStreams;
+import okhttp3.Interceptor;
+import okhttp3.Request;
 import org.eclipse.jetty.server.NetworkTrafficServerConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -56,68 +58,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-class HttpTestServer {
-    Server _server;
-    volatile List<String> requests = new ArrayList<>();
-    volatile List<Integer> codes = new ArrayList<>();
-    volatile List<String> respones = new ArrayList<>();
-    ExecutorService executorService = Executors.newCachedThreadPool();
-    public void start() throws Exception {
-        configureServer();
-        startServer();
-    }
-
-    private void startServer() throws Exception {
-        requests.clear();
-        codes.clear();
-        _server.start();
-        Future<?> serverStarted = executorService.submit(() -> {
-            while(true){
-                try {
-                    Thread.sleep(10);
-                    if(_server.isStarted()){
-                        return;
-                    }
-                } catch (InterruptedException e) {
-                }
-            }
-        });
-        serverStarted.get(30, TimeUnit.SECONDS);
-    }
-
-    protected void configureServer() throws Exception {
-        Path jksPath = Paths.get(TestCbamTokenProvider.class.getResource("/unittests/localhost.jks").toURI());
-        String path = jksPath.normalize().toAbsolutePath().toUri().toString();
-        _server = new Server();
-        SslContextFactory factory = new SslContextFactory(path);
-        factory.setKeyStorePassword("changeit");
-        NetworkTrafficServerConnector connector = new NetworkTrafficServerConnector(_server, factory);
-        connector.setHost("127.0.0.1");
-        _server.addConnector(connector);
-        _server.setHandler(new AbstractHandler() {
-            @Override
-            public void handle(String target, org.eclipse.jetty.server.Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
-                requests.add(new String(ByteStreams.toByteArray(request.getInputStream())));
-                httpServletResponse.getWriter().write(respones.remove(0));
-                httpServletResponse.setStatus(codes.remove(0));
-                request.setHandled(true);
-            }
-        });
-    }
-
-    public void stop() throws Exception {
-        _server.stop();
-    }
-}
-
 public class TestCbamTokenProvider extends TestBase {
 
     private static String GOOD_RESPONSE = "{ \"access_token\" : \"myToken\", \"expires_in\" : 1000 }";
     @InjectMocks
     private CbamTokenProvider cbamTokenProvider;
     private VnfmInfo vnfmInfo = new VnfmInfo();
-    private ArgumentCaptor<SSLSocketFactory> sslSocketFactory = ArgumentCaptor.forClass(SSLSocketFactory.class);
-    private ArgumentCaptor<HostnameVerifier> hostnameVerifier = ArgumentCaptor.forClass(HostnameVerifier.class);
     private HttpTestServer testServer;
 
     @Before
@@ -135,8 +81,6 @@ public class TestCbamTokenProvider extends TestBase {
         testServer.start();
         URI uri = testServer._server.getURI();
         setField(cbamTokenProvider, "cbamKeyCloakBaseUrl", uri.toString());
-
-
     }
 
     private void addGoodTokenResponse() {
@@ -157,12 +101,22 @@ public class TestCbamTokenProvider extends TestBase {
         //given
         addGoodTokenResponse();
         //when
-        String token = cbamTokenProvider.getToken(VNFM_ID);
+        String token = extractToken(cbamTokenProvider.getToken(VNFM_ID));
         //verify
         assertEquals(1, testServer.requests.size());
         assertTokenRequest(testServer.requests.get(0));
         assertEquals("myToken", token);
 
+    }
+
+    public static String extractToken(Interceptor token) throws IOException {
+        Interceptor.Chain chain = Mockito.mock(Interceptor.Chain.class);
+        Request request = new Request.Builder().url("http://127.0.0.0/").build();
+        when(chain.request()).thenReturn(request);
+        ArgumentCaptor<Request> re = ArgumentCaptor.forClass(Request.class);
+        when(chain.proceed(re.capture())).thenReturn(null);
+        token.intercept(chain);
+        return re.getValue().header("Authorization").replaceFirst("Bearer ", "");
     }
 
     /**
@@ -172,12 +126,12 @@ public class TestCbamTokenProvider extends TestBase {
     public void testTokenIsRequestedIfPreviousExpired() throws Exception {
         //given
         addGoodTokenResponse();
-        String firstToken = cbamTokenProvider.getToken(VNFM_ID);
+        String firstToken = extractToken(cbamTokenProvider.getToken(VNFM_ID));
         testServer.respones.add("{ \"access_token\" : \"myToken2\", \"expires_in\" : 2000 }");
         testServer.codes.add(HttpStatus.OK.value());
         when(systemFunctions.currentTimeMillis()).thenReturn(500L * 1000 + 1L);
         //when
-        String token = cbamTokenProvider.getToken(VNFM_ID);
+        String token = extractToken(cbamTokenProvider.getToken(VNFM_ID));
         //verify
         assertEquals(2, testServer.requests.size());
         assertTokenRequest(testServer.requests.get(0));
@@ -192,12 +146,12 @@ public class TestCbamTokenProvider extends TestBase {
     public void testTokenIsNotRequestedIfPreviousHasNotExpired() throws Exception {
         //given
         addGoodTokenResponse();
-        String firstToken = cbamTokenProvider.getToken(VNFM_ID);
+        String firstToken = extractToken(cbamTokenProvider.getToken(VNFM_ID));
         testServer.respones.add("{ \"access_token\" : \"myToken2\", \"expires_in\" : 2000 }");
         testServer.codes.add(HttpStatus.OK.value());
         when(systemFunctions.currentTimeMillis()).thenReturn(500L * 1000);
         //when
-        String token = cbamTokenProvider.getToken(VNFM_ID);
+        String token = extractToken(cbamTokenProvider.getToken(VNFM_ID));
         //verify
         assertEquals(1, testServer.requests.size());
         assertTokenRequest(testServer.requests.get(0));
@@ -217,7 +171,7 @@ public class TestCbamTokenProvider extends TestBase {
         addGoodTokenResponse();
         //cbamTokenProvider.failOnRequestNumber = 5;
         //when
-        String token = cbamTokenProvider.getToken(VNFM_ID);
+        String token = extractToken(cbamTokenProvider.getToken(VNFM_ID));
         //verify
         assertEquals(5, testServer.requests.size());
         assertTokenRequest(testServer.requests.get(0));
@@ -269,174 +223,6 @@ public class TestCbamTokenProvider extends TestBase {
         testServer.respones.add(new String());
     }
 
-    /**
-     * the SSL connection is established without certificate & hostname verification
-     */
-    @Test
-    public void noSslVerification() throws Exception {
-        //given
-        //the default settings is no SSL & hostname check
-        addGoodTokenResponse();
-        //when
-        cbamTokenProvider.getToken(VNFM_ID);
-        //verify
-        //no exception is thrown
-    }
-
-    /**
-     * if SSL is verified the certificates must be defined
-     */
-    @Test
-    public void testInvalidCombinationOfSettings() throws Exception {
-        //given
-        setField(cbamTokenProvider, "skipCertificateVerification", false);
-        //when
-        try {
-            cbamTokenProvider.getToken(VNFM_ID);
-            //verify
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("If the skipCertificateVerification is set to false (default) the trustedCertificates can not be empty", e.getMessage());
-        }
-    }
-
-    /**
-     * if SSL is verified the certificates must be defined
-     */
-    @Test
-    public void testInvalidCombinationOfSettings2() throws Exception {
-        //given
-        setField(cbamTokenProvider, "skipCertificateVerification", false);
-        setField(cbamTokenProvider, "trustedCertificates", "xx\nxx");
-        //when
-        try {
-            cbamTokenProvider.getToken(VNFM_ID);
-            //verify
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("The trustedCertificates must be a base64 encoded collection of PEM certificates", e.getMessage());
-            assertNotNull(e.getCause());
-        }
-    }
-
-    /**
-     * the SSL connection is established without certificate & hostname verification
-     */
-    @Test
-    public void testNotTrustedSslConnection() throws Exception {
-        //given
-        setField(cbamTokenProvider, "skipCertificateVerification", false);
-        Path caPem = Paths.get(TestCbamTokenProvider.class.getResource("/unittests/sample.cert.pem").toURI());
-        setField(cbamTokenProvider, "trustedCertificates", Base64.getEncoder().encodeToString(Files.readAllBytes(caPem)));
-        addGoodTokenResponse();
-        //when
-        try {
-            cbamTokenProvider.getToken(VNFM_ID);
-            //verify
-            fail();
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause().getCause().getMessage().contains("unable to find valid certification path"));
-            assertTrue(e.getCause() instanceof SSLHandshakeException);
-        }
-    }
-
-    /**
-     * the SSL connection is established with certificate & hostname verification
-     */
-    @Test
-    public void testHostnameVerificationSucceeds() throws Exception {
-        //given
-        setField(cbamTokenProvider, "skipCertificateVerification", false);
-        Path caPem = Paths.get(TestCbamTokenProvider.class.getResource("/unittests/localhost.cert.pem").toURI());
-        setField(cbamTokenProvider, "trustedCertificates", Base64.getEncoder().encodeToString(Files.readAllBytes(caPem)));
-        setField(cbamTokenProvider, "cbamKeyCloakBaseUrl", testServer._server.getURI().toString().replace("127.0.0.1", "localhost"));
-        setField(cbamTokenProvider, "skipHostnameVerification", false);
-        addGoodTokenResponse();
-        //when
-        cbamTokenProvider.getToken(VNFM_ID);
-        //verify
-        //no seception is thrown
-    }
-
-    /**
-     * the SSL connection is dropped with certificate & hostname verification due to invalid hostname
-     */
-    @Test
-    public void testHostnameverifcationfail() throws Exception {
-        //given
-        setField(cbamTokenProvider, "skipCertificateVerification", false);
-        Path caPem = Paths.get(TestCbamTokenProvider.class.getResource("/unittests/localhost.cert.pem").toURI());
-        setField(cbamTokenProvider, "trustedCertificates", Base64.getEncoder().encodeToString(Files.readAllBytes(caPem)));
-        setField(cbamTokenProvider, "skipHostnameVerification", false);
-        addGoodTokenResponse();
-        //when
-        try {
-            cbamTokenProvider.getToken(VNFM_ID);
-            //verify
-            fail();
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause().getMessage().contains("Hostname 127.0.0.1 not verified"));
-            assertTrue(e.getCause() instanceof SSLPeerUnverifiedException);
-        }
-    }
-
-    /**
-     * invalid certificate content
-     */
-    @Test
-    public void testInvalidCerificateContent() throws Exception {
-        //given
-        setField(cbamTokenProvider, "skipCertificateVerification", false);
-        setField(cbamTokenProvider, "trustedCertificates", Base64.getEncoder().encodeToString("-----BEGIN CERTIFICATE-----\nkuku\n-----END CERTIFICATE-----\n".getBytes()));
-        setField(cbamTokenProvider, "skipHostnameVerification", false);
-        addGoodTokenResponse();
-        //when
-        try {
-            cbamTokenProvider.getToken(VNFM_ID);
-            //verify
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals("Unable to load certificates", e.getMessage());
-            assertTrue(e.getCause() instanceof GeneralSecurityException);
-        }
-    }
-
-    /**
-     * Verify client certificates are not verified
-     * \
-     */
-    @Test
-    public void testClientCertificates() throws Exception {
-        //when
-        new CbamTokenProvider.AllTrustedTrustManager().checkClientTrusted(null, null);
-        //verify
-        //no security exception is thrown
-    }
-
-    /**
-     * Exception during keystore creation is logged (semi-useless)
-     */
-    @Test
-    public void testKeystoreCreationFailure() {
-        KeyStoreException expectedException = new KeyStoreException();
-        class X extends CbamTokenProvider {
-            X(VnfmInfoProvider vnfmInfoProvider) {
-                super(vnfmInfoProvider);
-            }
-
-            @Override
-            TrustManager[] buildTrustManager() throws KeyStoreException {
-                throw expectedException;
-            }
-        }
-        try {
-            new X(null).buildSSLSocketFactory();
-            fail();
-        } catch (RuntimeException e) {
-            assertEquals(expectedException, e.getCause());
-            verify(logger).error("Unable to create SSL socket factory", expectedException);
-        }
-    }
 
     private void assertTokenRequest(String body) {
         assertContains(body, "grant_type", "password");
