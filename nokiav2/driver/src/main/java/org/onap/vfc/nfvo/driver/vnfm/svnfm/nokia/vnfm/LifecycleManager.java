@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.ScaleDirection;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
@@ -141,7 +140,7 @@ public class LifecycleManager {
             vnfCreateRequest.setVnfdId(cbamPackage.getVnfdId());
             vnfCreateRequest.setName(vnfName);
             vnfCreateRequest.setDescription(description);
-            com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsPost(vnfCreateRequest, NOKIA_LCM_API_VERSION);
+            com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsPost(vnfCreateRequest, NOKIA_LCM_API_VERSION).blockingFirst();
             addVnfdIdToVnfModifyableAttributeExtensions(vnfmId, vnfInfo.getId(), csarId);
             return new VnfCreationResult(vnfInfo, cbamPackage.getVnfdId());
         } catch (Exception e) {
@@ -209,7 +208,7 @@ public class LifecycleManager {
         return instantiate(vnfmId, request, httpResponse, additionalParameters, creationResult.vnfInfo.getId(), creationResult.vnfdId);
     }
 
-    private void instantiateVnf(String vnfmId, VnfInstantiateRequest request, AdditionalParameters additionalParameters, String vnfdId, String vnfId, String vimId, JobInfo jobInfo) throws ApiException {
+    private void instantiateVnf(String vnfmId, VnfInstantiateRequest request, AdditionalParameters additionalParameters, String vnfdId, String vnfId, String vimId, JobInfo jobInfo) {
         String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, vnfdId);
         GrantVNFResponseVim vim = grantManager.requestGrantForInstantiate(vnfmId, vnfId, vimId, request.getVnfPackageId(), additionalParameters.getInstantiationLevel(), vnfdContent, jobInfo.getJobId());
         if (vim.getVimId() == null) {
@@ -238,7 +237,7 @@ public class LifecycleManager {
             logger.warn("No additional parameters were specified for the operation");
         }
         instantiationRequest.setAdditionalParams(root);
-        OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdInstantiatePost(vnfId, instantiationRequest, NOKIA_LCM_API_VERSION);
+        OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdInstantiatePost(vnfId, instantiationRequest, NOKIA_LCM_API_VERSION).blockingFirst();
         waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
     }
 
@@ -281,11 +280,11 @@ public class LifecycleManager {
         return childElement(deploymentFlavorProperties, "flavour_id").getAsString();
     }
 
-    private Set<String> getAcceptableOperationParameters(String vnfdContent, String categroryOfOperation, String operationName) {
+    private Set<Map.Entry<String, JsonElement>> getAcceptableOperationParameters(String vnfdContent, String categroryOfOperation, String operationName) {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(vnfdContent)).getAsJsonObject();
         JsonObject interfaces = child(child(child(root, "topology_template"), "substitution_mappings"), "interfaces");
         JsonObject additionalParameters = child(child(child(child(interfaces, categroryOfOperation), operationName), "inputs"), "additional_parameters");
-        return additionalParameters.keySet();
+        return additionalParameters.entrySet();
     }
 
     private void addExternalLinksToRequest(List<ExtVirtualLinkInfo> extVirtualLinks, AdditionalParameters additionalParameters, InstantiateVnfRequest instantiationRequest, String vimId) {
@@ -316,9 +315,9 @@ public class LifecycleManager {
         request.getExtensions().add(externalVnfmIdProperty);
         request.setVnfConfigurableProperties(null);
         try {
-            OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdPatch(vnfId, request, NOKIA_LCM_API_VERSION);
+            OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdPatch(vnfId, request, NOKIA_LCM_API_VERSION).blockingFirst();
             waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
-        } catch (ApiException e) {
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to set the " + ONAP_CSAR_ID + " property on the VNF", e);
         }
     }
@@ -428,7 +427,7 @@ public class LifecycleManager {
         logOperationInput(vnfId, "termination", request);
         return scheduleExecution(vnfId, httpResponse, "terminate", jobInfo -> {
             TerminateVnfRequest cbamRequest = new TerminateVnfRequest();
-            cbamRequest.setAdditionalParams(jobInfo);
+            //cbamRequest.setAdditionalParams(jobInfo);
             if (request.getTerminationType() == null) {
                 cbamRequest.setTerminationType(TerminationType.FORCEFUL);
             } else {
@@ -439,7 +438,7 @@ public class LifecycleManager {
                     cbamRequest.setTerminationType(TerminationType.FORCEFUL);
                 }
             }
-            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
+            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
             if (vnf.getInstantiationState() == INSTANTIATED) {
                 terminateVnf(vnfmId, vnfId, jobInfo, cbamRequest, vnf);
             } else {
@@ -448,10 +447,10 @@ public class LifecycleManager {
         });
     }
 
-    private void terminateVnf(String vnfmId, String vnfId, JobInfo jobInfo, TerminateVnfRequest cbamRequest, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) throws ApiException {
+    private void terminateVnf(String vnfmId, String vnfId, JobInfo jobInfo, TerminateVnfRequest cbamRequest, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
         String vimId = getVimIdFromInstantiationRequest(vnfmId, vnf);
         grantManager.requestGrantForTerminate(vnfmId, vnfId, vimId, getVnfdIdFromModifyableAttributes(vnf), vnf, jobInfo.getJobId());
-        OperationExecution terminationOperation = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdTerminatePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION);
+        OperationExecution terminationOperation = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdTerminatePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION).blockingFirst();
         OperationExecution finishedOperation = waitForOperationToFinish(vnfmId, vnfId, terminationOperation.getId());
         if (finishedOperation.getStatus() == FINISHED) {
             notificationManager.waitForTerminationToBeProcessed(finishedOperation.getId());
@@ -464,9 +463,9 @@ public class LifecycleManager {
         }
     }
 
-    private String getVimIdFromInstantiationRequest(String vnfmId, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) throws ApiException {
+    private String getVimIdFromInstantiationRequest(String vnfmId, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
         OperationExecution lastInstantiation = findLastInstantiation(vnf.getOperationExecutions());
-        Object operationParameters = cbamRestApiProvider.getCbamOperationExecutionApi(vnfmId).operationExecutionsOperationExecutionIdOperationParamsGet(lastInstantiation.getId(), NOKIA_LCM_API_VERSION);
+        Object operationParameters = cbamRestApiProvider.getCbamOperationExecutionApi(vnfmId).operationExecutionsOperationExecutionIdOperationParamsGet(lastInstantiation.getId(), NOKIA_LCM_API_VERSION).blockingFirst();
         JsonObject root = new Gson().toJsonTree(operationParameters).getAsJsonObject();
         return childElement(childElement(root, "vims").getAsJsonArray().get(0).getAsJsonObject(), "id").getAsString();
     }
@@ -482,7 +481,7 @@ public class LifecycleManager {
      */
     public VnfInfo queryVnf(String vnfmId, String vnfId) {
         try {
-            com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
+            com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
             VnfInfo vnfInfo = new VnfInfo();
             vnfInfo.setVersion(cbamVnfInfo.getVnfSoftwareVersion());
             vnfInfo.setVnfInstanceId(vnfId);
@@ -495,7 +494,7 @@ public class LifecycleManager {
             vnfInfo.setVnfStatus("ACTIVE");
             vnfInfo.setVnfType("Kuku");
             return vnfInfo;
-        } catch (ApiException e) {
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNF (" + vnfId + ")", e);
         }
     }
@@ -519,28 +518,37 @@ public class LifecycleManager {
      */
     public JobInfo scaleVnf(String vnfmId, String vnfId, VnfScaleRequest request, HttpServletResponse httpResponse) {
         logOperationInput(vnfId, SCALE_OPERATION_NAME, request);
-        return scheduleExecution(vnfId, httpResponse, SCALE_OPERATION_NAME, jobInfo -> {
-            ScaleVnfRequest cbamRequest = new ScaleVnfRequest();
-            cbamRequest.setAspectId(request.getAspectId());
-            cbamRequest.setNumberOfSteps(Integer.valueOf(request.getNumberOfSteps()));
-            cbamRequest.setType(convert(request.getType()));
-            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
-            JsonObject root = new Gson().toJsonTree(jobInfo).getAsJsonObject();
-            com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
-            String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, cbamVnfInfo.getVnfdId());
-            Set<String> acceptableOperationParameters = getAcceptableOperationParameters(vnfdContent, "Basic", SCALE_OPERATION_NAME);
-            buildAdditionalParameters(request, root, acceptableOperationParameters);
-            cbamRequest.setAdditionalParams(root);
-            grantManager.requestGrantForScale(vnfmId, vnfId, getVimIdFromInstantiationRequest(vnfmId, vnf), getVnfdIdFromModifyableAttributes(vnf), request, jobInfo.getJobId());
-            OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdScalePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION);
-            waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
+        return scheduleExecution(vnfId, httpResponse, SCALE_OPERATION_NAME, new AsynchronousExecution() {
+            @Override
+            public void execute(JobInfo jobInfo) {
+                ScaleVnfRequest cbamRequest = new ScaleVnfRequest();
+                cbamRequest.setAspectId(request.getAspectId());
+                cbamRequest.setNumberOfSteps(Integer.valueOf(request.getNumberOfSteps()));
+                cbamRequest.setType(convert(request.getType()));
+                com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+                JsonObject root = new Gson().toJsonTree(jobInfo).getAsJsonObject();
+                com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+                String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, cbamVnfInfo.getVnfdId());
+                Set<Map.Entry<String, JsonElement>> acceptableOperationParameters = getAcceptableOperationParameters(vnfdContent, "Basic", SCALE_OPERATION_NAME);
+                buildAdditionalParameters(request, root, acceptableOperationParameters);
+                cbamRequest.setAdditionalParams(root);
+                grantManager.requestGrantForScale(vnfmId, vnfId, getVimIdFromInstantiationRequest(vnfmId, vnf), getVnfdIdFromModifyableAttributes(vnf), request, jobInfo.getJobId());
+                OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdScalePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION).blockingFirst();
+                waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
+            }
         });
     }
 
-    private void buildAdditionalParameters(VnfScaleRequest request, JsonObject root, Set<String> acceptableOperationParameters) {
+    private void buildAdditionalParameters(VnfScaleRequest request, JsonObject root, Set<Map.Entry<String, JsonElement>> acceptableOperationParameters) {
         if (request.getAdditionalParam() != null) {
             for (Map.Entry<String, JsonElement> item : new Gson().toJsonTree(request.getAdditionalParam()).getAsJsonObject().entrySet()) {
-                if (acceptableOperationParameters.contains(item.getKey())) {
+                boolean found = false;
+                for (Map.Entry<String, JsonElement> acceptableOperationParameter : acceptableOperationParameters) {
+                    if(acceptableOperationParameter.getKey().equals(item.getKey())){
+                        found = true;
+                    }
+                }
+                if (found) {
                     root.add(item.getKey(), item.getValue());
                 }
             }
@@ -569,10 +577,10 @@ public class LifecycleManager {
             additionalParams.put("jobId", job.getJobId());
             additionalParams.put("vnfcId", vnfcId.orElse("unknown"));
             cbamHealRequest.setAdditionalParams(additionalParams);
-            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
+            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
             String vimId = getVimIdFromInstantiationRequest(vnfmId, vnf);
             grantManager.requestGrantForHeal(vnfmId, vnfId, vimId, getVnfdIdFromModifyableAttributes(vnf), request, job.getJobId());
-            OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdHealPost(vnfId, cbamHealRequest, NOKIA_LCM_API_VERSION);
+            OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdHealPost(vnfId, cbamHealRequest, NOKIA_LCM_API_VERSION).blockingFirst();
             waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
         });
     }
@@ -602,7 +610,7 @@ public class LifecycleManager {
     private OperationExecution waitForOperationToFinish(String vnfmId, String vnfId, String operationExecutionId) {
         while (true) {
             try {
-                OperationExecution operationExecution = find(cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdOperationExecutionsGet(vnfId, NOKIA_LCM_API_VERSION), opEx -> operationExecutionId.equals(opEx.getId()));
+                OperationExecution operationExecution = find(cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdOperationExecutionsGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst(), opEx -> operationExecutionId.equals(opEx.getId()));
                 if (hasOperationFinished(operationExecution)) {
                     logger.debug("Operation finished with " + operationExecution.getId());
                     return operationExecution;
@@ -621,9 +629,9 @@ public class LifecycleManager {
 
     @FunctionalInterface
     private interface AsynchronousExecution {
-        void execute(JobInfo job) throws ApiException;
-
+        void execute(JobInfo job);
     }
+
     public static class VnfCreationResult {
         private final com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo;
         private final String vnfdId;

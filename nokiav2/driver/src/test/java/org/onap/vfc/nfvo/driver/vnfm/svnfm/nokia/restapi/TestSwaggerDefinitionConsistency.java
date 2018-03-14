@@ -18,6 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import junit.framework.TestCase;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -43,11 +45,11 @@ public class TestSwaggerDefinitionConsistency extends TestBase {
         JsonObject root = new JsonParser().parse(new String(loadFile("self.swagger.json"))).getAsJsonObject();
         String basePath = root.get("basePath").getAsString();
         HashMultimap<String, RequestMethod> expectedPaths = HashMultimap.create();
-        for (String pathName : child(root, "paths").keySet()) {
-            JsonObject path = child(child(root, "paths"), pathName);
-            for (String method : path.keySet()) {
-                locate(basePath + pathName);
-                expectedPaths.put(basePath + pathName, RequestMethod.valueOf(method.toUpperCase()));
+        for (Map.Entry<String, JsonElement> pathName : child(root, "paths").entrySet()) {
+            JsonObject path = child(child(root, "paths"), pathName.getKey());
+            for (Map.Entry<String, JsonElement> method : path.entrySet()) {
+                locate(basePath + pathName.getKey());
+                expectedPaths.put(basePath + pathName.getKey(), RequestMethod.valueOf(method.getKey().toUpperCase()));
             }
         }
 
@@ -60,7 +62,7 @@ public class TestSwaggerDefinitionConsistency extends TestBase {
                     RequestMethod restMethod = methodMapping.method()[0];
                     Set<RequestMethod> currentMethods = expectedPaths.get(fPath);
                     if (!currentMethods.contains(restMethod)) {
-                        TestCase.fail("Not documented REST API" + fPath + " " + restMethod + " current " + currentMethods);
+                        TestCase.fail("Not documented REST API " + fPath + " " + restMethod + " current " + currentMethods);
                     }
                 }
             }

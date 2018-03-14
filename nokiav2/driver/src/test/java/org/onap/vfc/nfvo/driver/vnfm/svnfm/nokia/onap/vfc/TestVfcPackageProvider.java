@@ -25,9 +25,9 @@ import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.IpMappingProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
-import org.onap.vfccatalog.ApiException;
 import org.onap.vfccatalog.model.VnfPkgDetailInfo;
 import org.onap.vfccatalog.model.VnfPkgInfo;
+import retrofit2.Call;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -65,7 +65,8 @@ public class TestVfcPackageProvider extends TestBase {
         vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
         vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
         vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
+        Call<VnfPkgDetailInfo> vnfPkgDetailInfoCall = buildCall(vnfPackageDetails);
+        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPkgDetailInfoCall);
         //when
         String cbamVnfdId = vfcPackageProvider.getCbamVnfdId(CSAR_ID);
         //verify
@@ -82,7 +83,8 @@ public class TestVfcPackageProvider extends TestBase {
         vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
         vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
         vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
+        Call<VnfPkgDetailInfo> vnfPkgDetailInfoCall = buildCall(vnfPackageDetails);
+        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPkgDetailInfoCall);
         byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
         when(ipMappingProvider.mapPrivateIpToPublicIp("127.0.0.1")).thenReturn("1.2.3.4");
         when(entity.getContent()).thenReturn(new ByteArrayInputStream(onapPackageContent));
@@ -100,7 +102,7 @@ public class TestVfcPackageProvider extends TestBase {
      */
     @Test
     public void unableToGetCbamVnfdFromCatalog() throws Exception {
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenThrow(expectedException);
         //when
         try {
@@ -122,7 +124,8 @@ public class TestVfcPackageProvider extends TestBase {
         vnfPackageDetails.setPackageInfo(new VnfPkgInfo());
         vnfPackageDetails.getPackageInfo().setVnfdModel("{ \"metadata\" : { \"resourceVendorModelNumber\" : \"" + CBAM_VNFD_ID + "\" }}");
         vnfPackageDetails.getPackageInfo().setDownloadUrl("http://127.0.0.1/a.csar");
-        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPackageDetails);
+        Call<VnfPkgDetailInfo> vnfPkgDetailInfoCall = buildCall(vnfPackageDetails);
+        when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenReturn(vnfPkgDetailInfoCall);
         byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
         when(ipMappingProvider.mapPrivateIpToPublicIp("127.0.0.1")).thenReturn("1.2.3.4");
         IOException expectedException = new IOException();
@@ -142,7 +145,7 @@ public class TestVfcPackageProvider extends TestBase {
      */
     @Test
     public void unableToQueryPackageForDownloadFromCatalog() throws Exception {
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vfcCatalogApi.queryVnfPackage(CSAR_ID)).thenThrow(expectedException);
         //when
         try {
