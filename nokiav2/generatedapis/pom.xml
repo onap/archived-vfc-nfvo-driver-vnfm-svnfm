@@ -26,6 +26,14 @@
   <version>1.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>vfc/nfvo/driver/vnfm/svnfm/nokiav2/generatedapis</name>
+  <properties>
+    <gson-fire-version>1.8.2</gson-fire-version>
+    <retrofit-version>2.3.0</retrofit-version>
+    <rxjava-version>2.0.0</rxjava-version>
+    <threetenbp-version>1.3.5</threetenbp-version>
+    <oltu-version>1.0.1</oltu-version>
+    <swagger-core-version>1.5.15</swagger-core-version>
+  </properties>
   <build>
     <plugins>
       <plugin>
@@ -41,6 +49,7 @@
             <configuration>
               <inputSpec>${basedir}/src/main/resources/nokia.vnfm.api.v3.lcm.json</inputSpec>
               <language>java</language>
+              <library>retrofit2</library>
               <output>${project.build.directory}/generated-sources/cbam</output>
               <apiPackage>com.nokia.cbam.lcm.v32.api</apiPackage>
               <modelPackage>com.nokia.cbam.lcm.v32.model</modelPackage>
@@ -60,12 +69,15 @@
             <configuration>
               <inputSpec>${basedir}/src/main/resources/nokia.vnfm.api.v3.lcn.subscription.json</inputSpec>
               <language>java</language>
+              <library>retrofit2</library>
               <output>${project.build.directory}/generated-sources/cbam</output>
               <apiPackage>com.nokia.cbam.lcn.v32.api</apiPackage>
               <modelPackage>com.nokia.cbam.lcn.v32.model</modelPackage>
               <configOptions>
                 <generateSupportingFiles>false</generateSupportingFiles>
                 <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
               </configOptions>
             </configuration>
           </execution>
@@ -77,6 +89,7 @@
             <configuration>
               <inputSpec>${basedir}/src/main/resources/nokia.catalog.json</inputSpec>
               <language>java</language>
+              <library>retrofit2</library>
               <output>${project.build.directory}/generated-sources/cbam</output>
               <apiPackage>com.nokia.cbam.catalog.v1.api</apiPackage>
               <modelPackage>com.nokia.cbam.catalog.v1.model</modelPackage>
@@ -94,6 +107,7 @@
             <configuration>
               <inputSpec>${basedir}/src/main/resources/vfc.catalog.swagger.json</inputSpec>
               <language>java</language>
+              <library>retrofit2</library>
               <output>${project.build.directory}/generated-sources/vfccatalog</output>
               <apiPackage>org.onap.vfccatalog.api</apiPackage>
               <modelPackage>org.onap.vfccatalog.model</modelPackage>
@@ -111,6 +125,7 @@
             <configuration>
               <inputSpec>${basedir}/src/main/resources/vfc.vnfdriver.swagger.json</inputSpec>
               <language>java</language>
+              <library>retrofit2</library>
               <output>${project.build.directory}/generated-sources/vnfmdriver</output>
               <apiPackage>org.onap.vnfmdriver.api</apiPackage>
               <modelPackage>org.onap.vnfmdriver.model</modelPackage>
@@ -120,6 +135,26 @@
               </configOptions>
             </configuration>
           </execution>
+<!--
+          <execution>
+            <id>soadapter</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/so.vnfm.json</inputSpec>
+              <language>java</language>
+              <library>retrofit2</library>
+              <output>${project.build.directory}/generated-sources/soadapter</output>
+              <apiPackage>org.onap.soadapter.api</apiPackage>
+              <modelPackage>org.onap.soadapter.model</modelPackage>
+              <configOptions>
+                <generateSupportingFiles>false</generateSupportingFiles>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+              </configOptions>
+            </configuration>
+          </execution>
+-->
         </executions>
       </plugin>
       <plugin>
@@ -157,36 +192,49 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.8.2</version>
-    </dependency>
-    <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-annotations</artifactId>
-      <version>1.5.16</version>
+      <version>${swagger-core-version}</version>
     </dependency>
     <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.9.9</version>
+      <groupId>com.squareup.retrofit2</groupId>
+      <artifactId>converter-gson</artifactId>
+      <version>${retrofit-version}</version>
     </dependency>
     <dependency>
-      <!-- this does not have a compile time dependency, but is required to be able to deserialize the date to joda time -->
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-joda</artifactId>
-      <!-- this version must be in sync with the dependency comming from spring boot -->
-      <version>2.8.10</version>
+      <groupId>com.squareup.retrofit2</groupId>
+      <artifactId>retrofit</artifactId>
+      <version>${retrofit-version}</version>
     </dependency>
     <dependency>
-      <groupId>com.squareup.okhttp</groupId>
-      <artifactId>okhttp</artifactId>
-      <version>2.7.5</version>
+      <groupId>com.squareup.retrofit2</groupId>
+      <artifactId>converter-scalars</artifactId>
+      <version>${retrofit-version}</version>
     </dependency>
     <dependency>
-      <groupId>com.squareup.okhttp</groupId>
-      <artifactId>logging-interceptor</artifactId>
-      <version>2.7.5</version>
+      <groupId>org.apache.oltu.oauth2</groupId>
+      <artifactId>org.apache.oltu.oauth2.client</artifactId>
+      <version>${oltu-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.gsonfire</groupId>
+      <artifactId>gson-fire</artifactId>
+      <version>${gson-fire-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.threeten</groupId>
+      <artifactId>threetenbp</artifactId>
+      <version>${threetenbp-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>${rxjava-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.retrofit2</groupId>
+      <artifactId>adapter-rxjava2</artifactId>
+      <version>${retrofit-version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -196,14 +244,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>io.gsonfire</groupId>
-      <artifactId>gson-fire</artifactId>
-      <version>1.8.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.threeten</groupId>
-      <artifactId>threetenbp</artifactId>
-      <version>1.3.6</version>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>24.0-jre</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

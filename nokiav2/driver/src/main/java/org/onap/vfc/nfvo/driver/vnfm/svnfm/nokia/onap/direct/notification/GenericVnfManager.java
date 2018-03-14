@@ -15,7 +15,6 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import org.onap.aai.domain.yang.v11.GenericVnf;
 import org.onap.aai.domain.yang.v11.Relationship;
@@ -84,9 +83,9 @@ class GenericVnfManager extends AbstractManager {
 
     private void updateFields(GenericVnf vnf, String vnfId, boolean inMaintenance) {
         try {
-            VnfInfo vnfInfo = cbamRestApiProvider.getCbamLcmApi(driverProperties.getVnfmId()).vnfsVnfInstanceIdGet(vnfId, CbamRestApiProvider.NOKIA_LCM_API_VERSION);
+            VnfInfo vnfInfo = cbamRestApiProvider.getCbamLcmApi(driverProperties.getVnfmId()).vnfsVnfInstanceIdGet(vnfId, CbamRestApiProvider.NOKIA_LCM_API_VERSION).blockingFirst();
             vnf.setVnfName(vnfInfo.getName());
-        } catch (ApiException e) {
+        } catch (RuntimeException e) {
             throw buildFatalFailure(logger, "Unable to query VNF with " + vnfId + " identifier from CBAM", e);
         }
         vnf.setVnfId(vnfId);

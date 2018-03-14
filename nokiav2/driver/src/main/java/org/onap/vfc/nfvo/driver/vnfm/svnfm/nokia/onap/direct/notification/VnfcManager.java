@@ -16,7 +16,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.google.common.base.Splitter;
-import com.nokia.cbam.lcm.v32.model.AffectedVnfc;
 import org.onap.aai.domain.yang.v11.RelationshipList;
 import org.onap.aai.domain.yang.v11.Vnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
@@ -50,7 +49,7 @@ public class VnfcManager extends AbstractManager {
         return format("/vnfcs/vnfc/%s", buildId(vnfId, cbamVnfcId));
     }
 
-    public static String getCbamVnfcId(String vnfcId){
+    public static String getCbamVnfcId(String vnfcId) {
         String vnfId = Splitter.on(CbamUtils.SEPARATOR).split(vnfcId).iterator().next();
         return vnfcId.replaceFirst(vnfId + SEPARATOR, "");
     }

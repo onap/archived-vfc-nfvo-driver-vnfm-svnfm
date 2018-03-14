@@ -21,7 +21,7 @@ import com.nokia.cbam.lcm.v32.model.VnfIdentifierDeletionNotification;
 import com.nokia.cbam.lcm.v32.model.VnfInfoAttributeValueChangeNotification;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 import org.junit.Test;
-import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.http.MediaType;
 
 public class TestRealConfig {

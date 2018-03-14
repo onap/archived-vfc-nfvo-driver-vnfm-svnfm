@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
+package okhttp3;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import javax.net.ssl.HostnameVerifier;
 
-/**
- * Responsible for initializing the Spring application
- */
-public class ServletInitializer extends SpringBootServletInitializer {
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(NokiaSvnfmApplication.class);
+public class OakExtractor {
+    /**
+     * Cheat access control durting tests
+     */
+    public static HostnameVerifier extract(OkHttpClient.Builder okBuilder) {
+        return okBuilder.hostnameVerifier;
     }
-
 }
