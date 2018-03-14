@@ -38,13 +38,10 @@ public final class CommonUtil {
 	}
 
 	public static String getJsonStrFromFilePath(String fileName) throws IOException {
-		InputStream ins = null;
-        BufferedInputStream bins = null;
         String fileContent = "";
 
-        try {
-            ins = new FileInputStream(fileName);
-            bins = new BufferedInputStream(ins);
+        try (InputStream ins = new FileInputStream(fileName);
+            BufferedInputStream bins = new BufferedInputStream(ins)){
 
             byte[] contentByte = new byte[ins.available()];
             int num = bins.read(contentByte);
@@ -54,14 +51,7 @@ public final class CommonUtil {
             }
         } catch(FileNotFoundException e) {
         	logger.error(fileName + " is not found!", e);
-        } finally {
-            if(ins != null) {
-                ins.close();
-            }
-            if(bins != null) {
-                bins.close();
-            }
-        }
+        } 
 		return fileContent;
 	}
 	
@@ -87,25 +77,22 @@ public final class CommonUtil {
     }
     
     public static byte[] getBytes(String filePath){  
-        byte[] buffer = null;  
-        try {  
-            File file = new File(filePath);  
-            FileInputStream fis = new FileInputStream(file);  
-            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);  
-            byte[] b = new byte[1000];  
-            int n;  
-            while ((n = fis.read(b)) != -1) {  
-                bos.write(b, 0, n);  
-            }  
-            fis.close();  
-            bos.close();  
-            buffer = bos.toByteArray();  
-        } catch (FileNotFoundException e) {  
-        	logger.error("file " + filePath + " is not found.", e);
-        } catch (IOException e) {  
-        	logger.error("file " + filePath + " IOException.", e); 
-        }  
-        return buffer;  
+	    byte[] buffer = null;  
+	    File file = new File(filePath);  
+	    try(FileInputStream fis = new FileInputStream(file);  
+			    ByteArrayOutputStream bos = new ByteArrayOutputStream(1000)){
+		    byte[] b = new byte[1000];  
+		    int n;  
+		    while ((n = fis.read(b)) != -1) {  
+			    bos.write(b, 0, n);  
+		    }  
+		    buffer = bos.toByteArray();  
+	    } catch (FileNotFoundException e) {  
+		    logger.error("file " + filePath + " is not found.", e);
+	    } catch (IOException e) {  
+		    logger.error("file " + filePath + " IOException.", e); 
+	    }  
+	    return buffer;  
     }  
  
 }
