@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import com.nokia.cbam.lcm.v32.model.VnfcResourceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
@@ -77,23 +76,25 @@ public class VfcGrantManager implements IGrantManager {
 
     @Override
     public void requestGrantForScale(String vnfmId, String vnfId, String vimId, String onapCsarId, VnfScaleRequest request, String jobId) {
+        String cbamVnfdId;
         try {
-            OperationType operationType = ScaleDirection.IN.equals(request.getType()) ? OperationType.SCALEIN : OperationType.SCALEOUT;
-            GrantVNFRequest grantRequest = buildGrantRequest(vnfmId, vimId, onapCsarId, jobId, operationType);
-            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION);
-            String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, vnf.getVnfdId());
-            Set<ResourceChange> resourceChanges = calculateResourceChangeDuringScaling(vnfdContent, request.getAspectId(), Integer.parseInt(request.getNumberOfSteps()));
-            if (request.getType() == ScaleDirection.IN) {
-                grantRequest.getRemoveResource().addAll(resourceChanges);
-
-            } else {
-                grantRequest.getAddResource().addAll(resourceChanges);
-            }
-            grantRequest.setVnfInstanceId(vnfId);
-            requestGrant(grantRequest);
-        } catch (ApiException e) {
+            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+            cbamVnfdId = vnf.getVnfdId();
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNF " + vnfId, e);
         }
+        OperationType operationType = ScaleDirection.IN.equals(request.getType()) ? OperationType.SCALEIN : OperationType.SCALEOUT;
+        GrantVNFRequest grantRequest = buildGrantRequest(vnfmId, vimId, onapCsarId, jobId, operationType);
+        String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, cbamVnfdId);
+        Set<ResourceChange> resourceChanges = calculateResourceChangeDuringScaling(vnfdContent, request.getAspectId(), Integer.parseInt(request.getNumberOfSteps()));
+        if (request.getType() == ScaleDirection.IN) {
+            grantRequest.getRemoveResource().addAll(resourceChanges);
+
+        } else {
+            grantRequest.getAddResource().addAll(resourceChanges);
+        }
+        grantRequest.setVnfInstanceId(vnfId);
+        requestGrant(grantRequest);
     }
 
     @Override
@@ -157,8 +158,8 @@ public class VfcGrantManager implements IGrantManager {
 
     private GrantVNFResponseVim requestGrant(GrantVNFRequest grantRequest) {
         try {
-            return vfcRestApiProvider.getNsLcmApi().grantvnf(grantRequest).getVim();
-        } catch (org.onap.vnfmdriver.ApiException e) {
+            return vfcRestApiProvider.getNsLcmApi().grantvnf(grantRequest).execute().body().getVim();
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to request grant", e);
         }
     }

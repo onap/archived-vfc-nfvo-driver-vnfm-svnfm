@@ -20,7 +20,6 @@ import com.google.common.collect.Ordering;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcm.v32.model.*;
@@ -118,7 +117,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
         }
         VnfsApi cbamLcmApi = restApiProvider.getCbamLcmApi(driverProperties.getVnfmId());
         try {
-            List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION);
+            List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION).blockingFirst();
             com.google.common.base.Optional<VnfInfo> currentVnf = tryFind(vnfs, vnf -> vnf.getId().equals(receivedNotification.getVnfInstanceId()));
             String vnfHeader = "The VNF with " + receivedNotification.getVnfInstanceId() + " identifier";
             if (!currentVnf.isPresent()) {
@@ -126,7 +125,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
                 //swallow LCN
                 return;
             } else {
-                VnfInfo vnf = cbamLcmApi.vnfsVnfInstanceIdGet(receivedNotification.getVnfInstanceId(), NOKIA_LCN_API_VERSION);
+                VnfInfo vnf = cbamLcmApi.vnfsVnfInstanceIdGet(receivedNotification.getVnfInstanceId(), NOKIA_LCN_API_VERSION).blockingFirst();
                 com.google.common.base.Optional<VnfProperty> externalVnfmId = tryFind(vnf.getExtensions(), prop -> prop.getName().equals(LifecycleManager.EXTERNAL_VNFM_ID));
                 if (!externalVnfmId.isPresent()) {
                     logger.warn(vnfHeader + " is not a managed VNF");
@@ -141,18 +140,24 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
             throw buildFatalFailure(logger, "Unable to list VNFs / query VNF", e);
         }
         OperationExecutionsApi cbamOperationExecutionApi = restApiProvider.getCbamOperationExecutionApi(driverProperties.getVnfmId());
+        List<OperationExecution> operationExecutions;
         try {
-            List<OperationExecution> operationExecutions = cbamLcmApi.vnfsVnfInstanceIdOperationExecutionsGet(receivedNotification.getVnfInstanceId(), NOKIA_LCM_API_VERSION);
-            OperationExecution operationExecution = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdGet(receivedNotification.getLifecycleOperationOccurrenceId(), NOKIA_LCM_API_VERSION);
-            OperationExecution closestInstantiationToOperation = findLastInstantiationBefore(operationExecutions, operationExecution);
-            String vimId = getVimId(cbamOperationExecutionApi, closestInstantiationToOperation);
-            notificationSender.processNotification(receivedNotification, operationExecution, buildAffectedCps(operationExecution), vimId);
-            if (isTerminationFinished(receivedNotification)) {
-                //signal LifecycleManager to continue the deletion of the VNF
-                processedNotifications.add(new ProcessedNotification(receivedNotification.getLifecycleOperationOccurrenceId(), receivedNotification.getStatus()));
-            }
-        } catch (ApiException e) {
-            throw buildFatalFailure(logger, "Unable to retrieve the current VNF " + receivedNotification.getVnfInstanceId(), e);
+            operationExecutions = cbamLcmApi.vnfsVnfInstanceIdOperationExecutionsGet(receivedNotification.getVnfInstanceId(), NOKIA_LCM_API_VERSION).blockingFirst();
+        } catch (Exception e) {
+            throw buildFatalFailure(logger, "Unable to retrieve the operation executions for the VNF " + receivedNotification.getVnfInstanceId(), e);
+        }
+        OperationExecution operationExecution;
+        try {
+            operationExecution = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdGet(receivedNotification.getLifecycleOperationOccurrenceId(), NOKIA_LCM_API_VERSION).blockingFirst();
+        } catch (Exception e) {
+            throw buildFatalFailure(logger, "Unable to retrieve the operation execution with " + receivedNotification.getLifecycleOperationOccurrenceId() + " identifier", e);
+        }
+        OperationExecution closestInstantiationToOperation = findLastInstantiationBefore(operationExecutions, operationExecution);
+        String vimId = getVimId(cbamOperationExecutionApi, closestInstantiationToOperation);
+        notificationSender.processNotification(receivedNotification, operationExecution, buildAffectedCps(operationExecution), vimId);
+        if (isTerminationFinished(receivedNotification)) {
+            //signal LifecycleManager to continue the deletion of the VNF
+            processedNotifications.add(new ProcessedNotification(receivedNotification.getLifecycleOperationOccurrenceId(), receivedNotification.getStatus()));
         }
     }
 
@@ -162,7 +167,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
 
     private String getVimId(OperationExecutionsApi cbamOperationExecutionApi, OperationExecution closestInstantiationToOperation) {
         try {
-            Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(closestInstantiationToOperation.getId(), NOKIA_LCM_API_VERSION);
+            Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(closestInstantiationToOperation.getId(), NOKIA_LCM_API_VERSION).blockingFirst();
             return getVimId(operationParams);
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to detect last instantiation operation", e);

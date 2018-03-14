@@ -15,9 +15,11 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfccatalog.api.VnfpackageApi;
+import org.onap.vnfmdriver.ApiClient;
 import org.onap.vnfmdriver.api.NslcmApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
@@ -44,19 +46,36 @@ public class VfcRestApiProvider {
      * @return API to access VF-C for granting & LCN API
      */
     public NslcmApi getNsLcmApi() {
-        org.onap.vnfmdriver.ApiClient apiClient = new org.onap.vnfmdriver.ApiClient();
+        return buildNslcmApiClient().createService(NslcmApi.class);
+    }
+
+    @VisibleForTesting
+    ApiClient buildNslcmApiClient() {
+        ApiClient apiClient = new ApiClient();
         String correctedUrl = fixIncorrectUrl();
-        apiClient.setBasePath(correctedUrl);
-        return new NslcmApi(apiClient);
+        if (!correctedUrl.endsWith("/")) {
+            correctedUrl = correctedUrl + "/";
+        }
+        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(correctedUrl));
+        return apiClient;
     }
 
     /**
      * @return API to access VF-C catalog API
      */
-    public VnfpackageApi getOnapCatalogApi() {
+    public VnfpackageApi getVfcCatalogApi() {
+        return buildCatalogApiClient().createService(VnfpackageApi.class);
+    }
+
+    @VisibleForTesting
+    org.onap.vfccatalog.ApiClient buildCatalogApiClient() {
         org.onap.vfccatalog.ApiClient vfcApiClient = new org.onap.vfccatalog.ApiClient();
-        vfcApiClient.setBasePath(msbApiProvider.getMicroServiceUrl(NSCATALOG_SERVICE_NAME, NSCATALOG_API_VERSION));
-        return new VnfpackageApi(vfcApiClient);
+        String microServiceUrl = msbApiProvider.getMicroServiceUrl(NSCATALOG_SERVICE_NAME, NSCATALOG_API_VERSION);
+        if (!microServiceUrl.endsWith("/")) {
+            microServiceUrl = microServiceUrl + "/";
+        }
+        vfcApiClient.setAdapterBuilder(vfcApiClient.getAdapterBuilder().baseUrl(microServiceUrl));
+        return vfcApiClient;
     }
 
     /**

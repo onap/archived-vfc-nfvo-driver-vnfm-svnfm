@@ -20,11 +20,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.OperationType;
 import com.nokia.cbam.lcm.v32.model.VimInfo;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -128,7 +128,7 @@ public class TestLifecycleManager extends TestBase {
         instantiationOperationExecution.setId(OPERATION_EXECUTION_ID);
         instantiationOperationExecution.setOperationType(OperationType.INSTANTIATE);
         instantiationOperationExecution.setStartTime(OffsetDateTime.now());
-        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(operationExecutions);
+        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationExecutions));
         operationExecutions.add(modifyPropertyoperationExecution);
         modifyPropertyoperationExecution.setStartTime(OffsetDateTime.now());
         modifyPropertyoperationExecution.setOperationType(OperationType.MODIFY_INFO);
@@ -138,7 +138,7 @@ public class TestLifecycleManager extends TestBase {
         modifyPropertyoperationExecution.setId(UUID.randomUUID().toString());
         scaleOperationExecution.setId(UUID.randomUUID().toString());
         healOperationExecution.setId(UUID.randomUUID().toString());
-        when(vnfApi.vnfsVnfInstanceIdPatch(eq(VNF_ID), actualVnfModifyRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(modifyPropertyoperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdPatch(eq(VNF_ID), actualVnfModifyRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(modifyPropertyoperationExecution));
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -146,18 +146,18 @@ public class TestLifecycleManager extends TestBase {
                 return null;
             }
         }).when(jobManager).jobFinished(JOB_ID);
-        when(vnfApi.vnfsVnfInstanceIdScalePost(eq(VNF_ID), actualScaleRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<OperationExecution>() {
+        when(vnfApi.vnfsVnfInstanceIdScalePost(eq(VNF_ID), actualScaleRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<Observable<OperationExecution>>() {
             @Override
-            public OperationExecution answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
                 operationExecutions.add(scaleOperationExecution);
-                return scaleOperationExecution;
+                return buildObservable(scaleOperationExecution);
             }
         });
-        when(vnfApi.vnfsVnfInstanceIdHealPost(eq(VNF_ID), actualHealRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<OperationExecution>() {
+        when(vnfApi.vnfsVnfInstanceIdHealPost(eq(VNF_ID), actualHealRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<Observable<OperationExecution>>() {
             @Override
-            public OperationExecution answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
                 operationExecutions.add(healOperationExecution);
-                return healOperationExecution;
+                return buildObservable(healOperationExecution);
             }
         });
     }
@@ -170,7 +170,7 @@ public class TestLifecycleManager extends TestBase {
         //given
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -178,7 +178,7 @@ public class TestLifecycleManager extends TestBase {
         accessInfo.setTenant(TENANT);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -264,7 +264,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationWithInvalidVimType() throws Exception {
         //given
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO);
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         when(logger.isInfoEnabled()).thenReturn(false);
         //when
         try {
@@ -287,7 +287,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationV2WithSsl() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -298,7 +298,7 @@ public class TestLifecycleManager extends TestBase {
         vimInfo.setSslCacert(caCert);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         JsonObject inputs = child((JsonObject) instantiationRequest.getAdditionalParam(), "inputs");
         JsonObject vnfs = child(child(inputs, "vnfs"), ONAP_CSAR_ID);
         vnfs.remove("additionalParams");
@@ -321,7 +321,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationV2WithoutSsl() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -330,7 +330,7 @@ public class TestLifecycleManager extends TestBase {
         vimInfo.setSslInsecure(null);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -348,7 +348,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationV3() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -356,7 +356,7 @@ public class TestLifecycleManager extends TestBase {
         accessInfo.setTenant(TENANT);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -384,7 +384,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationV3WithSsl() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -395,7 +395,7 @@ public class TestLifecycleManager extends TestBase {
         vimInfo.setSslCacert(caCert);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -424,7 +424,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationV3WithNonSpecifiedSsl() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -433,7 +433,7 @@ public class TestLifecycleManager extends TestBase {
         vimInfo.setSslInsecure(null);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -460,7 +460,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationVcloud() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -468,7 +468,7 @@ public class TestLifecycleManager extends TestBase {
         accessInfo.setTenant(TENANT);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -494,7 +494,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationVcloudWithSsl() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -505,7 +505,7 @@ public class TestLifecycleManager extends TestBase {
         vimInfo.setSslCacert(caCert);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -532,7 +532,7 @@ public class TestLifecycleManager extends TestBase {
     public void testInstantiationVcloudWithNonSecifedSSl() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -541,7 +541,7 @@ public class TestLifecycleManager extends TestBase {
         vimInfo.setSslInsecure(null);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -565,7 +565,7 @@ public class TestLifecycleManager extends TestBase {
     @Test
     public void testFailureInTheInstantiationRequest() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -573,7 +573,7 @@ public class TestLifecycleManager extends TestBase {
         accessInfo.setTenant(TENANT);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenThrow(expectedException);
 
         //when
@@ -592,7 +592,7 @@ public class TestLifecycleManager extends TestBase {
     public void testVfcFailsToSendVimId() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
 
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         //grantResponse.setVimId(VIM_ID);
@@ -603,7 +603,7 @@ public class TestLifecycleManager extends TestBase {
         vimInfo.setSslCacert(caCert);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -619,7 +619,7 @@ public class TestLifecycleManager extends TestBase {
     @Test
     public void testFailureInTheOperationExecutionPollingDuringInstantiationRequest() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
@@ -627,18 +627,17 @@ public class TestLifecycleManager extends TestBase {
         accessInfo.setTenant(TENANT);
         grantResponse.setAccessInfo(accessInfo);
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        ApiException expectedException = new ApiException();
-        List<ApiException> polling = new ArrayList<>();
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(instantiationOperationExecution);
-        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).then(new Answer<List<OperationExecution>>() {
+        List<RuntimeException> polling = new ArrayList<>();
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
+        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).then(new Answer<Observable<List<OperationExecution>>>() {
             @Override
-            public List<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<List<OperationExecution>> answer(InvocationOnMock invocation) throws Throwable {
                 if (polling.size() > 2) {
-                    return operationExecutions;
+                    return buildObservable(operationExecutions);
                 }
-                ApiException apiException = new ApiException();
-                polling.add(apiException);
-                throw apiException;
+                RuntimeException runtimeException = new RuntimeException();
+                polling.add(runtimeException);
+                throw runtimeException;
             }
         });
         //when
@@ -648,7 +647,7 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(VNF_ID, response.getVnfInstanceId());
         assertEquals(JOB_ID, response.getJobId());
         assertEquals(3, polling.size());
-        for (ApiException e : polling) {
+        for (RuntimeException e : polling) {
             verify(logger).warn("Unable to retrieve operations details", e);
         }
         verify(systemFunctions, Mockito.times(3)).sleep(5000);
@@ -662,7 +661,7 @@ public class TestLifecycleManager extends TestBase {
         //given
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
 
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenThrow(expectedException);
         //when
         try {
@@ -683,8 +682,8 @@ public class TestLifecycleManager extends TestBase {
         //given
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
 
-        ApiException expectedException = new ApiException();
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        RuntimeException expectedException = new RuntimeException();
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         when(vnfApi.vnfsVnfInstanceIdPatch(eq(VNF_ID), actualVnfModifyRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenThrow(expectedException);
 
         //when
@@ -705,7 +704,7 @@ public class TestLifecycleManager extends TestBase {
     @Test
     public void testFailureInQueryVimInfo() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(vnfInfo);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
         grantResponse.setVimId(VIM_ID);
         GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
@@ -728,7 +727,7 @@ public class TestLifecycleManager extends TestBase {
     public void testTermination() throws Exception {
         //given
         VnfTerminateRequest terminationRequest = new VnfTerminateRequest();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         vnfInfo.setInstantiationState(InstantiationState.INSTANTIATED);
         vnfInfo.setOperationExecutions(operationExecutions);
         VnfProperty vnfdId = new VnfProperty();
@@ -736,18 +735,18 @@ public class TestLifecycleManager extends TestBase {
         vnfdId.setValue(ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(vnfdId);
         ArgumentCaptor<TerminateVnfRequest> actualTerminationRequest = ArgumentCaptor.forClass(TerminateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<OperationExecution>() {
+        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<Observable<OperationExecution>>() {
             @Override
-            public OperationExecution answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
                 OperationExecution terminationOperation = new OperationExecution();
                 terminationOperation.setId("terminationId");
                 operationExecutions.add(terminationOperation);
                 terminationOperation.setStatus(OperationStatus.FINISHED);
-                return terminationOperation;
+                return buildObservable(terminationOperation);
             }
         });
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(instantiationParameters);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
         JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
@@ -770,7 +769,7 @@ public class TestLifecycleManager extends TestBase {
     public void testTerminationOfNonInstantiated() throws Exception {
         //given
         VnfTerminateRequest terminationRequest = new VnfTerminateRequest();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         vnfInfo.setInstantiationState(InstantiationState.NOT_INSTANTIATED);
         vnfInfo.setOperationExecutions(operationExecutions);
         VnfProperty vnfdId = new VnfProperty();
@@ -778,7 +777,7 @@ public class TestLifecycleManager extends TestBase {
         vnfdId.setValue(ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(vnfdId);
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(instantiationParameters);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
         JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
@@ -802,7 +801,7 @@ public class TestLifecycleManager extends TestBase {
     public void testTerminationOperationIsOutwaited() throws Exception {
         //given
         VnfTerminateRequest terminationRequest = new VnfTerminateRequest();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         vnfInfo.setInstantiationState(InstantiationState.INSTANTIATED);
         vnfInfo.setOperationExecutions(operationExecutions);
         VnfProperty vnfdId = new VnfProperty();
@@ -811,27 +810,21 @@ public class TestLifecycleManager extends TestBase {
         vnfInfo.getExtensions().add(vnfdId);
         ArgumentCaptor<TerminateVnfRequest> actualTerminationRequest = ArgumentCaptor.forClass(TerminateVnfRequest.class);
         OperationExecution terminationOperation = new OperationExecution();
-        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<OperationExecution>() {
-            @Override
-            public OperationExecution answer(InvocationOnMock invocation) throws Throwable {
-                terminationOperation.setId("terminationId");
-                operationExecutions.add(terminationOperation);
-                terminationOperation.setStatus(OperationStatus.STARTED);
-                return terminationOperation;
-            }
+        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(invocation -> {
+            terminationOperation.setId("terminationId");
+            operationExecutions.add(terminationOperation);
+            terminationOperation.setStatus(OperationStatus.STARTED);
+            return buildObservable(terminationOperation);
         });
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(instantiationParameters);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         Set<Integer> calls = new HashSet<>();
-        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer(new Answer<List<OperationExecution>>() {
-            @Override
-            public List<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
-                if (calls.size() == 1000) {
-                    terminationOperation.setStatus(OperationStatus.FINISHED);
-                }
-                calls.add(calls.size());
-                return operationExecutions;
+        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer(invocation -> {
+            if (calls.size() == 1000) {
+                terminationOperation.setStatus(OperationStatus.FINISHED);
             }
+            calls.add(calls.size());
+            return buildObservable(operationExecutions);
         });
         //when
         JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
@@ -849,7 +842,7 @@ public class TestLifecycleManager extends TestBase {
     public void testTerminationOperationIsOutwaitedWithErrors() throws Exception {
         //given
         VnfTerminateRequest terminationRequest = new VnfTerminateRequest();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         vnfInfo.setInstantiationState(InstantiationState.INSTANTIATED);
         vnfInfo.setOperationExecutions(operationExecutions);
         VnfProperty vnfdId = new VnfProperty();
@@ -858,30 +851,30 @@ public class TestLifecycleManager extends TestBase {
         vnfInfo.getExtensions().add(vnfdId);
         ArgumentCaptor<TerminateVnfRequest> actualTerminationRequest = ArgumentCaptor.forClass(TerminateVnfRequest.class);
         OperationExecution terminationOperation = new OperationExecution();
-        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<OperationExecution>() {
+        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<Observable<OperationExecution>>() {
             @Override
-            public OperationExecution answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
                 terminationOperation.setId("terminationId");
                 operationExecutions.add(terminationOperation);
                 terminationOperation.setStatus(OperationStatus.STARTED);
-                return terminationOperation;
+                return buildObservable(terminationOperation);
             }
         });
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(instantiationParameters);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         Set<Integer> calls = new HashSet<>();
-        List<ApiException> expectedExceptions = new ArrayList<>();
-        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer(new Answer<List<OperationExecution>>() {
+        List<RuntimeException> expectedExceptions = new ArrayList<>();
+        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer(new Answer<Observable<List<OperationExecution>>>() {
             @Override
-            public List<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<List<OperationExecution>> answer(InvocationOnMock invocation) throws Throwable {
                 if (calls.size() >= 100) {
                     terminationOperation.setStatus(OperationStatus.FINISHED);
-                    return operationExecutions;
+                    return buildObservable(operationExecutions);
                 }
                 calls.add(calls.size());
-                ApiException apiException = new ApiException();
-                expectedExceptions.add(apiException);
-                throw apiException;
+                RuntimeException RuntimeException = new RuntimeException();
+                expectedExceptions.add(RuntimeException);
+                throw RuntimeException;
             }
         });
         //when
@@ -890,7 +883,7 @@ public class TestLifecycleManager extends TestBase {
         waitForJobToFinishInJobManager(finished);
         verify(vnfApi, times(101)).vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION);
         verify(systemFunctions, times(100)).sleep(5000);
-        for (ApiException expectedException : expectedExceptions) {
+        for (RuntimeException expectedException : expectedExceptions) {
             verify(logger).warn("Unable to retrieve operations details", expectedException);
         }
     }
@@ -902,7 +895,7 @@ public class TestLifecycleManager extends TestBase {
     public void testGracefullTermination() throws Exception {
         //given
         VnfTerminateRequest terminationRequest = new VnfTerminateRequest();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         terminationRequest.setTerminationType(VnfTerminationType.GRACEFUL);
         terminationRequest.setGracefulTerminationTimeout("1234");
         vnfInfo.setInstantiationState(InstantiationState.INSTANTIATED);
@@ -912,14 +905,14 @@ public class TestLifecycleManager extends TestBase {
         vnfdId.setValue(ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(vnfdId);
         ArgumentCaptor<TerminateVnfRequest> actualTerminationRequest = ArgumentCaptor.forClass(TerminateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<OperationExecution>() {
+        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<Observable<OperationExecution>>() {
             @Override
-            public OperationExecution answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
                 OperationExecution terminationOperation = new OperationExecution();
                 terminationOperation.setId("terminationId");
                 operationExecutions.add(terminationOperation);
                 terminationOperation.setStatus(OperationStatus.FINISHED);
-                return terminationOperation;
+                return buildObservable(terminationOperation);
             }
         });
         doAnswer(invocation -> {
@@ -927,7 +920,7 @@ public class TestLifecycleManager extends TestBase {
             return null;
         }).when(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(instantiationParameters);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
         JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
@@ -967,7 +960,7 @@ public class TestLifecycleManager extends TestBase {
     public void testExplicitForcefulTermination() throws Exception {
         //given
         VnfTerminateRequest terminationRequest = new VnfTerminateRequest();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         terminationRequest.setTerminationType(VnfTerminationType.FORCEFUL);
         terminationRequest.setGracefulTerminationTimeout("1234");
         vnfInfo.setInstantiationState(InstantiationState.INSTANTIATED);
@@ -977,22 +970,19 @@ public class TestLifecycleManager extends TestBase {
         vnfdId.setValue(ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(vnfdId);
         ArgumentCaptor<TerminateVnfRequest> actualTerminationRequest = ArgumentCaptor.forClass(TerminateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<OperationExecution>() {
-            @Override
-            public OperationExecution answer(InvocationOnMock invocation) throws Throwable {
-                OperationExecution terminationOperation = new OperationExecution();
-                terminationOperation.setId("terminationId");
-                operationExecutions.add(terminationOperation);
-                terminationOperation.setStatus(OperationStatus.FINISHED);
-                return terminationOperation;
-            }
+        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(invocation -> {
+            OperationExecution terminationOperation = new OperationExecution();
+            terminationOperation.setId("terminationId");
+            operationExecutions.add(terminationOperation);
+            terminationOperation.setStatus(OperationStatus.FINISHED);
+            return buildObservable(terminationOperation);
         });
         doAnswer(invocation -> {
             verify(jobManager, Mockito.never()).jobFinished(JOB_ID);
             return null;
         }).when(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(instantiationParameters);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
         JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
@@ -1013,7 +1003,7 @@ public class TestLifecycleManager extends TestBase {
     public void testFailureInTheTerminationFinishesTheManagedJob() throws Exception {
         //given
         VnfTerminateRequest terminationRequest = new VnfTerminateRequest();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         terminationRequest.setTerminationType(VnfTerminationType.FORCEFUL);
         terminationRequest.setGracefulTerminationTimeout("1234");
         vnfInfo.setInstantiationState(InstantiationState.INSTANTIATED);
@@ -1033,10 +1023,10 @@ public class TestLifecycleManager extends TestBase {
                 return terminationOperation;
             }
         });
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(instantiationParameters);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
         JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
@@ -1052,7 +1042,7 @@ public class TestLifecycleManager extends TestBase {
     public void testFailedTerminationAbortsTerminationWorkflow() throws Exception {
         //given
         VnfTerminateRequest terminationRequest = new VnfTerminateRequest();
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         vnfInfo.setInstantiationState(InstantiationState.INSTANTIATED);
         vnfInfo.setOperationExecutions(operationExecutions);
         VnfProperty vnfdId = new VnfProperty();
@@ -1060,18 +1050,18 @@ public class TestLifecycleManager extends TestBase {
         vnfdId.setValue(ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(vnfdId);
         ArgumentCaptor<TerminateVnfRequest> actualTerminationRequest = ArgumentCaptor.forClass(TerminateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<OperationExecution>() {
+        when(vnfApi.vnfsVnfInstanceIdTerminatePost(eq(VNF_ID), actualTerminationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<Observable<OperationExecution>>() {
             @Override
-            public OperationExecution answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
                 OperationExecution terminationOperation = new OperationExecution();
                 terminationOperation.setId("terminationId");
                 operationExecutions.add(terminationOperation);
                 terminationOperation.setStatus(OperationStatus.FAILED);
-                return terminationOperation;
+                return buildObservable(terminationOperation);
             }
         });
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(instantiationParameters);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
         JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
@@ -1092,7 +1082,7 @@ public class TestLifecycleManager extends TestBase {
         vnfInfo.setName("myName");
         vnfInfo.setVnfSoftwareVersion("vnfSoftwareVersion");
         vnfInfo.setVnfProvider("myProvider");
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         VnfProperty prop = new VnfProperty();
         prop.setName(LifecycleManager.ONAP_CSAR_ID);
         prop.setValue(ONAP_CSAR_ID);
@@ -1119,7 +1109,7 @@ public class TestLifecycleManager extends TestBase {
     @Test
     public void testQueryForNonExistingVnf() throws Exception {
 
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //when
         try {
@@ -1143,14 +1133,14 @@ public class TestLifecycleManager extends TestBase {
         scaleRequest.setType(ScaleDirection.IN);
         scaleRequest.setAdditionalParam(new JsonParser().parse("{ \"a\" : \"b\", \"c\" : \"d\" }"));
         scaleOperationExecution.setStatus(OperationStatus.FINISHED);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         VnfProperty prop = new VnfProperty();
         prop.setValue(ONAP_CSAR_ID);
         prop.setName(LifecycleManager.ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(prop);
         vnfInfo.getOperationExecutions().add(instantiationOperationExecution);
         String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new JsonParser().parse(instantiationParams));
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(new JsonParser().parse(instantiationParams)));
         //when
         JobInfo job = lifecycleManager.scaleVnf(VNFM_ID, VNF_ID, scaleRequest, restResponse);
         //verify
@@ -1180,14 +1170,14 @@ public class TestLifecycleManager extends TestBase {
         scaleRequest.setType(ScaleDirection.IN);
         scaleRequest.setAdditionalParam(null);
         scaleOperationExecution.setStatus(OperationStatus.FINISHED);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         VnfProperty prop = new VnfProperty();
         prop.setValue(ONAP_CSAR_ID);
         prop.setName(LifecycleManager.ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(prop);
         vnfInfo.getOperationExecutions().add(instantiationOperationExecution);
         String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new JsonParser().parse(instantiationParams));
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(new JsonParser().parse(instantiationParams)));
         //when
         JobInfo job = lifecycleManager.scaleVnf(VNFM_ID, VNF_ID, scaleRequest, restResponse);
         //verify
@@ -1215,14 +1205,14 @@ public class TestLifecycleManager extends TestBase {
         scaleRequest.setType(ScaleDirection.OUT);
         scaleRequest.setAdditionalParam(new JsonParser().parse("{ \"a\" : \"b\" }"));
         scaleOperationExecution.setStatus(OperationStatus.FINISHED);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         VnfProperty prop = new VnfProperty();
         prop.setValue(ONAP_CSAR_ID);
         prop.setName(LifecycleManager.ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(prop);
         vnfInfo.getOperationExecutions().add(instantiationOperationExecution);
         String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new JsonParser().parse(instantiationParams));
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(new JsonParser().parse(instantiationParams)));
         //when
         JobInfo job = lifecycleManager.scaleVnf(VNFM_ID, VNF_ID, scaleRequest, restResponse);
         //verify
@@ -1249,24 +1239,24 @@ public class TestLifecycleManager extends TestBase {
         scaleRequest.setType(ScaleDirection.IN);
         scaleRequest.setAdditionalParam(new JsonParser().parse("{ \"a\" : \"b\" }"));
         scaleOperationExecution.setStatus(OperationStatus.STARTED);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         VnfProperty prop = new VnfProperty();
         prop.setValue(ONAP_CSAR_ID);
         prop.setName(LifecycleManager.ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(prop);
         vnfInfo.getOperationExecutions().add(instantiationOperationExecution);
         String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new JsonParser().parse(instantiationParams));
-        List<ApiException> expectedExceptions = new ArrayList<>();
-        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer((Answer<List<OperationExecution>>) invocation -> {
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(new JsonParser().parse(instantiationParams)));
+        List<RuntimeException> expectedExceptions = new ArrayList<>();
+        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer((Answer<Observable<List<OperationExecution>>>) invocation -> {
             if (expectedExceptions.size() >= 100) {
+                when(operationExecutionApi.operationExecutionsOperationExecutionIdGet(scaleOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(scaleOperationExecution));
                 scaleOperationExecution.setStatus(OperationStatus.FINISHED);
-                return operationExecutions;
+                return buildObservable(operationExecutions);
             }
-            ApiException apiException = new ApiException();
-            expectedExceptions.add(apiException);
-            // when(operationExecutionApi.operationExecutionsOperationExecutionIdGet(scaleOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(scaleOperationExecution);
-            throw apiException;
+            RuntimeException RuntimeException = new RuntimeException();
+            expectedExceptions.add(RuntimeException);
+            throw RuntimeException;
         });
 
         //when
@@ -1274,7 +1264,7 @@ public class TestLifecycleManager extends TestBase {
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(100, expectedExceptions.size());
-        for (ApiException expectedException : expectedExceptions) {
+        for (RuntimeException expectedException : expectedExceptions) {
             verify(logger).warn("Unable to retrieve operations details", expectedException);
         }
         verify(systemFunctions, times(100)).sleep(5000);
@@ -1285,7 +1275,7 @@ public class TestLifecycleManager extends TestBase {
      */
     @Test
     public void testScaleFailurePropagation() throws Exception {
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         VnfScaleRequest scaleRequest = new VnfScaleRequest();
         scaleRequest.setNumberOfSteps("2");
         scaleRequest.setAspectId("myAspect");
@@ -1309,14 +1299,14 @@ public class TestLifecycleManager extends TestBase {
         affectedVm.setVmname("vmName");
         healRequest.setAffectedvm(affectedVm);
         healOperationExecution.setStatus(OperationStatus.FINISHED);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         VnfProperty prop = new VnfProperty();
         prop.setValue(ONAP_CSAR_ID);
         prop.setName(LifecycleManager.ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(prop);
         vnfInfo.getOperationExecutions().add(instantiationOperationExecution);
         String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new JsonParser().parse(instantiationParams));
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(new JsonParser().parse(instantiationParams)));
         //when
         JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, empty(), restResponse);
         //verify
@@ -1345,33 +1335,33 @@ public class TestLifecycleManager extends TestBase {
         affectedVm.setVmname("vmName");
         healRequest.setAffectedvm(affectedVm);
         healOperationExecution.setStatus(OperationStatus.FINISHED);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnfInfo);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         VnfProperty prop = new VnfProperty();
         prop.setValue(ONAP_CSAR_ID);
         prop.setName(LifecycleManager.ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(prop);
         vnfInfo.getOperationExecutions().add(instantiationOperationExecution);
         String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new JsonParser().parse(instantiationParams));
-        List<ApiException> expectedExceptions = new ArrayList<>();
-        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer(new Answer<List<OperationExecution>>() {
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(new JsonParser().parse(instantiationParams)));
+        List<RuntimeException> expectedExceptions = new ArrayList<>();
+        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenAnswer(new Answer<Observable<List<OperationExecution>>>() {
             @Override
-            public List<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
+            public Observable<List<OperationExecution>> answer(InvocationOnMock invocation) throws Throwable {
                 if (expectedExceptions.size() >= 100) {
                     scaleOperationExecution.setStatus(OperationStatus.FINISHED);
-                    return operationExecutions;
+                    return buildObservable(operationExecutions);
                 }
-                ApiException apiException = new ApiException();
-                expectedExceptions.add(apiException);
-                throw apiException;
+                RuntimeException RuntimeException = new RuntimeException();
+                expectedExceptions.add(RuntimeException);
+                throw RuntimeException;
             }
         });
         //when
-        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, empty(),  restResponse);
+        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, empty(), restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(100, expectedExceptions.size());
-        for (ApiException expectedException : expectedExceptions) {
+        for (RuntimeException expectedException : expectedExceptions) {
             verify(logger).warn("Unable to retrieve operations details", expectedException);
         }
         verify(systemFunctions, times(100)).sleep(5000);
@@ -1382,7 +1372,7 @@ public class TestLifecycleManager extends TestBase {
      */
     @Test
     public void testHealFailurePropagation() throws Exception {
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         VnfHealRequest healRequest = new VnfHealRequest();
         healRequest.setAction("myAction");
         VnfHealRequestAffectedvm affectedVm = new VnfHealRequestAffectedvm();
@@ -1390,7 +1380,7 @@ public class TestLifecycleManager extends TestBase {
         healRequest.setAffectedvm(affectedVm);
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //when
-        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest,  empty(), restResponse);
+        JobInfo job = lifecycleManager.healVnf(VNFM_ID, VNF_ID, healRequest, empty(), restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         verify(logger).error("Unable to heal VNF with myVnfId identifier", expectedException);

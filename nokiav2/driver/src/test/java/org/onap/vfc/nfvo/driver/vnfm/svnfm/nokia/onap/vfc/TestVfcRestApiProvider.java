@@ -19,11 +19,11 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 import org.junit.Before;
 import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
+import org.onap.vfccatalog.ApiClient;
 import org.onap.vfccatalog.api.VnfpackageApi;
-import org.onap.vnfmdriver.api.NslcmApi;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertNotNull;
 import static org.mockito.Mockito.when;
 
 public class TestVfcRestApiProvider extends TestBase {
@@ -35,30 +35,43 @@ public class TestVfcRestApiProvider extends TestBase {
     }
 
     /**
-     * test VF-C NSLCM API retrieval
+     * the base URL of the LCM API is set
      */
     @Test
     public void testNsLcmApi() throws Exception {
-        when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSLCM_API_SERVICE_NAME, VfcRestApiProvider.NSLCM_API_VERION)).thenReturn("http://1.2.3.4:1234/nslcm/v1/lead");
+        when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSLCM_API_SERVICE_NAME, VfcRestApiProvider.NSLCM_API_VERION)).thenReturn("http://1.2.3.4:1234/nslcm/v1/lead/");
         //when
-        NslcmApi nsLcmApi = vfcRestApiProvider.getNsLcmApi();
+        org.onap.vnfmdriver.ApiClient apiClient = vfcRestApiProvider.buildNslcmApiClient();
         //verify
-        assertEquals("http://1.2.3.4:1234/lead", nsLcmApi.getApiClient().getBasePath());
-        assertNull(nsLcmApi.getApiClient().getSslCaCert());
-        assertEquals(0, nsLcmApi.getApiClient().getAuthentications().size());
+        assertEquals("http://1.2.3.4:1234/lead/", apiClient.getAdapterBuilder().build().baseUrl().toString());
     }
 
     /**
-     * test VF-C catalog API retrieval
+     * the base URL of the Catalog API is set
      */
     @Test
     public void testNsCatalogApi() throws Exception {
-        when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSCATALOG_SERVICE_NAME, VfcRestApiProvider.NSCATALOG_API_VERSION)).thenReturn("http://1.2.3.4:1234/lead");
+        when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSCATALOG_SERVICE_NAME, VfcRestApiProvider.NSCATALOG_API_VERSION)).thenReturn("http://1.2.3.4:1234/lead/");
         //when
-        VnfpackageApi nsCatalogApi = vfcRestApiProvider.getOnapCatalogApi();
+        ApiClient apiClient = vfcRestApiProvider.buildCatalogApiClient();
         //verify
-        assertEquals("http://1.2.3.4:1234/lead", nsCatalogApi.getApiClient().getBasePath());
-        assertNull(nsCatalogApi.getApiClient().getSslCaCert());
-        assertEquals(0, nsCatalogApi.getApiClient().getAuthentications().size());
+        assertEquals("http://1.2.3.4:1234/lead/", apiClient.getAdapterBuilder().build().baseUrl().toString());
+    }
+
+    @Test
+    public void testNsLcm() {
+        when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSLCM_API_SERVICE_NAME, VfcRestApiProvider.NSLCM_API_VERION)).thenReturn("http://1.2.3.4:1234/nslcm/v1/lead/");
+        //when
+        //verify
+        assertNotNull(vfcRestApiProvider.getNsLcmApi());
+    }
+
+    @Test
+    public void testNsCatalog() {
+        when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSCATALOG_SERVICE_NAME, VfcRestApiProvider.NSCATALOG_API_VERSION)).thenReturn("http://1.2.3.4:1234/lead/");
+        //when
+        VnfpackageApi catalogApi = vfcRestApiProvider.getVfcCatalogApi();
+        //verify
+        assertNotNull(catalogApi);
     }
 }
