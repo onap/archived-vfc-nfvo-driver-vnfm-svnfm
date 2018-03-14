@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
 import org.slf4j.Logger;
@@ -103,13 +102,11 @@ public class VnfRoa {
      *         {
      *         "jobId":"1"
      *         }
-     * @throws ServiceException
      */
     @POST
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}/scale")
     public String scaleVnf(@Context HttpServletRequest context, @Context HttpServletResponse resp,
-            @PathParam("vnfmId") String vnfmId, @PathParam("vnfInstanceId") String vnfInstanceId)
-            throws ServiceException {
+            @PathParam("vnfmId") String vnfmId, @PathParam("vnfInstanceId") String vnfInstanceId) {
         JSONObject jsonObject = VnfmJsonUtil.getJsonFromContexts(context);
         LOG.info("function=scaleVNF, msg=enter to scale a vnf. request body:" + jsonObject);
         JSONObject result = new JSONObject();
@@ -139,13 +136,12 @@ public class VnfRoa {
      * @param resp
      * @param vnfmId
      * @return
-     * @throws ServiceException
      * @since VFC 1.0
      */
     @POST
     @Path("/{vnfmId}/vnfs")
     public String addVnf(@Context HttpServletRequest context, @Context HttpServletResponse resp,
-            @PathParam("vnfmId") String vnfmId) throws ServiceException {
+            @PathParam("vnfmId") String vnfmId) {
         LOG.warn("function=addVnf, msg=enter to add a vnf");
         JSONObject subJsonObject = VnfmJsonUtil.getJsonFromContexts(context);
         JSONObject restJson = new JSONObject();
@@ -176,14 +172,12 @@ public class VnfRoa {
      * @param vnfInstanceId
      * @param context
      * @return
-     * @throws ServiceException
      * @since VFC 1.0
      */
     @POST
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}/terminate")
     public String delVnf(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp,
-            @PathParam("vnfInstanceId") String vnfInstanceId, @Context HttpServletRequest context)
-            throws ServiceException {
+            @PathParam("vnfInstanceId") String vnfInstanceId, @Context HttpServletRequest context) {
         LOG.warn("function=delVnf, msg=enter to delete a vnf: vnfInstanceId: {}, vnfmId: {}", vnfInstanceId, vnfmId);
         JSONObject vnfObject = VnfmJsonUtil.getJsonFromContexts(context);
         JSONObject restJson = new JSONObject();
@@ -212,13 +206,12 @@ public class VnfRoa {
      * @param vnfInstanceId
      * @param context
      * @return
-     * @throws ServiceException
      * @since VFC 1.0
      */
     @GET
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}")
     public String getVnf(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp,
-            @PathParam("vnfInstanceId") String vnfInstanceId) throws ServiceException {
+            @PathParam("vnfInstanceId") String vnfInstanceId) {
         LOG.warn("function=getVnf, msg=enter to get a vnf: vnfInstanceId: {}, vnfmId: {}", vnfInstanceId, vnfmId);
         JSONObject restJson = new JSONObject();
 
@@ -244,13 +237,11 @@ public class VnfRoa {
      * @param vnfmId
      * @param resp
      * @return
-     * @throws ServiceException
      * @since VFC 1.0
      */
     @GET
     @Path("/{vnfmId}")
-    public String getVnfmById(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp)
-            throws ServiceException {
+    public String getVnfmById(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp) {
         LOG.warn("function=getVnfmById, vnfmId: {}", vnfmId);
         return VnfmUtil.getVnfmById(vnfmId).toString();
     }
@@ -264,13 +255,12 @@ public class VnfRoa {
      * @param resp
      * @param responseId
      * @return
-     * @throws ServiceException
      * @since VFC 1.0
      */
     @GET
     @Path("/{vnfmId}/jobs/{jobId}")
     public String getJob(@PathParam("jobId") String jobId, @PathParam("vnfmId") String vnfmId,
-            @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) throws ServiceException {
+            @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) {
         LOG.warn("function=getJob, msg=enter to get a job: jobId: {}, responseId: {}", jobId, responseId);
         JSONObject restJson = new JSONObject();
 
@@ -291,28 +281,26 @@ public class VnfRoa {
 
     /**
      * <br>
-     * 
+     *
      * @param context
      *            {
-     *            �action�: �vmReset�,
-     *            �affectedvm�: {
-     *            �vmid�: �804cca71 - 9ae9 - 4511 - 8e30 - d1387718caff�,
-     *            �vduid�: �vdu_100�,
-     *            �vmname�: �ZTE_SSS_111_PP_2_L�
+     *            "action": "vmReset",
+     *            "affectedvm": {
+     *            "vmid": "804cca71 - 9ae9 - 4511 - 8e30 - d1387718caff",
+     *            "vduid": "vdu_100",
+     *            "vmname": "ZTE_SSS_111_PP_2_L"
      *            }
      *            }
      * @param resp
      * @param vnfmId
      * @param vnfInstanceId
      * @return
-     * @throws ServiceException
      * @since VFC 1.0
      */
     @POST
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}/heal")
     public String healVnf(@Context HttpServletRequest context, @Context HttpServletResponse resp,
-            @PathParam("vnfmId") String vnfmId, @PathParam("vnfInstanceId") String vnfInstanceId)
-            throws ServiceException {
+            @PathParam("vnfmId") String vnfmId, @PathParam("vnfInstanceId") String vnfInstanceId) {
         LOG.warn("function=healVnf, msg=enter to heal a vnf: vnfInstanceId: {}, vnfmId: {}", vnfInstanceId, vnfmId);
         JSONObject restJson = new JSONObject();
         JSONObject jsonObject = VnfmJsonUtil.getJsonFromContexts(context);
@@ -356,10 +344,17 @@ public class VnfRoa {
         return jobInfoJson.toString();
     }
 
+    /**
+     * <br>
+     * Query vms info from vnfm
+     * 
+     * @param vnfmId
+     * @param resp
+     * @return
+     */
     @GET
     @Path("/{vnfmId}/vms")
-    public String getVms(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp)
-            throws ServiceException {
+    public String getVms(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp) {
         LOG.info("function=getVms, msg=enter to get vms: vnfmId: {}", vnfmId);
         JSONObject restJson = new JSONObject();
         JSONObject vnfmObjcet = VnfmUtil.getVnfmById(vnfmId);
@@ -382,11 +377,10 @@ public class VnfRoa {
      * @param vnfmId
      * @param responseId
      * @return
-     * @throws ServiceException
      * @since VFC 1.0
      */
     public String getJobFromVnfm(@PathParam("jobId") String jobId, @PathParam("vnfmId") String vnfmId,
-            @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) throws ServiceException {
+            @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) {
         LOG.warn("function=getJobFromVnfm, msg=enter to get a job: jobId: {}, responseId: {}", jobId, responseId);
         JSONObject restJson = vnfMgr.getJobFromVnfm(jobId, vnfmId);
 
