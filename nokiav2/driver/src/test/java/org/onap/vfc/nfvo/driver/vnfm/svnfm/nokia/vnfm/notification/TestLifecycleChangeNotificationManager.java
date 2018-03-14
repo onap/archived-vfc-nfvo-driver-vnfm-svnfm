@@ -16,9 +16,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification;
 
 import com.google.gson.*;
-import com.nokia.cbam.lcm.v32.ApiException;
 import com.nokia.cbam.lcm.v32.model.*;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,8 +39,6 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestLifecycleChangeNotificationManager extends TestBase {
-
-    public static final String OPERATION_EXECUTION_ID = "myOperationExecutionId";
 
     @InjectMocks
     private LifecycleChangeNotificationManager lifecycleChangeNotificationManager;
@@ -76,7 +72,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         recievedLcn.setLifecycleOperationOccurrenceId("instantiationOperationExecutionId");
         healOperation.setStartTime(OffsetDateTime.now().plusDays(1));
         recievedLcn.setVnfInstanceId(VNF_ID);
-        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(operationExecutions);
+        when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationExecutions));
         prepOperation(instantiationOperation);
         prepOperation(scaleOperation);
         prepOperation(healOperation);
@@ -86,8 +82,8 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         VimInfo vimInfo = new VimInfo();
         vimInfo.setId(VIM_ID);
         instantiateVnfRequest.getVims().add(vimInfo);
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(new Gson().toJsonTree(instantiateVnfRequest));
-        when(vnfApi.vnfsGet(NOKIA_LCM_API_VERSION)).thenReturn(vnfs);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperation.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(new Gson().toJsonTree(instantiateVnfRequest)));
+        when(vnfApi.vnfsGet(NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfs));
         vnfs.add(vnf);
         vnf.setId(VNF_ID);
         VnfProperty prop = new VnfProperty();
@@ -95,10 +91,10 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         prop.setValue(VNFM_ID);
         vnf.setExtensions(new ArrayList<>());
         vnf.getExtensions().add(prop);
-        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(vnf);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnf));
     }
 
-    private void prepOperation(OperationExecution operationExecution) throws ApiException {
+    private void prepOperation(OperationExecution operationExecution) {
         addEmptyModifiedConnectionPoints(operationExecution);
         JsonElement root = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + JOB_ID + "\"}}");
         operationExecution.setOperationParams(root);
@@ -106,7 +102,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
             case TERMINATE:
                 root.getAsJsonObject().addProperty("terminationType", "GRACEFULL");
         }
-        when(operationExecutionApi.operationExecutionsOperationExecutionIdGet(operationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(operationExecution);
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdGet(operationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationExecution));
         operationExecutions.add(operationExecution);
     }
 
@@ -141,7 +137,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
      */
     @Test
     public void testInstantiationSufficesTheLastInstantiation() {
-        DateTime baseTime = DateTime.now();
+        OffsetDateTime baseTime = OffsetDateTime.now();
         List<OperationExecution> operations = new ArrayList<>();
 
         OperationExecution operation = buildOperation(OffsetDateTime.now(), INSTANTIATE);
@@ -159,7 +155,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
      */
     @Test
     public void testNoInstantiation() {
-        DateTime baseTime = DateTime.now();
+        OffsetDateTime baseTime = OffsetDateTime.now();
         List<OperationExecution> operations = new ArrayList<>();
 
         OperationExecution operation = buildOperation(OffsetDateTime.now(), TERMINATE);
@@ -195,7 +191,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
      */
     @Test
     public void testUnableToListVnfs() throws Exception {
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsGet(NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //when
         try {
@@ -212,7 +208,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
      */
     @Test
     public void testUnableToQueryVnf() throws Exception {
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //when
         try {
@@ -304,7 +300,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
     public void testUnableToQueryCurrentOperation() throws Exception {
         recievedLcn.setOperation(OperationType.TERMINATE);
         recievedLcn.setStatus(OperationStatus.FINISHED);
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
         //when
         try {
@@ -313,7 +309,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         } catch (Exception e) {
             //verify
             assertEquals(expectedException, e.getCause());
-            verify(logger).error("Unable to retrieve the current VNF myVnfId", e.getCause());
+            verify(logger).error("Unable to retrieve the operation executions for the VNF myVnfId", e.getCause());
         }
     }
 

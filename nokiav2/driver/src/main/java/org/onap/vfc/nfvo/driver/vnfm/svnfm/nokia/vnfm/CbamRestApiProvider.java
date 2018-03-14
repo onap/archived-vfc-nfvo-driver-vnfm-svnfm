@@ -15,7 +15,7 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
-import com.google.common.io.BaseEncoding;
+import com.google.common.annotations.VisibleForTesting;
 import com.nokia.cbam.catalog.v1.api.DefaultApi;
 import com.nokia.cbam.lcm.v32.ApiClient;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
@@ -27,8 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
-
 /**
  * Responsible for providing client to access CBAM REST API
  */
@@ -36,20 +34,24 @@ import java.io.ByteArrayInputStream;
 public class CbamRestApiProvider {
     public static final String NOKIA_LCN_API_VERSION = "3.2";
     public static final String NOKIA_LCM_API_VERSION = "3.2";
+    public static final String AUTH_NAME = "test";
     private final DriverProperties driverProperties;
     private final CbamTokenProvider tokenProvider;
     private final VnfmInfoProvider vnfmInfoProvider;
-
-    @Value("${trustedCertificates}")
-    private String trustedCertificates;
-    @Value("${skipCertificateVerification}")
-    private boolean skipCertificateVerification;
+    private final CbamSecurityProvider cbamSecurityProvider;
+    @Value("${cbamKeyCloakBaseUrl}")
+    private String cbamKeyCloakBaseUrl;
+    @Value("${cbamUsername}")
+    private String username;
+    @Value("${cbamPassword}")
+    private String password;
 
     @Autowired
-    public CbamRestApiProvider(DriverProperties driverProperties, CbamTokenProvider cbamTokenProvider, VnfmInfoProvider vnfmInfoProvider) {
+    public CbamRestApiProvider(DriverProperties driverProperties, CbamTokenProvider cbamTokenProvider, VnfmInfoProvider vnfmInfoProvider, CbamSecurityProvider cbamSecurityProvider) {
         this.driverProperties = driverProperties;
         this.tokenProvider = cbamTokenProvider;
         this.vnfmInfoProvider = vnfmInfoProvider;
+        this.cbamSecurityProvider = cbamSecurityProvider;
     }
 
     /**
@@ -57,7 +59,7 @@ public class CbamRestApiProvider {
      * @return API to access CBAM LCM API
      */
     public VnfsApi getCbamLcmApi(String vnfmId) {
-        return new VnfsApi(getLcmApiClient(vnfmId));
+        return buildLcmApiClient(vnfmId).createService(VnfsApi.class);
     }
 
     /**
@@ -65,7 +67,7 @@ public class CbamRestApiProvider {
      * @return API to access the operation executions
      */
     public OperationExecutionsApi getCbamOperationExecutionApi(String vnfmId) {
-        return new OperationExecutionsApi(getLcmApiClient(vnfmId));
+        return buildLcmApiClient(vnfmId).createService(OperationExecutionsApi.class);
     }
 
     /**
@@ -73,15 +75,7 @@ public class CbamRestApiProvider {
      * @return API to access CBAM LCN subscription API
      */
     public SubscriptionsApi getCbamLcnApi(String vnfmId) {
-        com.nokia.cbam.lcn.v32.ApiClient apiClient = new com.nokia.cbam.lcn.v32.ApiClient();
-        if (!skipCertificateVerification) {
-            apiClient.setSslCaCert(new ByteArrayInputStream(BaseEncoding.base64().decode(trustedCertificates)));
-        } else {
-            apiClient.setVerifyingSsl(false);
-        }
-        apiClient.setBasePath(driverProperties.getCbamLcnUrl());
-        apiClient.setAccessToken(tokenProvider.getToken(vnfmId));
-        return new SubscriptionsApi(apiClient);
+        return buildLcnApiClient(vnfmId).createService(SubscriptionsApi.class);
     }
 
     /**
@@ -89,27 +83,37 @@ public class CbamRestApiProvider {
      * @return API to access CBAM catalog API
      */
     public DefaultApi getCbamCatalogApi(String vnfmId) {
-        com.nokia.cbam.catalog.v1.ApiClient apiClient = new com.nokia.cbam.catalog.v1.ApiClient();
-        if (!skipCertificateVerification) {
-            apiClient.setSslCaCert(new ByteArrayInputStream(BaseEncoding.base64().decode(trustedCertificates)));
-        } else {
-            apiClient.setVerifyingSsl(false);
-        }
-        apiClient.setBasePath(driverProperties.getCbamCatalogUrl());
-        apiClient.setAccessToken(tokenProvider.getToken(vnfmId));
-        return new DefaultApi(apiClient);
+        return buildCatalogApiClient(vnfmId).createService(DefaultApi.class);
     }
 
-    private ApiClient getLcmApiClient(String vnfmId) {
+    @VisibleForTesting
+    com.nokia.cbam.lcn.v32.ApiClient buildLcnApiClient(String vnfmId) {
+        com.nokia.cbam.lcn.v32.ApiClient apiClient = new com.nokia.cbam.lcn.v32.ApiClient();
+        apiClient.getOkBuilder().sslSocketFactory(cbamSecurityProvider.buildSSLSocketFactory(), cbamSecurityProvider.buildTrustManager());
+        apiClient.getOkBuilder().hostnameVerifier(cbamSecurityProvider.buildHostnameVerifier());
+        apiClient.addAuthorization(AUTH_NAME, tokenProvider.getToken(vnfmId));
+        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(driverProperties.getCbamLcnUrl()));
+        return apiClient;
+    }
+
+    @VisibleForTesting
+    com.nokia.cbam.catalog.v1.ApiClient buildCatalogApiClient(String vnfmId) {
+        com.nokia.cbam.catalog.v1.ApiClient apiClient = new com.nokia.cbam.catalog.v1.ApiClient();
+        apiClient.getOkBuilder().sslSocketFactory(cbamSecurityProvider.buildSSLSocketFactory(), cbamSecurityProvider.buildTrustManager());
+        apiClient.getOkBuilder().hostnameVerifier(cbamSecurityProvider.buildHostnameVerifier());
+        apiClient.addAuthorization(AUTH_NAME, tokenProvider.getToken(vnfmId));
+        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(driverProperties.getCbamCatalogUrl()));
+        return apiClient;
+    }
+
+    @VisibleForTesting
+    ApiClient buildLcmApiClient(String vnfmId) {
         VnfmInfo vnfmInfo = vnfmInfoProvider.getVnfmInfo(vnfmId);
         ApiClient apiClient = new ApiClient();
-        if (!skipCertificateVerification) {
-            apiClient.setSslCaCert(new ByteArrayInputStream(BaseEncoding.base64().decode(trustedCertificates)));
-        } else {
-            apiClient.setVerifyingSsl(false);
-        }
-        apiClient.setAccessToken(tokenProvider.getToken(vnfmId));
-        apiClient.setBasePath(vnfmInfo.getUrl());
+        apiClient.getOkBuilder().sslSocketFactory(cbamSecurityProvider.buildSSLSocketFactory(), cbamSecurityProvider.buildTrustManager());
+        apiClient.getOkBuilder().hostnameVerifier(cbamSecurityProvider.buildHostnameVerifier());
+        apiClient.addAuthorization(AUTH_NAME, tokenProvider.getToken(vnfmId));
+        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(vnfmInfo.getUrl()));
         return apiClient;
     }
 }
