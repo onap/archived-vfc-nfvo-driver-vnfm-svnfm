@@ -7,11 +7,10 @@
             <charset>UTF-8</charset>  
         </encoder>  
     </appender>  
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">  
-        <file>${catalina.base}/logs/vfcadaptor.log</file>  
-        <rollingPolicy
-      class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <fileNamePattern>${catalina.base}/logs/vfcadaptor.%i.log.zip
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender"> 
+        <file>/var/log/onap/vfc/svnfm/nokiavnfmdriver.log</file>  
+      <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>/var/log/onap/vfc/svnfm/nokiavnfmdriver.%i.log.zip
       </fileNamePattern>
       <minIndex>1</minIndex>
       <maxIndex>9</maxIndex>

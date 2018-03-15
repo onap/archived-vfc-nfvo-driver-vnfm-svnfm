@@ -17,6 +17,8 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.inf;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
@@ -41,4 +43,6 @@ public interface VnfmDriverMgmrInf {
 	public ScaleVnfResponse scaleVnf(ScaleVnfRequest request, String vnfmId, String vnfInstanceId) throws VnfmDriverException;
 
 	public HealVnfResponse healVnf(HealVnfRequest request, String vnfmId, String vnfInstanceId) throws VnfmDriverException;
+
+	public CreateSubscriptionResponse createSubscription(CreateSubscriptionRequest request) throws VnfmDriverException;
 }

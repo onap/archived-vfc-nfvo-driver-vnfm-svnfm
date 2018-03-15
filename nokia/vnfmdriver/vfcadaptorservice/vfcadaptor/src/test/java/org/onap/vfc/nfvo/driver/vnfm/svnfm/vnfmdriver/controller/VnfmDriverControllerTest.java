@@ -22,6 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -32,8 +34,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.repository.VnfmJobExecutionRepository;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
@@ -239,6 +242,7 @@ public class VnfmDriverControllerTest {
 		
 		Assert.assertEquals("Error Message is ", exception.getMessage(), erroMsg);
 	}
+	
 	@Test
 	public void testHealVnf() throws Exception {
 		HealVnfResponse mockResponse = new HealVnfResponse();
@@ -278,6 +282,28 @@ public class VnfmDriverControllerTest {
 				.andReturn().getResponse().getErrorMessage();
 		
 		Assert.assertEquals("Error Message is ", exception.getMessage(), erroMsg);
+	}
+	
+	@Test
+	public void testCreateSubscripiton() throws Exception {
+		CreateSubscriptionResponse mockResponse = new CreateSubscriptionResponse();
+		mockResponse.setCallbackUri("callbackUri");
+		String jsonString = "{\"callbackUri\":\"callbackUri\",\"callbackUri\":\"callbackUrl\"," + "\"authentication\":{\"userName\":\"userName\",\"password\":\"password\",\"clientName\":\"clientName\"}}";
+		
+		when(vnfmDriverMgmr.createSubscription(Mockito.any(CreateSubscriptionRequest.class))).thenReturn(mockResponse);
+		
+		String responseString = mockMvc.perform(
+				post("/api/nokiavnfmdriver/v1/createSubscripiton").
+				characterEncoding("UTF-8").
+				accept(MediaType.APPLICATION_JSON).
+				contentType(MediaType.APPLICATION_JSON).
+				content(jsonString))
+				.andDo(print())
+				.andExpect(status().isCreated())
+				.andReturn().getResponse().getContentAsString();
+		
+		JSONObject jsonObj = new JSONObject(responseString);
+		Assert.assertEquals("jobId is ", mockResponse.getCallbackUri(), jsonObj.get("callbackUri"));
 	}
 
 }

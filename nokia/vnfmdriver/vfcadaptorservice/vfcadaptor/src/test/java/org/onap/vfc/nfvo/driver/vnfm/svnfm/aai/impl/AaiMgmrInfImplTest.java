@@ -53,10 +53,21 @@ public class AaiMgmrInfImplTest {
 		
 		String json = "{"
 				+ "\"vnfm-id\":\"vnfm-id_001\","
+				+ "\"resource-version\" : \"resource-version\","
 				+ "\"vim-id\":\"vim-id_001\","
 				+ "\"certificate-url\":\"certificate-url_001\","
-				+ "\"resource-version\":\"resource-version_001\","
-				+ "\"esr-system-info\":[{\"type\" : \"vnfm\"}]"
+				+ "\"esr-system-info\":[{"
+				+ "\"type\" : \"vnfm\","
+				+ "\"system-name\" : \"system-name\","
+				+ "\"vendor\" : \"vendor\","
+				+ "\"esr-system-info-id\" : \"esr-system-info-id\","
+				+ "\"version\" : \"version\","
+				+ "\"service-url\" : \"service-url\","
+				+ "\"user-name\" : \"user-name\","
+				+ "\"password\" : \"password\","
+				+ "\"system-type\" : \"system-type\","
+				+ "\"resource-version\" : \"resource-version\""
+				+ "}]"
 				+ "}"
 				+ "";
 		HttpResult httpResult = new HttpResult();
@@ -69,6 +80,22 @@ public class AaiMgmrInfImplTest {
 	public void testQueryVnfPackage() throws ClientProtocolException, IOException
 	{
 		AaiVnfmInfo vnfmInfo = aaiMgmr.queryVnfm(vnfmId);
+		vnfmInfo.getEsrSystemInfoList().get(0).setEsrSystemName("system-name");
+		vnfmInfo.getEsrSystemInfoList().get(0).setSystemType("system-type");
+		vnfmInfo.getEsrSystemInfoList().get(0).setResourceVersion("resource-version");
 		Assert.assertEquals("vnfm", vnfmInfo.getEsrSystemInfoList().get(0).getType());
+		Assert.assertEquals("esr-system-info-id", vnfmInfo.getEsrSystemInfoList().get(0).getEsrSystemId());
+		Assert.assertEquals("system-name", vnfmInfo.getEsrSystemInfoList().get(0).getEsrSystemName());
+		Assert.assertEquals("vendor", vnfmInfo.getEsrSystemInfoList().get(0).getVendor());
+		Assert.assertEquals("version", vnfmInfo.getEsrSystemInfoList().get(0).getVersion());
+		Assert.assertEquals("user-name", vnfmInfo.getEsrSystemInfoList().get(0).getUserName());
+		Assert.assertEquals("password", vnfmInfo.getEsrSystemInfoList().get(0).getPassword());
+		Assert.assertEquals("system-type", vnfmInfo.getEsrSystemInfoList().get(0).getSystemType());
+		Assert.assertEquals("resource-version", vnfmInfo.getEsrSystemInfoList().get(0).getResourceVersion());
+		
+		Assert.assertEquals("vnfm-id_001", vnfmInfo.getVnfmId());
+		Assert.assertEquals("vim-id_001", vnfmInfo.getVimId());
+		Assert.assertEquals("certificate-url_001", vnfmInfo.getCertificateUrl());
+		Assert.assertEquals("resource-version", vnfmInfo.getResourceVersion());
 	}
 }

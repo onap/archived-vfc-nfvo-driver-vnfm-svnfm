@@ -15,6 +15,7 @@
 */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor;
 
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
@@ -28,6 +29,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.OperStatusVnfResponse;
@@ -155,11 +157,11 @@ public class Cbam2DriverResponseConverter {
 
 		if (OperationType.INSTANTIATE == oper.getOperationType()) {
 			double instantiateProgress = (nowTime - jobInfo.getOperateStartTime())
-					/ (double)(adaptorEnv.getInstantiateTimeInterval());
+					/ adaptorEnv.getInstantiateTimeInterval();
 			initialProgress = (int) (instantiateProgress + initialProgress);
 		} else if (OperationType.TERMINATE == oper.getOperationType()) {
 			double terminateProgress = (nowTime - jobInfo.getOperateStartTime())
-					/ (double)(adaptorEnv.getTerminateTimeInterval());
+					/ adaptorEnv.getTerminateTimeInterval();
 			initialProgress = (int) (terminateProgress + initialProgress);
 		} else {
 			initialProgress = 0;
@@ -170,6 +172,18 @@ public class Cbam2DriverResponseConverter {
 
 	public void setAdaptorEnv(AdaptorEnv adaptorEnv) {
 		this.adaptorEnv = adaptorEnv;
+	}
+
+	public CreateSubscriptionResponse queryRspConvert(CBAMCreateSubscriptionResponse cbamResponse) {
+		CreateSubscriptionResponse response = new CreateSubscriptionResponse();
+		
+		response.set_links(cbamResponse.get_links());
+		response.setId(cbamResponse.getId());
+		response.setCallbackUri(cbamResponse.getCallbackUrl());
+		response.setCallbackUrl(cbamResponse.getCallbackUrl());
+		response.setFilter(cbamResponse.getFilter());
+		
+		return response;
 	}
 
 }

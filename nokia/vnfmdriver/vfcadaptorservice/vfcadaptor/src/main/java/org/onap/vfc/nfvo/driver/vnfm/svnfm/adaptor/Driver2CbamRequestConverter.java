@@ -54,11 +54,11 @@ public class Driver2CbamRequestConverter {
 	}
 
 	public CBAMInstantiateVnfRequest instantiateRequestConvert(InstantiateVnfRequest driverRequest,
-			NslcmGrantVnfResponse nslc, GrantInfo grant, VimComputeResourceFlavour vimco) throws IOException{
-		Gson gson = new Gson();
+			NslcmGrantVnfResponse nslc, GrantInfo grant, VimComputeResourceFlavour vimco) throws Exception {
+        Gson gson = new Gson();
 		String inputJson = readcbamInputInfoFromJsonFile();
 		CBAMInstantiateVnfRequest request = gson.fromJson(inputJson, CBAMInstantiateVnfRequest.class);
-
+		
 		return request;
 	}
 
@@ -96,5 +96,41 @@ public class Driver2CbamRequestConverter {
 		request.setAdditionalParams(driverRequest.getAdditionalParam());
 		return request;
 	}
-
+	
+//	public static void main(String[] argv) throws IOException {
+//		Gson gson = new Gson();
+//		String filePath = "D:\\cbam_input.json";
+//		String inputJson = readcbamInputInfo(filePath);
+//		CBAMInstantiateVnfRequest request = gson.fromJson(inputJson, CBAMInstantiateVnfRequest.class);
+//		System.out.println(gson.toJson(request));
+//	}
+//	
+//	public static String readcbamInputInfo(String filePath) throws IOException {
+//		InputStream ins = null;
+//        BufferedInputStream bins = null;
+//        String fileContent = "";
+//        String fileName = filePath;
+//
+//        try {
+//            ins = new FileInputStream(fileName);
+//            bins = new BufferedInputStream(ins);
+//
+//            byte[] contentByte = new byte[ins.available()];
+//            int num = bins.read(contentByte);
+//
+//            if(num > 0) {
+//                fileContent = new String(contentByte);
+//            }
+//        } catch(FileNotFoundException e) {
+//        	e.printStackTrace();;
+//        } finally {
+//            if(ins != null) {
+//                ins.close();
+//            }
+//            if(bins != null) {
+//                bins.close();
+//            }
+//        }
+//		return fileContent;
+//	}
 }

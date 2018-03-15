@@ -95,6 +95,9 @@ public class CatalogMgmrImplTest {
 		packageInfo.setVnfdProvider("vnfdProvider");
 		packageInfo.setVnfdVersion("vnfdVersion");
 		packageInfo.setVnfVersion("vnfVersion");
+		packageInfo.setProvider("provider");
+		packageInfo.setVnfdProvider("vnfdProvider");
+		packageInfo.setVersion("version");
 		Deletionpending deletionPending = CommonEnum.Deletionpending.fALSE;
 		packageInfo.setDeletionPending(deletionPending );
 		
@@ -108,6 +111,26 @@ public class CatalogMgmrImplTest {
 		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
 		VnfPackageInfo packageInfo1 = catalogMgmr.queryVnfPackage(vnfPackageId);
 		Assert.assertEquals("1.3.5.6", packageInfo.getDownloadUri());
+		Assert.assertEquals("name", packageInfo.getName());
+		Assert.assertEquals("onBoardState", packageInfo.getOnBoardState());
+		Assert.assertEquals("vnfdId", packageInfo.getVnfdId());
+		Assert.assertEquals("provider", packageInfo.getProvider());
+		Assert.assertEquals("vnfdProvider", packageInfo.getVnfdProvider());
+		Assert.assertEquals("vnfdVersion", packageInfo.getVnfdVersion());
+		Assert.assertEquals("vnfVersion", packageInfo.getVnfVersion());
+		Assert.assertEquals("version", packageInfo.getVersion());
+		Assert.assertEquals(CommonEnum.Deletionpending.fALSE, packageInfo.getDeletionPending());
+		
+		Assert.assertEquals("csarId", response.getCsarId());
+		Assert.assertEquals("fileName", response.getImageInfo().getFileName());
+		Assert.assertEquals("imageId", response.getImageInfo().getImageId());
+		Assert.assertEquals("index", response.getImageInfo().getIndex());
+		Assert.assertEquals("status", response.getImageInfo().getStatus());
+		Assert.assertEquals("tenant", response.getImageInfo().getTenant());
+		Assert.assertEquals("vimId", response.getImageInfo().getVimId());
+		Assert.assertEquals("vimUser", response.getImageInfo().getVimUser());
+		Assert.assertEquals("vnfInstanceId", response.getVnfInstanceInfo().get(0).getVnfInstanceId());
+		Assert.assertEquals("vnfInstanceName", response.getVnfInstanceInfo().get(0).getVnfInstanceName());
 	}
 
 }

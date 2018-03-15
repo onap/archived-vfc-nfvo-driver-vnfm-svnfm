@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor;
 
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -36,6 +37,8 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.entity.EsrSystemInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.inf.AaiMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMHealVnfRequest;
@@ -50,8 +53,11 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmSubscriptionsMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
@@ -83,6 +89,9 @@ public class VnfmDriverMgmrImplTest {
 	
 	@Mock
 	private VnfmJobExecutionMapper jobDbManager;
+	
+	@Mock
+	private VnfmSubscriptionsMapper subscriptionsMapper;
 	
 	@Mock
 	private VnfContinueProcessorInf vnfContinueProcessorInf;
@@ -214,6 +223,18 @@ public class VnfmDriverMgmrImplTest {
 		OperStatusVnfResponse response = vnfmDriverMgmr.getOperStatus(vnfmId, "1");
 //		
 //		Assert.assertEquals("executionId_001", response.getJobId());
+	}
+	
+	@Test
+	public void testCreateSubscription() throws ClientProtocolException, IOException {
+		CBAMCreateSubscriptionResponse mockCbamResponse = new CBAMCreateSubscriptionResponse();
+		mockCbamResponse.setId("subscriptionId_001");
+		mockCbamResponse.setCallbackUrl("callbackUrl");
+		when(cbamMgmr.createSubscription(Mockito.any(CBAMCreateSubscriptionRequest.class))).thenReturn(mockCbamResponse);
+		doNothing().when(subscriptionsMapper).insert(Mockito.anyString());
+		CreateSubscriptionRequest request = new CreateSubscriptionRequest();
+		CreateSubscriptionResponse response = vnfmDriverMgmr.createSubscription(request);
+		Assert.assertEquals("callbackUrl", response.getCallbackUri());
 	}
 
 }
