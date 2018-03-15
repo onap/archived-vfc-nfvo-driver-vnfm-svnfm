@@ -115,42 +115,43 @@ public class MsbMgmrImpl implements IMsbMgmr {
 
 	}
 
-	public String getServiceUrlInMsbBySeriveNameAndVersion(String serviceName, String version) throws ClientProtocolException, IOException {
-		String url = adaptorEnv.getMsbApiUriFront() + String.format(CommonConstants.MSB_QUERY_SERVICE_PATH, serviceName, version);
+	public String getServiceUrlInMsbBySeriveNameAndVersion(String serviceName, String version) throws IOException {
+		try{
+			String url = adaptorEnv.getMsbApiUriFront() + String.format(CommonConstants.MSB_QUERY_SERVICE_PATH, serviceName, version);
 
-		HttpResult httpResult = httpClientProcessor.process(url, RequestMethod.GET, null, null);
+			HttpResult httpResult = httpClientProcessor.process(url, RequestMethod.GET, null, null);
 
-		String responseStr = httpResult.getContent();
-		logger.info("MsbMgmrImpl -> getServiceUrlInMsbBySeriveNameAndVersion, responseStr is " + responseStr);
-		String serviceUrl = "";
-		if(httpResult.getStatusCode() == 200)
-		{
-			MsbServiceInfo serviceInfo = gson.fromJson(responseStr, MsbServiceInfo.class);
-			if (null == serviceInfo) {
-				logger.error("There is no service in MSB for serviceName = {} and version = {}", serviceName, version);
+			String responseStr = httpResult.getContent();
+			logger.info("MsbMgmrImpl -> getServiceUrlInMsbBySeriveNameAndVersion, responseStr is " + responseStr);
+			String serviceUrl = "";
+			if(httpResult.getStatusCode() == 200)
+			{
+				MsbServiceInfo serviceInfo = gson.fromJson(responseStr, MsbServiceInfo.class);
+				if (null == serviceInfo) {
+					logger.error("There is no service in MSB for serviceName = {} and version = {}", serviceName, version);
+				}
+				else{
+					serviceUrl = serviceInfo.getUrl();
+					logger.info("Service Url in MSB for serviceName = {} and version = {} is {}", serviceName, version, serviceUrl);
+				}
 			}
-			
-			serviceUrl = serviceInfo.getUrl();
-			logger.info("Service Url in MSB for serviceName = {} and version = {} is {}", serviceName, version, serviceUrl);
-		}
-		else
-		{
-			logger.error("MsbMgmrImpl -> getServiceUrlInMsbBySeriveNameAndVersion Error, statusCode = " + httpResult.getStatusCode());
-		}
+			else
+			{
+				logger.error("MsbMgmrImpl -> getServiceUrlInMsbBySeriveNameAndVersion Error, statusCode = " + httpResult.getStatusCode());
+			}
 
+			return serviceUrl;
 
-		return serviceUrl;
+		}catch(Exception e){
+			logger.error("MsbMgmrImpl -> getServiceUrlInMsbBySeriveNameAndVersion Error", e);
+			throw new IOException("getServiceUrlInMsbBySeriveNameAndVersion", e);
+
+		}		
+		
 	}
 
 	public void setAdaptorEnv(AdaptorEnv env) {
 		this.adaptorEnv = env;
 	}
-
-//	public static final void main(String[] args) {
-////		MsbMgmrImpl impl = new MsbMgmrImpl();
-////		impl.register();
-//		System.setProperty("catalina.base", "D:\\Install\\apache-tomcat-9.0.0.M26");
-//		System.out.println(System.getProperty("catalina.base"));
-//	}
 
 }
