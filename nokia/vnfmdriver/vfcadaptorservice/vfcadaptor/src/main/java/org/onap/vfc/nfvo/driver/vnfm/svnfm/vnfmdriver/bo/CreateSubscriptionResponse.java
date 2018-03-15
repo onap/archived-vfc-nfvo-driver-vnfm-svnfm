@@ -13,10 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo;
 
-public class CBAMOperExecutVnfRequest {
-	
-	
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class CreateSubscriptionResponse extends Subscription{
+	//the attribute callbackUri is for SOL003 driver, while callbackUrl is for CBAM
+		@JsonProperty("callbackUri")
+		private String callbackUri;
+
+		public String getCallbackUri() {
+			return callbackUri;
+		}
+
+		public void setCallbackUri(String callbackUri) {
+			this.callbackUri = callbackUri;
+		}
 }

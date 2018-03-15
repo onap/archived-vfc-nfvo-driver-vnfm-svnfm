@@ -24,6 +24,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.entity.EsrSystemInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.inf.AaiMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMQueryVnfResponse;
@@ -37,8 +38,11 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfcResourceInfoMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmSubscriptionsMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.inf.NslcmMgmrInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionRequest;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.CreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.HealVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo.InstantiateVnfRequest;
@@ -85,6 +89,9 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf {
 
 	@Autowired
 	private VnfcResourceInfoMapper vnfcDbMgmr;
+	
+	@Autowired
+	private VnfmSubscriptionsMapper subscriptionsMapper;
 
 	@Autowired
 	AdaptorEnv adaptorEnv;
@@ -343,6 +350,21 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf {
 
 	public void setResponseConverter(Cbam2DriverResponseConverter responseConverter) {
 		this.responseConverter = responseConverter;
+	}
+
+	@Override
+	public CreateSubscriptionResponse createSubscription(CreateSubscriptionRequest request) throws VnfmDriverException {
+		CreateSubscriptionResponse driverResponse;
+		try {
+			CBAMCreateSubscriptionResponse cbamResponse = cbamMgmr.createSubscription(request);
+			driverResponse = responseConverter.queryRspConvert(cbamResponse);
+			subscriptionsMapper.insert(cbamResponse.getId());
+		} catch (Exception e) {
+			logger.error("error VnfmDriverMgmrImpl --> createSubscripiton. ", e);
+			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);
+		}
+
+		return driverResponse;
 	}
 
 }

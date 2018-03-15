@@ -28,7 +28,7 @@ public class CBAMCreateSubscriptionRequest {
 	@JsonProperty("callbackUrl")
 	private String callbackUrl;
 	
-	@JsonProperty("description")
+	@JsonProperty("authentication")
 	private SubscriptionAuthentication authentication;
 
 	public SubscriptionFilter getFilter() {

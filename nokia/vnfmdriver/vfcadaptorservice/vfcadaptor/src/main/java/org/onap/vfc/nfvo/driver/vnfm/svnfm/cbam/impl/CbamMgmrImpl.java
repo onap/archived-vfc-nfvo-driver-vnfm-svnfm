@@ -474,15 +474,17 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		logger.info("CbamMgmrImpl -> createSubscription, requestStr is " + gson.toJson(subscriptionRequest));
 		HttpResult httpResult = operateCbamHttpTask(subscriptionRequest, httpPath, method);
 		String responseStr = httpResult.getContent();
+		
+		CBAMCreateSubscriptionResponse response = null;
 
 		logger.info("CbamMgmrImpl -> createSubscription, responseStr is " + responseStr);
 		int code = httpResult.getStatusCode();
 		if (code == 201) {
 			logger.info("CbamMgmrImpl -> createSubscription success ");
+			response = gson.fromJson(responseStr, CBAMCreateSubscriptionResponse.class);
 		} else {
 			logger.error("CbamMgmrImpl -> createSubscription error , statusCode = " + code);
 		}
-		CBAMCreateSubscriptionResponse response = gson.fromJson(responseStr, CBAMCreateSubscriptionResponse.class);
 
 		return response;
 	}
@@ -527,7 +529,4 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		return response;
 	}
 
-	
-
-	
 }
