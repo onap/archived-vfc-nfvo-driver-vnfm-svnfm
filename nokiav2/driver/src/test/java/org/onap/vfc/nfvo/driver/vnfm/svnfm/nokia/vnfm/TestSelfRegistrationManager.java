@@ -16,7 +16,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import com.google.common.collect.Lists;
-import com.nokia.cbam.lcn.v32.ApiException;
 import com.nokia.cbam.lcn.v32.model.CreateSubscriptionRequest;
 import com.nokia.cbam.lcn.v32.model.Subscription;
 import com.nokia.cbam.lcn.v32.model.SubscriptionAuthentication;
@@ -58,7 +57,7 @@ public class TestSelfRegistrationManager extends TestBase {
     @Before
     public void initMocks() throws Exception {
         setField(SelfRegistrationManager.class, "logger", logger);
-        when(lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION)).thenReturn(subscriptions);
+        when(lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION)).thenReturn(buildObservable(subscriptions));
         when(driverProperties.getVnfmId()).thenReturn(VNFM_ID);
         setField(selfRegistrationManager, "driverMsbExternalIp", "1.2.3.4");
         setField(selfRegistrationManager, "driverVnfmExternalIp", "5.6.7.8");
@@ -78,7 +77,7 @@ public class TestSelfRegistrationManager extends TestBase {
     public void testRegistration() throws Exception {
         //given
         Subscription subscription = new Subscription();
-        when(lcnApi.subscriptionsPost(subscriptionToCreate.capture(), Mockito.eq(NOKIA_LCN_API_VERSION))).thenReturn(subscription);
+        when(lcnApi.subscriptionsPost(subscriptionToCreate.capture(), Mockito.eq(NOKIA_LCN_API_VERSION))).thenReturn(buildObservable(subscription));
         MicroServiceFullInfo returnedMicroService = new MicroServiceFullInfo();
         when(msbClient.registerMicroServiceInfo(registeredMicroservice.capture())).thenReturn(returnedMicroService);
         //when
@@ -158,7 +157,7 @@ public class TestSelfRegistrationManager extends TestBase {
     @Test
     public void testFailedLcnSubscription() throws Exception {
         //given
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         when(lcnApi.subscriptionsPost(any(), any())).thenThrow(expectedException);
         //when
         try {
@@ -180,14 +179,11 @@ public class TestSelfRegistrationManager extends TestBase {
     public void testFailedMsbPublish() throws Exception {
         //given
         Subscription subscription = new Subscription();
-        when(lcnApi.subscriptionsPost(subscriptionToCreate.capture(), Mockito.eq(NOKIA_LCN_API_VERSION))).thenAnswer(new Answer<Subscription>() {
-            @Override
-            public Subscription answer(InvocationOnMock invocationOnMock) throws Throwable {
-                subscription.setCallbackUrl("http://5.6.7.8:12345/api/NokiaSVNFM/v1/lcn");
-                subscription.setId(UUID.randomUUID().toString());
-                subscriptions.add(subscription);
-                return subscription;
-            }
+        when(lcnApi.subscriptionsPost(subscriptionToCreate.capture(), Mockito.eq(NOKIA_LCN_API_VERSION))).thenAnswer(invocationOnMock -> {
+            subscription.setCallbackUrl("http://5.6.7.8:12345/api/NokiaSVNFM/v1/lcn");
+            subscription.setId(UUID.randomUUID().toString());
+            subscriptions.add(subscription);
+            return buildObservable(subscription);
         });
         MicroServiceFullInfo returnedMicroService = new MicroServiceFullInfo();
         RouteException expectedException = new RouteException();
@@ -302,7 +298,7 @@ public class TestSelfRegistrationManager extends TestBase {
         subscription.setId(UUID.randomUUID().toString());
         subscriptions.add(subscription);
         when(jobManager.hasOngoingJobs()).thenReturn(false);
-        ApiException expectedException = new ApiException();
+        RuntimeException expectedException = new RuntimeException();
         doThrow(expectedException).when(lcnApi).subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION);
         //when
         try {

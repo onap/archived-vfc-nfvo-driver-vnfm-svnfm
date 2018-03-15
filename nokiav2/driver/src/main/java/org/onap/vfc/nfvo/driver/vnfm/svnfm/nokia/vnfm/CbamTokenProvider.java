@@ -16,32 +16,21 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import okhttp3.*;
-import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.UserVisibleError;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Set;
 
-import static java.util.UUID.randomUUID;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -54,11 +43,11 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 //even if the value for grant type an user password is the same they do not mean the same thing
 //the duplication of this is intentional
 @SuppressWarnings("squid:S1192")
-public class CbamTokenProvider {
+public class CbamTokenProvider extends CbamSecurityProvider {
     public static final int MAX_RETRY_COUNT = 5;
     public static final String GRANT_TYPE = "password";
     public static final String CLIENT_SECRET = "password";
-    private static final String CBAM_TOKEN_URL = "/realms/cbam/protocol/openid-connect/token";
+    private static final String CBAM_TOKEN_URL = "realms/cbam/protocol/openid-connect/token";
     private static Logger logger = getLogger(CbamTokenProvider.class);
     private final VnfmInfoProvider vnfmInfoProvider;
     @Value("${cbamKeyCloakBaseUrl}")
@@ -67,12 +56,6 @@ public class CbamTokenProvider {
     private String username;
     @Value("${cbamPassword}")
     private String password;
-    @Value("${trustedCertificates}")
-    private String trustedCertificates;
-    @Value("${skipCertificateVerification}")
-    private boolean skipCertificateVerification;
-    @Value("${skipHostnameVerification}")
-    private boolean skipHostnameVerification;
     private volatile CurrentToken token;
 
     @Autowired
@@ -83,9 +66,9 @@ public class CbamTokenProvider {
     /**
      * @return the token to access CBAM APIs (ex. 123456)
      */
-    public String getToken(String vnfmId) {
+    public Interceptor getToken(String vnfmId) {
         VnfmInfo vnfmInfo = vnfmInfoProvider.getVnfmInfo(vnfmId);
-        return getToken(vnfmInfo.getUserName(), vnfmInfo.getPassword());
+        return new OauthInterceptor(getToken(vnfmInfo.getUserName(), vnfmInfo.getPassword()));
     }
 
     private String getToken(String clientId, String clientSecret) {
@@ -155,45 +138,20 @@ public class CbamTokenProvider {
         return SystemFunctions.systemFunctions().currentTimeMillis() + token.expiresIn * (1000 / 2);
     }
 
-    private HostnameVerifier buildHostnameVerifier() {
-        if (skipHostnameVerification) {
-            return (hostname, session) -> true;
-        } else {
-            return new DefaultHostnameVerifier();
+    private static class OauthInterceptor implements Interceptor {
+        private final String token;
+
+        OauthInterceptor(String token) {
+            this.token = token;
         }
-    }
 
-    @VisibleForTesting
-    SSLSocketFactory buildSSLSocketFactory() {
-        try {
-            TrustManager[] trustManagers = buildTrustManager();
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustManagers, new SecureRandom());
-            return sslContext.getSocketFactory();
-        } catch (GeneralSecurityException e) {
-            throw buildFatalFailure(logger, "Unable to create SSL socket factory", e);
-        }
-    }
-
-    @VisibleForTesting
-    TrustManager[] buildTrustManager() throws KeyStoreException, NoSuchAlgorithmException {
-        if (skipCertificateVerification) {
-            return new TrustManager[]{new AllTrustedTrustManager()};
-        } else {
-            if (StringUtils.isEmpty(trustedCertificates)) {
-                throw new IllegalArgumentException("If the skipCertificateVerification is set to false (default) the trustedCertificates can not be empty");
-            }
-            Set<String> trustedPems;
-            try {
-                trustedPems = StoreLoader.getCertifacates(new String(BaseEncoding.base64().decode(trustedCertificates), StandardCharsets.UTF_8));
-            } catch (Exception e) {
-                throw new UserVisibleError("The trustedCertificates must be a base64 encoded collection of PEM certificates", e);
-            }
-            KeyStore keyStore = StoreLoader.loadStore(Joiner.on("\n").join(trustedPems), randomUUID().toString(), randomUUID().toString());
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(keyStore);
-            return trustManagerFactory.getTrustManagers();
-
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request request = chain.request();
+            Request.Builder builder = request.newBuilder();
+            builder.addHeader("Authorization", "Bearer " + token);
+            Request request1 = builder.build();
+            return chain.proceed(request1);
         }
     }
 
@@ -204,23 +162,6 @@ public class CbamTokenProvider {
         CurrentToken(TokenResponse token, long refreshAfter) {
             this.refreshAfter = refreshAfter;
             this.token = token;
-        }
-    }
-
-    static class AllTrustedTrustManager implements X509TrustManager {
-        @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            //no need to check certificates if everything is trusted
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            //no need to check certificates if everything is trusted
-        }
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return new X509Certificate[0];
         }
     }
 

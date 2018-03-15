@@ -17,7 +17,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.model.*;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -203,7 +202,6 @@ public class TestAAINotificationProcessor extends TestBase {
     }
 
 
-
     /**
      * if changes connection points are not present a warning is logged
      */
@@ -219,7 +217,6 @@ public class TestAAINotificationProcessor extends TestBase {
         verify(logger).warn("The changed connection points are not present in VNF with {} identifier", VNF_ID);
     }
 
-    @NotNull
     private ReportedAffectedCp buildCp() {
         ReportedAffectedCp cp = new ReportedAffectedCp();
         cp.setServerProviderId(UUID.randomUUID().toString());

@@ -17,10 +17,14 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.TestCbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.TestGenericExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.TestIpMappingProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.TestMsbApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.TestAAIExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.TestAAIRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.TestGrantlessGrantManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.TestSdcPackageProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestCbamVnfPackageBuilder;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestCbamVnfdBuilder;
@@ -37,13 +41,26 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestProcessed
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedAffectedConnectionPoints;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedAffectedCp;
 
+//import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.TestCbamRestApiProvider;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-
-        TestCbamRestApiProvider.class,
         TestGenericExternalSystemInfoProvider.class,
         TestIpMappingProvider.class,
         TestMsbApiProvider.class,
+
+        TestAAINotificationProcessor.class,
+        TestAbstractManager.class,
+        TestGenericVnfManager.class,
+        TestL3NetworkManager.class,
+        TestLInterfaceManager.class,
+        TestVnfcManager.class,
+        TestVserverManager.class,
+
+        TestAAIExternalSystemInfoProvider.class,
+        TestAAIRestApiProvider.class,
+        TestGrantlessGrantManager.class,
+        TestSdcPackageProvider.class,
 
         TestVfcExternalSystemInfoProvider.class,
         TestVfcGrantManager.class,
@@ -79,6 +96,8 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedA
 
         TestAdditionalParams.class,
         TestCbamCatalogManager.class,
+        TestCbamRestApiProvider.class,
+        TestCbamSecurityProvider.class,
         TestCbamTokenProvider.class,
         TestDriverProperties.class,
         TestJobManager.class,
@@ -90,8 +109,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedA
 })
 public class FullUnitTestSuite {
 }
-
-
 
 
 

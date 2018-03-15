@@ -68,7 +68,7 @@ public class TestConditions {
      * use class in a static way
      */
     @Test
-    public void useStaticway(){
+    public void useStaticway() {
         TestUtil.coveragePrivateConstructorForClassesWithStaticMethodsOnly(Conditions.class);
     }
 
