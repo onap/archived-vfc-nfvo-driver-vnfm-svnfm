@@ -18,7 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
  * Responsible for initializing the Spring application
