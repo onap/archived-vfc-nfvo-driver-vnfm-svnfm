@@ -28,10 +28,9 @@
   <name>vfc-nfvo-driver-vnfm-svnfm-nokiav2</name>
   <properties>
     <jacoco.version>0.8.0</jacoco.version>
-   <spring.boot.version>1.5.10.RELEASE</spring.boot.version> 
-<!--    <spring.boot.version>2.0.0.RELEASE</spring.boot.version> -->
+<!--   <spring.boot.version>1.5.10.RELEASE</spring.boot.version> -->
+    <spring.boot.version>2.0.0.RELEASE</spring.boot.version> 
   </properties>
-  <!--
   <build>
     <plugins>
       <plugin>
@@ -45,6 +44,7 @@
               <rules>
                 <DependencyConvergence/>
               </rules>
+              <fail>false</fail>
             </configuration>
             <goals>
               <goal>enforce</goal>
@@ -54,7 +54,6 @@
       </plugin>
     </plugins>
   </build>
- -->
   <modules>
     <module>generatedapis</module>
     <module>driver</module>
