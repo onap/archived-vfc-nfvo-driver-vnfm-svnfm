@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface HttpClientProcessorInf {
 	public HttpResult process(String url, RequestMethod methodType, HashMap<String, String> headerMap, String bodyString) throws ClientProtocolException, IOException;
 
-	public HttpResult processBytes(String url, RequestMethod method, HashMap<String, String> map, byte[] fileBytes) throws ClientProtocolException, IOException; 
+	public HttpResult processBytes(String url, RequestMethod method, HashMap<String, String> map, byte[] fileBytes) throws ClientProtocolException, IOException;
+
+	public HttpResult process(String url) throws ClientProtocolException, IOException; 
 
 }

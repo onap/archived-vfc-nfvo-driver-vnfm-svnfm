@@ -18,10 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.msb.impl;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.util.CommonUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
@@ -37,9 +34,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 @Component
 public class MsbMgmrImpl implements IMsbMgmr {
@@ -119,7 +113,8 @@ public class MsbMgmrImpl implements IMsbMgmr {
 		try{
 			String url = adaptorEnv.getMsbApiUriFront() + String.format(CommonConstants.MSB_QUERY_SERVICE_PATH, serviceName, version);
 
-			HttpResult httpResult = httpClientProcessor.process(url, RequestMethod.GET, null, null);
+//			HttpResult httpResult = httpClientProcessor.process(url, RequestMethod.GET, null, null);
+			HttpResult httpResult = httpClientProcessor.process(url);
 
 			String responseStr = httpResult.getContent();
 			logger.info("MsbMgmrImpl -> getServiceUrlInMsbBySeriveNameAndVersion, responseStr is " + responseStr);

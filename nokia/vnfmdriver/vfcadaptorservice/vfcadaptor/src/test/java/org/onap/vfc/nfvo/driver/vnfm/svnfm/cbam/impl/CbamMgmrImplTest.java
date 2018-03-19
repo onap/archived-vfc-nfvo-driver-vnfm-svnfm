@@ -420,6 +420,19 @@ public class CbamMgmrImplTest {
 	{
 		String execId = "execId_001";
 		CBAMQueryOperExecutionResponse response = cbamMgmr.queryOperExecution(execId);
+		Assert.assertEquals("id", response.getId());
+		Assert.assertEquals(null, response.getGrantId());
+		Assert.assertEquals(null, response.get_links());
+		Assert.assertEquals(null, response.getAdditionalData());
+		Assert.assertEquals(null, response.getCancelMode());
+		Assert.assertEquals(false, response.isCancelPending());
+		Assert.assertEquals(null, response.getMetadata());
+		Assert.assertEquals(null, response.getOperationName());
+		Assert.assertEquals(null, response.getOperationParams());
+		Assert.assertEquals(null, response.getOperationType());
+		Assert.assertEquals(null, response.getStartTime());
+		Assert.assertEquals(null, response.getStatus());
+		Assert.assertEquals(null, response.getVnfInstanceId());
 	}
 	
 	@Test

@@ -55,6 +55,7 @@ public class MsbMgmrImplTest {
 		httpResult.setStatusCode(200);
 		
 		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
+		when(httpClientProcessor.process(Mockito.anyString())).thenReturn(httpResult);
 	}
 
 	@Test

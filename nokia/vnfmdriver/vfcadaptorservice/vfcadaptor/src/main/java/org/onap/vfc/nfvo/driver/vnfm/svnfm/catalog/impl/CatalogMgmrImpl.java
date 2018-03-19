@@ -49,7 +49,8 @@ public class CatalogMgmrImpl implements CatalogMgmrInf{
 		
 		String url=adaptorEnv.getCatalogApiUriFront() + String.format(CommonConstants.RetrieveVnfPackagePath, vnfPackageId);
 		
-		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, null, null).getContent();
+//		String responseStr = httpClientProcessor.process(url, RequestMethod.GET, null, null).getContent();
+		String responseStr = httpClientProcessor.process(url).getContent();
 		
 		logger.info("CatalogMgmrImpl -> queryVnfPackage, responseStr is " + responseStr);
 		

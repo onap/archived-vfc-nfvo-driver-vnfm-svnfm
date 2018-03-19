@@ -20,7 +20,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -40,7 +39,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum.Deletionpending;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpResult;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.gson.Gson;
 
@@ -55,17 +53,18 @@ public class CatalogMgmrImplTest {
 	
 	private Gson gson = new Gson();
 	
+	private HttpResult httpResult = new HttpResult();
+	
 	@Before
 	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-		AdaptorEnv env = new AdaptorEnv();
-		catalogMgmr.setAdaptorEnv(env);
-		MockitoAnnotations.initMocks(this);
 	}
 	
 	@Test
 	public void testQueryVnfPackage() throws ClientProtocolException, IOException
 	{
+		MockitoAnnotations.initMocks(this);
+		AdaptorEnv env = new AdaptorEnv();
+		catalogMgmr.setAdaptorEnv(env);
 		CatalogQueryVnfResponse response = new CatalogQueryVnfResponse();
 		List<VnfInstanceInfo> vnfInstanceInfos = new ArrayList<VnfInstanceInfo>();
 		VnfInstanceInfo vnfInstanceInfo = new VnfInstanceInfo();
@@ -101,14 +100,15 @@ public class CatalogMgmrImplTest {
 		Deletionpending deletionPending = CommonEnum.Deletionpending.fALSE;
 		packageInfo.setDeletionPending(deletionPending );
 		
-		response.setPackageInfo(packageInfo );
+		response.setPackageInfo(packageInfo);
 		
 		String json = gson.toJson(packageInfo);
 		
-		HttpResult httpResult = new HttpResult();
 		httpResult.setContent(json);
 		
-		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
+//		when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
+		when(httpClientProcessor.process(Mockito.anyString())).thenReturn(httpResult);
+		
 		VnfPackageInfo packageInfo1 = catalogMgmr.queryVnfPackage(vnfPackageId);
 		Assert.assertEquals("1.3.5.6", packageInfo.getDownloadUri());
 		Assert.assertEquals("name", packageInfo.getName());

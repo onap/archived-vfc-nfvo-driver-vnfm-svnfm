@@ -145,7 +145,8 @@ public class VnfmDriverMgmrImplTest {
 		execInfo.setJobId(100L);
 		execInfo.setVnfmExecutionId("executionId_001");
 		execInfo.setVnfInstanceId(vnfInstanceId);
-		
+		execInfo.setOperateStartTime(1234567);
+		execInfo.setOperateEndTime(2345678);
 		when(jobDbManager.findNewestJobInfo()).thenReturn(execInfo);
 	}
 	
@@ -212,6 +213,8 @@ public class VnfmDriverMgmrImplTest {
 		execInfo.setJobId(1L);
 		execInfo.setVnfmExecutionId("executionId_001");
 		execInfo.setStatus("finished");
+		execInfo.setVnfInstanceId(vnfInstanceId);
+		execInfo.toString();
 		when(jobDbManager.findOne(Mockito.anyLong())).thenReturn(execInfo);
 		
 		CBAMQueryOperExecutionResponse cbamResponse = new CBAMQueryOperExecutionResponse();
@@ -222,7 +225,12 @@ public class VnfmDriverMgmrImplTest {
 //		when(cbamMgmr.queryOperExecution(Mockito.anyString())).thenReturn(cbamResponse);
 		OperStatusVnfResponse response = vnfmDriverMgmr.getOperStatus(vnfmId, "1");
 //		
-//		Assert.assertEquals("executionId_001", response.getJobId());
+		Assert.assertEquals(0, execInfo.getOperateStartTime());
+		Assert.assertEquals(0, execInfo.getOperateEndTime());
+		Assert.assertEquals(1, execInfo.getJobId());
+		Assert.assertEquals("executionId_001", execInfo.getVnfmExecutionId());
+		Assert.assertEquals("finished", execInfo.getStatus());
+		Assert.assertEquals(vnfInstanceId, execInfo.getVnfInstanceId());
 	}
 	
 	@Test

@@ -134,4 +134,9 @@ public class HttpClientProcessorImpl implements HttpClientProcessorInf{
         return bos.toByteArray();  
 	}
     }
+
+	@Override
+	public HttpResult process(String url) throws ClientProtocolException, IOException {
+		return process(url, RequestMethod.GET, null, null);
+	}
 }
