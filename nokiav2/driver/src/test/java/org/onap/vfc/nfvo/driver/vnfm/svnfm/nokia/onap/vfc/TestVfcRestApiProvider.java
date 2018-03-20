@@ -47,6 +47,18 @@ public class TestVfcRestApiProvider extends TestBase {
     }
 
     /**
+     * the / is added to the base URL
+     */
+    @Test
+    public void testNsLcmApiMissingSlash() throws Exception {
+        when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSLCM_API_SERVICE_NAME, VfcRestApiProvider.NSLCM_API_VERION)).thenReturn("http://1.2.3.4:1234/nslcm/v1/lead");
+        //when
+        org.onap.vnfmdriver.ApiClient apiClient = vfcRestApiProvider.buildNslcmApiClient();
+        //verify
+        assertEquals("http://1.2.3.4:1234/lead/", apiClient.getAdapterBuilder().build().baseUrl().toString());
+    }
+
+    /**
      * the base URL of the Catalog API is set
      */
     @Test
@@ -58,6 +70,21 @@ public class TestVfcRestApiProvider extends TestBase {
         assertEquals("http://1.2.3.4:1234/lead/", apiClient.getAdapterBuilder().build().baseUrl().toString());
     }
 
+    /**
+     * test / is added to the end of the base URL if missing
+     */
+    @Test
+    public void testMissingSlash() throws Exception {
+        when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSCATALOG_SERVICE_NAME, VfcRestApiProvider.NSCATALOG_API_VERSION)).thenReturn("http://1.2.3.4:1234/lead");
+        //when
+        ApiClient apiClient = vfcRestApiProvider.buildCatalogApiClient();
+        //verify
+        assertEquals("http://1.2.3.4:1234/lead/", apiClient.getAdapterBuilder().build().baseUrl().toString());
+    }
+
+    /**
+     * test NS LCM API is wrapped
+     */
     @Test
     public void testNsLcm() {
         when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSLCM_API_SERVICE_NAME, VfcRestApiProvider.NSLCM_API_VERION)).thenReturn("http://1.2.3.4:1234/nslcm/v1/lead/");
@@ -66,6 +93,9 @@ public class TestVfcRestApiProvider extends TestBase {
         assertNotNull(vfcRestApiProvider.getNsLcmApi());
     }
 
+    /**
+     * test NS catalog API is wrapped
+     */
     @Test
     public void testNsCatalog() {
         when(msbApiProvider.getMicroServiceUrl(VfcRestApiProvider.NSCATALOG_SERVICE_NAME, VfcRestApiProvider.NSCATALOG_API_VERSION)).thenReturn("http://1.2.3.4:1234/lead/");

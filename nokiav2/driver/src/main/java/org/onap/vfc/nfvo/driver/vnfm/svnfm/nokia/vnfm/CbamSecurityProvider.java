@@ -83,7 +83,7 @@ public class CbamSecurityProvider {
             } catch (Exception e) {
                 throw buildFatalFailure(logger, "The trustedCertificates must be a base64 encoded collection of PEM certificates", e);
             }
-            if (trustedPems.size() == 0) {
+            if (trustedPems.isEmpty()) {
                 throw buildFatalFailure(logger, "No certificate can be extracted from " + content);
             }
             try {

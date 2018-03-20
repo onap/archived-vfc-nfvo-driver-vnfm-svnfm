@@ -294,10 +294,10 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
     }
 
     /**
-     * if unable to send LCN to VF-C the error is propagated
+     * if unable to query all operation executions from CBAM the error is propagated
      */
     @Test
-    public void testUnableToQueryCurrentOperation() throws Exception {
+    public void testUnableToQueryCurrentOperations() throws Exception {
         recievedLcn.setOperation(OperationType.TERMINATE);
         recievedLcn.setStatus(OperationStatus.FINISHED);
         RuntimeException expectedException = new RuntimeException();
@@ -310,6 +310,26 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
             //verify
             assertEquals(expectedException, e.getCause());
             verify(logger).error("Unable to retrieve the operation executions for the VNF myVnfId", e.getCause());
+        }
+    }
+
+    /**
+     * if unable to query the given operation execution from CBAM the error is propagated
+     */
+    @Test
+    public void testUnableToQueryCurrentOperation() throws Exception {
+        recievedLcn.setOperation(OperationType.TERMINATE);
+        recievedLcn.setStatus(OperationStatus.FINISHED);
+        RuntimeException expectedException = new RuntimeException();
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdGet(recievedLcn.getLifecycleOperationOccurrenceId(), NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
+        //when
+        try {
+            lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+            fail();
+        } catch (Exception e) {
+            //verify
+            assertEquals(expectedException, e.getCause());
+            verify(logger).error("Unable to retrieve the operation execution with instantiationOperationExecutionId identifier", e.getCause());
         }
     }
 

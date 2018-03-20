@@ -427,7 +427,6 @@ public class LifecycleManager {
         logOperationInput(vnfId, "termination", request);
         return scheduleExecution(vnfId, httpResponse, "terminate", jobInfo -> {
             TerminateVnfRequest cbamRequest = new TerminateVnfRequest();
-            //cbamRequest.setAdditionalParams(jobInfo);
             if (request.getTerminationType() == null) {
                 cbamRequest.setTerminationType(TerminationType.FORCEFUL);
             } else {
@@ -518,43 +517,44 @@ public class LifecycleManager {
      */
     public JobInfo scaleVnf(String vnfmId, String vnfId, VnfScaleRequest request, HttpServletResponse httpResponse) {
         logOperationInput(vnfId, SCALE_OPERATION_NAME, request);
-        return scheduleExecution(vnfId, httpResponse, SCALE_OPERATION_NAME, new AsynchronousExecution() {
-            @Override
-            public void execute(JobInfo jobInfo) {
-                ScaleVnfRequest cbamRequest = new ScaleVnfRequest();
-                cbamRequest.setAspectId(request.getAspectId());
-                cbamRequest.setNumberOfSteps(Integer.valueOf(request.getNumberOfSteps()));
-                cbamRequest.setType(convert(request.getType()));
-                com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
-                JsonObject root = new Gson().toJsonTree(jobInfo).getAsJsonObject();
-                com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
-                String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, cbamVnfInfo.getVnfdId());
-                Set<Map.Entry<String, JsonElement>> acceptableOperationParameters = getAcceptableOperationParameters(vnfdContent, "Basic", SCALE_OPERATION_NAME);
-                buildAdditionalParameters(request, root, acceptableOperationParameters);
-                cbamRequest.setAdditionalParams(root);
-                grantManager.requestGrantForScale(vnfmId, vnfId, getVimIdFromInstantiationRequest(vnfmId, vnf), getVnfdIdFromModifyableAttributes(vnf), request, jobInfo.getJobId());
-                OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdScalePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION).blockingFirst();
-                waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
-            }
+        return scheduleExecution(vnfId, httpResponse, SCALE_OPERATION_NAME, jobInfo -> {
+            ScaleVnfRequest cbamRequest = new ScaleVnfRequest();
+            cbamRequest.setAspectId(request.getAspectId());
+            cbamRequest.setNumberOfSteps(Integer.valueOf(request.getNumberOfSteps()));
+            cbamRequest.setType(convert(request.getType()));
+            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+            JsonObject root = new Gson().toJsonTree(jobInfo).getAsJsonObject();
+            com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+            String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, cbamVnfInfo.getVnfdId());
+            Set<Map.Entry<String, JsonElement>> acceptableOperationParameters = getAcceptableOperationParameters(vnfdContent, "Basic", SCALE_OPERATION_NAME);
+            buildAdditionalParameters(request, root, acceptableOperationParameters);
+            cbamRequest.setAdditionalParams(root);
+            grantManager.requestGrantForScale(vnfmId, vnfId, getVimIdFromInstantiationRequest(vnfmId, vnf), getVnfdIdFromModifyableAttributes(vnf), request, jobInfo.getJobId());
+            OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdScalePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION).blockingFirst();
+            waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
         });
     }
 
     private void buildAdditionalParameters(VnfScaleRequest request, JsonObject root, Set<Map.Entry<String, JsonElement>> acceptableOperationParameters) {
         if (request.getAdditionalParam() != null) {
             for (Map.Entry<String, JsonElement> item : new Gson().toJsonTree(request.getAdditionalParam()).getAsJsonObject().entrySet()) {
-                boolean found = false;
-                for (Map.Entry<String, JsonElement> acceptableOperationParameter : acceptableOperationParameters) {
-                    if (acceptableOperationParameter.getKey().equals(item.getKey())) {
-                        found = true;
-                    }
-                }
-                if (found) {
+                if (isParameterAccepted(acceptableOperationParameters, item)) {
                     root.add(item.getKey(), item.getValue());
                 }
             }
         } else {
             logger.warn("No additional parameters were passed for scaling");
         }
+    }
+
+    private boolean isParameterAccepted(Set<Map.Entry<String, JsonElement>> acceptableOperationParameters, Map.Entry<String, JsonElement> item) {
+        boolean found = false;
+        for (Map.Entry<String, JsonElement> acceptableOperationParameter : acceptableOperationParameters) {
+            if (acceptableOperationParameter.getKey().equals(item.getKey())) {
+                found = true;
+            }
+        }
+        return found;
     }
 
     /**

@@ -15,12 +15,10 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
-import com.google.common.base.Splitter;
 import org.onap.aai.domain.yang.v11.RelationshipList;
 import org.onap.aai.domain.yang.v11.Vnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.slf4j.Logger;
@@ -45,13 +43,13 @@ public class VnfcManager extends AbstractManager {
         super(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
     }
 
+    /**
+     * @param vnfId      the identifier of the VNF
+     * @param cbamVnfcId the identifier of the VNFC in CBAM
+     * @return the URL of the VNFC
+     */
     public static String buildUrl(String vnfId, String cbamVnfcId) {
         return format("/vnfcs/vnfc/%s", buildId(vnfId, cbamVnfcId));
-    }
-
-    public static String getCbamVnfcId(String vnfcId) {
-        String vnfId = Splitter.on(CbamUtils.SEPARATOR).split(vnfcId).iterator().next();
-        return vnfcId.replaceFirst(vnfId + SEPARATOR, "");
     }
 
     private static String buildId(String vnfId, String cbamVnfcId) {

@@ -64,24 +64,18 @@ public class OnapVnfdBuilder {
             StringBuilder body = new StringBuilder();
             for (Map.Entry<String, JsonElement> node : nodeTemplates) {
                 String type = childElement(node.getValue().getAsJsonObject(), "type").getAsString();
-                switch (type) {
-                    case "tosca.nodes.nfv.VDU":
-                        body.append(buildVdu(node.getKey(), node.getValue().getAsJsonObject(), nodeTemplates));
-                        break;
-                    case "tosca.nodes.nfv.VirtualStorage":
-                        body.append(buildVolume(node.getKey(), node.getValue().getAsJsonObject()));
-                        break;
-                    case "tosca.nodes.nfv.VL":
-                        body.append(buildVl(node.getKey()));
-                        break;
-                    case "tosca.nodes.nfv.ICP":
-                        body.append(buildIcp(node.getKey(), node.getValue().getAsJsonObject()));
-                        break;
-                    case "tosca.nodes.nfv.ECP":
-                        body.append(buildEcp(node.getKey(), node.getValue(), nodeTemplates));
-                        break;
-                    default:
-                        logger.warn("The {} type is not converted", type);
+                if ("tosca.nodes.nfv.VDU".equals(type)) {
+                    body.append(buildVdu(node.getKey(), node.getValue().getAsJsonObject(), nodeTemplates));
+                } else if ("tosca.nodes.nfv.VirtualStorage".equals(type)) {
+                    body.append(buildVolume(node.getKey(), node.getValue().getAsJsonObject()));
+                } else if ("tosca.nodes.nfv.VL".equals(type)) {
+                    body.append(buildVl(node.getKey()));
+                } else if ("tosca.nodes.nfv.ICP".equals(type)) {
+                    body.append(buildIcp(node.getKey(), node.getValue().getAsJsonObject()));
+                } else if ("tosca.nodes.nfv.ECP".equals(type)) {
+                    body.append(buildEcp(node.getKey(), node.getValue(), nodeTemplates));
+                } else {
+                    logger.warn("The {} type is not converted", type);
                 }
             }
             return buildHeader(topologyTemplate) + body.toString();
