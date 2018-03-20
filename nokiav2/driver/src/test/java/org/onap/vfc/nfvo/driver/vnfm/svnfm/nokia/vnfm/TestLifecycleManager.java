@@ -286,7 +286,7 @@ public class TestLifecycleManager extends TestBase {
     @Test
     public void testInstantiationV2WithSsl() throws Exception {
         VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
-
+        when(logger.isInfoEnabled()).thenReturn(false);
         when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
         additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
         when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
@@ -312,6 +312,7 @@ public class TestLifecycleManager extends TestBase {
         assertTrue(!actualVim.getInterfaceInfo().isSkipCertificateVerification());
         assertTrue(!actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
         verify(logger).warn("No additional parameters were specified for the operation");
+        verify(logger).info(any());
     }
 
     /**

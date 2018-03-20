@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.AAINotificationProcessor;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedConnectionPoints;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedCp;
 import org.onap.vnfmdriver.model.VimInfo;
@@ -87,7 +88,7 @@ public class CTDirectReal {
         addedCp.setCpdId("cpdId");
         affectedConnectionPoints.getPost().add(addedCp);
         notificationProcessor.processNotification(recievedNot, null, of(affectedConnectionPoints), "Nokia_RegionOne");
-        Thread.sleep(10000000 * 1000L);
+        SystemFunctions.systemFunctions().sleep(10000000 * 1000L);
     }
 
     JsonObject additionalData(String key, String value) {

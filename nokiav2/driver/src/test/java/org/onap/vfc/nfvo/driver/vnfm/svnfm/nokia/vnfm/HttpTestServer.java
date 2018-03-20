@@ -47,6 +47,8 @@ public class HttpTestServer {
         startServer();
     }
 
+    //the server starts up asynchronously there is no other way to wait for the server to be up and running
+    @SuppressWarnings("squid:S2925")
     private void startServer() throws Exception {
         requests.clear();
         codes.clear();
