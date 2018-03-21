@@ -39,6 +39,10 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
     private static final Logger LOG = LoggerFactory.getLogger(VnfMgrVnfm.class);
 
+    private static final int PARAM_ZERO = 0;
+
+    private static final int PARAM_ONE = 1;
+
     @Override
     public JSONObject scaleVnf(JSONObject vnfObject, JSONObject vnfmObject, String vnfmId, String vnfInstanceId) {
         LOG.warn("function=scaleVnf, msg=enter to scale a vnf");
@@ -56,10 +60,15 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         vdu.put("h_steps", vnfObject.get("numberOfSteps"));
         vduList.add(vdu);
         scaleInfo.put("vnf_id", vnfInstanceId);
-        scaleInfo.put("scale_type", 0);
+        scaleInfo.put("scale_pattern", "without_plan");
+        scaleInfo.put("scale_type", PARAM_ZERO);
         scaleInfo.put("scale_action", scaleType);
+        scaleInfo.put("scale_step", PARAM_ZERO);
+        scaleInfo.put("scale_step_value", PARAM_ONE);
+        scaleInfo.put("scale_group", vdu.getString("vdu_type"));
         scaleInfo.put("vdu_list", vduList);
-        if(scaleType == 0) {// scale_in
+        if(scaleType == PARAM_ZERO) {
+            // scale_in
             JSONArray vmList = new JSONArray();
             try {
                 JSONObject additionalParam = vnfObject.getJSONObject("additionalParam");
@@ -78,9 +87,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
             if(statusCode == Constant.HTTP_CREATED || statusCode == Constant.HTTP_OK) {
                 restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
-                JSONObject resultObj = new JSONObject();
-                resultObj.put(Constant.JOBID, vnfInstanceId + "_" + Constant.PUT);
-                restJson.put("data", resultObj);
+                restJson.put("data", queryResult.getJSONObject("data").getJSONObject("scale_info"));
             } else {
                 LOG.error("function=scaleVnf, msg=send create vnf msg to csm get wrong status: " + statusCode);
             }

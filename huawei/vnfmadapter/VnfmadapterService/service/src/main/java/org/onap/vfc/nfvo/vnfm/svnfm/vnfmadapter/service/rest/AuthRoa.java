@@ -51,7 +51,7 @@ import net.sf.json.JSONObject;
  * @author
  * @version VFC 1.0 Aug 24, 2016
  */
-@Path("/rest/plat/smapp/v1")
+@Path("/rest")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthRoa {
@@ -73,7 +73,7 @@ public class AuthRoa {
      * @since VFC 1.0
      */
     @PUT
-    @Path("/oauth/token")
+    @Path("/plat/smapp/v1/oauth/token")
     public String authToken(@Context HttpServletRequest context, @Context HttpServletResponse resp) {
         LOG.warn("function=login, msg=enter to get token.");
         JSONObject subJsonObject = VnfmJsonUtil.getJsonFromContexts(context);
@@ -112,7 +112,7 @@ public class AuthRoa {
      * @since VFC 1.0
      */
     @DELETE
-    @Path("/auth/tokens/{userName}/{roarand}")
+    @Path("/plat/smapp/v1/auth/tokens/{userName}/{roarand}")
     public String delAuthToken(@PathParam(Constant.USERNAME) String userName, @PathParam("roarand") String roarand,
             @Context HttpServletResponse resp) {
         LOG.warn("function=logout, msg=enter to logout");
@@ -133,7 +133,7 @@ public class AuthRoa {
      * @since VFC 1.0
      */
     @GET
-    @Path("/nfvo/shakehand")
+    @Path("/vnfmmed/v2/nfvo/shakehand")
     public String shakehand(@QueryParam("roattr") String roattr, @Context HttpServletResponse resp) {
         JSONObject resultJson = new JSONObject();
         resultJson.put("status", "running");
