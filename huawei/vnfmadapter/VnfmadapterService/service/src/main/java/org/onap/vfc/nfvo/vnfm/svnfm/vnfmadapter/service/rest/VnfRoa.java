@@ -256,7 +256,7 @@ public class VnfRoa {
      * @since VFC 1.0
      */
     @GET
-    @Path("/{vnfmId}/jobs/{jobId}")
+    @Path("/{vnfmId}/jobs_old/{jobId}")
     public String getJob(@PathParam("jobId") String jobId, @PathParam("vnfmId") String vnfmId,
             @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) {
         LOG.warn("function=getJob, msg=enter to get a job: jobId: {}, responseId: {}", jobId, responseId);
@@ -388,6 +388,8 @@ public class VnfRoa {
      * @return
      * @since VFC 1.0
      */
+    @GET
+    @Path("/{vnfmId}/jobs/{jobId}")
     public String getJobFromVnfm(@PathParam("jobId") String jobId, @PathParam("vnfmId") String vnfmId,
             @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) {
         LOG.warn("function=getJobFromVnfm, msg=enter to get a job: jobId: {}, responseId: {}", jobId, responseId);

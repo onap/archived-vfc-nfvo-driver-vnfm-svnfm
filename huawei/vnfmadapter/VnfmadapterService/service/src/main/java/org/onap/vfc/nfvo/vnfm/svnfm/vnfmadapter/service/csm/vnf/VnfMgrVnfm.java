@@ -169,9 +169,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
         if(statusCode == Constant.HTTP_NOCONTENT || statusCode == Constant.HTTP_OK) {
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
-            JSONObject resultObj = new JSONObject();
-            resultObj.put(Constant.JOBID, vnfId + "_" + Constant.DELETE);
-            restJson.put("data", resultObj);
+            restJson.put("data", JSONObject.fromObject(queryResult.getString("data")));
         } else {
             LOG.error("function=removeVnf, msg=send remove vnf msg to csm get wrong status: {}", statusCode);
         }
