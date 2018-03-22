@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
@@ -345,5 +346,24 @@ public class VnfMgr {
         jobInfoJson.put("responsedescriptor", responseJson);
         LOG.warn("function=getJobBody, jobInfoJson: {}", jobInfoJson);
         return jobInfoJson.toString();
+    }
+
+    public JSONObject getVmsFromVnfm(String vnfmId, String vnfInstanceId) {
+        JSONObject restJson = new JSONObject();
+        JSONObject vnfmObjcet = VnfmUtil.getVnfmById(vnfmId);
+        if(vnfmObjcet.isNullObject()) {
+            LOG.error("function=getVmsFromVnfm, msg=vnfm not exists, vnfmId: {}", vnfmId);
+            restJson.put("message", "vnfm not exists");
+            return restJson;
+        }
+        String url = "";
+        if(vnfInstanceId == null) {
+            url = "/v2/vapps/instances/query/vms";
+        } else {
+            url = String.format("/v2/vapps/instances/%s/vms", vnfInstanceId);
+        }
+        restJson = ResultRequestUtil.call(vnfmObjcet, url, Constant.GET, null, Constant.CERTIFICATE);
+        LOG.info("function=getVmsFromVnfm, restJson: {}", restJson);
+        return restJson;
     }
 }

@@ -33,7 +33,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.lang3.StringUtils;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
@@ -356,16 +355,27 @@ public class VnfRoa {
     @Path("/{vnfmId}/vms")
     public String getVms(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp) {
         LOG.info("function=getVms, msg=enter to get vms: vnfmId: {}", vnfmId);
-        JSONObject restJson = new JSONObject();
-        JSONObject vnfmObjcet = VnfmUtil.getVnfmById(vnfmId);
-        if(vnfmObjcet.isNullObject()) {
-            LOG.error("function=getVnf, msg=vnfm not exists, vnfmId: {}", vnfmId);
-            restJson.put("message", "vnfm not exists");
-            return restJson.toString();
-        }
-        String url = "/v2/vapps/instances/query/vms";
-        restJson = ResultRequestUtil.call(vnfmObjcet, url, Constant.GET, null, Constant.CERTIFICATE);
+        JSONObject restJson = vnfMgr.getVmsFromVnfm(vnfmId, null);
         LOG.info("function=getVms, restJson: {}", restJson);
+        return restJson.getString("data");
+    }
+
+    /**
+     * <br>
+     * Query vms info by vnfId from vnfm
+     *
+     * @param vnfmId
+     * @param vnfInstanceId
+     * @param resp
+     * @return
+     */
+    @GET
+    @Path("/{vnfmId}/{vnfInstanceId}/vms")
+    public String getVmsByVnfId(@PathParam("vnfmId") String vnfmId, @PathParam("vnfInstanceId") String vnfInstanceId,
+            @Context HttpServletResponse resp) {
+        LOG.info("function=getVmsByVnfId, msg=enter to get vms: vnfmId: {}", vnfmId);
+        JSONObject restJson = vnfMgr.getVmsFromVnfm(vnfmId, vnfInstanceId);
+        LOG.info("function=getVmsByVnfId, restJson: {}", restJson);
         return restJson.getString("data");
     }
 
