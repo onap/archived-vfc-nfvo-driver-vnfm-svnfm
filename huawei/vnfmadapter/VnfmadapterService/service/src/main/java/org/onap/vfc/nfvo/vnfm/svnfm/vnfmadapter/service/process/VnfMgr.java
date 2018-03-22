@@ -198,16 +198,15 @@ public class VnfMgr {
 
             JSONObject retJson = restJson.getJSONArray("data").getJSONObject(0);
 
-            basicInfoJson.put("vnfInstanceId", retJson.getString("id"));
-            basicInfoJson.put("vnfInstanceName", retJson.getString("vapp_name"));
-            basicInfoJson.put("vnfInstanceDescription", "vFW");
+            basicInfoJson.put("vnfInstanceId", retJson.getString("vnf_id"));
+            basicInfoJson.put("vnfInstanceName", retJson.getString("vnf_name"));
+            basicInfoJson.put("vnfInstanceDescription", "");
 
-            Vnfm vnfm = vnfmDao.getVnfmById(retJson.getString("id"));
-            basicInfoJson.put(Constant.VNFDID, vnfm == null ? "" : vnfm.getVnfdId());
-            basicInfoJson.put("vnfdPackageId", vnfm == null ? "" : vnfm.getVnfPackageId());
-            basicInfoJson.put("version", vnfm == null ? "" : vnfm.getVersion());
+            basicInfoJson.put(Constant.VNFDID, retJson.getString("vnfd_id"));
+            basicInfoJson.put("vnfdPackageId", retJson.getString("vnfd_id"));
+            basicInfoJson.put("version", "1.0");
             basicInfoJson.put("vnfProvider", "hw");
-            basicInfoJson.put("vnfType", retJson.get("vapp_type"));
+            basicInfoJson.put("vnfType", retJson.get("vnf_type"));
             basicInfoJson.put("vnfStatus", retJson.getString(Constant.STATUS));
 
             vnfInfoJson.put("vnfInfo", basicInfoJson);

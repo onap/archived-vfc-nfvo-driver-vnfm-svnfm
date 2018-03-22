@@ -203,7 +203,6 @@ public class VnfRoa {
      * @param vnfmId
      * @param resp
      * @param vnfInstanceId
-     * @param context
      * @return
      * @since VFC 1.0
      */

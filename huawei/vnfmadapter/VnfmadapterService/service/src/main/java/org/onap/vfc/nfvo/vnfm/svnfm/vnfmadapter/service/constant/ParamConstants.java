@@ -99,7 +99,9 @@ public class ParamConstants {
 
     public static final String VNF_INSTANCE_DEL = "/v2/vapps/instances/%s";
 
-    public static final String VNF_INSTANCE_GET = "/v2/vapps/instances/%s";
+    public static final String VNF_INSTANCE_GET_U2000 = "/v2/vapps/instances/%s";
+
+    public static final String VNF_INSTANCE_GET = "/v2/vnfm/instances/%s";
 
     public static final String VNF_SCALE = "/v2/vapps/instances/%s/scale";
 

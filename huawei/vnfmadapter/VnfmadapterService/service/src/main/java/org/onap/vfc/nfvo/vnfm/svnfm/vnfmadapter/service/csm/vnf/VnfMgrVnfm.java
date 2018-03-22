@@ -186,8 +186,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         restJson.put(Constant.RETCODE, Constant.REST_FAIL);
 
         JSONObject queryResult = ResultRequestUtil.call(vnfmObject,
-                String.format(ParamConstants.VNF_INSTANCE_GET, vnfId) + Constant.ROARAND + "&type=status", Constant.GET,
-                null, Constant.CERTIFICATE);
+                String.format(ParamConstants.VNF_INSTANCE_GET, vnfId), Constant.GET, null, Constant.CERTIFICATE);
 
         int statusCode = queryResult.getInt(Constant.RETCODE);
 
@@ -197,7 +196,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
                 return restJson;
             }
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
-            restJson.put("data", JSONObject.fromObject(queryResult.getString("data")).getJSONArray("basic"));
+            restJson.put("data", JSONObject.fromObject(queryResult.getString("data")).getJSONArray("vnf_list"));
         } else {
             LOG.error("function=getVnf, msg=send get vnf msg to csm get wrong status: {}", statusCode);
         }
