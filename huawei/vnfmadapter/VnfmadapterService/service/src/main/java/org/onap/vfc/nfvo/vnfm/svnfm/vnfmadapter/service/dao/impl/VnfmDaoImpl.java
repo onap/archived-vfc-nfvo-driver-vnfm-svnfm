@@ -18,18 +18,18 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.impl;
 
 import java.util.List;
 
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.inf.AbstractDao;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.inf.VnfmDao;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.mapper.VnfmMapper;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
 
 /**
  * VNFM DAO
  * .</br>
  *
  * @author
- * @version     VFC 1.0  Sep 14, 2016
+ * @version VFC 1.0 Sep 14, 2016
  */
 public class VnfmDaoImpl extends AbstractDao implements VnfmDao {
 
