@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -38,7 +39,7 @@ public class TestSecurityConfig {
      * this can only fully be tested from CT by starting the web service
      */
     @Test
-    public void testSpringBootApplicationInit() throws Exception {
+    public void testNoHttpSecurity() throws Exception {
         HttpSecurity http = new HttpSecurity(Mockito.mock(ObjectPostProcessor.class), Mockito.mock(AuthenticationManagerBuilder.class), new HashMap<>());
         //when
         new SecurityConfig().configure(http);
@@ -46,6 +47,21 @@ public class TestSecurityConfig {
         ExpressionUrlAuthorizationConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl = http.authorizeRequests().anyRequest();
         List<? extends RequestMatcher> requestMatchers = (List<? extends RequestMatcher>) ReflectionTestUtils.getField(authorizedUrl, "requestMatchers");
         assertTrue(AnyRequestMatcher.class.isAssignableFrom(requestMatchers.get(0).getClass()));
+    }
+
+    /**
+     * verify that no web security is performed
+     * this can only fully be tested from CT by starting the web service
+     */
+    @Test
+    public void testNoWebSecurity() throws Exception {
+        WebSecurity webSecurity = new WebSecurity(Mockito.mock(ObjectPostProcessor.class));
+        WebSecurity.IgnoredRequestConfigurer ignorer = Mockito.mock(WebSecurity.IgnoredRequestConfigurer.class);
+        ReflectionTestUtils.setField(webSecurity, "ignoredRequestRegistry", ignorer);
+        //when
+        new SecurityConfig().configure(webSecurity);
+        //verify
+        Mockito.verify(ignorer).anyRequest();
     }
 
 }

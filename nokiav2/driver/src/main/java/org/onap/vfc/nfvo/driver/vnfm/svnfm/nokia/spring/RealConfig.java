@@ -16,6 +16,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
 
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
@@ -36,11 +37,10 @@ public class RealConfig {
      *
      * @return the message converter
      */
-    //FIXME? @Bean
+    @Bean
     public HttpMessageConverters customConverters() {
         Collection<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
         GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
-        //FIXME gsonHttpMessageConverter.setGson(new ApiClient().getAdapterBuilder().build()..getJSON().getGson());
         messageConverters.add(gsonHttpMessageConverter);
         return new HttpMessageConverters(true, messageConverters);
     }

@@ -18,6 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
@@ -43,6 +44,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .anyRequest()
                 .permitAll();
+    }
+
+    /**
+     * Does not configure security, but solves the https://pivotal.io/security/cve-2017-4995
+     * "The fix ensures that by default only explicitly mapped classes will be deserialized.
+     * The effect of using explicitly mapped classes is to create a whitelist which works with all
+     * supported versions of Jackson. If users explicitly opt into global default typing, the previous
+     * potentially dangerous configuration is restored."
+     *
+     * @param web the web security configuration
+     */
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().anyRequest();
     }
 
 }

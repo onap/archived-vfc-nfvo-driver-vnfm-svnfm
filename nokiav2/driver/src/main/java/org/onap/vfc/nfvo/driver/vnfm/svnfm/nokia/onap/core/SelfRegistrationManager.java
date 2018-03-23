@@ -139,7 +139,7 @@ public class SelfRegistrationManager {
         microServiceInfo.setVisualRange(INTERNAL_SERVICE);
         microServiceInfo.setServiceName(SERVICE_NAME);
         microServiceInfo.setVersion(DRIVER_VERSION);
-        microServiceInfo.setEnable_ssl(true);
+        microServiceInfo.setEnable_ssl(false);
         Node node = new Node();
         microServiceInfo.setNodes(new HashSet<>());
         microServiceInfo.getNodes().add(node);

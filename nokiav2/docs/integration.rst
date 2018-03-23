@@ -119,7 +119,7 @@ Add the VNFM driver to ONAP
 +-----------------+-----------------------------------+
 | version         | v1                                |
 +-----------------+-----------------------------------+
-| URL             | https://<cbamIp>:443/vnfm/lcm/v3  |
+| URL             | https://<cbamIp>:443/vnfm/lcm/v3/ |
 +-----------------+-----------------------------------+
 | VIM             | <cloudOwner>_<cloudRegionId>      |
 +-----------------+-----------------------------------+
@@ -152,5 +152,5 @@ Start the driver (fill in values)
    export IMAGE_ID=<imageId>
    export CBAM_PASSWORD=<onapPassword>
    export CBAM_USERNAME=<onapUsername>
-   docker run --name vfc_nokia -p 8089:8089 -e "MSB_IP=$MULTI_NODE_IP" -e "CONFIGURE=kuku" -e "EXTERNAL_IP=$MULTI_NODE_IP" -e "CBAM_CATALOG_URL=https://$CBAM_IP:443/api/catalog/adapter" -e "CBAM_LCN_URL=https://$CBAM_IP:443/vnfm/lcn/v3" -e "CBAM_KEYCLOAK_URL=https://$CBAM_IP:443/auth" -e "CBAM_USERNAME=$CBAM_USERNAME" -e "CBAM_PASSWORD=$CBAM_PASSWORD" -e "VNFM_ID=$VNFM_ID" -d --stop-timeout 300 $IMAGE_ID
+   docker run --name vfc_nokia -p 8089:8089 -e "MSB_IP=$MULTI_NODE_IP" -e "CONFIGURE=kuku" -e "EXTERNAL_IP=$MULTI_NODE_IP" -e "CBAM_CATALOG_URL=https://$CBAM_IP:443/api/catalog/adapter/" -e "CBAM_LCN_URL=https://$CBAM_IP:443/vnfm/lcn/v3/" -e "CBAM_KEYCLOAK_URL=https://$CBAM_IP:443/auth/" -e "CBAM_USERNAME=$CBAM_USERNAME" -e "CBAM_PASSWORD=$CBAM_PASSWORD" -e "VNFM_ID=$VNFM_ID" -d --stop-timeout 300 $IMAGE_ID
 

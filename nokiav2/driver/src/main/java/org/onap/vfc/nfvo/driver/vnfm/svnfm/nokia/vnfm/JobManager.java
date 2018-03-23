@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
+import com.nokia.cbam.lcm.v32.model.OperationType;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import org.apache.http.HttpStatus;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
@@ -284,14 +285,17 @@ public class JobManager {
     }
 
     private boolean isCurrentOperationTriggeredByJob(String jobId, OperationExecutionsApi cbamOperationExecutionApi, OperationExecution operationExecution) {
-
+        if(OperationType.MODIFY_INFO.equals(operationExecution.getOperationType())){
+            //the modify info is never triggered by an external job
+            return false;
+        }
         try {
             Object operationParams = cbamOperationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(operationExecution.getId(), NOKIA_LCM_API_VERSION).blockingFirst();
             if (extractOnapJobId(operationParams).equals(jobId)) {
                 return true;
             }
         } catch (Exception e) {
-            throw buildFatalFailure(logger, "Unable to retrieve operation parameters", e);
+            throw buildFatalFailure(logger, "Unable to retrieve operation parameters of operation with " + operationExecution.getId() + " identifier", e);
         }
         return false;
     }
@@ -312,7 +316,7 @@ public class JobManager {
                 return of(cbamLcmApi.vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst());
             }
         } catch (Exception e) {
-            throw buildFatalFailure(logger, "Unable to retrieve VNF", e);
+            throw buildFatalFailure(logger, "Unable to retrieve VNF with " + vnfId + " identifier", e);
         }
     }
 }

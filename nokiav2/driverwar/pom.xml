@@ -77,8 +77,15 @@
         <version>${spring.boot.version}</version>
         <configuration>
           <mainClass>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication</mainClass>
-          <layout>ZIP</layout>
+          <layout>WAR</layout>
         </configuration>
+        <executions>
+        <execution>
+          <goals>
+            <goal>repackage</goal>
+          </goals>
+        </execution>
+      </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
