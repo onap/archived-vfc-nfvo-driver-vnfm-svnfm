@@ -16,13 +16,21 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
 
-import com.nokia.cbam.lcm.v32.model.VnfIdentifierCreationNotification;
-import com.nokia.cbam.lcm.v32.model.VnfIdentifierDeletionNotification;
-import com.nokia.cbam.lcm.v32.model.VnfInfoAttributeValueChangeNotification;
-import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
+import com.nokia.cbam.lcm.v32.model.*;
+import junit.framework.TestCase;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.mock.http.MockHttpInputMessage;
+import org.springframework.mock.http.MockHttpOutputMessage;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import static junit.framework.TestCase.assertEquals;
 
 public class TestRealConfig {
 
@@ -38,6 +46,17 @@ public class TestRealConfig {
         converters.getConverters().get(0).canRead(VnfInfoAttributeValueChangeNotification.class, MediaType.APPLICATION_JSON);
         converters.getConverters().get(0).canRead(VnfLifecycleChangeNotification.class, MediaType.APPLICATION_JSON);
         converters.getConverters().get(0).canRead(String.class, MediaType.APPLICATION_JSON);
+
+        HttpMessageConverter<VnfLifecycleChangeNotification> httpMessageConverter = (HttpMessageConverter<VnfLifecycleChangeNotification>) converters.getConverters().get(0);
+        MockHttpOutputMessage out = new MockHttpOutputMessage();
+        VnfLifecycleChangeNotification not = new VnfLifecycleChangeNotification();
+        not.setNotificationType(VnfNotificationType.VNFLIFECYCLECHANGENOTIFICATION);
+        not.setVnfInstanceId("vnfId");
+        httpMessageConverter.write(not, MediaType.APPLICATION_JSON, out);
+        String write = out.getBodyAsString();
+        HttpInputMessage x = new MockHttpInputMessage(write.getBytes());
+        VnfLifecycleChangeNotification deserialized = (VnfLifecycleChangeNotification) httpMessageConverter.read(VnfLifecycleChangeNotification.class, x);
+        assertEquals("vnfId", deserialized.getVnfInstanceId());
     }
 
 }

@@ -425,7 +425,7 @@ public class TestJobManager extends TestBase {
             fail();
         } catch (RuntimeException e) {
             assertEquals(expectedException, e.getCause());
-            verify(logger).error("Unable to retrieve operation parameters", expectedException);
+            verify(logger).error("Unable to retrieve operation parameters of operation with " + operation.getId() +" identifier", expectedException);
         }
         assertTrue(jobManager.hasOngoingJobs());
     }
@@ -447,7 +447,7 @@ public class TestJobManager extends TestBase {
             fail();
         } catch (RuntimeException e) {
             assertEquals(expectedException, e.getCause());
-            verify(logger).error("Unable to retrieve VNF", expectedException);
+            verify(logger).error("Unable to retrieve VNF with myVnfId identifier", expectedException);
         }
         assertTrue(jobManager.hasOngoingJobs());
     }

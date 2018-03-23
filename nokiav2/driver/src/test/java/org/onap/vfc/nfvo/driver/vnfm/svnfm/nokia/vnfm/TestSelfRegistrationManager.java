@@ -127,6 +127,7 @@ public class TestSelfRegistrationManager extends TestBase {
         assertEquals(SelfRegistrationManager.SERVICE_NAME, microserviceRequest.getServiceName());
         assertEquals("/api/NokiaSVNFM/v1", microserviceRequest.getUrl());
         assertEquals("v1", microserviceRequest.getVersion());
+        assertEquals(false, microserviceRequest.isEnable_ssl());
         //1 means internal service to ONAP
         assertEquals("1", microserviceRequest.getVisualRange());
     }
