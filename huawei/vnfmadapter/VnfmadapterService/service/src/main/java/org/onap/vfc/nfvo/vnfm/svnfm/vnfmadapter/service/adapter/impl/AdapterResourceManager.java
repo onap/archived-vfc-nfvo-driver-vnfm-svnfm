@@ -308,7 +308,8 @@ public class AdapterResourceManager implements IResourceManager {
             LOG.info("changeWorkingDirectory: " + ftpClient.changeWorkingDirectory(vnfpkg.getString(VNFD_FILE_PATH)));
             String vnfdPath = csarfilepath + "Artifacts/Deployment/OTHER/";
             LOG.info("vnfd_file_name: " + vnfdPath + vnfpkg.getString("vnfd_file_name"));
-            try(InputStream inputStream = new FileInputStream(new File(vnfdPath + vnfpkg.getString("vnfd_file_name")))){
+            try (InputStream inputStream =
+                    new FileInputStream(new File(vnfdPath + vnfpkg.getString("vnfd_file_name")))) {
                 flag = ftpClient.storeFile(vnfpkg.getString("vnfd_file_name"), inputStream);
                 if(flag) {
                     resJson.put("message", "upload Csar success!");
@@ -617,7 +618,7 @@ public class AdapterResourceManager implements IResourceManager {
                 + "vnfpkginfo" + System.getProperty(Constant.FILE_SEPARATOR) + Constant.VNFPKGINFO;
 
         try (InputStream ins = new FileInputStream(fileName)) {
-            try(BufferedInputStream bins = new BufferedInputStream(ins)){
+            try (BufferedInputStream bins = new BufferedInputStream(ins)) {
                 byte[] contentByte = new byte[ins.available()];
                 int num = bins.read(contentByte);
 
@@ -642,7 +643,7 @@ public class AdapterResourceManager implements IResourceManager {
                 + "vnfpkginfo" + System.getProperty(Constant.FILE_SEPARATOR) + "vnfd_ids.json";
 
         try (InputStream ins = new FileInputStream(fileName)) {
-            try (BufferedInputStream bins = new BufferedInputStream(ins)){
+            try (BufferedInputStream bins = new BufferedInputStream(ins)) {
                 byte[] contentByte = new byte[ins.available()];
                 int num = bins.read(contentByte);
 
