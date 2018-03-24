@@ -15,6 +15,8 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.Assert;
@@ -28,9 +30,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vfccatalog.model.VnfPkgDetailInfo;
 import org.onap.vfccatalog.model.VnfPkgInfo;
 import retrofit2.Call;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;

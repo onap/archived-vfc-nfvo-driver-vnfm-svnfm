@@ -21,26 +21,23 @@ import com.nokia.cbam.lcm.v32.ApiClient;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
+import java.util.ArrayList;
+import java.util.Map;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
 import okhttp3.Interceptor;
-import okhttp3.OakExtractor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
-import org.onap.msb.sdk.discovery.entity.NodeInfo;
+import org.onap.msb.model.MicroServiceFullInfo;
+import org.onap.msb.model.NodeInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.IpMappingProvider;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.core.env.Environment;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSocketFactory;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -72,7 +69,7 @@ public class TestCbamRestApiProvider extends TestBase {
     private Interceptor interceptor;
     @Mock
     private HostnameVerifier hostnameVerifier;
-    private Set<NodeInfo> nodes = new HashSet<>();
+    private java.util.List<NodeInfo> nodes = new ArrayList<>();
 
     private CbamRestApiProvider cbamRestApiProvider;
     private CbamSecurityProvider cbamSecurityProvider = spy(new CbamSecurityProvider());
@@ -102,13 +99,12 @@ public class TestCbamRestApiProvider extends TestBase {
         //when
         ApiClient cbamLcmApi = cbamRestApiProvider.buildLcmApiClient(VNFM_ID);
         //verify
-        String actual = cbamLcmApi.getAdapterBuilder().build().baseUrl().toString();
-        assertEquals("https://cbamurl:123/d/", actual);
+        assertEquals("https://cbamurl:123/d/", cbamLcmApi.getAdapterBuilder().build().baseUrl().toString());
         assertEquals(sslSocketFactoryResultCaptor.getResult(), cbamLcmApi.getOkBuilder().build().sslSocketFactory());
         Map<String, Interceptor> apiAuthorizations = cbamLcmApi.getApiAuthorizations();
         assertEquals(1, apiAuthorizations.size());
         assertEquals(interceptor, apiAuthorizations.values().iterator().next());
-        assertEquals(hostnameVerifier, OakExtractor.extract(cbamLcmApi.getOkBuilder()));
+        assertEquals(hostnameVerifier, cbamLcmApi.getOkBuilder().build().hostnameVerifier());
     }
 
     /**
@@ -130,7 +126,7 @@ public class TestCbamRestApiProvider extends TestBase {
         Map<String, Interceptor> apiAuthorizations = cbamLcmApi.getApiAuthorizations();
         assertEquals(1, apiAuthorizations.size());
         assertEquals(interceptor, apiAuthorizations.values().iterator().next());
-        assertEquals(hostnameVerifier, OakExtractor.extract(cbamLcmApi.getOkBuilder()));
+        assertEquals(hostnameVerifier, cbamLcmApi.getOkBuilder().build().hostnameVerifier());
     }
 
     /**
@@ -152,7 +148,7 @@ public class TestCbamRestApiProvider extends TestBase {
         Map<String, Interceptor> apiAuthorizations = cbamLcmApi.getApiAuthorizations();
         assertEquals(1, apiAuthorizations.size());
         assertEquals(interceptor, apiAuthorizations.values().iterator().next());
-        assertEquals(hostnameVerifier, OakExtractor.extract(cbamLcmApi.getOkBuilder()));
+        assertEquals(hostnameVerifier, cbamLcmApi.getOkBuilder().build().hostnameVerifier());
     }
 
     /**

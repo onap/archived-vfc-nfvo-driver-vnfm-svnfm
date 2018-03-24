@@ -15,14 +15,15 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
 
+import com.google.gson.Gson;
+import com.nokia.cbam.lcn.v32.JSON;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Responsible for configuring the raw REST input conversion
@@ -40,7 +41,8 @@ public class RealConfig {
     @Bean
     public HttpMessageConverters customConverters() {
         Collection<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
-        GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
+        Gson gson = new JSON().getGson();
+        GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter(gson);
         messageConverters.add(gsonHttpMessageConverter);
         return new HttpMessageConverters(true, messageConverters);
     }

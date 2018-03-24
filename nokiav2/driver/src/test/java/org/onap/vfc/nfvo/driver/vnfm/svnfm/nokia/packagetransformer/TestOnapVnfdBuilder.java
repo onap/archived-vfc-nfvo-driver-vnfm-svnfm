@@ -15,12 +15,11 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
+import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
-
-import java.util.NoSuchElementException;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;

@@ -17,7 +17,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
 import com.google.common.io.ByteStreams;
-
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 

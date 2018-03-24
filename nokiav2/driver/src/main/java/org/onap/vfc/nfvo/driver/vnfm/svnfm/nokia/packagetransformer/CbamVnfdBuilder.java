@@ -16,13 +16,10 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.gson.*;
-import org.yaml.snakeyaml.Yaml;
-
 import java.io.IOException;
+import java.io.StringReader;
+import org.yaml.snakeyaml.Yaml;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.child;
 
@@ -53,8 +50,7 @@ public class CbamVnfdBuilder {
         if (interfaces.has("Healable")) {
             addOperationParams(addChild(child(interfaces, "Healable"), "heal"));
         }
-        JsonNode jsonNodeTree = new ObjectMapper().readTree(new GsonBuilder().setPrettyPrinting().create().toJson(root));
-        return new YAMLMapper().writeValueAsString(jsonNodeTree);
+        return new Yaml().dump(new Yaml().load(new StringReader(new Gson().toJson(root))));
     }
 
     private void addOperationParams(JsonObject operation) {

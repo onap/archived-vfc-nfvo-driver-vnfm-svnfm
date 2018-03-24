@@ -22,6 +22,16 @@ import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
 import io.reactivex.Observable;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import javax.servlet.http.HttpServletResponse;
 import okhttp3.RequestBody;
 import okio.Buffer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -36,11 +46,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
+import org.onap.msb.api.ServiceResourceApi;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AaiSecurityProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfccatalog.api.VnfpackageApi;
@@ -51,17 +62,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 import retrofit2.Call;
 import retrofit2.Response;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -83,6 +83,8 @@ public class TestBase {
     @Mock
     protected MsbApiProvider msbApiProvider;
     @Mock
+    protected AaiSecurityProvider aaiSecurityProvider;
+    @Mock
     protected VnfmInfoProvider vnfmInfoProvider;
     @Mock
     protected VnfsApi vnfApi;
@@ -95,7 +97,7 @@ public class TestBase {
     @Mock
     protected SubscriptionsApi lcnApi;
     @Mock
-    protected MSBServiceClient msbClient;
+    protected ServiceResourceApi msbClient;
     @Mock
     protected DriverProperties driverProperties;
     @Mock
@@ -142,7 +144,7 @@ public class TestBase {
         when(cbamRestApiProvider.getCbamOperationExecutionApi(VNFM_ID)).thenReturn(operationExecutionApi);
         when(cbamRestApiProvider.getCbamLcnApi(VNFM_ID)).thenReturn(lcnApi);
         when(cbamRestApiProvider.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
-        when(msbApiProvider.getMsbClient()).thenReturn(msbClient);
+        when(msbApiProvider.getMsbApi()).thenReturn(msbClient);
         when(vfcRestApiProvider.getNsLcmApi()).thenReturn(nsLcmApi);
         when(vfcRestApiProvider.getVfcCatalogApi()).thenReturn(vfcCatalogApi);
         when(systemFunctions.getHttpClient()).thenReturn(httpClient);
@@ -194,7 +196,7 @@ public class TestBase {
         return files;
     }
 
-    protected void setFieldWithPropertyAnnotation(Object obj, String key, String value) {
+    protected void setFieldWithPropertyAnnotation(Object obj, String key, Object value) {
         for (Field field : obj.getClass().getDeclaredFields()) {
             for (Value fieldValue : field.getAnnotationsByType(Value.class)) {
                 if (fieldValue.value().equals(key)) {

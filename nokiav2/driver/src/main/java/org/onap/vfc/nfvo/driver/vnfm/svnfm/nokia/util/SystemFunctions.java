@@ -16,11 +16,12 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
 import com.google.common.io.ByteStreams;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-
+import io.reactivex.Observable;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.NoSuchElementException;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 /**
  * Wrapper class for static method calls to core or core libraries.
@@ -160,6 +161,19 @@ public class SystemFunctions {
      */
     public CloseableHttpClient getHttpClient() {
         return HttpClients.createDefault();
+    }
+
+    /**
+     * Execute blocking first
+     *
+     * @param observable the observable
+     */
+    public void blockingFirst(Observable<Void> observable) {
+        try {
+            observable.blockingFirst();
+        } catch (NoSuchElementException e) {
+            //swallow void returns null :)
+        }
     }
 
 }

@@ -15,15 +15,14 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.NoSuchElementException;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.Before;
 import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.NoSuchElementException;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;

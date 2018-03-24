@@ -20,22 +20,22 @@ import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.model.AffectedVirtualStorage;
 import com.nokia.cbam.lcm.v32.model.AffectedVnfc;
 import com.nokia.cbam.lcm.v32.model.ResourceHandle;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.onap.aai.domain.yang.v11.*;
+import org.onap.aai.api.CloudInfrastructureApi;
+import org.onap.aai.model.Relationship;
+import org.onap.aai.model.Vserver;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.CLOUD;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.AbstractManager.buildRelationshipData;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.TestGenericVnfManager.assertRelation;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
@@ -43,17 +43,19 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ge
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestVserverManager extends TestBase {
-    private ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     private ArgumentCaptor<Vserver> payload = ArgumentCaptor.forClass(Vserver.class);
 
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
     private VserverManager vserverManager;
+    @Mock
+    private CloudInfrastructureApi cloudInfrastructureApi;
 
     @Before
     public void init() {
         vserverManager = new VserverManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
-        setField(VserverManager.class, "logger", logger);
+        setField(AbstractManager.class, "logger", logger);
+        when(aaiRestApiProvider.getCloudInfrastructureApi()).thenReturn(cloudInfrastructureApi);
     }
 
     /**
@@ -89,12 +91,12 @@ public class TestVserverManager extends TestBase {
         affectedVnfc.setStorageResourceIds(new ArrayList<>());
         affectedVnfc.getStorageResourceIds().add("sId");
 
-        String url = "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId";
+        String url = "/cloud-regions/cloud-region///tenants/tenant//vservers/vserver/";
 
-        Vserver existingVserver = OBJECT_FACTORY.createVserver();
-        existingVserver.setVolumes(new Volumes());
-        when(aaiRestApiProvider.get(eq(logger), eq(CLOUD), eq(url), eq(Vserver.class))).thenReturn(existingVserver);
-        when(aaiRestApiProvider.put(eq(logger), eq(CLOUD), eq(url), payload.capture(), eq(Void.class))).thenReturn(null);
+        Vserver existingVserver = new Vserver();
+        existingVserver.setVolumes(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
         //when
         vserverManager.update(VIM_ID, VNF_ID, affectedVnfc, affectedStorages, true);
         //verify
@@ -103,8 +105,8 @@ public class TestVserverManager extends TestBase {
         assertEquals("active", vserver.getProvStatus());
         assertEquals("serverName", vserver.getVserverName());
         assertEquals("url", vserver.getVserverSelflink());
-        assertEquals(1, vserver.getVolumes().getVolume().size());
-        assertEquals("storageProviderId", vserver.getVolumes().getVolume().get(0).getVolumeId());
+        assertEquals(1, vserver.getVolumes().size());
+        assertEquals("storageProviderId", vserver.getVolumes().get(0).getVolumeId());
     }
 
     /**
@@ -130,9 +132,10 @@ public class TestVserverManager extends TestBase {
         affectedVnfc.setStorageResourceIds(new ArrayList<>());
         affectedVnfc.getStorageResourceIds().add("sId");
 
-        String url = "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId";
-        when(aaiRestApiProvider.get(eq(logger), eq(CLOUD), eq(url), eq(Vserver.class))).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(CLOUD), eq(url), payload.capture(), eq(Void.class))).thenReturn(null);
+        Vserver existingVserver = new Vserver();
+        existingVserver.setVolumes(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
         //when
         vserverManager.update(VIM_ID, VNF_ID, affectedVnfc, affectedStorages, true);
         //verify
@@ -141,8 +144,8 @@ public class TestVserverManager extends TestBase {
         assertEquals("active", vserver.getProvStatus());
         assertEquals("serverName", vserver.getVserverName());
         assertEquals("unknown", vserver.getVserverSelflink());
-        assertEquals(1, vserver.getVolumes().getVolume().size());
-        assertEquals("storageProviderId", vserver.getVolumes().getVolume().get(0).getVolumeId());
+        assertEquals(1, vserver.getVolumes().size());
+        assertEquals("storageProviderId", vserver.getVolumes().get(0).getVolumeId());
     }
 
     /**
@@ -166,9 +169,10 @@ public class TestVserverManager extends TestBase {
         affectedVnfc.setStorageResourceIds(new ArrayList<>());
         affectedVnfc.getStorageResourceIds().add("sId");
 
-        String url = "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId";
-        when(aaiRestApiProvider.get(eq(logger), eq(CLOUD), eq(url), eq(Vserver.class))).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(CLOUD), eq(url), payload.capture(), eq(Void.class))).thenReturn(null);
+        Vserver existingVserver = new Vserver();
+        existingVserver.setVolumes(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
         //when
         vserverManager.update(VIM_ID, VNF_ID, affectedVnfc, affectedStorages, true);
         //verify
@@ -177,8 +181,8 @@ public class TestVserverManager extends TestBase {
         assertEquals("active", vserver.getProvStatus());
         assertEquals("serverName", vserver.getVserverName());
         assertEquals("unknown", vserver.getVserverSelflink());
-        assertEquals(1, vserver.getVolumes().getVolume().size());
-        assertEquals("storageProviderId", vserver.getVolumes().getVolume().get(0).getVolumeId());
+        assertEquals(1, vserver.getVolumes().size());
+        assertEquals("storageProviderId", vserver.getVolumes().get(0).getVolumeId());
     }
 
     /**
@@ -195,9 +199,10 @@ public class TestVserverManager extends TestBase {
         affectedVnfc.getComputeResource().setAdditionalData(additionalData);
         affectedVnfc.setId("vnfcId");
         List<AffectedVirtualStorage> affectedStorages = new ArrayList<>();
-        String url = "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId";
-        when(aaiRestApiProvider.get(eq(logger), eq(CLOUD), eq(url), eq(Vserver.class))).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(CLOUD), eq(url), payload.capture(), eq(Void.class))).thenReturn(null);
+        Vserver existingVserver = new Vserver();
+        existingVserver.setVolumes(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
         //when
         vserverManager.update(VIM_ID, VNF_ID, affectedVnfc, affectedStorages, true);
         //verify
@@ -206,7 +211,7 @@ public class TestVserverManager extends TestBase {
         assertEquals("active", vserver.getProvStatus());
         assertEquals("serverName", vserver.getVserverName());
         assertEquals("unknown", vserver.getVserverSelflink());
-        assertEquals(0, vserver.getVolumes().getVolume().size());
+        assertEquals(0, vserver.getVolumes().size());
     }
 
     /**
@@ -222,18 +227,23 @@ public class TestVserverManager extends TestBase {
         additionalData.addProperty("tenantId", "myTenantId");
         affectedVnfc.getComputeResource().setAdditionalData(additionalData);
         affectedVnfc.setId("vnfcId");
+        Vserver existingVserver = new Vserver();
+        existingVserver.setResourceVersion("v3");
+        existingVserver.setVserverId("serverProviderId");
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
+
         //when
         vserverManager.delete(VIM_ID, affectedVnfc);
         //verify
-        String url = "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId";
-        aaiRestApiProvider.delete(logger, CLOUD, url);
+        verify(cloudInfrastructureApi).deleteCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "v3");
     }
 
     @Test
     public void testLinks() {
         Relationship relationship = VserverManager.linkTo(VIM_ID, "myTenantPrivderId", "serverProviderId");
-        RelationshipList relationships = new RelationshipList();
-        relationships.getRelationship().add(relationship);
+        List<Relationship> relationships = new ArrayList<>();
+        relationships.add(relationship);
         assertRelation(relationships, "vserver",
                 buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(VIM_ID)),
                 buildRelationshipData("cloud-region.cloud-region-id", getRegionName(VIM_ID)),

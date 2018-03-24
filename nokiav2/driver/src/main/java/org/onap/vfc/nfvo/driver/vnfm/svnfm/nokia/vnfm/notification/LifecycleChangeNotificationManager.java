@@ -23,6 +23,9 @@ import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcm.v32.model.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
@@ -33,17 +36,14 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Sets.newConcurrentHashSet;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.nokia.cbam.lcm.v32.model.OperationType.INSTANTIATE;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.childElement;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
@@ -192,6 +192,10 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
     }
 
     private Optional<ReportedAffectedConnectionPoints> buildAffectedCps(OperationExecution operationExecution) {
+        if (!isTerminal(operationExecution.getStatus())) {
+            //connection points can only be calculated after the operation has finished
+            return Optional.empty();
+        }
         if (operationExecution.getOperationType() == OperationType.TERMINATE) {
             String terminationType = childElement(new Gson().toJsonTree(operationExecution.getOperationParams()).getAsJsonObject(), "terminationType").getAsString();
             if (TerminationType.FORCEFUL.name().equals(terminationType)) {

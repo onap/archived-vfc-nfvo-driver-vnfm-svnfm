@@ -17,7 +17,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.VimInfo.VimInfoTypeEnum;
-
 import java.util.*;
 
 /**

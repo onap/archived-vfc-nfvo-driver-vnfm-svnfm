@@ -16,23 +16,24 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.onap.aai.domain.yang.v11.*;
+import org.onap.aai.model.GenericVnf;
+import org.onap.aai.model.Relationship;
+import org.onap.aai.model.RelationshipData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.slf4j.Logger;
 
-import java.util.NoSuchElementException;
-
+import static io.reactivex.Observable.error;
 import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Mockito.when;
 
 public class TestAbstractManager extends TestBase {
-    private ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
     private DummyManager dummyManager;
@@ -47,10 +48,9 @@ public class TestAbstractManager extends TestBase {
      */
     @Test
     public void testIfResourceDoesNotExists() throws Exception {
-        GenericVnf newInstance = OBJECT_FACTORY.createGenericVnf();
-        when(aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "url", GenericVnf.class)).thenThrow(new NoSuchElementException());
+        GenericVnf newInstance = new GenericVnf();
         //when
-        GenericVnf actualInstance = dummyManager.createOrGet(AAIRestApiProvider.AAIService.CLOUD, "url", newInstance);
+        GenericVnf actualInstance = dummyManager.createOrGet(error(new RuntimeException()), newInstance);
         //verify
         assertEquals(newInstance, actualInstance);
     }
@@ -60,16 +60,17 @@ public class TestAbstractManager extends TestBase {
      */
     @Test
     public void testIfResourceExists() throws Exception {
-        GenericVnf newInstance = OBJECT_FACTORY.createGenericVnf();
-        GenericVnf existingInstance = OBJECT_FACTORY.createGenericVnf();
-        existingInstance.setVnfId("id");
-        when(aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "url", GenericVnf.class)).thenReturn(existingInstance);
+        GenericVnf newInstance = new GenericVnf();
+        GenericVnf existingInstance = new GenericVnf();
         //when
-        GenericVnf actualInstance = dummyManager.createOrGet(AAIRestApiProvider.AAIService.CLOUD, "url", newInstance);
+        GenericVnf actualInstance = dummyManager.createOrGet(buildObservable(existingInstance), newInstance);
         //verify
         assertEquals(existingInstance, actualInstance);
     }
 
+    /**
+     * Test relationship data builder
+     */
     @Test
     public void testBuildRelationshipData() {
         RelationshipData relationshipData = AbstractManager.buildRelationshipData("key", "value");
@@ -77,6 +78,9 @@ public class TestAbstractManager extends TestBase {
         assertEquals("value", relationshipData.getRelationshipValue());
     }
 
+    /**
+     * test mandatory value extraction
+     */
     @Test
     public void testExtractMandatoryValue() {
         JsonObject object = new JsonObject();
@@ -89,33 +93,36 @@ public class TestAbstractManager extends TestBase {
      */
     @Test
     public void testAddSingletonRelationForExisting() {
-        RelationshipList relations = OBJECT_FACTORY.createRelationshipList();
-        Relationship relation = OBJECT_FACTORY.createRelationship();
+        List<Relationship> relationships = new ArrayList<>();
+        Relationship relation = new Relationship();
         relation.setRelatedTo("unknownRelation");
-        relations.getRelationship().add(relation);
-        Relationship sameRelation = OBJECT_FACTORY.createRelationship();
+        relation.setRelationshipData(new ArrayList<>());
+        relationships.add(relation);
+        Relationship sameRelation = new Relationship();
         sameRelation.setRelatedTo("relatedTo");
-        relations.getRelationship().add(sameRelation);
-        RelationshipData data = OBJECT_FACTORY.createRelationshipData();
+        relationships.add(sameRelation);
+        RelationshipData data = new RelationshipData();
         data.setRelationshipValue("v");
         data.setRelationshipKey("k");
+        sameRelation.setRelationshipData(new ArrayList<>());
         sameRelation.getRelationshipData().add(data);
 
-        Relationship newRelation = OBJECT_FACTORY.createRelationship();
+        Relationship newRelation = new Relationship();
         newRelation.setRelatedTo("relatedTo");
-        RelationshipData data2 = OBJECT_FACTORY.createRelationshipData();
+        RelationshipData data2 = new RelationshipData();
         data2.setRelationshipValue("v2");
         data2.setRelationshipKey("k2");
+        newRelation.setRelationshipData(new ArrayList<>());
         newRelation.getRelationshipData().add(data2);
 
         //when
-        AbstractManager.addSingletonRelation(relations, newRelation);
+        AbstractManager.addSingletonRelation(relationships, newRelation);
         //verify
 
-        assertEquals(2, relations.getRelationship().size());
-        assertEquals(1, relations.getRelationship().get(1).getRelationshipData().size());
-        assertEquals("k2", relations.getRelationship().get(1).getRelationshipData().get(0).getRelationshipKey());
-        assertEquals("v2", relations.getRelationship().get(1).getRelationshipData().get(0).getRelationshipValue());
+        assertEquals(2, relationships.size());
+        assertEquals(1, relationships.get(1).getRelationshipData().size());
+        assertEquals("k2", relationships.get(1).getRelationshipData().get(0).getRelationshipKey());
+        assertEquals("v2", relationships.get(1).getRelationshipData().get(0).getRelationshipValue());
     }
 
     /**
@@ -123,25 +130,28 @@ public class TestAbstractManager extends TestBase {
      */
     @Test
     public void testAddSingletonRelation() {
-        RelationshipList relations = OBJECT_FACTORY.createRelationshipList();
-        Relationship relation = OBJECT_FACTORY.createRelationship();
+        Relationship relation = new Relationship();
         relation.setRelatedTo("unknownRelation");
-        relations.getRelationship().add(relation);
+        List<Relationship> relationships = new ArrayList<>();
 
-        Relationship newRelation = OBJECT_FACTORY.createRelationship();
+        relationships.add(relation);
+
+        Relationship newRelation = new Relationship();
         newRelation.setRelatedTo("relatedTo");
-        RelationshipData data2 = OBJECT_FACTORY.createRelationshipData();
+        RelationshipData data2 = new RelationshipData();
+        ;
         data2.setRelationshipValue("v2");
         data2.setRelationshipKey("k2");
+        newRelation.setRelationshipData(new ArrayList<>());
         newRelation.getRelationshipData().add(data2);
 
         //when
-        AbstractManager.addSingletonRelation(relations, newRelation);
+        AbstractManager.addSingletonRelation(relationships, newRelation);
         //verify
-        assertEquals(2, relations.getRelationship().size());
-        assertEquals(1, relations.getRelationship().get(1).getRelationshipData().size());
-        assertEquals("k2", relations.getRelationship().get(1).getRelationshipData().get(0).getRelationshipKey());
-        assertEquals("v2", relations.getRelationship().get(1).getRelationshipData().get(0).getRelationshipValue());
+        assertEquals(2, relationships.size());
+        assertEquals(1, relationships.get(1).getRelationshipData().size());
+        assertEquals("k2", relationships.get(1).getRelationshipData().get(0).getRelationshipKey());
+        assertEquals("v2", relationships.get(1).getRelationshipData().get(0).getRelationshipValue());
     }
 
     /**
@@ -149,35 +159,39 @@ public class TestAbstractManager extends TestBase {
      */
     @Test
     public void testAddMissingRelationForExisting() {
-        RelationshipList relations = OBJECT_FACTORY.createRelationshipList();
-        Relationship relation = OBJECT_FACTORY.createRelationship();
+        List<Relationship> relationships = new ArrayList<>();
+        Relationship relation = new Relationship();
         relation.setRelatedTo("unknownRelation");
-        relations.getRelationship().add(relation);
-        Relationship sameRelation = OBJECT_FACTORY.createRelationship();
+        relationships.add(relation);
+        Relationship sameRelation = new Relationship();
         sameRelation.setRelatedTo("relatedTo");
-        relations.getRelationship().add(sameRelation);
-        RelationshipData data = OBJECT_FACTORY.createRelationshipData();
+        relationships.add(sameRelation);
+        RelationshipData data = new RelationshipData();
+        ;
         data.setRelationshipValue("v");
         data.setRelationshipKey("k");
+        sameRelation.setRelationshipData(new ArrayList<>());
         sameRelation.getRelationshipData().add(data);
 
-        Relationship newRelation = OBJECT_FACTORY.createRelationship();
+        Relationship newRelation = new Relationship();
         newRelation.setRelatedTo("relatedTo");
-        RelationshipData data2 = OBJECT_FACTORY.createRelationshipData();
+        RelationshipData data2 = new RelationshipData();
+        ;
         data2.setRelationshipValue("v2");
         data2.setRelationshipKey("k2");
+        newRelation.setRelationshipData(new ArrayList<>());
         newRelation.getRelationshipData().add(data2);
 
         //when
-        AbstractManager.addMissingRelation(relations, newRelation);
+        AbstractManager.addMissingRelation(relationships, newRelation);
         //verify
 
-        assertEquals(3, relations.getRelationship().size());
-        assertEquals(1, relations.getRelationship().get(1).getRelationshipData().size());
-        assertEquals("k", relations.getRelationship().get(1).getRelationshipData().get(0).getRelationshipKey());
-        assertEquals("v", relations.getRelationship().get(1).getRelationshipData().get(0).getRelationshipValue());
-        assertEquals("k2", relations.getRelationship().get(2).getRelationshipData().get(0).getRelationshipKey());
-        assertEquals("v2", relations.getRelationship().get(2).getRelationshipData().get(0).getRelationshipValue());
+        assertEquals(3, relationships.size());
+        assertEquals(1, relationships.get(1).getRelationshipData().size());
+        assertEquals("k", relationships.get(1).getRelationshipData().get(0).getRelationshipKey());
+        assertEquals("v", relationships.get(1).getRelationshipData().get(0).getRelationshipValue());
+        assertEquals("k2", relationships.get(2).getRelationshipData().get(0).getRelationshipKey());
+        assertEquals("v2", relationships.get(2).getRelationshipData().get(0).getRelationshipValue());
     }
 
     /**
@@ -185,33 +199,37 @@ public class TestAbstractManager extends TestBase {
      */
     @Test
     public void testAddMissingRelation() {
-        RelationshipList relations = OBJECT_FACTORY.createRelationshipList();
-        Relationship relation = OBJECT_FACTORY.createRelationship();
+        Relationship relation = new Relationship();
         relation.setRelatedTo("unknownRelation");
-        relations.getRelationship().add(relation);
+        List<Relationship> relationships = new ArrayList<>();
+        relationships.add(relation);
 
-        Relationship sameRelation = OBJECT_FACTORY.createRelationship();
+        Relationship sameRelation = new Relationship();
         sameRelation.setRelatedTo("relatedTo");
-        relations.getRelationship().add(sameRelation);
-        RelationshipData data = OBJECT_FACTORY.createRelationshipData();
+        relationships.add(sameRelation);
+        RelationshipData data = new RelationshipData();
+        ;
         data.setRelationshipValue("v");
         data.setRelationshipKey("k");
+        sameRelation.setRelationshipData(new ArrayList<>());
         sameRelation.getRelationshipData().add(data);
 
-        Relationship newRelation = OBJECT_FACTORY.createRelationship();
+        Relationship newRelation = new Relationship();
         newRelation.setRelatedTo("relatedTo");
-        RelationshipData data2 = OBJECT_FACTORY.createRelationshipData();
+        RelationshipData data2 = new RelationshipData();
+        ;
         data2.setRelationshipValue("v");
         data2.setRelationshipKey("k");
+        newRelation.setRelationshipData(new ArrayList<>());
         newRelation.getRelationshipData().add(data2);
 
         //when
-        AbstractManager.addMissingRelation(relations, newRelation);
+        AbstractManager.addMissingRelation(relationships, newRelation);
         //verify
-        assertEquals(2, relations.getRelationship().size());
-        assertEquals(1, relations.getRelationship().get(1).getRelationshipData().size());
-        assertEquals("k", relations.getRelationship().get(1).getRelationshipData().get(0).getRelationshipKey());
-        assertEquals("v", relations.getRelationship().get(1).getRelationshipData().get(0).getRelationshipValue());
+        assertEquals(2, relationships.size());
+        assertEquals(1, relationships.get(1).getRelationshipData().size());
+        assertEquals("k", relationships.get(1).getRelationshipData().get(0).getRelationshipKey());
+        assertEquals("v", relationships.get(1).getRelationshipData().get(0).getRelationshipValue());
     }
 
     class DummyManager extends AbstractManager {

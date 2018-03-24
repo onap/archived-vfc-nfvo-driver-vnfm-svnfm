@@ -16,7 +16,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;

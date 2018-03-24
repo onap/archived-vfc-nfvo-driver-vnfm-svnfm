@@ -24,7 +24,8 @@ import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.OperationType;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
-import org.apache.http.HttpStatus;
+import java.util.*;
+import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.onap.vnfmdriver.model.JobDetailInfo;
 import org.onap.vnfmdriver.model.JobDetailInfoResponseDescriptor;
@@ -34,8 +35,9 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.find;
@@ -43,8 +45,6 @@ import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.nokia.cbam.lcm.v32.model.OperationStatus.FAILED;
 import static com.nokia.cbam.lcm.v32.model.OperationStatus.STARTED;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
@@ -109,11 +109,11 @@ public class JobManager {
         String jobId = vnfId + SEPARATOR + UUID.randomUUID().toString();
         synchronized (this) {
             if (preparingForShutDown) {
-                response.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);
+                response.setStatus(SC_SERVICE_UNAVAILABLE);
                 throw buildFatalFailure(logger, "The service is preparing to shut down");
             }
             if (!selfRegistrationManager.isReady()) {
-                response.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);
+                response.setStatus(SC_SERVICE_UNAVAILABLE);
                 throw buildFatalFailure(logger, "The service is not yet ready");
             }
         }
@@ -285,7 +285,7 @@ public class JobManager {
     }
 
     private boolean isCurrentOperationTriggeredByJob(String jobId, OperationExecutionsApi cbamOperationExecutionApi, OperationExecution operationExecution) {
-        if(OperationType.MODIFY_INFO.equals(operationExecution.getOperationType())){
+        if (OperationType.MODIFY_INFO.equals(operationExecution.getOperationType())) {
             //the modify info is never triggered by an external job
             return false;
         }

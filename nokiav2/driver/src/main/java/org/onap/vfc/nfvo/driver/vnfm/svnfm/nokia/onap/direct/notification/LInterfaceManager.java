@@ -15,10 +15,11 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
-import org.onap.aai.domain.yang.v11.L3InterfaceIpv4AddressList;
-import org.onap.aai.domain.yang.v11.L3InterfaceIpv6AddressList;
-import org.onap.aai.domain.yang.v11.LInterface;
-import org.onap.aai.domain.yang.v11.RelationshipList;
+import io.reactivex.Observable;
+import java.util.ArrayList;
+import org.onap.aai.model.L3InterfaceIpv4AddressList;
+import org.onap.aai.model.L3InterfaceIpv6AddressList;
+import org.onap.aai.model.LInterface;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
@@ -30,7 +31,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.CLOUD;
+
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getRegionName;
 
@@ -62,15 +64,30 @@ class LInterfaceManager extends AbstractManager {
     }
 
     void update(String vnfId, String vimId, ReportedAffectedCp affectedCp, boolean inMaintenance) {
-        LInterface lInterface = createOrGet(CLOUD, buildUrl(vimId, affectedCp), OBJECT_FACTORY.createLInterface());
-        updateFields(lInterface, affectedCp, vnfId, buildUrl(vimId, affectedCp), inMaintenance);
+        LInterface lInterface = createOrGet(getLinterface(vimId, affectedCp), new LInterface());
+        updateFields(vimId, lInterface, affectedCp, vnfId, inMaintenance);
     }
 
     void delete(String vimId, ReportedAffectedCp removedCp) {
-        aaiRestApiProvider.delete(logger, AAIRestApiProvider.AAIService.CLOUD, buildUrl(vimId, removedCp));
+        LInterface linterface = getLinterface(vimId, removedCp).blockingFirst();
+        String cloudOwner = getCloudOwner(vimId);
+        String regionName = getRegionName(vimId);
+        String tenantId = removedCp.getTenantId();
+        String vServerId = removedCp.getServerProviderId();
+        String cpId = removedCp.getCpId();
+        aaiRestApiProvider.getCloudInfrastructureApi().deleteCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(cloudOwner, regionName, tenantId, vServerId, cpId, linterface.getResourceVersion());
     }
 
-    private void updateFields(LInterface logicalInterface, ReportedAffectedCp affectedCp, String vnfId, String url, boolean inMaintenance) {
+    private Observable<LInterface> getLinterface(String vimId, ReportedAffectedCp cp) {
+        String cloudOwner = getCloudOwner(vimId);
+        String regionName = getRegionName(vimId);
+        String tenantId = cp.getTenantId();
+        String vServerId = cp.getServerProviderId();
+        String cpId = cp.getCpId();
+        return aaiRestApiProvider.getCloudInfrastructureApi().getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(cloudOwner, regionName, tenantId, vServerId, cpId, null, null, null, null, null, null, null, null, null, null, null, null);
+    }
+
+    private void updateFields(String vimId, LInterface logicalInterface, ReportedAffectedCp affectedCp, String vnfId, boolean inMaintenance) {
         logicalInterface.setInMaint(inMaintenance);
         logicalInterface.setIsIpUnnumbered(false);
         logicalInterface.setIsPortMirrored(false);
@@ -81,21 +98,32 @@ class LInterfaceManager extends AbstractManager {
         logicalInterface.setProvStatus("active");
         if (affectedCp.getIpAddress() != null) {
             if (affectedCp.getIpAddress().contains(":")) {
-                L3InterfaceIpv6AddressList ipv6Address = OBJECT_FACTORY.createL3InterfaceIpv6AddressList();
+                L3InterfaceIpv6AddressList ipv6Address = new L3InterfaceIpv6AddressList();
                 ipv6Address.setL3InterfaceIpv6Address(affectedCp.getIpAddress());
                 ipv6Address.setNeutronNetworkId(affectedCp.getNetworkProviderId());
+                if (logicalInterface.getL3InterfaceIpv6AddressList() == null) {
+                    logicalInterface.setL3InterfaceIpv6AddressList(new ArrayList<>());
+                }
                 logicalInterface.getL3InterfaceIpv6AddressList().add(ipv6Address);
             } else {
-                L3InterfaceIpv4AddressList ipv4Address = OBJECT_FACTORY.createL3InterfaceIpv4AddressList();
+                L3InterfaceIpv4AddressList ipv4Address = new L3InterfaceIpv4AddressList();
                 ipv4Address.setL3InterfaceIpv4Address(affectedCp.getIpAddress());
                 ipv4Address.setNeutronNetworkId(affectedCp.getNetworkProviderId());
+                if (logicalInterface.getL3InterfaceIpv4AddressList() == null) {
+                    logicalInterface.setL3InterfaceIpv4AddressList(new ArrayList<>());
+                }
                 logicalInterface.getL3InterfaceIpv4AddressList().add(ipv4Address);
             }
         }
         if (logicalInterface.getRelationshipList() == null) {
-            logicalInterface.setRelationshipList(new RelationshipList());
+            logicalInterface.setRelationshipList(new ArrayList<>());
         }
         addSingletonRelation(logicalInterface.getRelationshipList(), GenericVnfManager.linkTo(vnfId));
-        aaiRestApiProvider.put(logger, CLOUD, url, logicalInterface, Void.class);
+        String cloudOwner = getCloudOwner(vimId);
+        String regionName = getRegionName(vimId);
+        String tenantId = affectedCp.getTenantId();
+        String vServerId = affectedCp.getServerProviderId();
+        String cpId = affectedCp.getCpId();
+        systemFunctions().blockingFirst(aaiRestApiProvider.getCloudInfrastructureApi().createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(cloudOwner, regionName, tenantId, vServerId, cpId, logicalInterface));
     }
 }

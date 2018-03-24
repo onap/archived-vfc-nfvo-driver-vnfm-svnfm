@@ -18,24 +18,20 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.model.AffectedVirtualLink;
 import com.nokia.cbam.lcm.v32.model.ResourceHandle;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.onap.aai.domain.yang.v11.L3Network;
-import org.onap.aai.domain.yang.v11.ObjectFactory;
-import org.onap.aai.domain.yang.v11.RelationshipList;
+import org.onap.aai.api.NetworkApi;
+import org.onap.aai.model.L3Network;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
-
-import java.util.NoSuchElementException;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.NETWORK;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.AbstractManager.buildRelationshipData;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.TestGenericVnfManager.assertRelation;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
@@ -43,17 +39,19 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ge
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestL3NetworkManager extends TestBase {
-    private ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     private ArgumentCaptor<L3Network> payload = ArgumentCaptor.forClass(L3Network.class);
     private AffectedVirtualLink affectedVirtualLink = new AffectedVirtualLink();
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
     private L3NetworkManager l3NetworkManager;
+    @Mock
+    private NetworkApi networkApi;
 
     @Before
     public void init() {
         l3NetworkManager = new L3NetworkManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
         setField(L3NetworkManager.class, "logger", logger);
+        when(aaiRestApiProvider.getNetworkApi()).thenReturn(networkApi);
     }
 
     /**
@@ -68,8 +66,9 @@ public class TestL3NetworkManager extends TestBase {
         affectedVirtualLink.setResource(new ResourceHandle());
         affectedVirtualLink.getResource().setAdditionalData(additionalData);
         affectedVirtualLink.getResource().setResourceId("netProviderId");
-        when(aaiRestApiProvider.get(logger, NETWORK, "/l3-networks/l3-network/myVnfId_vlId", L3Network.class)).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/l3-networks/l3-network/myVnfId_vlId"), payload.capture(), eq(Void.class))).thenReturn(null);
+        L3Network existingNetwork = new L3Network();
+        when(networkApi.getNetworkL3NetworksL3Network("myVnfId_vlId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingNetwork));
+        when(networkApi.createOrUpdateNetworkL3NetworksL3Network(eq("myVnfId_vlId"), payload.capture())).thenReturn(null);
         //when
         l3NetworkManager.update(VIM_ID, VNF_ID, affectedVirtualLink);
         //verify
@@ -98,11 +97,11 @@ public class TestL3NetworkManager extends TestBase {
         affectedVirtualLink.setResource(new ResourceHandle());
         affectedVirtualLink.getResource().setAdditionalData(additionalData);
         affectedVirtualLink.getResource().setResourceId("netProviderId");
-        L3Network l3Network = OBJECT_FACTORY.createL3Network();
+        L3Network l3Network = new L3Network();
         l3Network.setResourceVersion("v3");
-        l3Network.setRelationshipList(new RelationshipList());
-        when(aaiRestApiProvider.get(logger, NETWORK, "/l3-networks/l3-network/myVnfId_vlId", L3Network.class)).thenReturn(l3Network);
-        when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/l3-networks/l3-network/myVnfId_vlId"), payload.capture(), eq(Void.class))).thenReturn(null);
+        l3Network.setRelationshipList(new ArrayList<>());
+        when(networkApi.getNetworkL3NetworksL3Network("myVnfId_vlId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(l3Network));
+        when(networkApi.createOrUpdateNetworkL3NetworksL3Network(eq("myVnfId_vlId"), payload.capture())).thenReturn(null);
         //when
         l3NetworkManager.update(VIM_ID, VNF_ID, affectedVirtualLink);
         //verify
@@ -126,10 +125,13 @@ public class TestL3NetworkManager extends TestBase {
     @Test
     public void testDelete() throws Exception {
         affectedVirtualLink.setId("vlId");
+        L3Network l3Network = new L3Network();
+        l3Network.setResourceVersion("v3");
+        when(networkApi.getNetworkL3NetworksL3Network("myVnfId_vlId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(l3Network));
         //when
         l3NetworkManager.delete(VNF_ID, affectedVirtualLink);
         //verify
-        verify(aaiRestApiProvider).delete(logger, NETWORK, "/l3-networks/l3-network/myVnfId_vlId");
+        networkApi.deleteNetworkL3NetworksL3Network("myVnfId_vlId", "v3");
     }
 
     /**

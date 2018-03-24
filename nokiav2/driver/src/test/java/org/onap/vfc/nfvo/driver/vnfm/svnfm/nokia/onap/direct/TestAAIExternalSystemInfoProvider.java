@@ -15,13 +15,15 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.onap.aai.domain.yang.v11.EsrSystemInfo;
-import org.onap.aai.domain.yang.v11.EsrSystemInfoList;
-import org.onap.aai.domain.yang.v11.EsrVnfm;
-import org.onap.aai.domain.yang.v11.ObjectFactory;
+import org.onap.aai.api.CloudInfrastructureApi;
+import org.onap.aai.api.ExternalSystemApi;
+import org.onap.aai.model.CloudRegion;
+import org.onap.aai.model.EsrSystemInfo;
+import org.onap.aai.model.EsrVnfm;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfmInfo;
@@ -33,15 +35,20 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestAAIExternalSystemInfoProvider extends TestBase {
-    private ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     private AAIExternalSystemInfoProvider aaiExternalSystemInfoProvider;
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
+    @Mock
+    private ExternalSystemApi externalSystemApi;
+    @Mock
+    private CloudInfrastructureApi cloudInfrastructureApi;
 
     @Before
     public void init() {
-        aaiExternalSystemInfoProvider = new AAIExternalSystemInfoProvider(environment, aaiRestApiProvider);
         setField(AAIExternalSystemInfoProvider.class, "logger", logger);
+        aaiExternalSystemInfoProvider = new AAIExternalSystemInfoProvider(environment, aaiRestApiProvider);
+        when(aaiRestApiProvider.getExternalSystemApi()).thenReturn(externalSystemApi);
+        when(aaiRestApiProvider.getCloudInfrastructureApi()).thenReturn(cloudInfrastructureApi);
     }
 
     /**
@@ -49,9 +56,10 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
      */
     @Test
     public void testVim() throws Exception {
-        EsrSystemInfoList vims = OBJECT_FACTORY.createEsrSystemInfoList();
-        EsrSystemInfo vim = OBJECT_FACTORY.createEsrSystemInfo();
-        vims.getEsrSystemInfo().add(vim);
+        CloudRegion cloudRegion = new CloudRegion();
+        cloudRegion.setEsrSystemInfoList(new ArrayList<>());
+        EsrSystemInfo vim = new EsrSystemInfo();
+        cloudRegion.getEsrSystemInfoList().add(vim);
         vim.setPassword("myPassword");
         vim.setUserName("myUsername");
         vim.setServiceUrl("http://1.2.3.4:1234/a");
@@ -61,7 +69,7 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
         vim.setType("type");
         vim.setSslInsecure(true);
         vim.setVendor("vendor");
-        when(aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/esr-system-info-list", EsrSystemInfoList.class)).thenReturn(vims);
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegion("myCloudOwnerId", "myRegionName", null, null)).thenReturn(buildObservable(cloudRegion));
         //when
         VimInfo vimInfo = aaiExternalSystemInfoProvider.getVimInfo(VIM_ID);
         assertEquals("myPassword", vimInfo.getPassword());
@@ -84,9 +92,10 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
      */
     @Test
     public void testVimSsl() throws Exception {
-        EsrSystemInfoList vims = OBJECT_FACTORY.createEsrSystemInfoList();
-        EsrSystemInfo vim = OBJECT_FACTORY.createEsrSystemInfo();
-        vims.getEsrSystemInfo().add(vim);
+        CloudRegion cloudRegion = new CloudRegion();
+        cloudRegion.setEsrSystemInfoList(new ArrayList<>());
+        EsrSystemInfo vim = new EsrSystemInfo();
+        cloudRegion.getEsrSystemInfoList().add(vim);
         vim.setPassword("myPassword");
         vim.setUserName("myUsername");
         vim.setServiceUrl("https://1.2.3.4:1234/a");
@@ -97,7 +106,7 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
         vim.setSslInsecure(false);
         vim.setSslCacert("cert");
         vim.setVendor("vendor");
-        when(aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/esr-system-info-list", EsrSystemInfoList.class)).thenReturn(vims);
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegion("myCloudOwnerId", "myRegionName", null, null)).thenReturn(buildObservable(cloudRegion));
         //when
         VimInfo vimInfo = aaiExternalSystemInfoProvider.getVimInfo(VIM_ID);
         assertEquals("myPassword", vimInfo.getPassword());
@@ -120,7 +129,7 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
     @Test
     public void testVimUnableToQuery() throws Exception {
         RuntimeException expectedException = new RuntimeException();
-        when(aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/esr-system-info-list", EsrSystemInfoList.class)).thenThrow(expectedException);
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegion("myCloudOwnerId", "myRegionName", null, null)).thenThrow(expectedException);
         //when
         try {
             aaiExternalSystemInfoProvider.getVimInfo(VIM_ID);
@@ -136,11 +145,11 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
      */
     @Test
     public void testVnfmQuery() throws Exception {
-        EsrVnfm vnfm = OBJECT_FACTORY.createEsrVnfm();
+        EsrVnfm vnfm = new EsrVnfm();
         vnfm.setVimId(VIM_ID);
-        vnfm.setEsrSystemInfoList(OBJECT_FACTORY.createEsrSystemInfoList());
-        EsrSystemInfo esrInfo = OBJECT_FACTORY.createEsrSystemInfo();
-        vnfm.getEsrSystemInfoList().getEsrSystemInfo().add(esrInfo);
+        vnfm.setEsrSystemInfoList(new ArrayList<>());
+        EsrSystemInfo esrInfo = new EsrSystemInfo();
+        vnfm.getEsrSystemInfoList().add(esrInfo);
         esrInfo.setPassword("myPassword");
         esrInfo.setUserName("myUsername");
         esrInfo.setServiceUrl("https://1.2.3.4:1234/a");
@@ -152,7 +161,7 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
         esrInfo.setSslCacert("cert");
         esrInfo.setVendor("vendor");
         vnfm.setVnfmId(VNFM_ID);
-        when(aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.ESR, "/esr-vnfm-list/esr-vnfm/" + VNFM_ID + "?depth=all", EsrVnfm.class)).thenReturn(vnfm);
+        when(externalSystemApi.getExternalSystemEsrVnfmListEsrVnfm(VNFM_ID)).thenReturn(buildObservable(vnfm));
 
         //when
         VnfmInfo actualVnfmInfo = aaiExternalSystemInfoProvider.queryVnfmInfoFromSource(VNFM_ID);
@@ -176,7 +185,7 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
     @Test
     public void testVnfmUnableToQuery() throws Exception {
         RuntimeException expectedException = new RuntimeException();
-        when(aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.ESR, "/esr-vnfm-list/esr-vnfm/" + VNFM_ID + "?depth=all", EsrVnfm.class)).thenThrow(expectedException);
+        when(externalSystemApi.getExternalSystemEsrVnfmListEsrVnfm(VNFM_ID)).thenThrow(expectedException);
         //when
         try {
             aaiExternalSystemInfoProvider.queryVnfmInfoFromSource(VNFM_ID);

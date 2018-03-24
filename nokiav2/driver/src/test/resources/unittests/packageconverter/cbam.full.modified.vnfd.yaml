@@ -1,87 +1,68 @@
----
-tosca_definitions_version: "tosca_simple_profile_for_nfv_1_0_0_nokia"
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0_nokia
 topology_template:
   substitution_mappings:
-    node_type: "tosca.nodes.nfv.VNF"
+    node_type: tosca.nodes.nfv.VNF
     capabilities:
       vnf:
         properties:
           modifiable_attributes:
             extensions:
-              existingAttribute:
-                default: "value"
-              onapCsarId:
-                default: "kuku"
-              vimId:
-                default: "kuku"
+              existingAttribute: {default: value}
+              onapCsarId: {default: kuku}
+              vimId: {default: kuku}
     interfaces:
       Basic:
         instantiate:
           inputs:
             extensions:
               pre_actions:
-              - javascript: "pre"
-                include:
-                - "javascript/scalable_prepare_cbam_include.js"
-                output: "stack_parameters"
-              - javascript: "javascript/cbam.pre.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
+              - javascript: pre
+                include: [javascript/scalable_prepare_cbam_include.js]
+                output: stack_parameters
+              - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
               post_actions:
-              - javascript: "post"
-                output: "ansible_inventory"
-              - javascript: "javascript/cbam.post.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
-            additional_parameters:
-              kuku: "muku"
-              jobId: "kuku"
+              - {javascript: post, output: ansible_inventory}
+              - javascript: javascript/cbam.post.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
+            additional_parameters: {kuku: muku, jobId: kuku}
         terminate:
           inputs:
             extensions:
               pre_actions:
-              - javascript: "javascript/cbam.pre.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
+              - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
               post_actions:
-              - javascript: "javascript/cbam.post.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
-            additional_parameters:
-              jobId: "kuku"
+              - javascript: javascript/cbam.post.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
+            additional_parameters: {jobId: kuku}
       Scalable:
         scale:
           inputs:
             extensions:
               pre_actions:
-              - javascript: "javascript/cbam.pre.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
+              - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
               post_actions:
-              - javascript: "javascript/cbam.post.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
-            additional_parameters:
-              jobId: "kuku"
+              - javascript: javascript/cbam.post.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
+            additional_parameters: {jobId: kuku}
       Healable:
         heal:
           inputs:
             extensions:
               pre_actions:
-              - javascript: "javascript/cbam.pre.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
+              - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
               post_actions:
-              - javascript: "javascript/cbam.post.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
-            additional_parameters:
-              jobId: "kuku"
+              - javascript: javascript/cbam.post.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
+            additional_parameters: {jobId: kuku}

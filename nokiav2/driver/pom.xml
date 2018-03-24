@@ -47,17 +47,33 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-tomcat</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jetty</artifactId>
       <version>${spring.boot.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
       <version>${spring.boot.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -71,22 +87,15 @@
       <version>24.0-jre</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.5</version>
+    </dependency>
+    <dependency>
       <!-- parsing VNFDs -->
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <version>1.19</version>
-    </dependency>
-    <dependency>
-      <!-- this version must be in sync with the dependency comming from spring boot -->
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>2.9.4</version>
-    </dependency>
-    <dependency>
-      <!-- access MSB during registration -->
-      <groupId>org.onap.msb.java-sdk</groupId>
-      <artifactId>msb-java-sdk</artifactId>
-      <version>1.1.0</version>
     </dependency>
     <dependency>
       <groupId>pl.pojo</groupId>
@@ -99,46 +108,6 @@
       <artifactId>jetty-server</artifactId>
       <version>9.4.8.v20171121</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.onap.aai.aai-common</groupId>
-      <artifactId>aai-schema</artifactId>
-      <version>1.2.0</version>
-      <exclusions>
-        <!-- Can be removed if https://jira.onap.org/browse/AAI-894 is fixed -->
-        <exclusion>
-          <groupId>org.mockito</groupId>
-          <artifactId>mockito-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.powermock</groupId>
-          <artifactId>powermock-module-junit4</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.powermock</groupId>
-          <artifactId>powermock-api-mockito</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.onap.aai</groupId>
-      <artifactId>rest-client</artifactId>
-      <version>1.2.0</version>
-      <exclusions>
-        <!-- Can be removed if https://jira.onap.org/browse/AAI-894 is fixed -->
-        <exclusion>
-          <groupId>org.mockito</groupId>
-          <artifactId>mockito-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.powermock</groupId>
-          <artifactId>powermock-module-junit4</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.powermock</groupId>
-          <artifactId>powermock-api-mockito</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
   <build>
