@@ -15,17 +15,17 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
-import org.onap.msb.sdk.discovery.common.RouteException;
-import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
-import org.onap.msb.sdk.discovery.entity.NodeInfo;
-import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
+import com.google.common.annotations.VisibleForTesting;
+import org.onap.msb.ApiClient;
+import org.onap.msb.api.ServiceResourceApi;
+import org.onap.msb.model.MicroServiceFullInfo;
+import org.onap.msb.model.NodeInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import static java.lang.Integer.valueOf;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -48,8 +48,15 @@ public class MsbApiProvider extends IpMappingProvider {
     /**
      * @return API to access ONAP MSB
      */
-    public MSBServiceClient getMsbClient() {
-        return new MSBServiceClient(messageBusIp, valueOf(messageBusPort));
+    public ServiceResourceApi getMsbApi() {
+        return buildApiClient().createService(ServiceResourceApi.class);
+    }
+
+    @VisibleForTesting
+    ApiClient buildApiClient() {
+        ApiClient apiClient = new ApiClient();
+        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl("http://" + messageBusIp + ":" + messageBusPort + "/api/msdiscover/v1/"));
+        return apiClient;
     }
 
     /**
@@ -60,15 +67,15 @@ public class MsbApiProvider extends IpMappingProvider {
     public String getMicroServiceUrl(String name, String version) {
         MicroServiceFullInfo microServiceFullInfo = getMicroServiceInfo(name, version);
         String ipAnPort = getNodeIpAnPort(microServiceFullInfo);
-        String protocol = microServiceFullInfo.isEnable_ssl() ? "https://" : "http://";
+        String protocol = microServiceFullInfo.isEnableSsl() ? "https://" : "http://";
         //the field name in A&AI is misleading the URL is relative path postfixed to http(s)://ip:port
         return protocol + ipAnPort + microServiceFullInfo.getUrl();
     }
 
     private MicroServiceFullInfo getMicroServiceInfo(String name, String version) {
         try {
-            return getMsbClient().queryMicroServiceInfo(name, version);
-        } catch (RouteException e) {
+            return getMsbApi().getMicroService_0(name, version, null, null, null, null, null).blockingFirst();
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to get micro service URL for " + name + " with version " + version, e);
         }
     }

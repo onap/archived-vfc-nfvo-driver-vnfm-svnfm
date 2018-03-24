@@ -16,6 +16,12 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
+import io.reactivex.Observable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,35 +29,35 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.onap.aai.domain.yang.v11.*;
+import org.onap.aai.api.NetworkApi;
+import org.onap.aai.model.GenericVnf;
+import org.onap.aai.model.Relationship;
+import org.onap.aai.model.RelationshipData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
+import static java.lang.Boolean.TRUE;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.NETWORK;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestGenericVnfManager extends TestBase {
-    private ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     private ArgumentCaptor<GenericVnf> payload = ArgumentCaptor.forClass(GenericVnf.class);
 
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
+    @Mock
+    private NetworkApi networkApi;
     private GenericVnfManager genericVnfManager;
     private VnfInfo vnfInfo = new VnfInfo();
 
-    static void assertRelation(RelationshipList relationShips, String relatedTo, RelationshipData... data) {
-        for (Relationship relationship : relationShips.getRelationship()) {
+    static void assertRelation(List<Relationship> relationShips, String relatedTo, RelationshipData... data) {
+        for (Relationship relationship : relationShips) {
             if (relationship.getRelatedTo().equals(relatedTo)) {
                 assertEquals(data.length, relationship.getRelationshipData().size());
                 int i = 0;
@@ -68,6 +74,7 @@ public class TestGenericVnfManager extends TestBase {
 
     @Before
     public void init() {
+        when(aaiRestApiProvider.getNetworkApi()).thenReturn(networkApi);
         genericVnfManager = new GenericVnfManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
         setField(GenericVnfManager.class, "logger", logger);
         AtomicLong currentTime = new AtomicLong(0L);
@@ -87,33 +94,20 @@ public class TestGenericVnfManager extends TestBase {
     }
 
     /**
-     * retrieving an existing VNF
-     */
-    @Test
-    public void testGetExistingVnf() throws Exception {
-        GenericVnf aaiVnf = OBJECT_FACTORY.createGenericVnf();
-        when(aaiRestApiProvider.get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class)).thenReturn(aaiVnf);
-        //when
-        GenericVnf vnf = genericVnfManager.getExistingVnf(VNF_ID);
-        //verify
-        assertEquals(aaiVnf, vnf);
-    }
-
-    /**
      * if the VNF does not exist it is created
      */
     @Test
     public void createNonExistingVnf() throws Exception {
-        GenericVnf vnfInAaai = OBJECT_FACTORY.createGenericVnf();
+        GenericVnf vnfInAaai = new GenericVnf();
         Set<GenericVnf> vnfs = new HashSet<>();
-        when(aaiRestApiProvider.get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class)).thenAnswer((Answer<GenericVnf>) invocation -> {
+        when(networkApi.getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)).thenAnswer((Answer<Observable<GenericVnf>>) invocation -> {
             if (vnfs.size() == 0) {
                 throw new NoSuchElementException();
             }
-            return vnfs.iterator().next();
+            return buildObservable(vnfs.iterator().next());
         });
         when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
-        when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), payload.capture(), eq(Void.class))).thenAnswer(invocation -> {
+        when(networkApi.createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), payload.capture())).thenAnswer(invocation -> {
             vnfs.add(vnfInAaai);
             return null;
         });
@@ -123,13 +117,13 @@ public class TestGenericVnfManager extends TestBase {
         //verify
         GenericVnf vnfSentToAai = payload.getValue();
         assertEquals(VNF_ID, vnfSentToAai.getVnfId());
-        assertEquals(VNF_ID, vnfSentToAai.getVnfInstanceId());
+        assertEquals(VNF_ID, vnfSentToAai.getVnfId());
         assertEquals("NokiaVNF", vnfSentToAai.getVnfType());
-        assertEquals(true, vnfSentToAai.isInMaint());
-        assertEquals(true, vnfSentToAai.isIsClosedLoopDisabled());
+        assertEquals(TRUE, vnfSentToAai.isInMaint());
+        assertEquals(TRUE, vnfSentToAai.isIsClosedLoopDisabled());
         assertEquals("vnfName", vnfSentToAai.getVnfName());
         verify(systemFunctions, times(10)).sleep(3000);
-        verify(aaiRestApiProvider, times(10)).get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class);
+        verify(networkApi, times(10)).getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**
@@ -137,24 +131,24 @@ public class TestGenericVnfManager extends TestBase {
      */
     @Test
     public void testUpdateExistingVnf() throws Exception {
-        GenericVnf vnfInAaai = OBJECT_FACTORY.createGenericVnf();
+        GenericVnf vnfInAaai = new GenericVnf();
         vnfInAaai.setResourceVersion("v1");
-        when(aaiRestApiProvider.get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class)).thenReturn(vnfInAaai);
+        when(networkApi.getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(vnfInAaai));
         when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
-        when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), payload.capture(), eq(Void.class))).thenReturn(null);
+        when(networkApi.createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), payload.capture())).thenReturn(null);
         vnfInfo.setName("vnfName");
         //when
         genericVnfManager.createOrUpdate(VNF_ID, true);
         //verify
         GenericVnf vnfSentToAai = payload.getValue();
         assertEquals(VNF_ID, vnfSentToAai.getVnfId());
-        assertEquals(VNF_ID, vnfSentToAai.getVnfInstanceId());
+        assertEquals(VNF_ID, vnfSentToAai.getVnfId());
         assertEquals("NokiaVNF", vnfSentToAai.getVnfType());
-        assertEquals(true, vnfSentToAai.isInMaint());
-        assertEquals(true, vnfSentToAai.isIsClosedLoopDisabled());
+        assertEquals(TRUE, vnfSentToAai.isInMaint());
+        assertEquals(TRUE, vnfSentToAai.isIsClosedLoopDisabled());
         assertEquals("vnfName", vnfSentToAai.getVnfName());
         verify(systemFunctions, never()).sleep(anyLong());
-        verify(aaiRestApiProvider, times(1)).get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class);
+        verify(networkApi, times(1)).getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**
@@ -162,12 +156,12 @@ public class TestGenericVnfManager extends TestBase {
      */
     @Test
     public void testUnableToQueryVnfFromCBAM() throws Exception {
-        GenericVnf vnfInAaai = OBJECT_FACTORY.createGenericVnf();
+        GenericVnf vnfInAaai = new GenericVnf();
         vnfInAaai.setResourceVersion("v1");
-        when(aaiRestApiProvider.get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class)).thenReturn(vnfInAaai);
+        when(networkApi.getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(vnfInAaai));
         RuntimeException expectedException = new RuntimeException();
         when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenThrow(expectedException);
-        when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), payload.capture(), eq(Void.class))).thenAnswer(invocation -> {
+        when(networkApi.createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), payload.capture())).thenAnswer(invocation -> {
             vnfInAaai.setResourceVersion("v2");
             return null;
         });
@@ -187,20 +181,20 @@ public class TestGenericVnfManager extends TestBase {
      */
     @Test
     public void testConcurency1() throws Exception {
-        GenericVnf vnfInAaai = OBJECT_FACTORY.createGenericVnf();
+        GenericVnf vnfInAaai = new GenericVnf();
         vnfInAaai.setResourceVersion("v3");
         Set<Integer> queryCount = new HashSet<>();
-        when(aaiRestApiProvider.get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class)).thenAnswer((Answer<GenericVnf>) invocation -> {
+        when(networkApi.getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)).thenAnswer((Answer<Observable>) invocationOnMock -> {
             queryCount.add(queryCount.size());
             if (queryCount.size() >= 11) {
-                return vnfInAaai;
+                return buildObservable(vnfInAaai);
             }
             throw new NoSuchElementException();
         });
         when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         RuntimeException runtimeException = new RuntimeException();
-        when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), payload.capture(), eq(Void.class))).thenAnswer(invocation -> {
-            GenericVnf vnfSentToAAi = (GenericVnf) invocation.getArguments()[3];
+        when(networkApi.createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), payload.capture())).thenAnswer(invocation -> {
+            GenericVnf vnfSentToAAi = (GenericVnf) invocation.getArguments()[1];
             if (vnfSentToAAi.getResourceVersion() == null) {
                 throw runtimeException;
             }
@@ -212,15 +206,15 @@ public class TestGenericVnfManager extends TestBase {
         //verify
         GenericVnf vnfSentToAai = payload.getValue();
         assertEquals(VNF_ID, vnfSentToAai.getVnfId());
-        assertEquals(VNF_ID, vnfSentToAai.getVnfInstanceId());
+        assertEquals(VNF_ID, vnfSentToAai.getVnfId());
         assertEquals("NokiaVNF", vnfSentToAai.getVnfType());
-        assertEquals(true, vnfSentToAai.isInMaint());
-        assertEquals(true, vnfSentToAai.isIsClosedLoopDisabled());
+        assertEquals(TRUE, vnfSentToAai.isInMaint());
+        assertEquals(TRUE, vnfSentToAai.isIsClosedLoopDisabled());
         assertEquals("vnfName", vnfSentToAai.getVnfName());
         assertEquals("v3", vnfSentToAai.getResourceVersion());
         verify(systemFunctions, times(10)).sleep(3000);
-        verify(aaiRestApiProvider, times(11)).get(logger, NETWORK, "/generic-vnfs/generic-vnf/" + VNF_ID, GenericVnf.class);
-        verify(aaiRestApiProvider, times(2)).put(eq(logger), eq(NETWORK), eq("/generic-vnfs/generic-vnf/" + VNF_ID), any(), eq(Void.class));
+        verify(networkApi, times(11)).getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        verify(networkApi, times(2)).createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), any());
         verify(logger).warn(eq("The VNF with myVnfId identifier did not appear in time"), any(NoSuchElementException.class));
         verify(logger).warn("The VNF with myVnfId identifier has been created since after the maximal wait for VNF to appear timeout", runtimeException);
     }

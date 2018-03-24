@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import com.nokia.cbam.lcm.v32.model.VnfcResourceInfo;
+import java.util.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager;
@@ -33,8 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
-
-import java.util.*;
 
 import static com.nokia.cbam.lcm.v32.model.InstantiationState.INSTANTIATED;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;

@@ -16,8 +16,6 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyFactory;
@@ -31,9 +29,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.codec.binary.Base64;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 

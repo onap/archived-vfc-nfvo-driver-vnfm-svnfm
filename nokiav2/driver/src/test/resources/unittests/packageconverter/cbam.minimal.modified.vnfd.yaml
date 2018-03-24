@@ -1,46 +1,37 @@
----
-tosca_definitions_version: "tosca_simple_profile_for_nfv_1_0_0_nokia"
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0_nokia
 topology_template:
   substitution_mappings:
-    node_type: "tosca.nodes.nfv.VNF"
+    node_type: tosca.nodes.nfv.VNF
     interfaces:
       Basic:
         instantiate:
           inputs:
             extensions:
               pre_actions:
-              - javascript: "javascript/cbam.pre.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
+              - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
               post_actions:
-              - javascript: "javascript/cbam.post.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
-            additional_parameters:
-              jobId: "kuku"
+              - javascript: javascript/cbam.post.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
+            additional_parameters: {jobId: kuku}
         terminate:
           inputs:
             extensions:
               pre_actions:
-              - javascript: "javascript/cbam.pre.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
+              - javascript: javascript/cbam.pre.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
               post_actions:
-              - javascript: "javascript/cbam.post.collectConnectionPoints.js"
-                include:
-                - "javascript/cbam.collectConnectionPoints.js"
-                output: "operation_result"
-            additional_parameters:
-              jobId: "kuku"
+              - javascript: javascript/cbam.post.collectConnectionPoints.js
+                include: [javascript/cbam.collectConnectionPoints.js]
+                output: operation_result
+            additional_parameters: {jobId: kuku}
     capabilities:
       vnf:
         properties:
           modifiable_attributes:
             extensions:
-              onapCsarId:
-                default: "kuku"
-              vimId:
-                default: "kuku"
+              onapCsarId: {default: kuku}
+              vimId: {default: kuku}

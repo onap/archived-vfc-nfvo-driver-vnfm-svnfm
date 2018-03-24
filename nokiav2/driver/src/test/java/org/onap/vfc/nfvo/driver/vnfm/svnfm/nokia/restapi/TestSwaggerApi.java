@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
+import javax.servlet.ServletOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -23,8 +24,6 @@ import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
-import javax.servlet.ServletOutputStream;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

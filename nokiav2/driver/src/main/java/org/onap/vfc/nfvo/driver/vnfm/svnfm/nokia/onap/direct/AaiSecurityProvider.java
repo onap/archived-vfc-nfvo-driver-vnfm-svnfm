@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.GenericSecurityProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +23,12 @@ import org.springframework.stereotype.Component;
  * Responsible for providing SSL factories for AAI
  */
 @Component
-public class CbamSecurityProvider extends GenericSecurityProvider {
-    @Value("${trustedCertificates}")
+public class AaiSecurityProvider extends GenericSecurityProvider {
+    @Value("${trustedCertificatesForAai}")
     private String trustedCertificates;
-    @Value("${skipCertificateVerification}")
+    @Value("${skipCertificateVerificationForAai}")
     private boolean skipCertificateVerification;
-    @Value("${skipHostnameVerification}")
+    @Value("${skipHostnameVerificationForAai}")
     private boolean skipHostnameVerification;
 
     @Override

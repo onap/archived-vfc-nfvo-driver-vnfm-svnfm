@@ -29,6 +29,7 @@ import org.onap.vnfmdriver.model.VnfScaleRequest;
 import org.onap.vnfmdriver.model.VnfTerminateRequest;
 
 import static java.util.Optional.empty;
+
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.setField;

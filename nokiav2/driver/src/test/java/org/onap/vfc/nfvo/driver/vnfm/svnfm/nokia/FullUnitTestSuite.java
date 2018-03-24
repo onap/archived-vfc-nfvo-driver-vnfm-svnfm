@@ -41,8 +41,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestProcessed
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedAffectedConnectionPoints;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedAffectedCp;
 
-//import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.TestCbamRestApiProvider;
-
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         TestGenericExternalSystemInfoProvider.class,

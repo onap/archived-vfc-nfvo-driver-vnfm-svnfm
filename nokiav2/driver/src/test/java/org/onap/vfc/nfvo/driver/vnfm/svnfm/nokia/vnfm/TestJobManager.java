@@ -20,6 +20,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.nokia.cbam.lcm.v32.model.*;
 import io.reactivex.Observable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -33,15 +41,6 @@ import org.onap.vnfmdriver.model.JobResponseInfo;
 import org.onap.vnfmdriver.model.JobStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.threeten.bp.OffsetDateTime;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
@@ -425,7 +424,7 @@ public class TestJobManager extends TestBase {
             fail();
         } catch (RuntimeException e) {
             assertEquals(expectedException, e.getCause());
-            verify(logger).error("Unable to retrieve operation parameters of operation with " + operation.getId() +" identifier", expectedException);
+            verify(logger).error("Unable to retrieve operation parameters of operation with " + operation.getId() + " identifier", expectedException);
         }
         assertTrue(jobManager.hasOngoingJobs());
     }

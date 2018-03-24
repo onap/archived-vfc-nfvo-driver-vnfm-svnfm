@@ -17,6 +17,8 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -32,11 +34,9 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import static java.lang.String.format;
 
 import static com.google.common.io.ByteStreams.toByteArray;
-import static java.lang.String.format;
 import static org.apache.http.HttpHeaders.ACCEPT;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager.SERVICE_NAME;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.*;

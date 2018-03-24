@@ -16,9 +16,10 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.nokia.cbam.lcm.v32.model.AffectedVirtualLink;
-import org.onap.aai.domain.yang.v11.L3Network;
-import org.onap.aai.domain.yang.v11.Relationship;
-import org.onap.aai.domain.yang.v11.RelationshipList;
+import io.reactivex.Observable;
+import java.util.ArrayList;
+import org.onap.aai.model.L3Network;
+import org.onap.aai.model.Relationship;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
@@ -28,9 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
-import static java.lang.String.format;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.NETWORK;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getRegionName;
 
@@ -40,7 +40,6 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ge
 @Component
 @Conditional(value = Conditions.UseForDirect.class)
 class L3NetworkManager extends AbstractManager {
-    private static final String NETWORK_URL = "/l3-networks/l3-network/%s";
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(L3NetworkManager.class);
 
     @Autowired
@@ -54,12 +53,17 @@ class L3NetworkManager extends AbstractManager {
     }
 
     void update(String vimId, String vnfId, AffectedVirtualLink affectedVirtualLink) {
-        L3Network l3Network = createOrGet(NETWORK, format(NETWORK_URL, buildNetworkId(vnfId, affectedVirtualLink)), OBJECT_FACTORY.createL3Network());
+        L3Network l3Network = createOrGet(getNetwork(vnfId, affectedVirtualLink), new L3Network());
         updateNetworkFields(vimId, vnfId, affectedVirtualLink, l3Network);
     }
 
+    private Observable<L3Network> getNetwork(String vnfId, AffectedVirtualLink affectedVirtualLink) {
+        return aaiRestApiProvider.getNetworkApi().getNetworkL3NetworksL3Network(buildNetworkId(vnfId, affectedVirtualLink), null, null, null, null, null, null, null, null, null);
+    }
+
     void delete(String vnfId, AffectedVirtualLink removedVl) {
-        aaiRestApiProvider.delete(logger, NETWORK, format(NETWORK_URL, buildNetworkId(vnfId, removedVl)));
+        L3Network l3Network = getNetwork(vnfId, removedVl).blockingFirst();
+        systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().deleteNetworkL3NetworksL3Network(l3Network.getNetworkId(), l3Network.getResourceVersion()));
     }
 
     private void updateNetworkFields(String vimId, String vnfId, AffectedVirtualLink affectedVirtualLink, L3Network network) {
@@ -73,12 +77,12 @@ class L3NetworkManager extends AbstractManager {
         network.setOperationalStatus("active");
         network.setOrchestrationStatus("active");
         if (network.getRelationshipList() == null) {
-            network.setRelationshipList(new RelationshipList());
+            network.setRelationshipList(new ArrayList<>());
         }
         addMissingRelation(network.getRelationshipList(), GenericVnfManager.linkTo(vnfId));
         addSingletonRelation(network.getRelationshipList(), getRegionLink(vimId));
         addSingletonRelation(network.getRelationshipList(), getTenantLink(vimId, extractMandatoryValue(affectedVirtualLink.getResource().getAdditionalData(), "tenantId")));
-        aaiRestApiProvider.put(logger, NETWORK, format(NETWORK_URL, network.getNetworkId()), network, Void.class);
+        systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkL3NetworksL3Network(network.getNetworkId(), network));
     }
 
     private String buildNetworkId(String vnfId, AffectedVirtualLink affectedVirtualLink) {
@@ -88,6 +92,7 @@ class L3NetworkManager extends AbstractManager {
     private Relationship getRegionLink(String vimId) {
         Relationship relationship = new Relationship();
         relationship.setRelatedTo("cloud-region");
+        relationship.setRelationshipData(new ArrayList<>());
         relationship.getRelationshipData().add(buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(vimId)));
         relationship.getRelationshipData().add(buildRelationshipData("cloud-region.cloud-region-id", getRegionName(vimId)));
         return relationship;
@@ -96,6 +101,7 @@ class L3NetworkManager extends AbstractManager {
     private Relationship getTenantLink(String vimId, String tenantId) {
         Relationship relationship = new Relationship();
         relationship.setRelatedTo("tenant");
+        relationship.setRelationshipData(new ArrayList<>());
         relationship.getRelationshipData().add(buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(vimId)));
         relationship.getRelationshipData().add(buildRelationshipData("cloud-region.cloud-region-id", getRegionName(vimId)));
         relationship.getRelationshipData().add(buildRelationshipData("tenant.tenant-id", tenantId));

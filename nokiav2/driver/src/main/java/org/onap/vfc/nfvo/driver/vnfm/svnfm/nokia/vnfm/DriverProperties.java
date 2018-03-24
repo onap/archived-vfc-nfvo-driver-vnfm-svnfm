@@ -16,11 +16,10 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
+import java.util.Objects;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 /**
  * Wraps the properties supplied to the servlet

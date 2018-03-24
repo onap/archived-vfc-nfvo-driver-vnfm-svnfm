@@ -16,19 +16,16 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.google.gson.Gson;
-import org.onap.aai.domain.yang.v11.ObjectFactory;
-import org.onap.aai.domain.yang.v11.Relationship;
-import org.onap.aai.domain.yang.v11.RelationshipData;
-import org.onap.aai.domain.yang.v11.RelationshipList;
+import io.reactivex.Observable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.onap.aai.model.Relationship;
+import org.onap.aai.model.RelationshipData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.slf4j.Logger;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 import static com.google.common.collect.Iterables.find;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
@@ -37,7 +34,6 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR
  * Handles the common management of changing entities in AAI
  */
 abstract class AbstractManager {
-    protected static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     protected final AAIRestApiProvider aaiRestApiProvider;
     protected final CbamRestApiProvider cbamRestApiProvider;
     protected final DriverProperties driverProperties;
@@ -78,17 +74,17 @@ abstract class AbstractManager {
      * @param relationships the list of relationships
      * @param relationship  the expected relationship
      */
-    protected static void addSingletonRelation(RelationshipList relationships, Relationship relationship) {
+    protected static void addSingletonRelation(List<Relationship> relationships, Relationship relationship) {
         boolean found = false;
-        for (Relationship currentRelationShip : relationships.getRelationship()) {
+        for (Relationship currentRelationShip : relationships) {
             if (relationship.getRelatedTo().equals(currentRelationShip.getRelatedTo())) {
                 found = true;
             }
         }
         if (!found) {
-            relationships.getRelationship().add(relationship);
+            relationships.add(relationship);
         } else {
-            Relationship existingRelationShip = find(relationships.getRelationship(), currentRelationShip -> currentRelationShip.getRelatedTo().equals(relationship.getRelatedTo()));
+            Relationship existingRelationShip = find(relationships, currentRelationShip -> currentRelationShip.getRelatedTo().equals(relationship.getRelatedTo()));
             existingRelationShip.getRelationshipData().clear();
             existingRelationShip.getRelationshipData().addAll(relationship.getRelationshipData());
         }
@@ -100,14 +96,14 @@ abstract class AbstractManager {
      * @param relationships the relationships
      * @param relationship  the relationship to be added
      */
-    protected static void addMissingRelation(RelationshipList relationships, Relationship relationship) {
-        for (Relationship currentRelationShip : relationships.getRelationship()) {
+    protected static void addMissingRelation(List<Relationship> relationships, Relationship relationship) {
+        for (Relationship currentRelationShip : relationships) {
             if (currentRelationShip.getRelatedTo().equals(relationship.getRelatedTo())
                     && compositeKeys(currentRelationShip.getRelationshipData()).equals(compositeKeys(relationship.getRelationshipData()))) {
                 return;
             }
         }
-        relationships.getRelationship().add(relationship);
+        relationships.add(relationship);
     }
 
     private static Set<String> compositeKeys(List<RelationshipData> data) {
@@ -126,17 +122,16 @@ abstract class AbstractManager {
     /**
      * Creates or returns a REST resource instance
      *
-     * @param service     the type of the service
-     * @param url         the URL of the resource without the service prefix
+     * @param get         provides an existing instance
      * @param newInstance the empty instance if the resource does not exists
      * @param <T>         the type of the resource
      * @return the created or queried resource
      */
-    protected <T> T createOrGet(AAIRestApiProvider.AAIService service, String url, T newInstance) {
+    protected <T> T createOrGet(Observable<T> get, T newInstance) {
         try {
-            return (T) aaiRestApiProvider.get(getLogger(), service, url, newInstance.getClass());
-        } catch (NoSuchElementException e) {
-            getLogger().debug("The resource on " + url + " URL was not found in AAI", e);
+            return get.blockingFirst();
+        } catch (Exception e) {
+            getLogger().debug("The resource was not found in AAI", e);
             return newInstance;
         }
     }

@@ -36,6 +36,8 @@
   </properties>
   <build>
     <plugins>
+<!--
+Release AAI 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -64,6 +66,7 @@
           </execution>
         </executions>
       </plugin>
+-->
       <plugin>
         <groupId>io.swagger</groupId>
         <artifactId>swagger-codegen-maven-plugin</artifactId>
@@ -83,6 +86,46 @@
               <modelPackage>com.nokia.cbam.lcm.v32.model</modelPackage>
               <configOptions>
                 <jackson>true</jackson>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>msb</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/msb.json</inputSpec>
+              <language>java</language>
+              <library>retrofit2</library>
+              <output>${project.build.directory}/generated-sources/msb</output>
+              <apiPackage>org.onap.msb.api</apiPackage>
+              <modelPackage>org.onap.msb.model</modelPackage>
+              <configOptions>
+                <generateSupportingFiles>false</generateSupportingFiles>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>aai</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/aai.yaml</inputSpec>
+              <language>java</language>
+              <library>retrofit2</library>
+              <output>${project.build.directory}/generated-sources/aai</output>
+              <apiPackage>org.onap.aai.api</apiPackage>
+              <modelPackage>org.onap.aai.model</modelPackage>
+              <configOptions>
+                <generateSupportingFiles>false</generateSupportingFiles>
                 <sourceFolder>src/gen/java/main</sourceFolder>
                 <withXml>true</withXml>
                 <useRxJava2>true</useRxJava2>

@@ -17,6 +17,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import java.util.concurrent.TimeUnit;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vnfmdriver.model.VnfmInfo;
@@ -24,10 +25,9 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.Environment;
 
-import java.util.concurrent.TimeUnit;
+import static java.lang.Long.valueOf;
 
 import static com.google.common.cache.CacheBuilder.newBuilder;
-import static java.lang.Long.valueOf;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 

@@ -17,9 +17,8 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
 
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedConnectionPoints;
-
 import java.util.Optional;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedConnectionPoints;
 
 /**
  * Responsible for processing the preprocessed notification from CBAM and making the changes

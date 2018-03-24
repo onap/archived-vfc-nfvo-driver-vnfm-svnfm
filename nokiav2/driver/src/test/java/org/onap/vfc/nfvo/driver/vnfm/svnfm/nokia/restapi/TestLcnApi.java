@@ -57,7 +57,7 @@ public class TestLcnApi extends TestBase {
     @Test
     public void testHandleLcn() {
         //when
-        lcnApi.handleLcn(lcn, httpResponse);
+        lcnApi.handleLcn(lcn);
         //verify
         verify(lcnManager).handleLcn(lcn);
         verify(logger).info("REST: handle LCN");

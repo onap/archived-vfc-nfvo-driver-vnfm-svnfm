@@ -21,17 +21,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.onap.aai.domain.yang.v11.ObjectFactory;
-import org.onap.aai.domain.yang.v11.Vnfc;
+import org.onap.aai.api.NetworkApi;
+import org.onap.aai.model.Vnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
-import java.util.NoSuchElementException;
-
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.NETWORK;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.AbstractManager.buildRelationshipData;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.TestGenericVnfManager.assertRelation;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
@@ -39,17 +37,19 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ge
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestVnfcManager extends TestBase {
-    private ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     private ArgumentCaptor<Vnfc> payload = ArgumentCaptor.forClass(Vnfc.class);
 
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
     private VnfcManager vnfcManager;
+    @Mock
+    private NetworkApi networkApi;
 
     @Before
     public void init() {
         vnfcManager = new VnfcManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
         setField(VnfcManager.class, "logger", logger);
+        when(aaiRestApiProvider.getNetworkApi()).thenReturn(networkApi);
     }
 
     /**
@@ -61,8 +61,9 @@ public class TestVnfcManager extends TestBase {
         affectedVnfc.setComputeResource(new ResourceHandle());
         affectedVnfc.getComputeResource().setResourceId("serverProviderId");
         affectedVnfc.setId("vnfcId");
-        when(aaiRestApiProvider.get(eq(logger), eq(NETWORK), eq("/vnfcs/vnfc/myVnfId_vnfcId"), eq(Vnfc.class))).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/vnfcs/vnfc/myVnfId_vnfcId"), payload.capture(), eq(Void.class))).thenReturn(null);
+        Vnfc existingVnfc = new Vnfc();
+        when(networkApi.getNetworkVnfcsVnfc("myVnfId_vnfcId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVnfc));
+        when(networkApi.createOrUpdateNetworkVnfcsVnfc(eq("myVnfId_vnfcId"), payload.capture())).thenReturn(null);
         //when
         vnfcManager.update(VIM_ID, "myTenantPrivderId", VNF_ID, affectedVnfc, true);
         //verify
@@ -88,12 +89,14 @@ public class TestVnfcManager extends TestBase {
         affectedVnfc.setComputeResource(new ResourceHandle());
         affectedVnfc.getComputeResource().setResourceId("serverProviderId");
         affectedVnfc.setId("vnfcId");
-        when(aaiRestApiProvider.get(eq(logger), eq(NETWORK), eq("/vnfcs/vnfc/myVnfId_vnfcId"), eq(Vnfc.class))).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(NETWORK), eq("/vnfcs/vnfc/myVnfId_vnfcId"), payload.capture(), eq(Void.class))).thenReturn(null);
+        Vnfc existingVnfc = new Vnfc();
+        existingVnfc.setResourceVersion("v3");
+        existingVnfc.setVnfcName("myVnfId_vnfcId");
+        when(networkApi.getNetworkVnfcsVnfc("myVnfId_vnfcId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVnfc));
         //when
         vnfcManager.delete(VNF_ID, affectedVnfc);
         //verify
-        aaiRestApiProvider.delete(logger, NETWORK, "/vnfcs/vnfc/myVnfId_vnfcId");
+        verify(networkApi).deleteNetworkVnfcsVnfc("myVnfId_vnfcId", "v3");
     }
 
     /**

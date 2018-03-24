@@ -16,7 +16,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification;
 
 import com.nokia.cbam.lcm.v32.model.OperationStatus;
-
 import java.util.Objects;
 
 /**

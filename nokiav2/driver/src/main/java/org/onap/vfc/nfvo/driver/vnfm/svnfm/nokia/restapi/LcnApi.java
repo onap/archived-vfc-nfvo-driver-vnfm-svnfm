@@ -16,16 +16,14 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
+import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManager;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import javax.servlet.http.HttpServletResponse;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.LCN_URL;
@@ -62,13 +60,11 @@ public class LcnApi {
     /**
      * Handle the LCN sent by CBAM
      *
-     * @param lcn          the LCN notification
-     * @param httpResponse the HTTP response
+     * @param lcn the LCN notification
      */
     @RequestMapping(value = LCN_URL, method = POST, consumes = APPLICATION_JSON_VALUE)
-    @ResponseBody
     @ResponseStatus(code = NO_CONTENT)
-    public void handleLcn(@RequestBody VnfLifecycleChangeNotification lcn, HttpServletResponse httpResponse) {
+    public void handleLcn(@RequestBody VnfLifecycleChangeNotification lcn) {
         logger.info("REST: handle LCN");
         lcnManager.handleLcn(lcn);
     }
