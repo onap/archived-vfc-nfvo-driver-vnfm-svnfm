@@ -15,9 +15,8 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
-import org.onap.aai.domain.yang.v11.EsrSystemInfo;
-import org.onap.aai.domain.yang.v11.EsrSystemInfoList;
-import org.onap.aai.domain.yang.v11.EsrVnfm;
+import org.onap.aai.model.EsrSystemInfo;
+import org.onap.aai.model.EsrVnfm;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vnfmdriver.model.VimInfo;
@@ -28,9 +27,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import static java.lang.String.format;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.CLOUD;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.ESR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getRegionName;
@@ -42,8 +38,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 @Conditional(value = Conditions.UseForDirect.class)
 public class AAIExternalSystemInfoProvider extends GenericExternalSystemInfoProvider {
-    private static final String VNFM_URL = "/esr-vnfm-list/esr-vnfm/%s?depth=all";
-    private static final String VIM_URL = "/cloud-regions/cloud-region/%s/%s/esr-system-info-list";
     private static Logger logger = getLogger(AAIExternalSystemInfoProvider.class);
     private final AAIRestApiProvider aaiRestApiProvider;
 
@@ -55,20 +49,20 @@ public class AAIExternalSystemInfoProvider extends GenericExternalSystemInfoProv
 
     @Override
     public VnfmInfo queryVnfmInfoFromSource(String vnfmId) {
+        return convertEsrToVnfmInfo(getEsrVnfm(vnfmId));
+    }
+
+    private EsrVnfm getEsrVnfm(String vnfmId) {
         try {
-            return convertEsrToVnfmInfo(aaiRestApiProvider.get(logger, ESR, format(VNFM_URL, vnfmId), EsrVnfm.class));
-        } catch (RuntimeException e) {
+            return aaiRestApiProvider.getExternalSystemApi().getExternalSystemEsrVnfmListEsrVnfm(vnfmId).blockingFirst();
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNFM with " + vnfmId + " identifier from AAI", e);
         }
     }
 
     @Override
     public VimInfo getVimInfo(String vimId) {
-        try {
-            return convertEsrToVim(getEsrSystemInfo(vimId), vimId);
-        } catch (RuntimeException e) {
-            throw buildFatalFailure(logger, "Unable to query VIM with " + vimId + " identifier from AAI", e);
-        }
+        return convertEsrToVim(getEsrSystemInfo(vimId), vimId);
     }
 
     /**
@@ -76,8 +70,11 @@ public class AAIExternalSystemInfoProvider extends GenericExternalSystemInfoProv
      * @return the VIM details
      */
     public EsrSystemInfo getEsrSystemInfo(String vimId) {
-        String url = format(VIM_URL, getCloudOwner(vimId), getRegionName(vimId));
-        return aaiRestApiProvider.get(logger, CLOUD, url, EsrSystemInfoList.class).getEsrSystemInfo().get(0);
+        try {
+            return aaiRestApiProvider.getCloudInfrastructureApi().getCloudInfrastructureCloudRegionsCloudRegion(getCloudOwner(vimId), getRegionName(vimId), null, null).blockingFirst().getEsrSystemInfoList().get(0);
+        } catch (Exception e) {
+            throw buildFatalFailure(logger, "Unable to query VIM with " + vimId + " identifier from AAI", e);
+        }
     }
 
     private VimInfo convertEsrToVim(EsrSystemInfo esrSystemInfo, String vimId) {
@@ -103,7 +100,7 @@ public class AAIExternalSystemInfoProvider extends GenericExternalSystemInfoProv
 
 
     private VnfmInfo convertEsrToVnfmInfo(EsrVnfm vnfmInAai) {
-        EsrSystemInfo esrSystemInfo = vnfmInAai.getEsrSystemInfoList().getEsrSystemInfo().get(0);
+        EsrSystemInfo esrSystemInfo = vnfmInAai.getEsrSystemInfoList().get(0);
         VnfmInfo vnfmInfo = new VnfmInfo();
         vnfmInfo.setPassword(esrSystemInfo.getPassword());
         vnfmInfo.setDescription(esrSystemInfo.getEsrSystemInfoId());

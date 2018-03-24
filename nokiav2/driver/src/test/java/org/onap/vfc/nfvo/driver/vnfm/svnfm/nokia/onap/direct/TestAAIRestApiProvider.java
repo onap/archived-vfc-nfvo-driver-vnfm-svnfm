@@ -15,224 +15,216 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.onap.aai.domain.yang.v11.GenericVnf;
-import org.onap.aai.domain.yang.v11.L3Network;
-import org.onap.aai.domain.yang.v11.ObjectFactory;
-import org.onap.aai.restclient.client.OperationResult;
-import org.onap.aai.restclient.client.RestClient;
-import org.onap.aai.restclient.enums.RestAuthenticationMode;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.onap.aai.api.CloudInfrastructureApi;
+import org.onap.aai.api.ExternalSystemApi;
+import org.onap.aai.api.NetworkApi;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
-import javax.xml.bind.JAXBContext;
-import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Base64.getEncoder;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML_TYPE;
-import static junit.framework.TestCase.*;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static junit.framework.TestCase.assertEquals;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
+class ResultCaptor<T> implements Answer {
+    private T result = null;
+
+    public T getResult() {
+        return result;
+    }
+
+    @Override
+    public T answer(InvocationOnMock invocationOnMock) throws Throwable {
+        result = (T) invocationOnMock.callRealMethod();
+        return result;
+    }
+}
+
 public class TestAAIRestApiProvider extends TestBase {
-    private ObjectFactory OBJECT_FACTORY = new ObjectFactory();
-    @Mock
-    private RestClient restClient;
     private AAIRestApiProvider aaiRestApiProvider;
-    private ArgumentCaptor<Map> headers = ArgumentCaptor.forClass(Map.class);
-    private ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
-
-    private OperationResult result = new OperationResult();
-
-    public static String marshall(Object object) throws Exception {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        JAXBContext.newInstance(object.getClass()).createMarshaller().marshal(object, bos);
-        return bos.toString();
-    }
-
-    public static <T> T unmarshal(String content, Class<T> clazz) {
-        try {
-            return (T) JAXBContext.newInstance(clazz).createUnmarshaller().unmarshal(new StringReader(content));
-        } catch (Exception e) {
-            throw new RuntimeException();
-        }
-    }
+    @Mock
+    private HostnameVerifier hostnameVerifier;
+    private AaiSecurityProvider aaiSecurityProvider = spy(new AaiSecurityProvider());
 
     @Before
     public void init() {
-        //MockitoAnnotations.initMocks(this);
-        AAIRestApiProvider real = new AAIRestApiProvider(msbApiProvider);
-        setField(AAIRestApiProvider.class, "logger", logger);
-        setFieldWithPropertyAnnotation(real, "${aaiUsername}", "aaiUsername");
-        setFieldWithPropertyAnnotation(real, "${aaiPassword}", "aaiPassword");
-        aaiRestApiProvider = Mockito.spy(real);
-        when(aaiRestApiProvider.buildRawClient()).thenReturn(restClient);
-        when(restClient.basicAuthPassword("aaiPassword")).thenReturn(restClient);
-        when(restClient.basicAuthUsername("aaiUsername")).thenReturn(restClient);
-        when(restClient.authenticationMode(RestAuthenticationMode.SSL_BASIC)).thenReturn(restClient);
-        when(msbApiProvider.getMicroServiceUrl(AAIRestApiProvider.AAIService.CLOUD.getServiceName(), "v11")).thenReturn("x://1.2.3.4:4/a");
-        result.setResultCode(201);
+        aaiRestApiProvider = new AAIRestApiProvider(msbApiProvider, aaiSecurityProvider);
     }
 
     /**
-     * test HTTP GET success scenario
+     * test building a client to access AAI API
      */
     @Test
-    public void testGetSuccess() throws Exception {
-        GenericVnf vnf = OBJECT_FACTORY.createGenericVnf();
-        vnf.setVnfId("myVnfId");
-        when(restClient.get(eq("x://1.2.3.4:4/a/myurl"), headers.capture(), eq(APPLICATION_XML_TYPE))).thenReturn(result);
-        result.setResult(marshall(vnf));
+    public void testApiClientBuilder() throws Exception {
+        setField(aaiSecurityProvider, "skipCertificateVerification", true);
+        setField(aaiSecurityProvider, "skipHostnameVerification", true);
+        setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiUsername}", "username");
+        setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiPassword}", "aaiPassword");
+        ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
+        doAnswer(sslSocketFactoryResultCaptor).when(aaiSecurityProvider).buildSSLSocketFactory();
+        when(msbApiProvider.getMicroServiceUrl(AAIRestApiProvider.AAIService.NETWORK.getServiceName(), "v11")).thenReturn("http://1.2.3.4/a/");
+        when(aaiSecurityProvider.buildHostnameVerifier()).thenReturn(hostnameVerifier);
         //when
-        GenericVnf actualVnf = aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "/myurl", GenericVnf.class);
+        org.onap.aai.ApiClient apiClient = aaiRestApiProvider.buildApiClient(AAIRestApiProvider.AAIService.NETWORK);
         //verify
-        assertEquals(vnf.getVnfId(), actualVnf.getVnfId());
-        assertHeaders();
+        assertEquals("http://1.2.3.4/a/", apiClient.getAdapterBuilder().build().baseUrl().toString());
+        assertEquals(sslSocketFactoryResultCaptor.getResult(), apiClient.getOkBuilder().build().sslSocketFactory());
+        assertEquals(hostnameVerifier, apiClient.getOkBuilder().build().hostnameVerifier());
+        Response resp = new Response.Builder().message("a").code(200).protocol(Protocol.HTTP_1_0).request(new Request.Builder().url("http://1.2.3.4/d").build()).build();
+        Request authenticate = apiClient.getOkBuilder().build().authenticator().authenticate(null, resp);
+        assertEquals("Basic dXNlcm5hbWU6YWFpUGFzc3dvcmQ=", authenticate.headers().get("Authorization"));
     }
 
     /**
-     * HTTP GET on non existing resource results in {@link java.util.NoSuchElementException}
+     * is slash is missing from micro service URL it is added
      */
     @Test
-    public void testGetMissingResource() throws Exception {
-        when(restClient.get(eq("x://1.2.3.4:4/a/myurl"), headers.capture(), eq(APPLICATION_XML_TYPE))).thenReturn(result);
-        result.setResultCode(404);
+    public void testApiClientBuilderMissingSlash() throws Exception {
+        setField(aaiSecurityProvider, "skipCertificateVerification", true);
+        setField(aaiSecurityProvider, "skipHostnameVerification", true);
+        setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiUsername}", "username");
+        setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiPassword}", "aaiPassword");
+        ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
+        doAnswer(sslSocketFactoryResultCaptor).when(aaiSecurityProvider).buildSSLSocketFactory();
+        when(msbApiProvider.getMicroServiceUrl(AAIRestApiProvider.AAIService.NETWORK.getServiceName(), "v11")).thenReturn("http://1.2.3.4/a");
+        when(aaiSecurityProvider.buildHostnameVerifier()).thenReturn(hostnameVerifier);
         //when
-        try {
-            aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "/myurl", GenericVnf.class);
-            fail();
-        } catch (NoSuchElementException e) {
-            verify(logger).debug("The resource at /myurl does not exists");
-            assertEquals("The resource at /myurl does not exists", e.getMessage());
-        }
-    }
-
-    /**
-     * Non known HTTP response code is propagated
-     */
-    @Test
-    public void testUnknownErroCode() throws Exception {
-        when(restClient.get(eq("x://1.2.3.4:4/a/myurl"), headers.capture(), eq(APPLICATION_XML_TYPE))).thenReturn(result);
-        result.setResultCode(502);
-        result.setFailureCause("myFail");
-        //when
-        try {
-            aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "/myurl", GenericVnf.class);
-            fail();
-        } catch (RuntimeException e) {
-            verify(logger).error("Bad response. Code: 502 cause: myFail");
-            assertEquals("Bad response. Code: 502 cause: myFail", e.getMessage());
-        }
-    }
-
-    /**
-     * response content is not used when not requesting result
-     */
-    @Test
-    public void testNoResult() throws Exception {
-        when(restClient.get(eq("x://1.2.3.4:4/a/myurl"), headers.capture(), eq(APPLICATION_XML_TYPE))).thenReturn(result);
-        result.setResultCode(202);
-        //when
-        Void result = aaiRestApiProvider.get(logger, AAIRestApiProvider.AAIService.CLOUD, "/myurl", Void.class);
+        org.onap.aai.ApiClient apiClient = aaiRestApiProvider.buildApiClient(AAIRestApiProvider.AAIService.NETWORK);
         //verify
-        assertNull(result);
+        assertEquals("http://1.2.3.4/a/", apiClient.getAdapterBuilder().build().baseUrl().toString());
+        assertEquals(sslSocketFactoryResultCaptor.getResult(), apiClient.getOkBuilder().build().sslSocketFactory());
+        assertEquals(hostnameVerifier, apiClient.getOkBuilder().build().hostnameVerifier());
+        Response resp = new Response.Builder().message("a").code(200).protocol(Protocol.HTTP_1_0).request(new Request.Builder().url("http://1.2.3.4/d").build()).build();
+        Request authenticate = apiClient.getOkBuilder().build().authenticator().authenticate(null, resp);
+        assertEquals("Basic dXNlcm5hbWU6YWFpUGFzc3dvcmQ=", authenticate.headers().get("Authorization"));
     }
 
     /**
-     * test HTTP PUT success scenario
+     * test building a client to access AAI API
      */
     @Test
-    public void putSuccess() throws Exception {
-        when(restClient.put(eq("x://1.2.3.4:4/a/myurl"), payload.capture(), headers.capture(), eq(APPLICATION_XML_TYPE), eq(APPLICATION_XML_TYPE))).thenReturn(result);
-        GenericVnf request = OBJECT_FACTORY.createGenericVnf();
-        request.setVnfId("myVnfId");
-        L3Network response = OBJECT_FACTORY.createL3Network();
-        response.setNetworkId("myNetworkId");
-        result.setResult(marshall(response));
+    public void testApiClientBuilderForCloud() throws Exception {
+        setField(aaiSecurityProvider, "skipCertificateVerification", true);
+        setField(aaiSecurityProvider, "skipHostnameVerification", true);
+        setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiUsername}", "username");
+        setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiPassword}", "aaiPassword");
+        ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
+        doAnswer(sslSocketFactoryResultCaptor).when(aaiSecurityProvider).buildSSLSocketFactory();
+        when(msbApiProvider.getMicroServiceUrl(AAIRestApiProvider.AAIService.CLOUD.getServiceName(), "v11")).thenReturn("http://1.2.3.4/a/");
+        when(aaiSecurityProvider.buildHostnameVerifier()).thenReturn(hostnameVerifier);
         //when
-        L3Network actualResponse = aaiRestApiProvider.put(logger, AAIRestApiProvider.AAIService.CLOUD, "/myurl", request, L3Network.class);
+        org.onap.aai.ApiClient apiClient = aaiRestApiProvider.buildApiClient(AAIRestApiProvider.AAIService.CLOUD);
         //verify
-        GenericVnf actualValue = unmarshal(payload.getValue(), GenericVnf.class);
-        assertEquals("myVnfId", actualValue.getVnfId());
-        assertEquals("myNetworkId", actualResponse.getNetworkId());
-        assertHeaders();
+        assertEquals("http://1.2.3.4/a/", apiClient.getAdapterBuilder().build().baseUrl().toString());
+        assertEquals(sslSocketFactoryResultCaptor.getResult(), apiClient.getOkBuilder().build().sslSocketFactory());
+        assertEquals(hostnameVerifier, apiClient.getOkBuilder().build().hostnameVerifier());
+        Response resp = new Response.Builder().message("a").code(200).protocol(Protocol.HTTP_1_0).request(new Request.Builder().url("http://1.2.3.4/d").build()).build();
+        Request authenticate = apiClient.getOkBuilder().build().authenticator().authenticate(null, resp);
+        assertEquals("Basic dXNlcm5hbWU6YWFpUGFzc3dvcmQ=", authenticate.headers().get("Authorization"));
     }
 
     /**
-     * test HTTP delete success scenario
+     * test building a client to access AAI API
      */
     @Test
-    public void deleteSuccess() throws Exception {
-        when(restClient.delete(eq("x://1.2.3.4:4/a/myurl"), headers.capture(), eq(APPLICATION_XML_TYPE))).thenReturn(result);
+    public void testApiClientBuilderForExternalSystems() throws Exception {
+        setField(aaiSecurityProvider, "skipCertificateVerification", true);
+        setField(aaiSecurityProvider, "skipHostnameVerification", true);
+        setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiUsername}", "username");
+        setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiPassword}", "aaiPassword");
+        ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
+        doAnswer(sslSocketFactoryResultCaptor).when(aaiSecurityProvider).buildSSLSocketFactory();
+        when(msbApiProvider.getMicroServiceUrl(AAIRestApiProvider.AAIService.ESR.getServiceName(), "v11")).thenReturn("http://1.2.3.4/a/");
+        when(aaiSecurityProvider.buildHostnameVerifier()).thenReturn(hostnameVerifier);
         //when
-        aaiRestApiProvider.delete(logger, AAIRestApiProvider.AAIService.CLOUD, "/myurl");
+        org.onap.aai.ApiClient apiClient = aaiRestApiProvider.buildApiClient(AAIRestApiProvider.AAIService.ESR);
         //verify
-        assertHeaders();
-        //the when above is the verify
+        assertEquals("http://1.2.3.4/a/", apiClient.getAdapterBuilder().build().baseUrl().toString());
+        assertEquals(sslSocketFactoryResultCaptor.getResult(), apiClient.getOkBuilder().build().sslSocketFactory());
+        assertEquals(hostnameVerifier, apiClient.getOkBuilder().build().hostnameVerifier());
+        Response resp = new Response.Builder().message("a").code(200).protocol(Protocol.HTTP_1_0).request(new Request.Builder().url("http://1.2.3.4/d").build()).build();
+        Request authenticate = apiClient.getOkBuilder().build().authenticator().authenticate(null, resp);
+        assertEquals("Basic dXNlcm5hbWU6YWFpUGFzc3dvcmQ=", authenticate.headers().get("Authorization"));
     }
 
     /**
-     * invalid request content results in error
+     * Test API wrapping for NetworkApi
+     * (questionable benefit [ this is more less ensured by Java type safety) ]
      */
     @Test
-    public void testInvalidInput() throws Exception {
-        when(restClient.put(eq("x://1.2.3.4:4/a/myurl"), payload.capture(), headers.capture(), eq(APPLICATION_XML_TYPE), eq(APPLICATION_XML_TYPE))).thenReturn(result);
-        //when
-        try {
-            aaiRestApiProvider.put(logger, AAIRestApiProvider.AAIService.CLOUD, "/myurl", "Invalid content", L3Network.class);
-            //verify
-            fail();
-        } catch (Exception e) {
-            assertEquals("Unable to marshal content", e.getMessage());
-            verify(logger).error("Unable to marshal content", e.getCause());
+    public void testNetworkApiAPiWrapping() {
+        org.onap.aai.ApiClient c = Mockito.mock(org.onap.aai.ApiClient.class);
+        class TestClasss extends AAIRestApiProvider {
+            public TestClasss() {
+                super(msbApiProvider, aaiSecurityProvider);
+            }
+
+            @Override
+            org.onap.aai.ApiClient buildApiClient(AAIRestApiProvider.AAIService service) {
+                return c;
+            }
         }
+        NetworkApi defaultApi = Mockito.mock(NetworkApi.class);
+        when(c.createService(NetworkApi.class)).thenReturn(defaultApi);
+        //verify
+        TestClasss testInstnace = new TestClasss();
+        assertEquals(defaultApi, testInstnace.getNetworkApi());
     }
 
     /**
-     * invalid response content results in error
+     * Test API wrapping for CloudInfrastructureApi
+     * (questionable benefit [ this is more less ensured by Java type safety) ]
      */
     @Test
-    public void testInvalidResponse() throws Exception {
-        when(restClient.put(eq("x://1.2.3.4:4/a/myurl"), payload.capture(), headers.capture(), eq(APPLICATION_XML_TYPE), eq(APPLICATION_XML_TYPE))).thenReturn(result);
-        GenericVnf request = OBJECT_FACTORY.createGenericVnf();
-        request.setVnfId("myVnfId");
-        result.setResult("invalid");
-        //when
-        try {
-            aaiRestApiProvider.put(logger, AAIRestApiProvider.AAIService.CLOUD, "/myurl", request, L3Network.class);
-            //verify
-            fail();
-        } catch (Exception e) {
-            assertEquals("Unable to unmarshal content", e.getMessage());
-            verify(logger).error("Unable to unmarshal content", e.getCause());
+    public void testCloudInfrastructureApiWrapping() {
+        org.onap.aai.ApiClient c = Mockito.mock(org.onap.aai.ApiClient.class);
+        class TestClasss extends AAIRestApiProvider {
+            public TestClasss() {
+                super(msbApiProvider, aaiSecurityProvider);
+            }
+
+            @Override
+            org.onap.aai.ApiClient buildApiClient(AAIRestApiProvider.AAIService service) {
+                return c;
+            }
         }
+        CloudInfrastructureApi defaultApi = Mockito.mock(CloudInfrastructureApi.class);
+        when(c.createService(CloudInfrastructureApi.class)).thenReturn(defaultApi);
+        //verify
+        TestClasss testInstnace = new TestClasss();
+        assertEquals(defaultApi, testInstnace.getCloudInfrastructureApi());
     }
 
     /**
-     * test AAI service names in AAI
+     * Test API wrapping for ExternalSystemApi
+     * (questionable benefit [ this is more less ensured by Java type safety) ]
      */
     @Test
-    public void testServiceNames() {
-        //the names have been base64-ed to prevent "smart" IDEs (idea) to refactor the tests too for the otherwise known fix constants in external systems
-        assertEquals("YWFpLWNsb3VkSW5mcmFzdHJ1Y3R1cmU=", getEncoder().encodeToString(AAIRestApiProvider.AAIService.CLOUD.getServiceName().getBytes()));
-        assertEquals("YWFpLW5ldHdvcms=", getEncoder().encodeToString(AAIRestApiProvider.AAIService.NETWORK.getServiceName().getBytes()));
-        assertEquals("YWFpLWV4dGVybmFsU3lzdGVt", getEncoder().encodeToString(AAIRestApiProvider.AAIService.ESR.getServiceName().getBytes()));
-    }
+    public void testExternalSystemApiWrapping() {
+        org.onap.aai.ApiClient c = Mockito.mock(org.onap.aai.ApiClient.class);
+        class TestClasss extends AAIRestApiProvider {
+            public TestClasss() {
+                super(msbApiProvider, aaiSecurityProvider);
+            }
 
-    private void assertHeaders() {
-        Map<String, List<String>> actualHeaders = headers.getValue();
-        assertEquals(2, actualHeaders.size());
-        assertEquals(newArrayList("NokiaSVNFM"), actualHeaders.get("X-FromAppId"));
-        assertEquals(newArrayList("application/xml"), actualHeaders.get("Accept"));
+            @Override
+            org.onap.aai.ApiClient buildApiClient(AAIRestApiProvider.AAIService service) {
+                return c;
+            }
+        }
+        ExternalSystemApi defaultApi = Mockito.mock(ExternalSystemApi.class);
+        when(c.createService(ExternalSystemApi.class)).thenReturn(defaultApi);
+        //verify
+        TestClasss testInstnace = new TestClasss();
+        assertEquals(defaultApi, testInstnace.getExternalSystemApi());
     }
 }

@@ -16,9 +16,6 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +28,8 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.*;

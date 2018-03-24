@@ -15,8 +15,9 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
-import org.onap.aai.domain.yang.v11.RelationshipList;
-import org.onap.aai.domain.yang.v11.Vnfc;
+import io.reactivex.Observable;
+import java.util.ArrayList;
+import org.onap.aai.model.Vnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
@@ -26,9 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
-import static java.lang.String.format;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.NETWORK;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 
 /**
  * Responsible for managing {@link Vnfc} in AAI
@@ -43,15 +43,6 @@ public class VnfcManager extends AbstractManager {
         super(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
     }
 
-    /**
-     * @param vnfId      the identifier of the VNF
-     * @param cbamVnfcId the identifier of the VNFC in CBAM
-     * @return the URL of the VNFC
-     */
-    public static String buildUrl(String vnfId, String cbamVnfcId) {
-        return format("/vnfcs/vnfc/%s", buildId(vnfId, cbamVnfcId));
-    }
-
     private static String buildId(String vnfId, String cbamVnfcId) {
         return vnfId + SEPARATOR + cbamVnfcId;
     }
@@ -62,16 +53,20 @@ public class VnfcManager extends AbstractManager {
     }
 
     void delete(String vnfId, com.nokia.cbam.lcm.v32.model.AffectedVnfc cbamVnfc) {
-        aaiRestApiProvider.delete(logger, NETWORK, buildUrl(vnfId, cbamVnfc.getId()));
+        Vnfc vnfc = getVnfc(buildId(vnfId, cbamVnfc.getId())).blockingFirst();
+        systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().deleteNetworkVnfcsVnfc(vnfc.getVnfcName(), vnfc.getResourceVersion()));
+    }
+
+    private Observable<Vnfc> getVnfc(String vnfcId) {
+        return aaiRestApiProvider.getNetworkApi().getNetworkVnfcsVnfc(vnfcId, null, null, null, null, null, null, null, null, null);
     }
 
     void update(String vimId, String tenantId, String vnfId, com.nokia.cbam.lcm.v32.model.AffectedVnfc cbamVnfc, boolean inMaintenance) {
-        String url = buildUrl(vnfId, cbamVnfc.getId());
-        Vnfc vnfc = createOrGet(NETWORK, url, OBJECT_FACTORY.createVnfc());
-        updateFields(vimId, tenantId, vnfc, cbamVnfc, vnfId, url, inMaintenance);
+        Vnfc vnfc = createOrGet(getVnfc(buildId(vnfId, cbamVnfc.getId())), new Vnfc());
+        updateFields(vimId, tenantId, vnfc, cbamVnfc, vnfId, inMaintenance);
     }
 
-    private void updateFields(String vimId, String tenantId, Vnfc aaiVnfc, com.nokia.cbam.lcm.v32.model.AffectedVnfc cbamVnfc, String vnfId, String url, boolean inMaintenance) {
+    private void updateFields(String vimId, String tenantId, Vnfc aaiVnfc, com.nokia.cbam.lcm.v32.model.AffectedVnfc cbamVnfc, String vnfId, boolean inMaintenance) {
         aaiVnfc.setInMaint(inMaintenance);
         aaiVnfc.setIsClosedLoopDisabled(inMaintenance);
         //FIXME would be good to know what is this mandatory parameter
@@ -79,9 +74,11 @@ public class VnfcManager extends AbstractManager {
         //FIXME would be good to know what is this mandatory parameter
         aaiVnfc.setNfcNamingCode(cbamVnfc.getId());
         aaiVnfc.setVnfcName(buildId(vnfId, cbamVnfc.getId()));
-        aaiVnfc.setRelationshipList(new RelationshipList());
+        if (aaiVnfc.getRelationshipList() == null) {
+            aaiVnfc.setRelationshipList(new ArrayList<>());
+        }
         addSingletonRelation(aaiVnfc.getRelationshipList(), VserverManager.linkTo(vimId, tenantId, cbamVnfc.getComputeResource().getResourceId()));
         addSingletonRelation(aaiVnfc.getRelationshipList(), GenericVnfManager.linkTo(vnfId));
-        aaiRestApiProvider.put(logger, NETWORK, url, aaiVnfc, Void.class);
+        systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkVnfcsVnfc(aaiVnfc.getVnfcName(), aaiVnfc));
     }
 }

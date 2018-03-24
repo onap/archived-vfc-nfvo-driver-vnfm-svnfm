@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
 import org.junit.Test;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
 import static junit.framework.TestCase.assertEquals;
 
 
-public class TestCbamSecurityProvider extends TestBase {
-    private CbamSecurityProvider securityProvider = new CbamSecurityProvider();
+public class TestAaiSecurityProvider extends TestBase {
+    private AaiSecurityProvider securityProvider = new AaiSecurityProvider();
 
     /**
      * test property handling
      */
     @Test
     public void init() throws Exception {
-        setFieldWithPropertyAnnotation(securityProvider, "${skipCertificateVerification}", true);
-        setFieldWithPropertyAnnotation(securityProvider, "${skipHostnameVerification}", true);
-        setFieldWithPropertyAnnotation(securityProvider, "${trustedCertificates}", "cert");
+        setFieldWithPropertyAnnotation(securityProvider, "${skipHostnameVerificationForAai}", true);
+        setFieldWithPropertyAnnotation(securityProvider, "${skipCertificateVerificationForAai}", true);
+        setFieldWithPropertyAnnotation(securityProvider, "${trustedCertificatesForAai}", "cert");
 
         assertEquals(true, securityProvider.skipCertificateVerification());
         assertEquals(true, securityProvider.skipHostnameVerification());

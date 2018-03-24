@@ -18,14 +18,13 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import com.google.common.collect.Maps;
 import com.nokia.cbam.lcm.v32.model.NetworkAddress;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.junit.Test;
 import pl.pojo.tester.internal.field.AbstractFieldValueChanger;
 import pl.pojo.tester.internal.field.DefaultFieldValueChanger;
 import pl.pojo.tester.internal.field.collections.map.AbstractMapFieldValueChanger;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 

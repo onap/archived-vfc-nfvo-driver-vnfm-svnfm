@@ -16,6 +16,8 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
+import java.io.IOException;
+import java.net.URI;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import org.junit.After;
@@ -26,9 +28,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.http.HttpStatus;
-
-import java.io.IOException;
-import java.net.URI;
 
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.eq;

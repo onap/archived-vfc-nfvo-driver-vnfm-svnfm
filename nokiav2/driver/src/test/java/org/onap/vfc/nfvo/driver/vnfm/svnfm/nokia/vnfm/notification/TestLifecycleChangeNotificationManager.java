@@ -17,6 +17,11 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification;
 
 import com.google.gson.*;
 import com.nokia.cbam.lcm.v32.model.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,11 +31,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.threeten.bp.OffsetDateTime;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.*;
+import static java.util.Optional.empty;
 
 import static com.nokia.cbam.lcm.v32.model.OperationType.*;
 import static junit.framework.TestCase.*;
@@ -95,7 +96,6 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
     }
 
     private void prepOperation(OperationExecution operationExecution) {
-        addEmptyModifiedConnectionPoints(operationExecution);
         JsonElement root = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + JOB_ID + "\"}}");
         operationExecution.setOperationParams(root);
         switch (operationExecution.getOperationType()) {
@@ -349,6 +349,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         secondTerminationOperationExecution.setOperationParams(buildTerminationParams());
         nonProcessedEvent.setLifecycleOperationOccurrenceId(secondTerminationOperationExecution.getId());
         lifecycleChangeNotificationManager.handleLcn(nonProcessedEvent);
+        addEmptyModifiedConnectionPoints(terminationOperation);
         //add second termination
         recievedLcn.setOperation(OperationType.TERMINATE);
         recievedLcn.setStatus(OperationStatus.FINISHED);
@@ -401,6 +402,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         lifecycleChangeNotificationManager.handleLcn(recievedLcn);
         //verify
         assertTrue(waitExitedWithSuccess.get());
+        assertEquals(empty(), affectedConnectionPoints.getValue());
     }
 
     /**
@@ -443,6 +445,34 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         verify(logger).warn("The operation failed and the affected connection points were not reported");
     }
 
+
+    /**
+     * affected connection points are passed to the actual notification processor
+     */
+    @Test
+    public void testAffectedConnectionPointProcessing() throws Exception {
+        //given
+        recievedLcn.setOperation(OperationType.INSTANTIATE);
+        recievedLcn.setStatus(OperationStatus.FINISHED);
+        recievedLcn.setLifecycleOperationOccurrenceId(instantiationOperation.getId());
+        instantiationOperation.setStatus(OperationStatus.FAILED);
+        addEmptyModifiedConnectionPoints(instantiationOperation);
+        OperationResult operationResult = new OperationResult();
+        ReportedAffectedConnectionPoints affectedCp = new ReportedAffectedConnectionPoints();
+        ReportedAffectedCp cp = new ReportedAffectedCp();
+        cp.setCpId("cpId");
+        affectedCp.getPost().add(cp);
+        operationResult.operationResult = affectedCp;
+        instantiationOperation.setAdditionalData(new Gson().toJsonTree(operationResult));
+
+        //when
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        //verify
+        assertTrue(affectedConnectionPoints.getValue().isPresent());
+        ReportedAffectedConnectionPoints actualCps = new Gson().fromJson(new Gson().toJsonTree(affectedConnectionPoints.getValue().get()), ReportedAffectedConnectionPoints.class);
+        assertEquals(1, actualCps.getPost().size());
+    }
+
     /**
      * Failures in affected connection point processing are tolerated for failed operation
      * (because the POST script was not able to run)
@@ -454,6 +484,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         recievedLcn.setStatus(OperationStatus.FAILED);
         recievedLcn.setLifecycleOperationOccurrenceId(instantiationOperation.getId());
         instantiationOperation.setStatus(OperationStatus.FAILED);
+        addEmptyModifiedConnectionPoints(instantiationOperation);
         JsonObject additionalData = (JsonObject) instantiationOperation.getAdditionalData();
         additionalData.remove("operationResult");
         //when
@@ -500,8 +531,10 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         request.setType(ScaleDirection.OUT);
         scaleOperation.setOperationParams(request);
         scaleOperation.setStatus(OperationStatus.FAILED);
+        addEmptyModifiedConnectionPoints(scaleOperation);
         ((JsonObject) scaleOperation.getAdditionalData()).get("operationResult").getAsJsonObject().remove("cbam_post");
         scaleOperation.setOperationType(OperationType.SCALE);
+
         //when
         lifecycleChangeNotificationManager.handleLcn(recievedLcn);
         assertFalse(affectedConnectionPoints.getValue().isPresent());
@@ -522,6 +555,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         request.setType(ScaleDirection.OUT);
         scaleOperation.setOperationParams(request);
         scaleOperation.setStatus(OperationStatus.FAILED);
+        addEmptyModifiedConnectionPoints(scaleOperation);
         JsonObject operationResult = ((JsonObject) scaleOperation.getAdditionalData()).get("operationResult").getAsJsonObject();
         operationResult.remove("cbam_post");
         operationResult.addProperty("cbam_post", "");

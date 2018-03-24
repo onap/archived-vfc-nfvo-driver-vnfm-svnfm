@@ -16,6 +16,8 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
 
+import java.util.HashMap;
+import java.util.List;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -26,9 +28,6 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.HashMap;
-import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 

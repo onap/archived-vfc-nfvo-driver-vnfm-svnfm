@@ -15,13 +15,12 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
-import org.junit.Test;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import org.junit.Test;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Mockito.when;

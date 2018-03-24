@@ -16,19 +16,19 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
+import io.reactivex.Observable;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.onap.msb.sdk.discovery.common.RouteException;
-import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
-import org.onap.msb.sdk.discovery.entity.NodeInfo;
-import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
+import org.onap.msb.ApiClient;
+import org.onap.msb.api.ServiceResourceApi;
+import org.onap.msb.model.MicroServiceFullInfo;
+import org.onap.msb.model.NodeInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamTokenProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.springframework.core.env.Environment;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
@@ -42,7 +42,7 @@ public class TestMsbApiProvider extends TestBase {
     @Mock
     private CbamTokenProvider cbamTokenProvider;
     private MicroServiceFullInfo microServiceInfo = new MicroServiceFullInfo();
-    private Set<NodeInfo> nodes = new HashSet<>();
+    private List<NodeInfo> nodes = new ArrayList<>();
     private MsbApiProvider msbApiProvider;
 
     @Before
@@ -60,9 +60,9 @@ public class TestMsbApiProvider extends TestBase {
         setFieldWithPropertyAnnotation(msbApiProvider, "${messageBusIp}", "mymessageBusIp");
         setFieldWithPropertyAnnotation(msbApiProvider, "${messageBusPort}", "123");
         //when
-        MSBServiceClient msbClient = msbApiProvider.getMsbClient();
+        ApiClient msbClient = msbApiProvider.buildApiClient();
         //verify
-        assertEquals("mymessageBusIp:123", msbClient.getMsbSvrAddress());
+        assertEquals("http://mymessagebusip:123/api/msdiscover/v1/", msbClient.getAdapterBuilder().build().baseUrl().toString());
     }
 
     /**
@@ -79,18 +79,34 @@ public class TestMsbApiProvider extends TestBase {
         nodes.add(dockerAccessPoint);
         msbApiProvider = new MsbApiProvider(environment) {
             @Override
-            public MSBServiceClient getMsbClient() {
+            public ServiceResourceApi getMsbApi() {
                 return msbClient;
             }
         };
-        when(msbClient.queryMicroServiceInfo("serviceName", "v1")).thenReturn(microServiceInfo);
+        when(msbClient.getMicroService_0("serviceName", "v1", null, null, null, null, null)).thenReturn(buildObservable(microServiceInfo));
         //when
         try {
             msbApiProvider.getMicroServiceUrl("serviceName", "v1");
             fail();
         } catch (Exception e) {
-            assertEquals("The serviceName service with v1 does not have any valid nodes[172.1.2.3:null  ttl:]", e.getMessage());
-            verify(logger).error("The serviceName service with v1 does not have any valid nodes[172.1.2.3:null  ttl:]");
+            String msg = "The serviceName service with v1 does not have any valid nodes[class NodeInfo {\n" +
+                    "    ip: 172.1.2.3\n" +
+                    "    port: null\n" +
+                    "    lbServerParams: null\n" +
+                    "    checkType: null\n" +
+                    "    checkUrl: null\n" +
+                    "    checkInterval: null\n" +
+                    "    checkTimeOut: null\n" +
+                    "    ttl: null\n" +
+                    "    haRole: null\n" +
+                    "    nodeId: null\n" +
+                    "    status: null\n" +
+                    "    expiration: null\n" +
+                    "    createdAt: null\n" +
+                    "    updatedAt: null\n" +
+                    "}]";
+            assertEquals(msg, e.getMessage());
+            verify(logger).error(msg);
         }
     }
 
@@ -109,11 +125,11 @@ public class TestMsbApiProvider extends TestBase {
         nodes.add(nonDocker);
         msbApiProvider = new MsbApiProvider(environment) {
             @Override
-            public MSBServiceClient getMsbClient() {
+            public ServiceResourceApi getMsbApi() {
                 return msbClient;
             }
         };
-        when(msbClient.queryMicroServiceInfo("serviceName", "v1")).thenReturn(microServiceInfo);
+        when(msbClient.getMicroService_0("serviceName", "v1", null, null, null, null, null)).thenReturn(buildObservable(microServiceInfo));
         msbApiProvider.afterPropertiesSet();
         //when
         assertEquals("http://1.2.3.4:234/lead/nslcm/v1", msbApiProvider.getMicroServiceUrl("serviceName", "v1"));
@@ -131,16 +147,16 @@ public class TestMsbApiProvider extends TestBase {
         microServiceInfo.setServiceName("serviceName");
         microServiceInfo.setVersion("v1");
         microServiceInfo.setUrl("/lead/nslcm/v1");
-        microServiceInfo.setEnable_ssl(true);
+        microServiceInfo.setEnableSsl(true);
         when(environment.getProperty(IpMappingProvider.IP_MAP, String.class, "")).thenReturn("173.1.2.3->1.2.3.4");
         nodes.add(nonDocker);
         msbApiProvider = new MsbApiProvider(environment) {
             @Override
-            public MSBServiceClient getMsbClient() {
+            public ServiceResourceApi getMsbApi() {
                 return msbClient;
             }
         };
-        when(msbClient.queryMicroServiceInfo("serviceName", "v1")).thenReturn(microServiceInfo);
+        when(msbClient.getMicroService_0("serviceName", "v1", null, null, null, null, null)).thenReturn(buildObservable(microServiceInfo));
         msbApiProvider.afterPropertiesSet();
         //when
         assertEquals("https://1.2.3.4:123/lead/nslcm/v1", msbApiProvider.getMicroServiceUrl("serviceName", "v1"));
@@ -153,13 +169,12 @@ public class TestMsbApiProvider extends TestBase {
     public void testUnableQueryMicroserviInfo() throws Exception {
         msbApiProvider = new MsbApiProvider(environment) {
             @Override
-            public MSBServiceClient getMsbClient() {
+            public ServiceResourceApi getMsbApi() {
                 return msbClient;
             }
         };
-        RouteException expectedException = new RouteException();
-        when(msbClient.queryMicroServiceInfo("serviceName", "v1")).thenThrow(expectedException);
-
+        RuntimeException expectedException = new RuntimeException();
+        when(msbClient.getMicroService_0("serviceName", "v1", null, null, null, null, null)).thenReturn(Observable.error(expectedException));
         //when
         try {
             msbApiProvider.getMicroServiceUrl("serviceName", "v1");

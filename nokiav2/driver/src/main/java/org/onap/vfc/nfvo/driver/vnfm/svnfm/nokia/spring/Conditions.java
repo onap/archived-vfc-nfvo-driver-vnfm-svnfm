@@ -16,12 +16,11 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
 
 import com.google.common.collect.Sets;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 

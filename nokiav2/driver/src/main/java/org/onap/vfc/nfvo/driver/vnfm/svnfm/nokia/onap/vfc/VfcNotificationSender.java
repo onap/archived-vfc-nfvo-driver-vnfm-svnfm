@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.ScaleVnfRequest;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
+import java.util.ArrayList;
+import java.util.Optional;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
@@ -31,12 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import static java.util.Optional.of;
 
 import static com.google.common.collect.Iterables.tryFind;
 import static com.nokia.cbam.lcm.v32.model.ScaleDirection.IN;
-import static java.util.Optional.of;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager.extractOnapJobId;

@@ -17,6 +17,8 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.model.*;
+import java.util.ArrayList;
+import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -26,12 +28,10 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedConnectionPoints;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedCp;
 
-import java.util.ArrayList;
-import java.util.UUID;
-
-import static com.nokia.cbam.lcm.v32.model.ChangeType.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+
+import static com.nokia.cbam.lcm.v32.model.ChangeType.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.setField;

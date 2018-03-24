@@ -16,11 +16,10 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 
-import org.junit.Test;
-
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.Test;
 
 import static org.junit.Assert.*;
 

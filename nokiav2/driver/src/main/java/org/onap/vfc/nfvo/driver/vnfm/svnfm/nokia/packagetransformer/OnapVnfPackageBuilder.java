@@ -17,7 +17,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
 import com.google.common.io.ByteStreams;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

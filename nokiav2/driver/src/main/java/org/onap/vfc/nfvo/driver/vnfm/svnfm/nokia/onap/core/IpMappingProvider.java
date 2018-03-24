@@ -15,14 +15,13 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Lists.newArrayList;

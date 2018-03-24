@@ -15,40 +15,41 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.onap.aai.domain.yang.v11.LInterface;
-import org.onap.aai.domain.yang.v11.ObjectFactory;
-import org.onap.aai.domain.yang.v11.RelationshipList;
+import org.onap.aai.api.CloudInfrastructureApi;
+import org.onap.aai.model.LInterface;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedCp;
 
-import java.util.NoSuchElementException;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.CLOUD;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.AbstractManager.buildRelationshipData;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.TestGenericVnfManager.assertRelation;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestLInterfaceManager extends TestBase {
-    private ObjectFactory OBJECT_FACTORY = new ObjectFactory();
     private ArgumentCaptor<LInterface> payload = ArgumentCaptor.forClass(LInterface.class);
 
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
     private LInterfaceManager lInterfaceManager;
+    @Mock
+    private CloudInfrastructureApi cloudInfrastructureApi;
 
     @Before
     public void init() {
         lInterfaceManager = new LInterfaceManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
         setField(LInterfaceManager.class, "logger", logger);
+        when(aaiRestApiProvider.getCloudInfrastructureApi()).thenReturn(cloudInfrastructureApi);
     }
 
     /**
@@ -67,22 +68,25 @@ public class TestLInterfaceManager extends TestBase {
         affectedCp.setEcpdId("ecpdId");
         affectedCp.setName("name");
         affectedCp.setCpId("cpId");
-        when(aaiRestApiProvider.get(eq(logger), eq(CLOUD), eq("/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId"), eq(LInterface.class))).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(CLOUD), eq("/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId"), payload.capture(), eq(Void.class))).thenReturn(null);
+        LInterface lInterface = new LInterface();
+        lInterface.setResourceVersion("v3");
+        lInterface.setRelationshipList(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(null);
         //when
         lInterfaceManager.update(VNF_ID, VIM_ID, affectedCp, true);
         //verify
         LInterface actualInterface = payload.getValue();
-        assertEquals(true, actualInterface.isInMaint());
-        assertEquals(false, actualInterface.isIsIpUnnumbered());
-        assertEquals(false, actualInterface.isIsPortMirrored());
+        assertEquals(TRUE, actualInterface.isInMaint());
+        assertEquals(FALSE, actualInterface.isIsIpUnnumbered());
+        assertEquals(FALSE, actualInterface.isIsPortMirrored());
         assertEquals("name", actualInterface.getInterfaceName());
         assertEquals("cpId", actualInterface.getInterfaceId());
         assertEquals("cpdId", actualInterface.getInterfaceRole());
         assertEquals("mac", actualInterface.getMacaddr());
         assertEquals("active", actualInterface.getProvStatus());
         assertEquals(1, actualInterface.getL3InterfaceIpv4AddressList().size());
-        assertEquals(0, actualInterface.getL3InterfaceIpv6AddressList().size());
+        assertEquals(null, actualInterface.getL3InterfaceIpv6AddressList());
         assertEquals("networkProviderId", actualInterface.getL3InterfaceIpv4AddressList().get(0).getNeutronNetworkId());
         assertEquals("1.2.3.4", actualInterface.getL3InterfaceIpv4AddressList().get(0).getL3InterfaceIpv4Address());
         assertRelation(actualInterface.getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
@@ -103,22 +107,25 @@ public class TestLInterfaceManager extends TestBase {
         affectedCp.setEcpdId("ecpdId");
         affectedCp.setName("name");
         affectedCp.setCpId("cpId");
-        when(aaiRestApiProvider.get(eq(logger), eq(CLOUD), eq("/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId"), eq(LInterface.class))).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(CLOUD), eq("/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId"), payload.capture(), eq(Void.class))).thenReturn(null);
+        LInterface lInterface = new LInterface();
+        lInterface.setResourceVersion("v3");
+        lInterface.setRelationshipList(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(null);
         //when
         lInterfaceManager.update(VNF_ID, VIM_ID, affectedCp, true);
         //verify
         LInterface actualInterface = payload.getValue();
-        assertEquals(true, actualInterface.isInMaint());
-        assertEquals(false, actualInterface.isIsIpUnnumbered());
-        assertEquals(false, actualInterface.isIsPortMirrored());
+        assertEquals(TRUE, actualInterface.isInMaint());
+        assertEquals(FALSE, actualInterface.isIsIpUnnumbered());
+        assertEquals(FALSE, actualInterface.isIsPortMirrored());
         assertEquals("name", actualInterface.getInterfaceName());
         assertEquals("cpId", actualInterface.getInterfaceId());
         assertEquals("cpdId", actualInterface.getInterfaceRole());
         assertEquals("mac", actualInterface.getMacaddr());
         assertEquals("active", actualInterface.getProvStatus());
-        assertEquals(0, actualInterface.getL3InterfaceIpv6AddressList().size());
-        assertEquals(0, actualInterface.getL3InterfaceIpv4AddressList().size());
+        assertEquals(null, actualInterface.getL3InterfaceIpv6AddressList());
+        assertEquals(null, actualInterface.getL3InterfaceIpv4AddressList());
         assertRelation(actualInterface.getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
     }
 
@@ -138,25 +145,25 @@ public class TestLInterfaceManager extends TestBase {
         affectedCp.setEcpdId("ecpdId");
         affectedCp.setName("name");
         affectedCp.setCpId("cpId");
-        LInterface lInterface = OBJECT_FACTORY.createLInterface();
+        LInterface lInterface = new LInterface();
         lInterface.setResourceVersion("v3");
-        lInterface.setRelationshipList(new RelationshipList());
-        when(aaiRestApiProvider.get(eq(logger), eq(CLOUD), eq("/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId"), eq(LInterface.class))).thenReturn(lInterface);
-        when(aaiRestApiProvider.put(eq(logger), eq(CLOUD), eq("/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId"), payload.capture(), eq(Void.class))).thenReturn(null);
+        lInterface.setRelationshipList(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(null);
         //when
         lInterfaceManager.update(VNF_ID, VIM_ID, affectedCp, true);
         //verify
         LInterface actualInterface = payload.getValue();
-        assertEquals(true, actualInterface.isInMaint());
-        assertEquals(false, actualInterface.isIsIpUnnumbered());
-        assertEquals(false, actualInterface.isIsPortMirrored());
+        assertEquals(TRUE, actualInterface.isInMaint());
+        assertEquals(FALSE, actualInterface.isIsIpUnnumbered());
+        assertEquals(FALSE, actualInterface.isIsPortMirrored());
         assertEquals("name", actualInterface.getInterfaceName());
         assertEquals("cpId", actualInterface.getInterfaceId());
         assertEquals("cpdId", actualInterface.getInterfaceRole());
         assertEquals("mac", actualInterface.getMacaddr());
         assertEquals("active", actualInterface.getProvStatus());
         assertEquals(1, actualInterface.getL3InterfaceIpv4AddressList().size());
-        assertEquals(0, actualInterface.getL3InterfaceIpv6AddressList().size());
+        assertEquals(null, actualInterface.getL3InterfaceIpv6AddressList());
         assertEquals("networkProviderId", actualInterface.getL3InterfaceIpv4AddressList().get(0).getNeutronNetworkId());
         assertEquals("1.2.3.4", actualInterface.getL3InterfaceIpv4AddressList().get(0).getL3InterfaceIpv4Address());
         assertEquals("v3", lInterface.getResourceVersion());
@@ -179,21 +186,24 @@ public class TestLInterfaceManager extends TestBase {
         affectedCp.setEcpdId("ecpdId");
         affectedCp.setName("name");
         affectedCp.setCpId("cpId");
-        when(aaiRestApiProvider.get(eq(logger), eq(CLOUD), eq("/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId"), eq(LInterface.class))).thenThrow(new NoSuchElementException());
-        when(aaiRestApiProvider.put(eq(logger), eq(CLOUD), eq("/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId"), payload.capture(), eq(Void.class))).thenReturn(null);
+        LInterface lInterface = new LInterface();
+        lInterface.setResourceVersion("v3");
+        lInterface.setRelationshipList(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(null);
         //when
         lInterfaceManager.update(VNF_ID, VIM_ID, affectedCp, false);
         //verify
         LInterface actualInterface = payload.getValue();
-        assertEquals(false, actualInterface.isInMaint());
-        assertEquals(false, actualInterface.isIsIpUnnumbered());
-        assertEquals(false, actualInterface.isIsPortMirrored());
+        assertEquals(FALSE, actualInterface.isInMaint());
+        assertEquals(FALSE, actualInterface.isIsIpUnnumbered());
+        assertEquals(FALSE, actualInterface.isIsPortMirrored());
         assertEquals("name", actualInterface.getInterfaceName());
         assertEquals("cpId", actualInterface.getInterfaceId());
         assertEquals("cpdId", actualInterface.getInterfaceRole());
         assertEquals("mac", actualInterface.getMacaddr());
         assertEquals("active", actualInterface.getProvStatus());
-        assertEquals(0, actualInterface.getL3InterfaceIpv4AddressList().size());
+        assertEquals(null, actualInterface.getL3InterfaceIpv4AddressList());
         assertEquals(1, actualInterface.getL3InterfaceIpv6AddressList().size());
         assertEquals("networkProviderId", actualInterface.getL3InterfaceIpv6AddressList().get(0).getNeutronNetworkId());
         assertEquals("::", actualInterface.getL3InterfaceIpv6AddressList().get(0).getL3InterfaceIpv6Address());
@@ -212,10 +222,14 @@ public class TestLInterfaceManager extends TestBase {
         affectedCp.setProviderId("portProviderId");
         affectedCp.setServerProviderId("serverProviderId");
         affectedCp.setNetworkProviderId("networkProviderId");
+        LInterface lInterface = new LInterface();
+        lInterface.setResourceVersion("v3");
+        lInterface.setRelationshipList(new ArrayList<>());
+        when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
         //when
         lInterfaceManager.delete(VIM_ID, affectedCp);
         //verify
-        verify(aaiRestApiProvider).delete(logger, CLOUD, "/cloud-regions/cloud-region/myCloudOwnerId/myRegionName/tenants/tenant/myTenantId/vservers/vserver/serverProviderId/l-interfaces/l-interface/cpId");
+        cloudInfrastructureApi.deleteCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", "v3");
     }
 
     /**

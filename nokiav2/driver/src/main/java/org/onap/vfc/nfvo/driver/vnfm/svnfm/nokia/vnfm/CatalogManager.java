@@ -19,11 +19,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 import com.google.common.io.ByteStreams;
 import com.nokia.cbam.catalog.v1.api.DefaultApi;
 import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IPackageProvider;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,14 +28,18 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IPackageProvider;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.filter;
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static okhttp3.MediaType.parse;
 import static okhttp3.RequestBody.create;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 
 
 /**
@@ -116,7 +115,7 @@ public class CatalogManager {
         if (!isPackageReplicated(cbamVnfdId, cbamCatalogApi)) {
             try {
                 ByteArrayOutputStream cbamPackage = getFileInZip(new ByteArrayInputStream(packageProvider.getPackage(csarId)), CBAM_PACKAGE_NAME_IN_ZIP);
-                return cbamCatalogApi.create(create(parse(APPLICATION_OCTET_STREAM), cbamPackage.toByteArray())).execute().body();
+                return cbamCatalogApi.create(create(parse(APPLICATION_OCTET_STREAM.toString()), cbamPackage.toByteArray())).execute().body();
             } catch (Exception e) {
                 logger.debug("Probably concurrent package uploads", e);
                 //retest if the VNF package exists in CBAM. It might happen that an other operation

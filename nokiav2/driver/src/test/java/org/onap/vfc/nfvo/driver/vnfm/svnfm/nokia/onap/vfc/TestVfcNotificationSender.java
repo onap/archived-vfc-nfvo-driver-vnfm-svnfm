@@ -27,6 +27,8 @@ import com.nokia.cbam.lcm.v32.model.ChangeType;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.OperationType;
 import com.nokia.cbam.lcm.v32.model.ScaleDirection;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,11 +38,9 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffec
 import org.onap.vnfmdriver.model.*;
 import org.threeten.bp.OffsetDateTime;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

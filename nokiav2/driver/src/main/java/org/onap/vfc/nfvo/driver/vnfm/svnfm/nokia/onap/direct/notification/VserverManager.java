@@ -20,7 +20,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.nokia.cbam.lcm.v32.model.AffectedVirtualStorage;
 import com.nokia.cbam.lcm.v32.model.AffectedVnfc;
-import org.onap.aai.domain.yang.v11.*;
+import io.reactivex.Observable;
+import java.util.ArrayList;
+import java.util.List;
+import org.onap.aai.model.Relationship;
+import org.onap.aai.model.Volume;
+import org.onap.aai.model.Vserver;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
@@ -30,12 +35,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 import static com.google.common.collect.Iterables.find;
-import static java.lang.String.format;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider.AAIService.CLOUD;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.childElement;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getRegionName;
 
@@ -45,7 +47,7 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ge
 @Component
 @Conditional(value = Conditions.UseForDirect.class)
 class VserverManager extends AbstractManager {
-    private static Logger logger = org.slf4j.LoggerFactory.getLogger(VserverManager.class);
+    private static Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractManager.class);
 
     @Autowired
     VserverManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider, DriverProperties driverProperties) {
@@ -55,6 +57,7 @@ class VserverManager extends AbstractManager {
     static Relationship linkTo(String vimId, String tenantId, String serverProviderId) {
         Relationship relationship = new Relationship();
         relationship.setRelatedTo("vserver");
+        relationship.setRelationshipData(new ArrayList<>());
         relationship.getRelationshipData().add(buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(vimId)));
         relationship.getRelationshipData().add(buildRelationshipData("cloud-region.cloud-region-id", getRegionName(vimId)));
         relationship.getRelationshipData().add(buildRelationshipData("tenant.tenant-id", tenantId));
@@ -72,47 +75,53 @@ class VserverManager extends AbstractManager {
     }
 
     void update(String vimId, String vnfId, AffectedVnfc cbamVnfc, List<AffectedVirtualStorage> affectedVirtualStorages, boolean inMaintenance) {
-        String url = buildUrl(vimId, cbamVnfc);
-        Vserver vserver = createOrGet(CLOUD, url, OBJECT_FACTORY.createVserver());
-        updateFields(vserver, cbamVnfc, vnfId, affectedVirtualStorages, url, inMaintenance);
+        Vserver vserver = createOrGet(getVserver(vimId, cbamVnfc), new Vserver());
+        updateFields(vimId, vserver, cbamVnfc, vnfId, affectedVirtualStorages, inMaintenance);
     }
 
-    void delete(String vimId, com.nokia.cbam.lcm.v32.model.AffectedVnfc deletedVnfc) {
-        aaiRestApiProvider.delete(logger, CLOUD, buildUrl(vimId, deletedVnfc));
+    void delete(String vimId, AffectedVnfc deletedVnfc) {
+        String tenantId = getTenantId(deletedVnfc);
+        String cloudOwner = getCloudOwner(vimId);
+        String regionName = getRegionName(vimId);
+        Vserver vserver = getVserver(vimId, deletedVnfc).blockingFirst();
+        aaiRestApiProvider.getCloudInfrastructureApi().deleteCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(cloudOwner, regionName, tenantId, vserver.getVserverId(), vserver.getResourceVersion());
     }
 
-    private String buildUrl(String vimId, AffectedVnfc cbamVnfc) {
+    private Observable<Vserver> getVserver(String vimId, AffectedVnfc cbamVnfc) {
         String tenantId = getTenantId(cbamVnfc);
         String cloudOwner = getCloudOwner(vimId);
         String regionName = getRegionName(vimId);
-        return format("/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s/vservers/vserver/%s", cloudOwner, regionName, tenantId, cbamVnfc.getComputeResource().getResourceId());
+        return aaiRestApiProvider.getCloudInfrastructureApi().getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(cloudOwner, regionName, tenantId, cbamVnfc.getComputeResource().getResourceId(), null, null, null, null, null, null, null, null, null);
     }
 
-    private void updateFields(Vserver server, AffectedVnfc cbamVnfc, String vnfId, List<AffectedVirtualStorage> affectedVirtualStorages, String url, boolean inMaintenance) {
+    private void updateFields(String vimId, Vserver server, AffectedVnfc cbamVnfc, String vnfId, List<AffectedVirtualStorage> affectedVirtualStorages, boolean inMaintenance) {
         server.setInMaint(inMaintenance);
         server.setIsClosedLoopDisabled(inMaintenance);
         JsonElement additionalData = new Gson().toJsonTree(cbamVnfc.getComputeResource().getAdditionalData());
         server.setVserverName(additionalData.getAsJsonObject().get("name").getAsString());
         server.setVserverId(cbamVnfc.getComputeResource().getResourceId());
         server.setProvStatus("active");
-        server.setRelationshipList(new RelationshipList());
+        server.setRelationshipList(new ArrayList<>());
         server.setVserverId(cbamVnfc.getComputeResource().getResourceId());
         server.setVserverSelflink(extractSelfLink(cbamVnfc.getComputeResource().getAdditionalData()));
         addSingletonRelation(server.getRelationshipList(), GenericVnfManager.linkTo(vnfId));
-        if (server.getVolumes() == null) {
-            server.setVolumes(new Volumes());
-        }
         if (cbamVnfc.getStorageResourceIds() != null) {
+            if (server.getVolumes() == null) {
+                server.setVolumes(new ArrayList<>());
+            }
             for (String virtualStorageId : cbamVnfc.getStorageResourceIds()) {
                 Volume volume = new Volume();
                 AffectedVirtualStorage affectedStorage = find(affectedVirtualStorages, storage -> virtualStorageId.equals(storage.getId()));
                 volume.setVolumeId(affectedStorage.getResource().getResourceId());
-                server.getVolumes().getVolume().add(volume);
+                server.getVolumes().add(volume);
             }
         } else {
-            server.setVolumes(OBJECT_FACTORY.createVolumes());
+            server.setVolumes(new ArrayList<>());
         }
-        aaiRestApiProvider.put(logger, CLOUD, url, server, Void.class);
+        String tenantId = getTenantId(cbamVnfc);
+        String cloudOwner = getCloudOwner(vimId);
+        String regionName = getRegionName(vimId);
+        systemFunctions().blockingFirst(aaiRestApiProvider.getCloudInfrastructureApi().createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(cloudOwner, regionName, tenantId, server.getVserverId(), server));
     }
 
     private String extractSelfLink(Object additionalData) {
