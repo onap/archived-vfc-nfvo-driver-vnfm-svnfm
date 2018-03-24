@@ -24,7 +24,6 @@ import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcm.v32.model.OperationExecution;
 import com.nokia.cbam.lcm.v32.model.OperationType;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
-import org.apache.http.HttpStatus;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.onap.vnfmdriver.model.JobDetailInfo;
 import org.onap.vnfmdriver.model.JobDetailInfoResponseDescriptor;
@@ -45,6 +44,7 @@ import static com.nokia.cbam.lcm.v32.model.OperationStatus.FAILED;
 import static com.nokia.cbam.lcm.v32.model.OperationStatus.STARTED;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
@@ -109,11 +109,11 @@ public class JobManager {
         String jobId = vnfId + SEPARATOR + UUID.randomUUID().toString();
         synchronized (this) {
             if (preparingForShutDown) {
-                response.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);
+                response.setStatus(SC_SERVICE_UNAVAILABLE);
                 throw buildFatalFailure(logger, "The service is preparing to shut down");
             }
             if (!selfRegistrationManager.isReady()) {
-                response.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);
+                response.setStatus(SC_SERVICE_UNAVAILABLE);
                 throw buildFatalFailure(logger, "The service is not yet ready");
             }
         }

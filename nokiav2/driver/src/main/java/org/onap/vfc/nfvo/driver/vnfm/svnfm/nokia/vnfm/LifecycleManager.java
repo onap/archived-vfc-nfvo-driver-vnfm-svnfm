@@ -26,6 +26,7 @@ import com.nokia.cbam.lcm.v32.model.ScaleDirection;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.UserVisibleError;
 import org.onap.vnfmdriver.model.ExtVirtualLinkInfo;
 import org.onap.vnfmdriver.model.*;
@@ -437,11 +438,12 @@ public class LifecycleManager {
                     cbamRequest.setTerminationType(TerminationType.FORCEFUL);
                 }
             }
+            cbamRequest.setAdditionalParams(new Gson().toJsonTree(jobInfo).getAsJsonObject());
             com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
             if (vnf.getInstantiationState() == INSTANTIATED) {
                 terminateVnf(vnfmId, vnfId, jobInfo, cbamRequest, vnf);
             } else {
-                cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION);
+                systemFunctions().blockingFirst(cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION));
             }
         });
     }
@@ -454,7 +456,7 @@ public class LifecycleManager {
         if (finishedOperation.getStatus() == FINISHED) {
             notificationManager.waitForTerminationToBeProcessed(finishedOperation.getId());
             logger.info("Deleting VNF with {}", vnfId);
-            cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION);
+            systemFunctions().blockingFirst(cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION));
             logger.info("VNF with {} has been deleted", vnfId);
 
         } else {

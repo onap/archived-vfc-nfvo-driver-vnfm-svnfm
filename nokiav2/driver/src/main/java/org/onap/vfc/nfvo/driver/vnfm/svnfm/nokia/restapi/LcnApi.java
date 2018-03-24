@@ -63,12 +63,10 @@ public class LcnApi {
      * Handle the LCN sent by CBAM
      *
      * @param lcn          the LCN notification
-     * @param httpResponse the HTTP response
      */
     @RequestMapping(value = LCN_URL, method = POST, consumes = APPLICATION_JSON_VALUE)
-    @ResponseBody
     @ResponseStatus(code = NO_CONTENT)
-    public void handleLcn(@RequestBody VnfLifecycleChangeNotification lcn, HttpServletResponse httpResponse) {
+    public void handleLcn(@RequestBody VnfLifecycleChangeNotification lcn) {
         logger.info("REST: handle LCN");
         lcnManager.handleLcn(lcn);
     }

@@ -192,6 +192,10 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
     }
 
     private Optional<ReportedAffectedConnectionPoints> buildAffectedCps(OperationExecution operationExecution) {
+        if(!isTerminal(operationExecution.getStatus())){
+            //connection points can only be calculated after the operation has finished
+            return Optional.empty();
+        }
         if (operationExecution.getOperationType() == OperationType.TERMINATE) {
             String terminationType = childElement(new Gson().toJsonTree(operationExecution.getOperationParams()).getAsJsonObject(), "terminationType").getAsString();
             if (TerminationType.FORCEFUL.name().equals(terminationType)) {

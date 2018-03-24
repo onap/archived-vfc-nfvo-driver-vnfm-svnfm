@@ -746,6 +746,8 @@ public class TestLifecycleManager extends TestBase {
                 return buildObservable(terminationOperation);
             }
         });
+        Observable<Void> delete = Mockito.mock(Observable.class);
+        when(vnfApi.vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(delete);
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
@@ -754,10 +756,12 @@ public class TestLifecycleManager extends TestBase {
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualTerminationRequest.getAllValues().size());
         assertEquals(TerminationType.FORCEFUL, actualTerminationRequest.getValue().getTerminationType());
+        assertEquals(JOB_ID, new Gson().toJsonTree(actualTerminationRequest.getValue().getAdditionalParams()).getAsJsonObject().get("jobId").getAsString());
         InOrder notificationIsProcessedBeforeDeletingTheVnf = Mockito.inOrder(vfcGrantManager, notificationManager, vnfApi);
         notificationIsProcessedBeforeDeletingTheVnf.verify(vfcGrantManager).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
         notificationIsProcessedBeforeDeletingTheVnf.verify(notificationManager).waitForTerminationToBeProcessed("terminationId");
         notificationIsProcessedBeforeDeletingTheVnf.verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
+        verify(systemFunctions).blockingFirst(delete);
         verify(jobManager).spawnJob(VNF_ID, restResponse);
         verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("termination"), eq(VNF_ID), anyString());
     }

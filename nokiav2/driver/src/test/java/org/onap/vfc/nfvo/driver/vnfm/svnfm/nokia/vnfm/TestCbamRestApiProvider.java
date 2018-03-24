@@ -29,8 +29,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.onap.msb.sdk.discovery.entity.MicroServiceFullInfo;
-import org.onap.msb.sdk.discovery.entity.NodeInfo;
+import org.onap.msb.model.MicroServiceFullInfo;
+import org.onap.msb.model.NodeInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.IpMappingProvider;
 import org.onap.vnfmdriver.model.VnfmInfo;
@@ -38,6 +38,7 @@ import org.springframework.core.env.Environment;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +73,7 @@ public class TestCbamRestApiProvider extends TestBase {
     private Interceptor interceptor;
     @Mock
     private HostnameVerifier hostnameVerifier;
-    private Set<NodeInfo> nodes = new HashSet<>();
+    private java.util.List<NodeInfo> nodes = new ArrayList<>();
 
     private CbamRestApiProvider cbamRestApiProvider;
     private CbamSecurityProvider cbamSecurityProvider = spy(new CbamSecurityProvider());

@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring;
 
+import com.google.common.collect.Iterables;
 import com.nokia.cbam.lcm.v32.model.*;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -24,12 +25,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.mock.http.MockHttpOutputMessage;
+import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
+import static com.google.common.collect.Iterables.filter;
 import static junit.framework.TestCase.assertEquals;
 
 public class TestRealConfig {
@@ -41,22 +46,26 @@ public class TestRealConfig {
     public void test() throws Exception {
         HttpMessageConverters converters = new RealConfig().customConverters();
         //verify
-        converters.getConverters().get(0).canRead(VnfIdentifierCreationNotification.class, MediaType.APPLICATION_JSON);
-        converters.getConverters().get(0).canRead(VnfIdentifierDeletionNotification.class, MediaType.APPLICATION_JSON);
-        converters.getConverters().get(0).canRead(VnfInfoAttributeValueChangeNotification.class, MediaType.APPLICATION_JSON);
-        converters.getConverters().get(0).canRead(VnfLifecycleChangeNotification.class, MediaType.APPLICATION_JSON);
-        converters.getConverters().get(0).canRead(String.class, MediaType.APPLICATION_JSON);
+        GsonHttpMessageConverter httpMessageConverter1 = filter(converters.getConverters(), GsonHttpMessageConverter.class).iterator().next();
+        httpMessageConverter1.canRead(VnfIdentifierCreationNotification.class, MediaType.APPLICATION_JSON);
+        httpMessageConverter1.canRead(VnfIdentifierDeletionNotification.class, MediaType.APPLICATION_JSON);
+        httpMessageConverter1.canRead(VnfInfoAttributeValueChangeNotification.class, MediaType.APPLICATION_JSON);
+        httpMessageConverter1.canRead(VnfLifecycleChangeNotification.class, MediaType.APPLICATION_JSON);
+        httpMessageConverter1.canRead(String.class, MediaType.APPLICATION_JSON);
 
-        HttpMessageConverter<VnfLifecycleChangeNotification> httpMessageConverter = (HttpMessageConverter<VnfLifecycleChangeNotification>) converters.getConverters().get(0);
         MockHttpOutputMessage out = new MockHttpOutputMessage();
         VnfLifecycleChangeNotification not = new VnfLifecycleChangeNotification();
         not.setNotificationType(VnfNotificationType.VNFLIFECYCLECHANGENOTIFICATION);
         not.setVnfInstanceId("vnfId");
-        httpMessageConverter.write(not, MediaType.APPLICATION_JSON, out);
+        OffsetDateTime now = OffsetDateTime.now();
+        not.setTimestamp(now);
+        httpMessageConverter1.write(not, MediaType.APPLICATION_JSON, out);
         String write = out.getBodyAsString();
         HttpInputMessage x = new MockHttpInputMessage(write.getBytes());
-        VnfLifecycleChangeNotification deserialized = (VnfLifecycleChangeNotification) httpMessageConverter.read(VnfLifecycleChangeNotification.class, x);
+        VnfLifecycleChangeNotification deserialized = (VnfLifecycleChangeNotification) httpMessageConverter1.read(VnfLifecycleChangeNotification.class, x);
         assertEquals("vnfId", deserialized.getVnfInstanceId());
+        assertEquals(now, deserialized.getTimestamp());
+
     }
 
 }

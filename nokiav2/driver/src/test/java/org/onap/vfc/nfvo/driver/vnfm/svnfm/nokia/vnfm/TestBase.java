@@ -36,7 +36,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.onap.msb.sdk.httpclient.msb.MSBServiceClient;
+import org.onap.msb.api.ServiceResourceApi;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
@@ -95,7 +95,7 @@ public class TestBase {
     @Mock
     protected SubscriptionsApi lcnApi;
     @Mock
-    protected MSBServiceClient msbClient;
+    protected ServiceResourceApi msbClient;
     @Mock
     protected DriverProperties driverProperties;
     @Mock
@@ -142,7 +142,7 @@ public class TestBase {
         when(cbamRestApiProvider.getCbamOperationExecutionApi(VNFM_ID)).thenReturn(operationExecutionApi);
         when(cbamRestApiProvider.getCbamLcnApi(VNFM_ID)).thenReturn(lcnApi);
         when(cbamRestApiProvider.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
-        when(msbApiProvider.getMsbClient()).thenReturn(msbClient);
+        when(msbApiProvider.getMsbApi()).thenReturn(msbClient);
         when(vfcRestApiProvider.getNsLcmApi()).thenReturn(nsLcmApi);
         when(vfcRestApiProvider.getVfcCatalogApi()).thenReturn(vfcCatalogApi);
         when(systemFunctions.getHttpClient()).thenReturn(httpClient);

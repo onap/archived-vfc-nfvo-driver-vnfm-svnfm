@@ -90,6 +90,26 @@
             </configuration>
           </execution>
           <execution>
+            <id>msb</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/msb.json</inputSpec>
+              <language>java</language>
+              <library>retrofit2</library>
+              <output>${project.build.directory}/generated-sources/msb</output>
+              <apiPackage>org.onap.msb.api</apiPackage>
+              <modelPackage>org.onap.msb.model</modelPackage>
+              <configOptions>
+                <generateSupportingFiles>false</generateSupportingFiles>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
             <id>cbamlcn</id>
             <goals>
               <goal>generate</goal>

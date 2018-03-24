@@ -28,13 +28,13 @@ import javax.servlet.http.Part;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -71,7 +71,7 @@ public class ConverterApi {
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to convert VNF package", e);
         }
-        httpResponse.addHeader(CONTENT_TYPE, APPLICATION_OCTET_STREAM.getMimeType());
+        httpResponse.addHeader(CONTENT_TYPE, APPLICATION_OCTET_STREAM.toString());
         httpResponse.setStatus(OK.value());
         httpResponse.addHeader(CONTENT_LENGTH, Integer.toString(convertedPackage.length));
         httpResponse.addHeader(CONTENT_DISPOSITION, "attachment; filename=\"" + "core.csar" + "\"");
