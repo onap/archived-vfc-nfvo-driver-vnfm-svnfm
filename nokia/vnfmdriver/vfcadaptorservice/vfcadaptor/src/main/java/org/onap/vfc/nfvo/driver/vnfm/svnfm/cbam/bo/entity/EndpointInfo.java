@@ -14,10 +14,10 @@
 * limitations under the License.
 */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
-
+import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EndpointInfo {
+public class EndpointInfo implements Serializable {
 	@JsonProperty("endpoint")
 	private String endpoint;
 

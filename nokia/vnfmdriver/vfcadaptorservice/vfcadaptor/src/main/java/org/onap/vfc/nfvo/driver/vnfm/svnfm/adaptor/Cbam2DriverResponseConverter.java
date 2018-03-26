@@ -157,11 +157,11 @@ public class Cbam2DriverResponseConverter {
 
 		if (OperationType.INSTANTIATE == oper.getOperationType()) {
 			double instantiateProgress = (nowTime - jobInfo.getOperateStartTime())
-					/ adaptorEnv.getInstantiateTimeInterval();
+					/ (double)adaptorEnv.getInstantiateTimeInterval();
 			initialProgress = (int) (instantiateProgress + initialProgress);
 		} else if (OperationType.TERMINATE == oper.getOperationType()) {
 			double terminateProgress = (nowTime - jobInfo.getOperateStartTime())
-					/ adaptorEnv.getTerminateTimeInterval();
+					/ (double)adaptorEnv.getTerminateTimeInterval();
 			initialProgress = (int) (terminateProgress + initialProgress);
 		} else {
 			initialProgress = 0;

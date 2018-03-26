@@ -16,8 +16,9 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 * limitations under the License.
 */
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
-public class OpenStackAccessInfoV2 {
+public class OpenStackAccessInfoV2 implements Serializable {
 
 	@JsonProperty("username")
 	private String username;

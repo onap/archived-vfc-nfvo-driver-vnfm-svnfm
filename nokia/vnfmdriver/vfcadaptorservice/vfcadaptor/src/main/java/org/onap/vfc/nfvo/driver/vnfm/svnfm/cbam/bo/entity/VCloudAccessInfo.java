@@ -16,8 +16,9 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
-public class VCloudAccessInfo {
+public class VCloudAccessInfo implements Serializable{
 	@JsonProperty("username")
 	private String username;
 	
