@@ -203,6 +203,8 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
                 //calculated from operation execution result
                 logger.warn("Unable to send information related to affected connection points during forceful termination");
                 return empty();
+            } else {
+                //graceful termination should be handled as any other operation
             }
         }
         try {

@@ -22,6 +22,7 @@ import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
 import io.reactivex.Observable;
+import io.reactivex.internal.operators.observable.ObservableFromCallable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
@@ -29,9 +30,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletResponse;
+import junit.framework.TestCase;
 import okhttp3.RequestBody;
 import okio.Buffer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -68,7 +71,9 @@ import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager.getFileInZip;
 
+
 public class TestBase {
+
     public static final String VNF_ID = "myVnfId";
     public static final String VNFM_ID = "myVnfmId";
     public static final String ONAP_CSAR_ID = "myOnapCsarId";
@@ -76,6 +81,7 @@ public class TestBase {
     public static final String JOB_ID = "myJobId";
     public static final String CBAM_VNFD_ID = "cbamVnfdId";
     protected static Call<Void> VOID_CALL = buildCall(null);
+    protected static VoidObservable VOID_OBSERVABLE = new VoidObservable();
     @Mock
     protected CbamRestApiProvider cbamRestApiProvider;
     @Mock
@@ -208,6 +214,25 @@ public class TestBase {
                     }
                 }
             }
+        }
+    }
+
+    protected static class VoidObservable {
+        boolean called = false;
+        ObservableFromCallable<Void> s = new ObservableFromCallable(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                called = true;
+                return "";
+            }
+        });
+
+        public void assertCalled() {
+            TestCase.assertTrue(called);
+        }
+
+        public Observable<Void> value() {
+            return s;
         }
     }
 }

@@ -22,7 +22,6 @@ import org.onap.aai.model.GenericVnf;
 import org.onap.aai.model.Relationship;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.slf4j.Logger;
@@ -92,7 +91,7 @@ class GenericVnfManager extends AbstractManager {
         //FIXME whould be good to know if this parameter is relevant or not? (mandatory)
         vnf.setVnfType("NokiaVNF");
         vnf.setIsClosedLoopDisabled(inMaintenance);
-        SystemFunctions.systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkGenericVnfsGenericVnf(vnf.getVnfId(), vnf));
+        aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkGenericVnfsGenericVnf(vnf.getVnfId(), vnf).blockingFirst();
     }
 
     private GenericVnf waitForVnfToAppearInAai(String vnfId) {

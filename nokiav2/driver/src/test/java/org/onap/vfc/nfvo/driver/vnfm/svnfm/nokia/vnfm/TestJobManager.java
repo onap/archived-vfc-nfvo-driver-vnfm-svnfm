@@ -498,6 +498,51 @@ public class TestJobManager extends TestBase {
     }
 
     /**
+     * the modify attribute job is skipped, since it is not explicitly triggered by any external job
+     */
+    @Test
+    public void testModifyAttributesOperationExecutionIsSkipped() throws Exception {
+        String jobId = jobManager.spawnJob(VNF_ID, httpResponse);
+        VnfInfo vnf = new VnfInfo();
+        vnf.setId(VNF_ID);
+        vnfs.add(vnf);
+        VnfInfo detailedVnf = new VnfInfo();
+        detailedVnf.setId(VNF_ID);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(detailedVnf));
+        OperationExecution olderOperation = new OperationExecution();
+        olderOperation.setId(UUID.randomUUID().toString());
+        olderOperation.setStartTime(OffsetDateTime.now());
+        olderOperation.setStatus(OperationStatus.FINISHED);
+        olderOperation.setOperationType(OperationType.TERMINATE);
+        OperationExecution newerOperation = new OperationExecution();
+        newerOperation.setId(UUID.randomUUID().toString());
+        newerOperation.setStartTime(OffsetDateTime.now().plusDays(1));
+        newerOperation.setStatus(OperationStatus.FINISHED);
+        newerOperation.setOperationType(OperationType.MODIFY_INFO);
+        detailedVnf.setOperationExecutions(new ArrayList<>());
+        detailedVnf.getOperationExecutions().add(olderOperation);
+        detailedVnf.getOperationExecutions().add(newerOperation);
+        JsonElement operationParams = new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}");
+        List<String> queriedOperaionsInOrder = new ArrayList<>();
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(Mockito.anyString(), Mockito.eq(NOKIA_LCM_API_VERSION)))
+                .then(new Answer<Observable<Object>>() {
+                    @Override
+                    public Observable<Object> answer(InvocationOnMock invocationOnMock) throws Throwable {
+                        queriedOperaionsInOrder.add(invocationOnMock.getArguments()[0].toString());
+                        if (invocationOnMock.getArguments()[0].equals(olderOperation.getId())) {
+                            return buildObservable(new JsonParser().parse("{ \"additionalParams\" : { \"jobId\" : \"" + jobId + "\"}}"));
+                        } else {
+                            throw new RuntimeException(); //this should be never reached
+                        }
+                    }
+                });
+        JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
+        //verify
+        assertEquals(Lists.newArrayList(olderOperation.getId()), queriedOperaionsInOrder);
+        assertTrue(jobManager.hasOngoingJobs());
+    }
+
+    /**
      * if the registration process has not finished it is prevented to spawn jobs
      */
     @Test

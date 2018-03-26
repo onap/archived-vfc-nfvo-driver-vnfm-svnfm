@@ -17,7 +17,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
 import com.google.gson.*;
-import java.io.IOException;
 import java.io.StringReader;
 import org.yaml.snakeyaml.Yaml;
 
@@ -32,7 +31,7 @@ public class CbamVnfdBuilder {
      * @param cbamVnfdContent the original CBAM VNFD
      * @return the modified content CBAM VNFD
      */
-    public String build(String cbamVnfdContent) throws IOException {
+    public String build(String cbamVnfdContent) {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(cbamVnfdContent)).getAsJsonObject();
         JsonObject substitutionMappings = child(child(root, "topology_template"), "substitution_mappings");
         JsonObject extensions = addChild(addChild(addChild(addChild(addChild(substitutionMappings, "capabilities"), "vnf"), "properties"), "modifiable_attributes"), "extensions");

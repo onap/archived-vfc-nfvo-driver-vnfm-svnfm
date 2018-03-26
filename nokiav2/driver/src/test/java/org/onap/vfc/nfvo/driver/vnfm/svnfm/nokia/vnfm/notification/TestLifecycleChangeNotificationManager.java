@@ -427,6 +427,24 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
     }
 
     /**
+     * Forceful termination results in an empty affected connection points
+     */
+    @Test
+    public void testGracefullTermination() {
+        //given
+        recievedLcn.setOperation(OperationType.INSTANTIATE);
+        recievedLcn.setStatus(OperationStatus.FINISHED);
+        recievedLcn.setLifecycleOperationOccurrenceId(terminationOperation.getId());
+        ((JsonObject) terminationOperation.getOperationParams()).addProperty("terminationType", "GRACEFUL");
+        addEmptyModifiedConnectionPoints(terminationOperation);
+        terminationOperation.setStatus(OperationStatus.FINISHED);
+        terminationOperation.setOperationType(OperationType.TERMINATE);
+        //when
+        lifecycleChangeNotificationManager.handleLcn(recievedLcn);
+        assertTrue(affectedConnectionPoints.getValue().isPresent());
+    }
+
+    /**
      * Failures in affected connection point processing are tolerated for failed operation
      * (because the POST script was not able to run)
      */

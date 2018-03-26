@@ -91,12 +91,11 @@ public class TestVserverManager extends TestBase {
         affectedVnfc.setStorageResourceIds(new ArrayList<>());
         affectedVnfc.getStorageResourceIds().add("sId");
 
-        String url = "/cloud-regions/cloud-region///tenants/tenant//vservers/vserver/";
-
         Vserver existingVserver = new Vserver();
-        existingVserver.setVolumes(new ArrayList<>());
+        existingVserver.setRelationshipList(new ArrayList<>());
+        existingVserver.getRelationshipList().add(VserverManager.linkTo(VIM_ID, "tenantId", "serverId2"));
         when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
-        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         vserverManager.update(VIM_ID, VNF_ID, affectedVnfc, affectedStorages, true);
         //verify
@@ -107,6 +106,8 @@ public class TestVserverManager extends TestBase {
         assertEquals("url", vserver.getVserverSelflink());
         assertEquals(1, vserver.getVolumes().size());
         assertEquals("storageProviderId", vserver.getVolumes().get(0).getVolumeId());
+        assertEquals(2, vserver.getRelationshipList().size());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -135,7 +136,7 @@ public class TestVserverManager extends TestBase {
         Vserver existingVserver = new Vserver();
         existingVserver.setVolumes(new ArrayList<>());
         when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
-        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         vserverManager.update(VIM_ID, VNF_ID, affectedVnfc, affectedStorages, true);
         //verify
@@ -146,6 +147,7 @@ public class TestVserverManager extends TestBase {
         assertEquals("unknown", vserver.getVserverSelflink());
         assertEquals(1, vserver.getVolumes().size());
         assertEquals("storageProviderId", vserver.getVolumes().get(0).getVolumeId());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -172,7 +174,7 @@ public class TestVserverManager extends TestBase {
         Vserver existingVserver = new Vserver();
         existingVserver.setVolumes(new ArrayList<>());
         when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
-        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         vserverManager.update(VIM_ID, VNF_ID, affectedVnfc, affectedStorages, true);
         //verify
@@ -183,6 +185,7 @@ public class TestVserverManager extends TestBase {
         assertEquals("unknown", vserver.getVserverSelflink());
         assertEquals(1, vserver.getVolumes().size());
         assertEquals("storageProviderId", vserver.getVolumes().get(0).getVolumeId());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -202,7 +205,7 @@ public class TestVserverManager extends TestBase {
         Vserver existingVserver = new Vserver();
         existingVserver.setVolumes(new ArrayList<>());
         when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVserver));
-        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(null);
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         vserverManager.update(VIM_ID, VNF_ID, affectedVnfc, affectedStorages, true);
         //verify
@@ -237,6 +240,7 @@ public class TestVserverManager extends TestBase {
         vserverManager.delete(VIM_ID, affectedVnfc);
         //verify
         verify(cloudInfrastructureApi).deleteCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "v3");
+        VOID_OBSERVABLE.assertCalled();
     }
 
     @Test

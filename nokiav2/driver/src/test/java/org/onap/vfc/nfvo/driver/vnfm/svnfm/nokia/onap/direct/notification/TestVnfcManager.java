@@ -17,6 +17,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.nokia.cbam.lcm.v32.model.AffectedVnfc;
 import com.nokia.cbam.lcm.v32.model.ResourceHandle;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -62,8 +63,10 @@ public class TestVnfcManager extends TestBase {
         affectedVnfc.getComputeResource().setResourceId("serverProviderId");
         affectedVnfc.setId("vnfcId");
         Vnfc existingVnfc = new Vnfc();
+        existingVnfc.setRelationshipList(new ArrayList<>());
+        existingVnfc.getRelationshipList().add(GenericVnfManager.linkTo("any"));
         when(networkApi.getNetworkVnfcsVnfc("myVnfId_vnfcId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVnfc));
-        when(networkApi.createOrUpdateNetworkVnfcsVnfc(eq("myVnfId_vnfcId"), payload.capture())).thenReturn(null);
+        when(networkApi.createOrUpdateNetworkVnfcsVnfc(eq("myVnfId_vnfcId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         vnfcManager.update(VIM_ID, "myTenantPrivderId", VNF_ID, affectedVnfc, true);
         //verify
@@ -78,6 +81,8 @@ public class TestVnfcManager extends TestBase {
                 buildRelationshipData("cloud-region.cloud-region-id", getRegionName(VIM_ID)),
                 buildRelationshipData("tenant.tenant-id", "myTenantPrivderId"),
                 buildRelationshipData("vserver.vserver-id", "serverProviderId"));
+        assertEquals(2, vnfc.getRelationshipList().size());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -93,10 +98,12 @@ public class TestVnfcManager extends TestBase {
         existingVnfc.setResourceVersion("v3");
         existingVnfc.setVnfcName("myVnfId_vnfcId");
         when(networkApi.getNetworkVnfcsVnfc("myVnfId_vnfcId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingVnfc));
+        when(networkApi.deleteNetworkVnfcsVnfc("myVnfId_vnfcId", "v3")).thenReturn(VOID_OBSERVABLE.value());
         //when
         vnfcManager.delete(VNF_ID, affectedVnfc);
         //verify
         verify(networkApi).deleteNetworkVnfcsVnfc("myVnfId_vnfcId", "v3");
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**

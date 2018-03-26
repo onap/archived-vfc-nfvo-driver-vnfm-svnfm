@@ -31,13 +31,13 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static com.google.common.collect.Iterables.find;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.childElement;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getRegionName;
 
@@ -47,7 +47,7 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ge
 @Component
 @Conditional(value = Conditions.UseForDirect.class)
 class VserverManager extends AbstractManager {
-    private static Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractManager.class);
+    private static Logger logger = LoggerFactory.getLogger(AbstractManager.class);
 
     @Autowired
     VserverManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider, DriverProperties driverProperties) {
@@ -101,27 +101,25 @@ class VserverManager extends AbstractManager {
         server.setVserverName(additionalData.getAsJsonObject().get("name").getAsString());
         server.setVserverId(cbamVnfc.getComputeResource().getResourceId());
         server.setProvStatus("active");
-        server.setRelationshipList(new ArrayList<>());
         server.setVserverId(cbamVnfc.getComputeResource().getResourceId());
         server.setVserverSelflink(extractSelfLink(cbamVnfc.getComputeResource().getAdditionalData()));
+        if (server.getRelationshipList() == null) {
+            server.setRelationshipList(new ArrayList<>());
+        }
         addSingletonRelation(server.getRelationshipList(), GenericVnfManager.linkTo(vnfId));
+        server.setVolumes(new ArrayList<>());
         if (cbamVnfc.getStorageResourceIds() != null) {
-            if (server.getVolumes() == null) {
-                server.setVolumes(new ArrayList<>());
-            }
             for (String virtualStorageId : cbamVnfc.getStorageResourceIds()) {
                 Volume volume = new Volume();
                 AffectedVirtualStorage affectedStorage = find(affectedVirtualStorages, storage -> virtualStorageId.equals(storage.getId()));
                 volume.setVolumeId(affectedStorage.getResource().getResourceId());
                 server.getVolumes().add(volume);
             }
-        } else {
-            server.setVolumes(new ArrayList<>());
         }
         String tenantId = getTenantId(cbamVnfc);
         String cloudOwner = getCloudOwner(vimId);
         String regionName = getRegionName(vimId);
-        systemFunctions().blockingFirst(aaiRestApiProvider.getCloudInfrastructureApi().createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(cloudOwner, regionName, tenantId, server.getVserverId(), server));
+        aaiRestApiProvider.getCloudInfrastructureApi().createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserver(cloudOwner, regionName, tenantId, server.getVserverId(), server).blockingFirst();
     }
 
     private String extractSelfLink(Object additionalData) {

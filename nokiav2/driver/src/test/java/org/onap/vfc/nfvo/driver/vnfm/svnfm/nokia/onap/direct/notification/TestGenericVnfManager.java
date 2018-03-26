@@ -109,7 +109,7 @@ public class TestGenericVnfManager extends TestBase {
         when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         when(networkApi.createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), payload.capture())).thenAnswer(invocation -> {
             vnfs.add(vnfInAaai);
-            return null;
+            return VOID_OBSERVABLE.value();
         });
         vnfInfo.setName("vnfName");
         //when
@@ -124,6 +124,7 @@ public class TestGenericVnfManager extends TestBase {
         assertEquals("vnfName", vnfSentToAai.getVnfName());
         verify(systemFunctions, times(10)).sleep(3000);
         verify(networkApi, times(10)).getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -135,7 +136,7 @@ public class TestGenericVnfManager extends TestBase {
         vnfInAaai.setResourceVersion("v1");
         when(networkApi.getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(vnfInAaai));
         when(cbamRestApiProvider.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
-        when(networkApi.createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), payload.capture())).thenReturn(null);
+        when(networkApi.createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         vnfInfo.setName("vnfName");
         //when
         genericVnfManager.createOrUpdate(VNF_ID, true);
@@ -148,6 +149,7 @@ public class TestGenericVnfManager extends TestBase {
         assertEquals(TRUE, vnfSentToAai.isIsClosedLoopDisabled());
         assertEquals("vnfName", vnfSentToAai.getVnfName());
         verify(systemFunctions, never()).sleep(anyLong());
+        VOID_OBSERVABLE.assertCalled();
         verify(networkApi, times(1)).getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
@@ -198,7 +200,7 @@ public class TestGenericVnfManager extends TestBase {
             if (vnfSentToAAi.getResourceVersion() == null) {
                 throw runtimeException;
             }
-            return null;
+            return VOID_OBSERVABLE.value();
         });
         vnfInfo.setName("vnfName");
         //when
@@ -217,6 +219,7 @@ public class TestGenericVnfManager extends TestBase {
         verify(networkApi, times(2)).createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), any());
         verify(logger).warn(eq("The VNF with myVnfId identifier did not appear in time"), any(NoSuchElementException.class));
         verify(logger).warn("The VNF with myVnfId identifier has been created since after the maximal wait for VNF to appear timeout", runtimeException);
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**

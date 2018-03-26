@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 
 /**
  * Responsible for managing {@link Vnfc} in AAI
@@ -54,7 +53,7 @@ public class VnfcManager extends AbstractManager {
 
     void delete(String vnfId, com.nokia.cbam.lcm.v32.model.AffectedVnfc cbamVnfc) {
         Vnfc vnfc = getVnfc(buildId(vnfId, cbamVnfc.getId())).blockingFirst();
-        systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().deleteNetworkVnfcsVnfc(vnfc.getVnfcName(), vnfc.getResourceVersion()));
+        aaiRestApiProvider.getNetworkApi().deleteNetworkVnfcsVnfc(vnfc.getVnfcName(), vnfc.getResourceVersion()).blockingFirst();
     }
 
     private Observable<Vnfc> getVnfc(String vnfcId) {
@@ -79,6 +78,6 @@ public class VnfcManager extends AbstractManager {
         }
         addSingletonRelation(aaiVnfc.getRelationshipList(), VserverManager.linkTo(vimId, tenantId, cbamVnfc.getComputeResource().getResourceId()));
         addSingletonRelation(aaiVnfc.getRelationshipList(), GenericVnfManager.linkTo(vnfId));
-        systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkVnfcsVnfc(aaiVnfc.getVnfcName(), aaiVnfc));
+        aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkVnfcsVnfc(aaiVnfc.getVnfcName(), aaiVnfc).blockingFirst();
     }
 }

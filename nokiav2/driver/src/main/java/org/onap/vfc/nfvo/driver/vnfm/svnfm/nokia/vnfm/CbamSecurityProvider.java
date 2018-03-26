@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Responsible for providing SSL factories for AAI
+ * Responsible for providing SSL factories for CBAM
  */
 @Component
 public class CbamSecurityProvider extends GenericSecurityProvider {

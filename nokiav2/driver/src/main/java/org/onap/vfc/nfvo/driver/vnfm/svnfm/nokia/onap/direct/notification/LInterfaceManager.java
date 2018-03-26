@@ -32,7 +32,6 @@ import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getRegionName;
 
@@ -124,6 +123,6 @@ class LInterfaceManager extends AbstractManager {
         String tenantId = affectedCp.getTenantId();
         String vServerId = affectedCp.getServerProviderId();
         String cpId = affectedCp.getCpId();
-        systemFunctions().blockingFirst(aaiRestApiProvider.getCloudInfrastructureApi().createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(cloudOwner, regionName, tenantId, vServerId, cpId, logicalInterface));
+        aaiRestApiProvider.getCloudInfrastructureApi().createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(cloudOwner, regionName, tenantId, vServerId, cpId, logicalInterface).blockingFirst();
     }
 }

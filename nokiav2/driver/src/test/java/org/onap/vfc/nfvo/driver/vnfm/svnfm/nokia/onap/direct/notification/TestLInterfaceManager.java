@@ -72,7 +72,7 @@ public class TestLInterfaceManager extends TestBase {
         lInterface.setResourceVersion("v3");
         lInterface.setRelationshipList(new ArrayList<>());
         when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
-        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(null);
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         lInterfaceManager.update(VNF_ID, VIM_ID, affectedCp, true);
         //verify
@@ -90,6 +90,7 @@ public class TestLInterfaceManager extends TestBase {
         assertEquals("networkProviderId", actualInterface.getL3InterfaceIpv4AddressList().get(0).getNeutronNetworkId());
         assertEquals("1.2.3.4", actualInterface.getL3InterfaceIpv4AddressList().get(0).getL3InterfaceIpv4Address());
         assertRelation(actualInterface.getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -109,9 +110,8 @@ public class TestLInterfaceManager extends TestBase {
         affectedCp.setCpId("cpId");
         LInterface lInterface = new LInterface();
         lInterface.setResourceVersion("v3");
-        lInterface.setRelationshipList(new ArrayList<>());
         when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
-        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(null);
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         lInterfaceManager.update(VNF_ID, VIM_ID, affectedCp, true);
         //verify
@@ -127,6 +127,7 @@ public class TestLInterfaceManager extends TestBase {
         assertEquals(null, actualInterface.getL3InterfaceIpv6AddressList());
         assertEquals(null, actualInterface.getL3InterfaceIpv4AddressList());
         assertRelation(actualInterface.getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -148,8 +149,9 @@ public class TestLInterfaceManager extends TestBase {
         LInterface lInterface = new LInterface();
         lInterface.setResourceVersion("v3");
         lInterface.setRelationshipList(new ArrayList<>());
+        lInterface.getRelationshipList().add(VserverManager.linkTo(VIM_ID, "b", "c"));
         when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
-        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(null);
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         lInterfaceManager.update(VNF_ID, VIM_ID, affectedCp, true);
         //verify
@@ -168,6 +170,8 @@ public class TestLInterfaceManager extends TestBase {
         assertEquals("1.2.3.4", actualInterface.getL3InterfaceIpv4AddressList().get(0).getL3InterfaceIpv4Address());
         assertEquals("v3", lInterface.getResourceVersion());
         assertRelation(actualInterface.getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
+        assertEquals(2, lInterface.getRelationshipList().size());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -190,7 +194,7 @@ public class TestLInterfaceManager extends TestBase {
         lInterface.setResourceVersion("v3");
         lInterface.setRelationshipList(new ArrayList<>());
         when(cloudInfrastructureApi.getCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", null, null, null, null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(lInterface));
-        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(null);
+        when(cloudInfrastructureApi.createOrUpdateCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface(eq("myCloudOwnerId"), eq("myRegionName"), eq("myTenantId"), eq("serverProviderId"), eq("cpId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         lInterfaceManager.update(VNF_ID, VIM_ID, affectedCp, false);
         //verify
@@ -230,6 +234,7 @@ public class TestLInterfaceManager extends TestBase {
         lInterfaceManager.delete(VIM_ID, affectedCp);
         //verify
         cloudInfrastructureApi.deleteCloudInfrastructureCloudRegionsCloudRegionTenantsTenantVserversVserverLInterfacesLInterface("myCloudOwnerId", "myRegionName", "myTenantId", "serverProviderId", "cpId", "v3");
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**

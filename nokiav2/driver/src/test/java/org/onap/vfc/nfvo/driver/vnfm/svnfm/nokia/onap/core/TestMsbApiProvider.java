@@ -22,6 +22,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.onap.msb.ApiClient;
 import org.onap.msb.api.ServiceResourceApi;
 import org.onap.msb.model.MicroServiceFullInfo;
@@ -183,6 +184,31 @@ public class TestMsbApiProvider extends TestBase {
             assertEquals("Unable to get micro service URL for serviceName with version v1", e.getMessage());
             verify(logger).error("Unable to get micro service URL for serviceName with version v1", expectedException);
         }
+    }
+
+    /**
+     * Test API wrapping for LCM
+     * (questionable benefit [ this is more less ensured by Java type safety) ]
+     */
+    @Test
+    public void testOperationExecutionsApiAPiWrapping() {
+        ApiClient c = Mockito.mock(ApiClient.class);
+        class TestClasss extends MsbApiProvider {
+
+            TestClasss(Environment environment) {
+                super(environment);
+            }
+
+            @Override
+            ApiClient buildApiClient() {
+                return c;
+            }
+        }
+        ServiceResourceApi defaultApi = Mockito.mock(ServiceResourceApi.class);
+        when(c.createService(ServiceResourceApi.class)).thenReturn(defaultApi);
+        //verify
+        TestClasss testInstnace = new TestClasss(environment);
+        assertEquals(defaultApi, testInstnace.getMsbApi());
     }
 
 }

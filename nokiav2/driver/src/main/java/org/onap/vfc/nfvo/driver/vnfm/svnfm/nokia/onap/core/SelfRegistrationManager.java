@@ -86,7 +86,7 @@ public class SelfRegistrationManager {
     public void deRegister() {
         try {
             logger.info("Cancelling micro service registration");
-            systemFunctions().blockingFirst(msbApiProvider.getMsbApi().deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null));
+            msbApiProvider.getMsbApi().deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null).blockingFirst();
         } catch (Exception e) {
             //ONAP throws 500 internal server error, but deletes the micro service
             boolean serviceFoundAfterDelete = false;
@@ -123,7 +123,7 @@ public class SelfRegistrationManager {
             for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION).blockingFirst()) {
                 if (subscription.getCallbackUrl().equals(callbackUrl)) {
                     logger.info("Deleting subscription with {} identifier", subscription.getId());
-                    systemFunctions().blockingFirst(lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION));
+                    lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION).blockingFirst();
                 }
             }
         } catch (Exception e) {

@@ -332,22 +332,7 @@ public class LifecycleManager {
         accessInfov3.setProject(vim.getAccessInfo().getTenant());
         accessInfov3.setRegion(getRegionName(vimId));
         accessInfov3.setUsername(vimInfo.getUserName());
-        EndpointInfo interfaceInfoV3 = new EndpointInfo();
-        interfaceInfoV3.setEndpoint(vimInfo.getUrl());
-        if (!isEmpty(vimInfo.getSslInsecure())) {
-            interfaceInfoV3.setSkipCertificateVerification(Boolean.parseBoolean(vimInfo.getSslInsecure()));
-            interfaceInfoV3.setSkipCertificateHostnameCheck(Boolean.parseBoolean(vimInfo.getSslInsecure()));
-        } else {
-            interfaceInfoV3.setSkipCertificateHostnameCheck(true);
-            interfaceInfoV3.setSkipCertificateVerification(true);
-        }
-        if (!interfaceInfoV3.isSkipCertificateVerification()) {
-            interfaceInfoV3.setTrustedCertificates(new ArrayList<>());
-            for (String trustedCertificate : StoreLoader.getCertifacates(vimInfo.getSslCacert())) {
-                interfaceInfoV3.getTrustedCertificates().add(trustedCertificate.getBytes(UTF_8));
-            }
-        }
-        openstackv3INFO.setInterfaceInfo(interfaceInfoV3);
+        openstackv3INFO.setInterfaceInfo(getEndpointInfo(vimInfo));
         openstackv3INFO.setId(vimId);
         return openstackv3INFO;
     }
@@ -361,6 +346,13 @@ public class LifecycleManager {
         accessInfo.setTenant(vim.getAccessInfo().getTenant());
         accessInfo.setUsername(vimInfo.getUserName());
         accessInfo.setRegion(getRegionName(vimId));
+        EndpointInfo interfaceEndpoint = getEndpointInfo(vimInfo);
+        openstackv2INFO.setInterfaceInfo(interfaceEndpoint);
+        openstackv2INFO.setId(vimId);
+        return openstackv2INFO;
+    }
+
+    private EndpointInfo getEndpointInfo(VimInfo vimInfo) {
         EndpointInfo interfaceEndpoint = new EndpointInfo();
         if (!isEmpty(vimInfo.getSslInsecure())) {
             interfaceEndpoint.setSkipCertificateHostnameCheck(Boolean.parseBoolean(vimInfo.getSslInsecure()));
@@ -376,9 +368,7 @@ public class LifecycleManager {
                 interfaceEndpoint.getTrustedCertificates().add(trustedCertificate.getBytes(UTF_8));
             }
         }
-        openstackv2INFO.setInterfaceInfo(interfaceEndpoint);
-        openstackv2INFO.setId(vimId);
-        return openstackv2INFO;
+        return interfaceEndpoint;
     }
 
     private VMWAREVCLOUDINFO buildVcloudInfo(String vimId, org.onap.vnfmdriver.model.VimInfo vimInfo) {
@@ -389,22 +379,7 @@ public class LifecycleManager {
         accessInfo.setPassword(vimInfo.getPassword());
         accessInfo.setUsername(vimInfo.getUserName());
         accessInfo.setOrganization(getRegionName(vimId));
-        EndpointInfo interfaceEndpoint = new EndpointInfo();
-        if (!isEmpty(vimInfo.getSslInsecure())) {
-            interfaceEndpoint.setSkipCertificateHostnameCheck(Boolean.parseBoolean(vimInfo.getSslInsecure()));
-            interfaceEndpoint.setSkipCertificateVerification(Boolean.parseBoolean(vimInfo.getSslInsecure()));
-        } else {
-            interfaceEndpoint.setSkipCertificateHostnameCheck(true);
-            interfaceEndpoint.setSkipCertificateVerification(true);
-        }
-        interfaceEndpoint.setEndpoint(vimInfo.getUrl());
-        if (!interfaceEndpoint.isSkipCertificateVerification()) {
-            interfaceEndpoint.setTrustedCertificates(new ArrayList<>());
-            for (String trustedCertificate : StoreLoader.getCertifacates(vimInfo.getSslCacert())) {
-                interfaceEndpoint.getTrustedCertificates().add(trustedCertificate.getBytes(UTF_8));
-            }
-        }
-        vcloudInfo.setInterfaceInfo(interfaceEndpoint);
+        vcloudInfo.setInterfaceInfo(getEndpointInfo(vimInfo));
         vcloudInfo.setId(vimId);
         return vcloudInfo;
     }
@@ -442,7 +417,7 @@ public class LifecycleManager {
             if (vnf.getInstantiationState() == INSTANTIATED) {
                 terminateVnf(vnfmId, vnfId, jobInfo, cbamRequest, vnf);
             } else {
-                systemFunctions().blockingFirst(cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION));
+                cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
             }
         });
     }
@@ -455,7 +430,7 @@ public class LifecycleManager {
         if (finishedOperation.getStatus() == FINISHED) {
             notificationManager.waitForTerminationToBeProcessed(finishedOperation.getId());
             logger.info("Deleting VNF with {}", vnfId);
-            systemFunctions().blockingFirst(cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION));
+            cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
             logger.info("VNF with {} has been deleted", vnfId);
 
         } else {

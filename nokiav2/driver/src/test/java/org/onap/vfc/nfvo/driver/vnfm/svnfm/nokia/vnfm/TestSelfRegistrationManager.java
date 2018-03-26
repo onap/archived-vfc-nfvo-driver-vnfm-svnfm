@@ -41,6 +41,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.onap.msb.model.MicroServiceInfo.ProtocolEnum.REST;
 import static org.onap.msb.model.MicroServiceInfo.VisualRangeEnum._1;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager.DRIVER_VERSION;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager.SERVICE_NAME;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCN_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
@@ -123,7 +125,7 @@ public class TestSelfRegistrationManager extends TestBase {
         assertEquals(REST, microserviceRequest.getProtocol());
         assertNull(microserviceRequest.getMetadata());
         //very strange, but it should be null for ONAP to work
-        assertEquals(SelfRegistrationManager.SERVICE_NAME, microserviceRequest.getServiceName());
+        assertEquals(SERVICE_NAME, microserviceRequest.getServiceName());
         assertEquals("/api/NokiaSVNFM/v1", microserviceRequest.getUrl());
         assertEquals("v1", microserviceRequest.getVersion());
         assertEquals(Boolean.FALSE, microserviceRequest.isEnableSsl());
@@ -183,6 +185,7 @@ public class TestSelfRegistrationManager extends TestBase {
             subscription.setCallbackUrl("http://5.6.7.8:12345/api/NokiaSVNFM/v1/lcn");
             subscription.setId(UUID.randomUUID().toString());
             subscriptions.add(subscription);
+            when(lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION)).thenReturn(VOID_OBSERVABLE.value());
             return buildObservable(subscription);
         });
         MicroServiceFullInfo returnedMicroService = new MicroServiceFullInfo();
@@ -215,16 +218,18 @@ public class TestSelfRegistrationManager extends TestBase {
         subscription.setId(UUID.randomUUID().toString());
         subscriptions.add(subscription);
         when(jobManager.hasOngoingJobs()).thenReturn(false);
-        Observable delete = Mockito.mock(Observable.class);
-        when(lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION)).thenReturn(delete);
+        when(lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION)).thenReturn(VOID_OBSERVABLE.value());
+        VoidObservable MSB_DELETE = new VoidObservable();
+        when(msbClient.deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null)).thenReturn(MSB_DELETE.value());
         //when
         selfRegistrationManager.deRegister();
         //verify
         InOrder inOrder = Mockito.inOrder(jobManager, msbClient, lcnApi);
-        inOrder.verify(msbClient).deleteMicroService(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null);
+        inOrder.verify(msbClient).deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null);
         inOrder.verify(lcnApi).subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION);
         assertServiceDown();
-        verify(systemFunctions).blockingFirst(delete);
+        VOID_OBSERVABLE.assertCalled();
+        MSB_DELETE.assertCalled();
         verify(logger).info("Deleting subscription with {} identifier", subscription.getId());
     }
 
@@ -240,22 +245,23 @@ public class TestSelfRegistrationManager extends TestBase {
         subscription.setId(UUID.randomUUID().toString());
         subscriptions.add(subscription);
         when(jobManager.hasOngoingJobs()).thenReturn(false);
-        when(msbClient.deleteMicroService(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null)).then(new Answer<Observable<Void>>() {
+        when(msbClient.deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null)).then(new Answer<Observable<Void>>() {
             @Override
             public Observable<Void> answer(InvocationOnMock invocationOnMock) throws Throwable {
-                when(msbClient.getMicroService_0(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null, null, null, null)).thenThrow(new RuntimeException());
+                when(msbClient.getMicroService_0(SERVICE_NAME, DRIVER_VERSION, null, null, null, null, null)).thenThrow(new RuntimeException());
                 throw new RuntimeException();
             }
         });
-        MicroServiceFullInfo returnedMicroService = new MicroServiceFullInfo();
+        when(lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION)).thenReturn(VOID_OBSERVABLE.value());
         //when
         selfRegistrationManager.deRegister();
         //verify
         InOrder inOrder = Mockito.inOrder(jobManager, msbClient, lcnApi);
-        inOrder.verify(msbClient).deleteMicroService(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null);
-        inOrder.verify(msbClient).getMicroService_0(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null, null, null, null);
+        inOrder.verify(msbClient).deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null);
+        inOrder.verify(msbClient).getMicroService_0(SERVICE_NAME, DRIVER_VERSION, null, null, null, null, null);
         inOrder.verify(lcnApi).subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION);
         assertServiceDown();
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -268,7 +274,7 @@ public class TestSelfRegistrationManager extends TestBase {
         subscription.setCallbackUrl("http://5.6.7.8:12345/api/NokiaSVNFM/v1/lcn");
         subscription.setId(UUID.randomUUID().toString());
         subscriptions.add(subscription);
-        when(msbClient.deleteMicroService(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null)).then(new Answer<Observable<Void>>() {
+        when(msbClient.deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null)).then(new Answer<Observable<Void>>() {
             @Override
             public Observable<Void> answer(InvocationOnMock invocationOnMock) throws Throwable {
                 throw new RuntimeException();
@@ -283,8 +289,8 @@ public class TestSelfRegistrationManager extends TestBase {
         }
         //verify
         InOrder inOrder = Mockito.inOrder(jobManager, msbClient, lcnApi);
-        inOrder.verify(msbClient).deleteMicroService(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null);
-        inOrder.verify(msbClient).getMicroService_0(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null, null, null, null);
+        inOrder.verify(msbClient).deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null);
+        inOrder.verify(msbClient).getMicroService_0(SERVICE_NAME, DRIVER_VERSION, null, null, null, null, null);
         verify(lcnApi, Mockito.never()).subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION);
         assertServiceDown();
     }
@@ -302,6 +308,7 @@ public class TestSelfRegistrationManager extends TestBase {
         when(jobManager.hasOngoingJobs()).thenReturn(false);
         RuntimeException expectedException = new RuntimeException();
         doThrow(expectedException).when(lcnApi).subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION);
+        when(msbClient.deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null)).thenReturn(VOID_OBSERVABLE.value());
         //when
         try {
             selfRegistrationManager.deRegister();
@@ -311,7 +318,7 @@ public class TestSelfRegistrationManager extends TestBase {
         }
         //verify
         InOrder inOrder = Mockito.inOrder(jobManager, msbClient, lcnApi);
-        inOrder.verify(msbClient).deleteMicroService(SelfRegistrationManager.SERVICE_NAME, SelfRegistrationManager.DRIVER_VERSION, null, null);
+        inOrder.verify(msbClient).deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null);
         inOrder.verify(lcnApi).subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION);
         assertServiceDown();
     }

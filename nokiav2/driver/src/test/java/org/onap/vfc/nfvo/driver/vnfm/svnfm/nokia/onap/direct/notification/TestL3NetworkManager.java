@@ -68,7 +68,7 @@ public class TestL3NetworkManager extends TestBase {
         affectedVirtualLink.getResource().setResourceId("netProviderId");
         L3Network existingNetwork = new L3Network();
         when(networkApi.getNetworkL3NetworksL3Network("myVnfId_vlId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(existingNetwork));
-        when(networkApi.createOrUpdateNetworkL3NetworksL3Network(eq("myVnfId_vlId"), payload.capture())).thenReturn(null);
+        when(networkApi.createOrUpdateNetworkL3NetworksL3Network(eq("myVnfId_vlId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         l3NetworkManager.update(VIM_ID, VNF_ID, affectedVirtualLink);
         //verify
@@ -83,6 +83,7 @@ public class TestL3NetworkManager extends TestBase {
         assertRelation(payload.getValue().getRelationshipList(), "cloud-region", buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(VIM_ID)), buildRelationshipData("cloud-region.cloud-region-id", getRegionName(VIM_ID)));
         assertRelation(payload.getValue().getRelationshipList(), "tenant", buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(VIM_ID)), buildRelationshipData("cloud-region.cloud-region-id", getRegionName(VIM_ID)), buildRelationshipData("tenant.tenant-id", "myTenantId"));
         assertRelation(payload.getValue().getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -101,7 +102,7 @@ public class TestL3NetworkManager extends TestBase {
         l3Network.setResourceVersion("v3");
         l3Network.setRelationshipList(new ArrayList<>());
         when(networkApi.getNetworkL3NetworksL3Network("myVnfId_vlId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(l3Network));
-        when(networkApi.createOrUpdateNetworkL3NetworksL3Network(eq("myVnfId_vlId"), payload.capture())).thenReturn(null);
+        when(networkApi.createOrUpdateNetworkL3NetworksL3Network(eq("myVnfId_vlId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         //when
         l3NetworkManager.update(VIM_ID, VNF_ID, affectedVirtualLink);
         //verify
@@ -117,6 +118,7 @@ public class TestL3NetworkManager extends TestBase {
         assertRelation(payload.getValue().getRelationshipList(), "cloud-region", buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(VIM_ID)), buildRelationshipData("cloud-region.cloud-region-id", getRegionName(VIM_ID)));
         assertRelation(payload.getValue().getRelationshipList(), "tenant", buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(VIM_ID)), buildRelationshipData("cloud-region.cloud-region-id", getRegionName(VIM_ID)), buildRelationshipData("tenant.tenant-id", "myTenantId"));
         assertRelation(payload.getValue().getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -127,11 +129,14 @@ public class TestL3NetworkManager extends TestBase {
         affectedVirtualLink.setId("vlId");
         L3Network l3Network = new L3Network();
         l3Network.setResourceVersion("v3");
+        l3Network.setNetworkId("myVnfId_vlId");
         when(networkApi.getNetworkL3NetworksL3Network("myVnfId_vlId", null, null, null, null, null, null, null, null, null)).thenReturn(buildObservable(l3Network));
+        when(networkApi.deleteNetworkL3NetworksL3Network("myVnfId_vlId", "v3")).thenReturn(VOID_OBSERVABLE.value());
         //when
         l3NetworkManager.delete(VNF_ID, affectedVirtualLink);
         //verify
         networkApi.deleteNetworkL3NetworksL3Network("myVnfId_vlId", "v3");
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**

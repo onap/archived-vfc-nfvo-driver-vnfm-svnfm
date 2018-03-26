@@ -30,7 +30,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getRegionName;
 
@@ -63,7 +62,7 @@ class L3NetworkManager extends AbstractManager {
 
     void delete(String vnfId, AffectedVirtualLink removedVl) {
         L3Network l3Network = getNetwork(vnfId, removedVl).blockingFirst();
-        systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().deleteNetworkL3NetworksL3Network(l3Network.getNetworkId(), l3Network.getResourceVersion()));
+        aaiRestApiProvider.getNetworkApi().deleteNetworkL3NetworksL3Network(l3Network.getNetworkId(), l3Network.getResourceVersion()).blockingFirst();
     }
 
     private void updateNetworkFields(String vimId, String vnfId, AffectedVirtualLink affectedVirtualLink, L3Network network) {
@@ -82,7 +81,7 @@ class L3NetworkManager extends AbstractManager {
         addMissingRelation(network.getRelationshipList(), GenericVnfManager.linkTo(vnfId));
         addSingletonRelation(network.getRelationshipList(), getRegionLink(vimId));
         addSingletonRelation(network.getRelationshipList(), getTenantLink(vimId, extractMandatoryValue(affectedVirtualLink.getResource().getAdditionalData(), "tenantId")));
-        systemFunctions().blockingFirst(aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkL3NetworksL3Network(network.getNetworkId(), network));
+        aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkL3NetworksL3Network(network.getNetworkId(), network).blockingFirst();
     }
 
     private String buildNetworkId(String vnfId, AffectedVirtualLink affectedVirtualLink) {
