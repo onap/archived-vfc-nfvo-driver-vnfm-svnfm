@@ -14,6 +14,9 @@
 
 import os
 import sys
+from logging import config
+from onaplogging import monkey
+monkey.patch_all()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
@@ -55,6 +58,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'driver.middleware.LogContextMiddleware',
 ]
 
 ROOT_URLCONF = 'driver.urls'
@@ -110,35 +114,41 @@ TIME_ZONE = 'UTC'
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+#
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': True,
+#     'formatters': {
+#         'standard': {
+#             'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
+#         },
+#     },
+#     'filters': {
+#     },
+#     'handlers': {
+#         'driver_handler': {
+#             'level': 'DEBUG',
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': os.path.join(
+#                 BASE_DIR,
+#                 'logs/runtime_driver.log'),
+#             'formatter': 'standard',
+#             'maxBytes': 1024 * 1024 * 50,
+#             'backupCount': 5,
+#         },
+#     },
+#     'loggers': {
+#         'driver': {
+#             'handlers': ['driver_handler'],
+#             'level': 'DEBUG',
+#             'propagate': False},
+#     }}
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
-        },
-    },
-    'filters': {
-    },
-    'handlers': {
-        'driver_handler': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(
-                BASE_DIR,
-                'logs/runtime_driver.log'),
-            'formatter': 'standard',
-            'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 5,
-        },
-    },
-    'loggers': {
-        'driver': {
-            'handlers': ['driver_handler'],
-            'level': 'DEBUG',
-            'propagate': False},
-    }}
+LOGGING_CONFIG = None
+# yaml configuration of logging
+LOGGING_FILE = os.path.join(BASE_DIR, 'driver/log.yml')
+config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
+
 
 if 'test' in sys.argv:
     from driver.pub.config import config
