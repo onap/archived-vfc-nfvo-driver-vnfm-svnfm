@@ -112,7 +112,7 @@ public class TestLcmApi extends TestBase {
         //when
         lcmApi.terminateVnf(req, VNFM_ID, VNF_ID, httpResponse);
         //verify
-        verify(lifecycleManager).terminateVnf(VNFM_ID, VNF_ID, req, httpResponse);
+        verify(lifecycleManager).terminateAndDelete(VNFM_ID, VNF_ID, req, httpResponse);
         verify(logger).info("REST: Terminate VNF");
 
     }

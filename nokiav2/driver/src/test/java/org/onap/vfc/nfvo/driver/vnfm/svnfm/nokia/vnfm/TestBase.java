@@ -26,10 +26,7 @@ import io.reactivex.internal.operators.observable.ObservableFromCallable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -209,12 +206,14 @@ public class TestBase {
                     try {
                         field.setAccessible(true);
                         field.set(obj, value);
+                        return;
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
                 }
             }
         }
+        throw new NoSuchElementException("The " + obj.getClass() + " does not have a filed with " + key + " annotation");
     }
 
     protected static class VoidObservable {

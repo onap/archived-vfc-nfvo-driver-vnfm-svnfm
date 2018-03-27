@@ -25,24 +25,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class AaiSecurityProvider extends GenericSecurityProvider {
     @Value("${trustedCertificatesForAai}")
-    private String trustedCertificates;
+    private String trustedCertificatesForAai;
     @Value("${skipCertificateVerificationForAai}")
-    private boolean skipCertificateVerification;
+    private boolean skipCertificateVerificationForAai;
     @Value("${skipHostnameVerificationForAai}")
-    private boolean skipHostnameVerification;
+    private boolean skipHostnameVerificationForAai;
 
     @Override
     protected boolean skipHostnameVerification() {
-        return skipHostnameVerification;
+        return skipHostnameVerificationForAai;
     }
 
     @Override
     protected boolean skipCertificateVerification() {
-        return skipCertificateVerification;
+        return skipCertificateVerificationForAai;
     }
 
     @Override
     protected String trustedCertificates() {
-        return trustedCertificates;
+        return trustedCertificatesForAai;
     }
 }

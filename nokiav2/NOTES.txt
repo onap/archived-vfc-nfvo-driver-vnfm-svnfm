@@ -1,0 +1,5 @@
+Scatchpad
+
+mvn jacoco:report -Djacoco.dataFile='${project.build.directory}/code-coverage/jacoco-ut.exec'
+mvn sonar:sonar -Dsonar.host.url=http://sonar.onap.org
+

@@ -750,7 +750,7 @@ public class TestLifecycleManager extends TestBase {
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
-        JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
+        JobInfo jobInfo = lifecycleManager.terminateAndDelete(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualTerminationRequest.getAllValues().size());
@@ -781,21 +781,25 @@ public class TestLifecycleManager extends TestBase {
         vnfdId.setValue(ONAP_CSAR_ID);
         vnfInfo.getExtensions().add(vnfdId);
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
+        when(vnfApi.vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(VOID_OBSERVABLE.value());
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
-        JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
+        lifecycleManager.terminateAndDelete(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
         boolean deleted = false;
         while (!deleted) {
             try {
-                Mockito.
-                        verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
+                verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
                 deleted = true;
             } catch (Error e) {
             }
         }
         verify(vfcGrantManager, never()).requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnfInfo, JOB_ID);
         verify(notificationManager, never()).waitForTerminationToBeProcessed("terminationId");
+        verify(logger).debug("The VNF {} with identifier is not instantiated no termination required", VNF_ID);
+        verify(logger).info("Deleting VNF with {} identifier", VNF_ID);
+        verify(logger).info("The VNF with {} identifier has been deleted", VNF_ID);
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -831,7 +835,7 @@ public class TestLifecycleManager extends TestBase {
             return buildObservable(operationExecutions);
         });
         //when
-        JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
+        JobInfo jobInfo = lifecycleManager.terminateAndDelete(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         verify(vnfApi, times(1001)).vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION);
@@ -882,7 +886,7 @@ public class TestLifecycleManager extends TestBase {
             }
         });
         //when
-        JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
+        JobInfo jobInfo = lifecycleManager.terminateAndDelete(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         verify(vnfApi, times(101)).vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION);
@@ -926,7 +930,7 @@ public class TestLifecycleManager extends TestBase {
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
-        JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
+        JobInfo jobInfo = lifecycleManager.terminateAndDelete(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualTerminationRequest.getAllValues().size());
@@ -988,7 +992,7 @@ public class TestLifecycleManager extends TestBase {
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
-        JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
+        JobInfo jobInfo = lifecycleManager.terminateAndDelete(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualTerminationRequest.getAllValues().size());
@@ -1032,7 +1036,7 @@ public class TestLifecycleManager extends TestBase {
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
-        JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
+        JobInfo jobInfo = lifecycleManager.terminateAndDelete(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(0, actualTerminationRequest.getAllValues().size());
@@ -1067,7 +1071,7 @@ public class TestLifecycleManager extends TestBase {
         JsonElement instantiationParameters = new JsonParser().parse("{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] } ");
         when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet("operationExecutionId", NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(instantiationParameters));
         //when
-        JobInfo jobInfo = lifecycleManager.terminateVnf(VNFM_ID, VNF_ID, terminationRequest, restResponse);
+        JobInfo jobInfo = lifecycleManager.terminateAndDelete(VNFM_ID, VNF_ID, terminationRequest, restResponse);
         //verify
         waitForJobToFinishInJobManager(finished);
         assertEquals(1, actualTerminationRequest.getAllValues().size());

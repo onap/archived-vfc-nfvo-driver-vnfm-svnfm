@@ -56,7 +56,8 @@ public class TestAAIRestApiProvider extends TestBase {
     private AAIRestApiProvider aaiRestApiProvider;
     @Mock
     private HostnameVerifier hostnameVerifier;
-    private AaiSecurityProvider aaiSecurityProvider = spy(new AaiSecurityProvider());
+    private AaiSecurityProvider aaiSecurityProviderReal = new AaiSecurityProvider();
+    private AaiSecurityProvider aaiSecurityProvider = spy(aaiSecurityProviderReal);
 
     @Before
     public void init() {
@@ -68,8 +69,8 @@ public class TestAAIRestApiProvider extends TestBase {
      */
     @Test
     public void testApiClientBuilder() throws Exception {
-        setField(aaiSecurityProvider, "skipCertificateVerification", true);
-        setField(aaiSecurityProvider, "skipHostnameVerification", true);
+        when(aaiSecurityProvider.skipCertificateVerification()).thenReturn(true);
+        when(aaiSecurityProvider.skipHostnameVerification()).thenReturn(true);
         setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiUsername}", "username");
         setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiPassword}", "aaiPassword");
         ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
@@ -107,8 +108,8 @@ public class TestAAIRestApiProvider extends TestBase {
      */
     @Test
     public void testApiClientBuilderMissingSlash() throws Exception {
-        setField(aaiSecurityProvider, "skipCertificateVerification", true);
-        setField(aaiSecurityProvider, "skipHostnameVerification", true);
+        when(aaiSecurityProvider.skipCertificateVerification()).thenReturn(true);
+        when(aaiSecurityProvider.skipHostnameVerification()).thenReturn(true);
         setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiUsername}", "username");
         setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiPassword}", "aaiPassword");
         ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
@@ -131,8 +132,8 @@ public class TestAAIRestApiProvider extends TestBase {
      */
     @Test
     public void testApiClientBuilderForCloud() throws Exception {
-        setField(aaiSecurityProvider, "skipCertificateVerification", true);
-        setField(aaiSecurityProvider, "skipHostnameVerification", true);
+        when(aaiSecurityProvider.skipCertificateVerification()).thenReturn(true);
+        when(aaiSecurityProvider.skipHostnameVerification()).thenReturn(true);
         setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiUsername}", "username");
         setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiPassword}", "aaiPassword");
         ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
@@ -155,8 +156,8 @@ public class TestAAIRestApiProvider extends TestBase {
      */
     @Test
     public void testApiClientBuilderForExternalSystems() throws Exception {
-        setField(aaiSecurityProvider, "skipCertificateVerification", true);
-        setField(aaiSecurityProvider, "skipHostnameVerification", true);
+        when(aaiSecurityProvider.skipCertificateVerification()).thenReturn(true);
+        when(aaiSecurityProvider.skipHostnameVerification()).thenReturn(true);
         setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiUsername}", "username");
         setFieldWithPropertyAnnotation(aaiRestApiProvider, "${aaiPassword}", "aaiPassword");
         ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
