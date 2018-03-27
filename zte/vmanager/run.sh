@@ -12,4 +12,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+logDir="/var/log/onap/vfc/ztevnfmdriver/"
+if [ ! -x  $logDir  ]; then
+       mkdir -p $logDir
+fi
+
 nohup python manage.py runserver 0.0.0.0:8410 > /dev/null &
+
+while [ ! -f $logDir/runtime_ztevnfmdriver.log ]; do
+    sleep 1
+done
+
+tail -F  $logDir/runtime_ztevnfmdriver.log
