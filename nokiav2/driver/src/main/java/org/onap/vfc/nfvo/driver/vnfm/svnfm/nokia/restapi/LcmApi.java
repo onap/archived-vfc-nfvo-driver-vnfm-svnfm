@@ -83,7 +83,7 @@ public class LcmApi {
     @ResponseBody
     public JobInfo terminateVnf(@RequestBody VnfTerminateRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfInstanceId, HttpServletResponse httpResponse) {
         logger.info("REST: Terminate VNF");
-        return lifecycleManager.terminateVnf(vnfmId, vnfInstanceId, request, httpResponse);
+        return lifecycleManager.terminateAndDelete(vnfmId, vnfInstanceId, request, httpResponse);
     }
 
     /**

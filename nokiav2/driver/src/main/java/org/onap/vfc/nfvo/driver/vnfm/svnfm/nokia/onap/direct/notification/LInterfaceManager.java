@@ -95,22 +95,18 @@ class LInterfaceManager extends AbstractManager {
         logicalInterface.setInterfaceRole(affectedCp.getCpdId());
         logicalInterface.setMacaddr(affectedCp.getMacAddress());
         logicalInterface.setProvStatus("active");
+        logicalInterface.setL3InterfaceIpv6AddressList(new ArrayList<>());
+        logicalInterface.setL3InterfaceIpv4AddressList(new ArrayList<>());
         if (affectedCp.getIpAddress() != null) {
             if (affectedCp.getIpAddress().contains(":")) {
                 L3InterfaceIpv6AddressList ipv6Address = new L3InterfaceIpv6AddressList();
                 ipv6Address.setL3InterfaceIpv6Address(affectedCp.getIpAddress());
                 ipv6Address.setNeutronNetworkId(affectedCp.getNetworkProviderId());
-                if (logicalInterface.getL3InterfaceIpv6AddressList() == null) {
-                    logicalInterface.setL3InterfaceIpv6AddressList(new ArrayList<>());
-                }
                 logicalInterface.getL3InterfaceIpv6AddressList().add(ipv6Address);
             } else {
                 L3InterfaceIpv4AddressList ipv4Address = new L3InterfaceIpv4AddressList();
                 ipv4Address.setL3InterfaceIpv4Address(affectedCp.getIpAddress());
                 ipv4Address.setNeutronNetworkId(affectedCp.getNetworkProviderId());
-                if (logicalInterface.getL3InterfaceIpv4AddressList() == null) {
-                    logicalInterface.setL3InterfaceIpv4AddressList(new ArrayList<>());
-                }
                 logicalInterface.getL3InterfaceIpv4AddressList().add(ipv4Address);
             }
         }

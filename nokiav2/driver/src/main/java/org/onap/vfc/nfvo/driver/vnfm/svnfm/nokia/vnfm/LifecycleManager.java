@@ -398,7 +398,7 @@ public class LifecycleManager {
      * @param httpResponse the HTTP response
      * @return the job for polling the progress of the termination
      */
-    public JobInfo terminateVnf(String vnfmId, String vnfId, VnfTerminateRequest request, HttpServletResponse httpResponse) {
+    public JobInfo terminateAndDelete(String vnfmId, String vnfId, VnfTerminateRequest request, HttpServletResponse httpResponse) {
         logOperationInput(vnfId, "termination", request);
         return scheduleExecution(vnfId, httpResponse, "terminate", jobInfo -> {
             TerminateVnfRequest cbamRequest = new TerminateVnfRequest();
@@ -415,27 +415,32 @@ public class LifecycleManager {
             cbamRequest.setAdditionalParams(new Gson().toJsonTree(jobInfo).getAsJsonObject());
             com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
             if (vnf.getInstantiationState() == INSTANTIATED) {
-                terminateVnf(vnfmId, vnfId, jobInfo, cbamRequest, vnf);
+                terminateAndDelete(vnfmId, vnfId, jobInfo, cbamRequest, vnf);
             } else {
-                cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+                logger.debug("The VNF {} with identifier is not instantiated no termination required", vnf.getId());
+                deleteVnf(vnfmId, vnfId);
             }
         });
     }
 
-    private void terminateVnf(String vnfmId, String vnfId, JobInfo jobInfo, TerminateVnfRequest cbamRequest, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
+    private void terminateAndDelete(String vnfmId, String vnfId, JobInfo jobInfo, TerminateVnfRequest cbamRequest, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
         String vimId = getVimIdFromInstantiationRequest(vnfmId, vnf);
         grantManager.requestGrantForTerminate(vnfmId, vnfId, vimId, getVnfdIdFromModifyableAttributes(vnf), vnf, jobInfo.getJobId());
         OperationExecution terminationOperation = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdTerminatePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION).blockingFirst();
         OperationExecution finishedOperation = waitForOperationToFinish(vnfmId, vnfId, terminationOperation.getId());
         if (finishedOperation.getStatus() == FINISHED) {
             notificationManager.waitForTerminationToBeProcessed(finishedOperation.getId());
-            logger.info("Deleting VNF with {}", vnfId);
-            cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
-            logger.info("VNF with {} has been deleted", vnfId);
+            deleteVnf(vnfmId, vnfId);
 
         } else {
             logger.error("Unable to terminate VNF the operation did not finish with success");
         }
+    }
+
+    private void deleteVnf(String vnfmId, String vnfId) {
+        logger.info("Deleting VNF with {} identifier", vnfId);
+        cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+        logger.info("The VNF with {} identifier has been deleted", vnfId);
     }
 
     private String getVimIdFromInstantiationRequest(String vnfmId, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
@@ -571,12 +576,6 @@ public class LifecycleManager {
                 logger.error("Unable to " + operation + " VNF with " + vnfId + " identifier", e);
                 jobManager.jobFinished(jobInfo.getJobId());
                 throw e;
-            } catch (Exception e) {
-                String msg = "Unable to " + operation + " VNF with " + vnfId + " identifier";
-                logger.error(msg, e);
-                //the job can only be signaled to be finished after the error is logged
-                jobManager.jobFinished(jobInfo.getJobId());
-                throw new UserVisibleError(msg, e);
             }
             jobManager.jobFinished(jobInfo.getJobId());
         });
@@ -616,10 +615,5 @@ public class LifecycleManager {
             this.vnfInfo = vnfInfo;
             this.vnfdId = vnfdId;
         }
-
-        public com.nokia.cbam.lcm.v32.model.VnfInfo getVnfInfo() {
-            return vnfInfo;
-        }
-
     }
 }

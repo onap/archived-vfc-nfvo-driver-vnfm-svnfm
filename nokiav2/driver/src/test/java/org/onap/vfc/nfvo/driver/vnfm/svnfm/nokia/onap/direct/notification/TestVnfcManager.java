@@ -17,7 +17,9 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.nokia.cbam.lcm.v32.model.AffectedVnfc;
 import com.nokia.cbam.lcm.v32.model.ResourceHandle;
+import io.reactivex.Observable;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -51,6 +53,36 @@ public class TestVnfcManager extends TestBase {
         vnfcManager = new VnfcManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
         setField(VnfcManager.class, "logger", logger);
         when(aaiRestApiProvider.getNetworkApi()).thenReturn(networkApi);
+    }
+
+
+    /**
+     * test create
+     */
+    @Test
+    public void testCreate() throws Exception {
+        AffectedVnfc affectedVnfc = new AffectedVnfc();
+        affectedVnfc.setComputeResource(new ResourceHandle());
+        affectedVnfc.getComputeResource().setResourceId("serverProviderId");
+        affectedVnfc.setId("vnfcId");
+        when(networkApi.getNetworkVnfcsVnfc("myVnfId_vnfcId", null, null, null, null, null, null, null, null, null)).thenReturn(Observable.error(new NoSuchElementException()));
+        when(networkApi.createOrUpdateNetworkVnfcsVnfc(eq("myVnfId_vnfcId"), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
+        //when
+        vnfcManager.update(VIM_ID, "myTenantPrivderId", VNF_ID, affectedVnfc, true);
+        //verify
+        Vnfc vnfc = payload.getValue();
+        assertEquals("myVnfId_vnfcId", vnfc.getVnfcName());
+        assertEquals("vnfcId", vnfc.getNfcFunction());
+        assertEquals("vnfcId", vnfc.getNfcNamingCode());
+        assertRelation(payload.getValue().getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
+
+        assertRelation(vnfc.getRelationshipList(), "vserver",
+                buildRelationshipData("cloud-region.cloud-owner", getCloudOwner(VIM_ID)),
+                buildRelationshipData("cloud-region.cloud-region-id", getRegionName(VIM_ID)),
+                buildRelationshipData("tenant.tenant-id", "myTenantPrivderId"),
+                buildRelationshipData("vserver.vserver-id", "serverProviderId"));
+        assertEquals(2, vnfc.getRelationshipList().size());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**

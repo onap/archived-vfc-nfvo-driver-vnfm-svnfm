@@ -86,7 +86,7 @@ public class TestLInterfaceManager extends TestBase {
         assertEquals("mac", actualInterface.getMacaddr());
         assertEquals("active", actualInterface.getProvStatus());
         assertEquals(1, actualInterface.getL3InterfaceIpv4AddressList().size());
-        assertEquals(null, actualInterface.getL3InterfaceIpv6AddressList());
+        assertEquals(0, actualInterface.getL3InterfaceIpv6AddressList().size());
         assertEquals("networkProviderId", actualInterface.getL3InterfaceIpv4AddressList().get(0).getNeutronNetworkId());
         assertEquals("1.2.3.4", actualInterface.getL3InterfaceIpv4AddressList().get(0).getL3InterfaceIpv4Address());
         assertRelation(actualInterface.getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
@@ -124,8 +124,8 @@ public class TestLInterfaceManager extends TestBase {
         assertEquals("cpdId", actualInterface.getInterfaceRole());
         assertEquals("mac", actualInterface.getMacaddr());
         assertEquals("active", actualInterface.getProvStatus());
-        assertEquals(null, actualInterface.getL3InterfaceIpv6AddressList());
-        assertEquals(null, actualInterface.getL3InterfaceIpv4AddressList());
+        assertEquals(0, actualInterface.getL3InterfaceIpv6AddressList().size());
+        assertEquals(0, actualInterface.getL3InterfaceIpv4AddressList().size());
         assertRelation(actualInterface.getRelationshipList(), "generic-vnf", buildRelationshipData("generic-vnf.vnf-id", VNF_ID));
         VOID_OBSERVABLE.assertCalled();
     }
@@ -165,7 +165,7 @@ public class TestLInterfaceManager extends TestBase {
         assertEquals("mac", actualInterface.getMacaddr());
         assertEquals("active", actualInterface.getProvStatus());
         assertEquals(1, actualInterface.getL3InterfaceIpv4AddressList().size());
-        assertEquals(null, actualInterface.getL3InterfaceIpv6AddressList());
+        assertEquals(0, actualInterface.getL3InterfaceIpv6AddressList().size());
         assertEquals("networkProviderId", actualInterface.getL3InterfaceIpv4AddressList().get(0).getNeutronNetworkId());
         assertEquals("1.2.3.4", actualInterface.getL3InterfaceIpv4AddressList().get(0).getL3InterfaceIpv4Address());
         assertEquals("v3", lInterface.getResourceVersion());
@@ -207,7 +207,7 @@ public class TestLInterfaceManager extends TestBase {
         assertEquals("cpdId", actualInterface.getInterfaceRole());
         assertEquals("mac", actualInterface.getMacaddr());
         assertEquals("active", actualInterface.getProvStatus());
-        assertEquals(null, actualInterface.getL3InterfaceIpv4AddressList());
+        assertEquals(0, actualInterface.getL3InterfaceIpv4AddressList().size());
         assertEquals(1, actualInterface.getL3InterfaceIpv6AddressList().size());
         assertEquals("networkProviderId", actualInterface.getL3InterfaceIpv6AddressList().get(0).getNeutronNetworkId());
         assertEquals("::", actualInterface.getL3InterfaceIpv6AddressList().get(0).getL3InterfaceIpv6Address());
