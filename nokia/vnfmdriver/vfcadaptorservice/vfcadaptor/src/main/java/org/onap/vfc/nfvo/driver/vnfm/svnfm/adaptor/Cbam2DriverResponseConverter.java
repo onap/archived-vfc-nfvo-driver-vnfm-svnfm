@@ -180,7 +180,6 @@ public class Cbam2DriverResponseConverter {
 		response.set_links(cbamResponse.get_links());
 		response.setId(cbamResponse.getId());
 		response.setCallbackUri(cbamResponse.getCallbackUrl());
-		response.setCallbackUrl(cbamResponse.getCallbackUrl());
 		response.setFilter(cbamResponse.getFilter());
 		
 		return response;

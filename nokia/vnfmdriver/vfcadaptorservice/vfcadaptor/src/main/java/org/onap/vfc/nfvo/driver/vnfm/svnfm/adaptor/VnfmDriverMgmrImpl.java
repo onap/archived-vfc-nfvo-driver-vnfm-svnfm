@@ -24,6 +24,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.entity.EsrSystemInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.inf.AaiMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateSubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMCreateVnfResponse;
@@ -356,7 +357,11 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf {
 	public CreateSubscriptionResponse createSubscription(CreateSubscriptionRequest request) throws VnfmDriverException {
 		CreateSubscriptionResponse driverResponse;
 		try {
-			CBAMCreateSubscriptionResponse cbamResponse = cbamMgmr.createSubscription(request);
+			CBAMCreateSubscriptionRequest cbamRequest = new CBAMCreateSubscriptionRequest();
+			cbamRequest.setCallbackUrl(request.getCallbackUri());
+			cbamRequest.setAuthentication(request.getAuthentication());
+			cbamRequest.setFilter(request.getFilter());
+			CBAMCreateSubscriptionResponse cbamResponse = cbamMgmr.createSubscription(cbamRequest);
 			driverResponse = responseConverter.queryRspConvert(cbamResponse);
 			subscriptionsMapper.insert(cbamResponse.getId());
 		} catch (Exception e) {

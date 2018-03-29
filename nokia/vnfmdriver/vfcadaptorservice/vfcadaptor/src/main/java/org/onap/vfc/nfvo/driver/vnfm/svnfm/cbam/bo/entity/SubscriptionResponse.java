@@ -13,20 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CBAMCreateSubscriptionRequest extends SubscriptionRequest{
-	@JsonProperty("callbackUrl")
-	private String callbackUrl;
+public class SubscriptionResponse {
+	@JsonProperty("id")
+	private String id;
 	
-	public String getCallbackUrl() {
-		return callbackUrl;
+	@JsonProperty("filter")
+	private SubscriptionFilter filter;
+	
+	@JsonProperty("_links")
+	private _links _links;
+
+	public String getId() {
+		return id;
 	}
 
-	public void setCallbackUrl(String callbackUrl) {
-		this.callbackUrl = callbackUrl;
+	public void setId(String id) {
+		this.id = id;
 	}
+
+	public SubscriptionFilter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(SubscriptionFilter filter) {
+		this.filter = filter;
+	}
+
+	public _links get_links() {
+		return _links;
+	}
+
+	public void set_links(_links _links) {
+		this._links = _links;
+	}
+	
+	
+	
 }

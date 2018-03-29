@@ -159,23 +159,23 @@ public class MultipartUtility {
         KeyManager[] kms = null;
         try {
             String CERT_STORE = "/etc/conf/server.p12";
-            String CERT_STORE_PASSWORD = "Changeme_123";
+            String CERT_STORE_PWD = "Changeme_123";
             String KEY_STORE_TYPE = "PKCS12";
             if(sslConf != null) {
                 CERT_STORE = sslConf.getKeyStore();
-                CERT_STORE_PASSWORD = sslConf.getKeyStorePass();
+                CERT_STORE_PWD= sslConf.getKeyStorePass();
                 KEY_STORE_TYPE = sslConf.getKeyStoreType();
             }
             // load jks file
 	    try(FileInputStream f_certStore = new FileInputStream(CommonUtil.getAppRoot() + CERT_STORE)){
 		    KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE);
-		    ks.load(f_certStore, CERT_STORE_PASSWORD.toCharArray());
+		    ks.load(f_certStore, CERT_STORE_PWD.toCharArray());
 	    
 
             // init and create
             String alg = KeyManagerFactory.getDefaultAlgorithm();
             KeyManagerFactory kmFact = KeyManagerFactory.getInstance(alg);
-            kmFact.init(ks, CERT_STORE_PASSWORD.toCharArray());
+            kmFact.init(ks, CERT_STORE_PWD.toCharArray());
 
             kms = kmFact.getKeyManagers();
 	    }
@@ -190,18 +190,18 @@ public class MultipartUtility {
         try {
 
             String TRUST_STORE = "/etc/conf/trust.jks";
-            String TRUST_STORE_PASSWORD = "Changeme_123";
+            String TRUST_STORE_PWD = "Changeme_123";
             String TRUST_STORE_TYPE = "jks";
             if(sslConf != null) {
                 TRUST_STORE = sslConf.getTrustStore();
-                TRUST_STORE_PASSWORD = sslConf.getTrustStorePass();
+                TRUST_STORE_PWD = sslConf.getTrustStorePass();
                 TRUST_STORE_TYPE = sslConf.getTrustStoreType();
             }
             String jksFilePath1 =CommonUtil.getAppRoot() + TRUST_STORE;
             logger.info("jks path is " + jksFilePath1);
 	    try(FileInputStream f_trustStore = new FileInputStream(jksFilePath1)){
 		    KeyStore ks = KeyStore.getInstance(TRUST_STORE_TYPE);
-		    ks.load(f_trustStore, TRUST_STORE_PASSWORD.toCharArray());
+		    ks.load(f_trustStore, TRUST_STORE_PWD.toCharArray());
 	    
 
             String alg = TrustManagerFactory.getDefaultAlgorithm();

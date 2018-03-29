@@ -44,7 +44,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.SubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfcResourceInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
@@ -208,7 +208,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		if (code == 202) {
 			logger.info("CbamMgmrImpl -> scaleVnf success.");
 		} else {
-			logger.error("CbamMgmrImpl -> scaleVnf error. ");
+			logger.error("CbamMgmrImpl -> scaleVnf error. detail info is " + httpResult.getContent());
 		}
 		CBAMScaleVnfResponse response = gson.fromJson(responseStr, CBAMScaleVnfResponse.class);
 
@@ -228,7 +228,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		if (code == 202) {
 			logger.info("CbamMgmrImpl -> healVnf success.");
 		} else {
-			logger.error("CbamMgmrImpl -> healVnf error. ");
+			logger.error("CbamMgmrImpl -> healVnf error. " + httpResult.getContent());
 		}
 		CBAMHealVnfResponse response = gson.fromJson(responseStr, CBAMHealVnfResponse.class);
 
@@ -247,7 +247,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		if (code == 200) {
 			logger.info("CbamMgmrImpl -> queryVnf success.");
 		} else {
-			logger.error("CbamMgmrImpl -> queryVnf error. ");
+			logger.error("CbamMgmrImpl -> queryVnf error. " + httpResult.getContent());
 		}
 
 		CBAMQueryVnfResponse response = gson.fromJson(responseStr, CBAMQueryVnfResponse.class);
@@ -490,7 +490,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 	}
 
 	@Override
-	public Subscription getSubscription(String subscriptionId) throws ClientProtocolException, IOException {
+	public SubscriptionResponse getSubscription(String subscriptionId) throws ClientProtocolException, IOException {
 		String httpPath = String.format(CommonConstants.CbamGetSubscriptionPath, subscriptionId);
 		RequestMethod method = RequestMethod.GET;
 
@@ -504,7 +504,7 @@ public class CbamMgmrImpl implements CbamMgmrInf {
 		} else {
 			logger.error("CbamMgmrImpl -> getSubscription error , statusCode = " + code);
 		}
-		Subscription response = gson.fromJson(responseStr, Subscription.class);
+		SubscriptionResponse response = gson.fromJson(responseStr, SubscriptionResponse.class);
 
 		return response;
 	}

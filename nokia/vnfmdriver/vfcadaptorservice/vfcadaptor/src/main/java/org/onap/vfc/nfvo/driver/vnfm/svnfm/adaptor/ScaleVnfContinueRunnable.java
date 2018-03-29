@@ -66,6 +66,7 @@ public class ScaleVnfContinueRunnable implements Runnable {
 		this.jobId = jobId;
 		this.jobDbMgmr = dbManager;
 		this.vnfmId = vnfmId;
+		this.type = driverRequest.getType();
 	}
 	
 	private void handleGrant(){
@@ -114,7 +115,7 @@ public class ScaleVnfContinueRunnable implements Runnable {
 		NslcmGrantVnfRequest request = new NslcmGrantVnfRequest();
 		
 		request.setVnfInstanceId(vnfInstanceId);
-		if(type.equals(ScaleType.SCALE_OUT)) {
+		if(type == ScaleType.SCALE_OUT) {
 			request.setLifecycleOperation(LifecycleOperation.Scaleout);
 		}else {
 			request.setLifecycleOperation(LifecycleOperation.Scalein);
