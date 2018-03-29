@@ -67,7 +67,7 @@ public class Cbam2DriverResponseConverter {
 		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_START);
 
 		jobDbManager.insert(jobInfo);
-		VnfmJobExecutionInfo jobInfo1 = (VnfmJobExecutionInfo) jobDbManager.findNewestJobInfo();
+		VnfmJobExecutionInfo jobInfo1 =  jobDbManager.findNewestJobInfo();
 		Long jobId = jobInfo1.getJobId();
 		TerminateVnfResponse response = new TerminateVnfResponse();
 		response.setJobId(jobId.longValue() + "");
@@ -125,7 +125,7 @@ public class Cbam2DriverResponseConverter {
 		return response;
 	}
 
-	public HealVnfResponse healRspConvert(CBAMHealVnfResponse cbamResponse) {
+	public HealVnfResponse healRspConvert() {
 		HealVnfResponse response = new HealVnfResponse();
 		response.setJobId("1");
 		return response;
@@ -142,7 +142,7 @@ public class Cbam2DriverResponseConverter {
 		jobInfo.setStatus(CommonConstants.CBAM_OPERATION_STATUS_START);
 
 		jobDbManager.insert(jobInfo);
-		VnfmJobExecutionInfo jobInfo1 = (VnfmJobExecutionInfo) jobDbManager.findNewestJobInfo();
+		VnfmJobExecutionInfo jobInfo1 = jobDbManager.findNewestJobInfo();
 		Long jobId = jobInfo1.getJobId();
 		ScaleVnfResponse response = new ScaleVnfResponse();
 

@@ -46,7 +46,7 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 	
 	private Gson gson = new Gson();
 	@Override
-	public AaiVnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException {
+	public AaiVnfmInfo queryVnfm(String vnfmId) throws IOException {
 		String httpPath = String.format(CommonConstants.RetrieveVnfmListPath, vnfmId);
 		RequestMethod method = RequestMethod.GET;
 		
@@ -54,29 +54,25 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 		
 		logger.info("AaiMgmrInfImpl->queryVnfm, the vnfmInfo is {}", responseStr);
 		
-		AaiVnfmInfo response = gson.fromJson(responseStr, AaiVnfmInfo.class);
-		
-		return response;
+		return gson.fromJson(responseStr, AaiVnfmInfo.class);
 	}
 	
-	private String operateHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
+	private String operateHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws IOException {
 		String url=adaptorEnv.getAaiApiUriFront() + httpPath;
 		
 		HashMap<String, String> headerMap = new HashMap<>();
 		headerMap.put("Content-Type", "application/json");
-        headerMap.put("Accept", "application/json");
-        headerMap.put("X-TransactionId", "9999");
-        headerMap.put("X-FromAppId", "esr-server");
+		headerMap.put("Accept", "application/json");
+		headerMap.put("X-TransactionId", "9999");
+		headerMap.put("X-FromAppId", "esr-server");
 
-        Base64 token = new Base64();
-        String authen = new String(token.encode(("AAI:AAI").getBytes()));
-        headerMap.put("Authorization", "Basic " + authen);
-        logger.info("getVimById headerMap: {}", headerMap.toString());
+		Base64 token = new Base64();
+		String authen = new String(token.encode(("AAI:AAI").getBytes()));
+		headerMap.put("Authorization", "Basic " + authen);
+		logger.info("getVimById headerMap: {}", headerMap.toString());
         
 		
-		String responseStr = httpClientProcessor.process(url, method, headerMap, gson.toJson(httpBodyObj)).getContent();
-		
-		return responseStr;
+		return httpClientProcessor.process(url, method, headerMap, gson.toJson(httpBodyObj)).getContent();
 	}
 
 	public void setAdaptorEnv(AdaptorEnv env) {
