@@ -27,10 +27,23 @@
   <packaging>pom</packaging>
   <name>vfc-nfvo-driver-vnfm-svnfm</name>
   <description>vfc-nfvo-driver-vnfm-svnfm</description>
-  <modules>
-    <module>zte</module>
-    <module>huawei</module>
-    <module>nokia</module>
-    <module>nokiav2</module>
-  </modules>
+  <profiles>
+    <profile>
+      <id>all</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>huawei</module>
+        <module>nokia</module>
+        <module>nokiav2</module>
+        <module>zte</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>rootOnly</id>
+      <modules>
+        </modules>
+    </profile>
+  </profiles>
 </project>
