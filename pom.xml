@@ -28,9 +28,9 @@
   <name>vfc-nfvo-driver-vnfm-svnfm</name>
   <description>vfc-nfvo-driver-vnfm-svnfm</description>
   <modules>
-    <module>zte</module>
     <module>huawei</module>
     <module>nokia</module>
     <module>nokiav2</module>
+    <module>zte</module>
   </modules>
 </project>
