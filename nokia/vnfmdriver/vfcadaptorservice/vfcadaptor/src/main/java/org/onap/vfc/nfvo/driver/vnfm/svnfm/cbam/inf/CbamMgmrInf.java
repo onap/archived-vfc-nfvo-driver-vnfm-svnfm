@@ -38,7 +38,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMTerminateVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationRequest;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationResponse;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.SubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VnfcResourceInfo;
 
 public interface CbamMgmrInf {
@@ -51,7 +51,7 @@ public interface CbamMgmrInf {
 			throws ClientProtocolException, IOException;
 	public CBAMCreateSubscriptionResponse createSubscription(CBAMCreateSubscriptionRequest subscriptionRequest)
 			throws ClientProtocolException, IOException;
-	public Subscription getSubscription(String subscriptionId)
+	public SubscriptionResponse getSubscription(String subscriptionId)
 			throws ClientProtocolException, IOException;
 	public CBAMVnfNotificationResponse getNotification(CBAMVnfNotificationRequest getNotificationRequest)
 			throws ClientProtocolException, IOException;

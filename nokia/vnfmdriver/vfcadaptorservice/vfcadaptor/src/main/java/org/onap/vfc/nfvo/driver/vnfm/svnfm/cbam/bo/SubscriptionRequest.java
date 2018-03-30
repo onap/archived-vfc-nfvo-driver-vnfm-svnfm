@@ -13,41 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity;
+
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
+
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.SubscriptionAuthentication;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.SubscriptionFilter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Subscription {
-	@JsonProperty("id")
-	private String id;
-	
-	@JsonProperty("lcnApiVersion")
-	private String lcnApiVersion;
-	
+public class SubscriptionRequest {
 	@JsonProperty("filter")
 	private SubscriptionFilter filter;
 	
-	@JsonProperty("callbackUrl")
-	private String callbackUrl;
-	
-	@JsonProperty("_links")
-	private _links _links;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getLcnApiVersion() {
-		return lcnApiVersion;
-	}
-
-	public void setLcnApiVersion(String lcnApiVersion) {
-		this.lcnApiVersion = lcnApiVersion;
-	}
+	@JsonProperty("authentication")
+	private SubscriptionAuthentication authentication;
 
 	public SubscriptionFilter getFilter() {
 		return filter;
@@ -57,22 +36,13 @@ public class Subscription {
 		this.filter = filter;
 	}
 
-	public String getCallbackUrl() {
-		return callbackUrl;
+	public SubscriptionAuthentication getAuthentication() {
+		return authentication;
 	}
 
-	public void setCallbackUrl(String callbackUrl) {
-		this.callbackUrl = callbackUrl;
+	public void setAuthentication(SubscriptionAuthentication authentication) {
+		this.authentication = authentication;
 	}
 
-	public _links get_links() {
-		return _links;
-	}
-
-	public void set_links(_links _links) {
-		this._links = _links;
-	}
-	
-	
-	
+   
 }

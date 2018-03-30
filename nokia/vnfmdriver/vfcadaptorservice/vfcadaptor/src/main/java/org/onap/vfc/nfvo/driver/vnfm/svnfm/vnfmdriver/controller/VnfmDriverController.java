@@ -18,6 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.controller;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
@@ -196,30 +197,30 @@ public class VnfmDriverController {
 		return null;
     }
 	
-////	@RequestMapping(value = "/notifications", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-////	public CBAMVnfNotificationResponse notificationVnf(@RequestBody CBAMVnfNotificationRequest request, HttpServletResponse httpResponse) throws ClientProtocolException, Exception
-//	@RequestMapping(value = "/notifications")
-////    @ResponseBody
-//    public void notificationVnf(HttpServletRequest request, HttpServletResponse httpResponse) throws ClientProtocolException, Exception
-//    {
-//		
-////		String jsonString = gson.toJson(request);
-////		logger.info("notificationVnf request:  bodyMessage is " + jsonString);
-//		logger.info("notificationVnf request:  bodyMessage is " + request.getMethod() + ",");
-//		
-//		try {
-////			CBAMVnfNotificationResponse response = cbamMgmr.getNotification(request);
-//			httpResponse.setStatus(204);
-////			logger.info("cbamController --> notificationVnf response is " + gson.toJson(response));
-////			return response;
-//		}
-//		catch(VnfmDriverException e)
-//		{
-//			processControllerException(httpResponse, e);
-//		}
-//		
-////		return null;
-//    }
+//	@RequestMapping(value = "/notifications", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+//	public CBAMVnfNotificationResponse notificationVnf(@RequestBody CBAMVnfNotificationRequest request, HttpServletResponse httpResponse) throws ClientProtocolException, Exception
+	@RequestMapping(value = "/notifications")
+//    @ResponseBody
+    public void notificationVnf(HttpServletRequest request, HttpServletResponse httpResponse)
+    {
+		
+//		String jsonString = gson.toJson(request);
+//		logger.info("notificationVnf request:  bodyMessage is " + jsonString);
+		logger.info("notificationVnf request:  bodyMessage is " + request.getMethod() + ",");
+		
+		try {
+//			CBAMVnfNotificationResponse response = cbamMgmr.getNotification(request);
+			httpResponse.setStatus(204);
+//			logger.info("cbamController --> notificationVnf response is " + gson.toJson(response));
+//			return response;
+		}
+		catch(VnfmDriverException e)
+		{
+			processControllerException(httpResponse, e);
+		}
+		
+//		return null;
+    }
 
 	private void processControllerException(HttpServletResponse httpResponse, VnfmDriverException e) {
 		try {
@@ -233,18 +234,17 @@ public class VnfmDriverController {
 	
 // -- The following VNFM Driver APIs are compliant to ETSI SOL003 -- Begin	
 	
-	@RequestMapping(value = "/createSubscripiton", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/createSubscription", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public CreateSubscriptionResponse createSubscripiton(@RequestBody CreateSubscriptionRequest request, HttpServletResponse httpResponse)
+	public CreateSubscriptionResponse createSubscription(@RequestBody CreateSubscriptionRequest request, HttpServletResponse httpResponse)
 	{
 		String jsonString = gson.toJson(request);
-		logger.info("VnfmDriverController --> createSubscripiton, bodyMessage is " + jsonString);
+		logger.info("VnfmDriverController --> createSubscription, bodyMessage is " + jsonString);
 		
 		try {
-			request.setCallbackUrl(request.getCallbackUri());
 			CreateSubscriptionResponse response = vnfmDriverMgmr.createSubscription(request);
 			httpResponse.setStatus(HttpStatus.SC_CREATED);
-			logger.info("VnfmDriverController --> createSubscripiton end ");
+			logger.info("VnfmDriverController --> createSubscription end ");
 			return response;
 		}
 		catch(VnfmDriverException e)

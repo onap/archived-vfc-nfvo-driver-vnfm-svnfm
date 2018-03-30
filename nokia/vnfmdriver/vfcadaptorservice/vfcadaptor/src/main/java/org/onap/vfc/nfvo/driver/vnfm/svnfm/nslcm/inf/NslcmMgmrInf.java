@@ -26,7 +26,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.bo.NslcmNotifyLCMEventsRequest;
 public interface NslcmMgmrInf {
 //	public VnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException;
 	
-	public NslcmGrantVnfResponse grantVnf(NslcmGrantVnfRequest driverRequest) throws ClientProtocolException, IOException;
+	public NslcmGrantVnfResponse grantVnf(NslcmGrantVnfRequest driverRequest) throws IOException;
 	
-	public void notifyVnf(NslcmNotifyLCMEventsRequest driverRequest, String vnfmId, String vnfInstanceId) throws ClientProtocolException, IOException;
+	public void notifyVnf(NslcmNotifyLCMEventsRequest driverRequest, String vnfmId, String vnfInstanceId) throws IOException;
 }

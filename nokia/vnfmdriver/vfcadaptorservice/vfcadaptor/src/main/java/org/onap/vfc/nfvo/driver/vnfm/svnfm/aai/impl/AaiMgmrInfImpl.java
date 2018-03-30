@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.inf.AaiMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
@@ -46,7 +45,7 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 	
 	private Gson gson = new Gson();
 	@Override
-	public AaiVnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException {
+	public AaiVnfmInfo queryVnfm(String vnfmId) throws IOException {
 		String httpPath = String.format(CommonConstants.RetrieveVnfmListPath, vnfmId);
 		RequestMethod method = RequestMethod.GET;
 		
@@ -59,7 +58,7 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 		return response;
 	}
 	
-	private String operateHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
+	private String operateHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws IOException {
 		String url=adaptorEnv.getAaiApiUriFront() + httpPath;
 		
 		HashMap<String, String> headerMap = new HashMap<>();
@@ -72,7 +71,6 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
         String authen = new String(token.encode(("AAI:AAI").getBytes()));
         headerMap.put("Authorization", "Basic " + authen);
         logger.info("getVimById headerMap: {}", headerMap.toString());
-        
 		
 		String responseStr = httpClientProcessor.process(url, method, headerMap, gson.toJson(httpBodyObj)).getContent();
 		
@@ -82,5 +80,4 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 	public void setAdaptorEnv(AdaptorEnv env) {
 		this.adaptorEnv = env;
 	}
-
 }

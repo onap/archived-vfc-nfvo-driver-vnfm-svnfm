@@ -288,12 +288,12 @@ public class VnfmDriverControllerTest {
 	public void testCreateSubscripiton() throws Exception {
 		CreateSubscriptionResponse mockResponse = new CreateSubscriptionResponse();
 		mockResponse.setCallbackUri("callbackUri");
-		String jsonString = "{\"callbackUri\":\"callbackUri\",\"callbackUri\":\"callbackUrl\"," + "\"authentication\":{\"userName\":\"userName\",\"password\":\"password\",\"clientName\":\"clientName\"}}";
+		String jsonString = "{\"callbackUri\":\"callbackUri\"," + "\"authentication\":{\"userName\":\"userName\",\"password\":\"password\",\"clientName\":\"clientName\"}}";
 		
 		when(vnfmDriverMgmr.createSubscription(Mockito.any(CreateSubscriptionRequest.class))).thenReturn(mockResponse);
 		
 		String responseString = mockMvc.perform(
-				post("/api/nokiavnfmdriver/v1/createSubscripiton").
+				post("/api/nokiavnfmdriver/v1/createSubscription").
 				characterEncoding("UTF-8").
 				accept(MediaType.APPLICATION_JSON).
 				contentType(MediaType.APPLICATION_JSON).

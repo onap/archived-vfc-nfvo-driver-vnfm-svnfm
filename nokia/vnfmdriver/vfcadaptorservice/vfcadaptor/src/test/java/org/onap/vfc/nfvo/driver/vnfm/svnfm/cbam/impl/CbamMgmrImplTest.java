@@ -52,7 +52,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.CBAMVnfNotificationResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.ExtManagedVirtualLinkData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.ExtVirtualLinkData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.NetworkAddress;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.SubscriptionResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimComputeResourceFlavour;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.VimSoftwareImage;
@@ -377,7 +377,7 @@ public class CbamMgmrImplTest {
 	public void testGetSubscriptionSuccess() throws ClientProtocolException, IOException
 	{
 		String subscriptionId = "subscriptionId_001";
-		Subscription response = cbamMgmr.getSubscription(subscriptionId);
+		SubscriptionResponse response = cbamMgmr.getSubscription(subscriptionId);
 	}
 	
 	@Test
@@ -388,7 +388,7 @@ public class CbamMgmrImplTest {
 	    when(httpClientProcessor.process(Mockito.anyString(), Mockito.any(RequestMethod.class), Mockito.any(HashMap.class), Mockito.anyString())).thenReturn(httpResult);
 	
 		String subscriptionId = "subscriptionId_001";
-		Subscription response = cbamMgmr.getSubscription(subscriptionId);
+		SubscriptionResponse response = cbamMgmr.getSubscription(subscriptionId);
 	}
 	
 	@Test

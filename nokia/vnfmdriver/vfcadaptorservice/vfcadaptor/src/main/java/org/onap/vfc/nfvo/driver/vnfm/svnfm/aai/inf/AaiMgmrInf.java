@@ -22,5 +22,5 @@ import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.aai.bo.AaiVnfmInfo;
 
 public interface AaiMgmrInf {
-	public AaiVnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException;
+	public AaiVnfmInfo queryVnfm(String vnfmId) throws IOException;
 }

@@ -18,7 +18,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.impl;
 
 import java.io.IOException;
 
-import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.CatalogQueryVnfResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.bo.entity.VnfPackageInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
@@ -29,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.gson.Gson;
 
@@ -45,7 +43,7 @@ public class CatalogMgmrImpl implements CatalogMgmrInf{
 	@Autowired
 	HttpClientProcessorInf httpClientProcessor;
 	
-	public VnfPackageInfo queryVnfPackage(String vnfPackageId) throws ClientProtocolException, IOException {
+	public VnfPackageInfo queryVnfPackage(String vnfPackageId) throws IOException {
 		
 		String url=adaptorEnv.getCatalogApiUriFront() + String.format(CommonConstants.RetrieveVnfPackagePath, vnfPackageId);
 		

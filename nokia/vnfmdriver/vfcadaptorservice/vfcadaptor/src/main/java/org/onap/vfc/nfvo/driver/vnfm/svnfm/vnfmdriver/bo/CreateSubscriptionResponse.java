@@ -15,11 +15,11 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.bo;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.SubscriptionResponse;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CreateSubscriptionResponse extends Subscription{
+public class CreateSubscriptionResponse extends SubscriptionResponse{
 	//the attribute callbackUri is for SOL003 driver, while callbackUrl is for CBAM
 		@JsonProperty("callbackUri")
 		private String callbackUri;

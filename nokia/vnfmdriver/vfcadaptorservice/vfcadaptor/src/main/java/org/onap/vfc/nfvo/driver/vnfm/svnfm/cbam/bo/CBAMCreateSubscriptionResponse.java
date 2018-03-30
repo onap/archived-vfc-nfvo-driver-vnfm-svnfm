@@ -16,26 +16,30 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.Subscription;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.bo.entity.SubscriptionResponse;
 
-public class CBAMCreateSubscriptionResponse extends Subscription{
-/*
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class CBAMCreateSubscriptionResponse extends SubscriptionResponse{
+	@JsonProperty("lcnApiVersion")
+	private String lcnApiVersion;
 	
-	@JsonProperty("problemDetails")
-	private ProblemDetails problemDetails;
-
-
-	public ProblemDetails getProblemDetails() {
-		return problemDetails;
+	@JsonProperty("callbackUrl")
+	private String callbackUrl;
+	
+	public String getLcnApiVersion() {
+		return lcnApiVersion;
 	}
 
-	public void setProblemDetails(ProblemDetails problemDetails) {
-		this.problemDetails = problemDetails;
+	public void setLcnApiVersion(String lcnApiVersion) {
+		this.lcnApiVersion = lcnApiVersion;
 	}
-*/
 	
-	
+	public String getCallbackUrl() {
+		return callbackUrl;
+	}
 
-	
-	
+	public void setCallbackUrl(String callbackUrl) {
+		this.callbackUrl = callbackUrl;
+	}
 }

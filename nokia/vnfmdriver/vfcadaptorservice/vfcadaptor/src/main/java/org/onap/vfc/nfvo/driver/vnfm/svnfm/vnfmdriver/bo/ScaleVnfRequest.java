@@ -35,7 +35,7 @@ public class ScaleVnfRequest {
 	@JsonProperty("numberOfSteps")
 	private Integer numberOfSteps;
 	
-	@JsonProperty("additionalParam")
+	@JsonProperty("additionalParams")
 	private AdditionalParam additionalParam;
 	
 	
