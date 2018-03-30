@@ -58,9 +58,7 @@ public class ScaleVnfContinueRunnableTest{
 		
 		scaleVnfContinueRunnable.setDriverRequest(driverRequest);
 		scaleVnfContinueRunnable.setJobId("1");
-		scaleVnfContinueRunnable.setType(ScaleType.SCALE_IN);
 		scaleVnfContinueRunnable.setVnfInstanceId("001");
-		scaleVnfContinueRunnable.setVnfmId("001");
 		scaleVnfContinueRunnable.setRequestConverter(requestConverter);
 		
 		NslcmGrantVnfResponse grantResponse = new NslcmGrantVnfResponse();

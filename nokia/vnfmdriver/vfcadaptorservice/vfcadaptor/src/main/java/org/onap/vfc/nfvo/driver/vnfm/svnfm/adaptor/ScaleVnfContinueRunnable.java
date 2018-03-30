@@ -48,8 +48,7 @@ public class ScaleVnfContinueRunnable implements Runnable {
 	private ScaleVnfRequest driverRequest;
 	private String vnfInstanceId;
 	private String jobId;
-	private String vnfmId;
-	private ScaleType type;
+	
 	@Autowired
 	private VnfmJobExecutionMapper jobDbMgmr;
 	
@@ -65,8 +64,6 @@ public class ScaleVnfContinueRunnable implements Runnable {
 		this.requestConverter = requestConverter;
 		this.jobId = jobId;
 		this.jobDbMgmr = dbManager;
-		this.vnfmId = vnfmId;
-		this.type = driverRequest.getType();
 	}
 	
 	private void handleGrant(){
@@ -115,7 +112,7 @@ public class ScaleVnfContinueRunnable implements Runnable {
 		NslcmGrantVnfRequest request = new NslcmGrantVnfRequest();
 		
 		request.setVnfInstanceId(vnfInstanceId);
-		if(type == ScaleType.SCALE_OUT) {
+		if(ScaleType.SCALE_OUT == driverRequest.getType()) {
 			request.setLifecycleOperation(LifecycleOperation.Scaleout);
 		}else {
 			request.setLifecycleOperation(LifecycleOperation.Scalein);
@@ -154,14 +151,6 @@ public class ScaleVnfContinueRunnable implements Runnable {
 
 	public void setJobId(String jobId) {
 		this.jobId = jobId;
-	}
-
-	public void setVnfmId(String vnfmId) {
-		this.vnfmId = vnfmId;
-	}
-
-	public void setType(ScaleType type) {
-		this.type = type;
 	}
 
 	public void setRequestConverter(Driver2CbamRequestConverter requestConverter) {

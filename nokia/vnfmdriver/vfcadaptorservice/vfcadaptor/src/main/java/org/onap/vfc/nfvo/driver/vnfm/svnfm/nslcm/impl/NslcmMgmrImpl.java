@@ -19,7 +19,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nslcm.impl;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.http.client.ClientProtocolException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.http.client.HttpClientProcessorInf;
@@ -49,7 +48,7 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 	private Gson gson = new Gson();
 	
 //	@Deprecated
-//	public VnfmInfo queryVnfm(String vnfmId) throws ClientProtocolException, IOException
+//	public VnfmInfo queryVnfm(String vnfmId) throws IOException
 //	{
 //		String httpPath = String.format(CommonConstants.RetrieveVnfmListPath, vnfmId);
 //		RequestMethod method = RequestMethod.GET;
@@ -63,7 +62,7 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 //		return response;
 //	}
 
-	public NslcmGrantVnfResponse grantVnf(NslcmGrantVnfRequest driverRequest) throws ClientProtocolException, IOException {
+	public NslcmGrantVnfResponse grantVnf(NslcmGrantVnfRequest driverRequest) throws IOException {
 		String httpPath = CommonConstants.NslcmGrantPath;
 		RequestMethod method = RequestMethod.POST;
 			
@@ -76,14 +75,14 @@ public class NslcmMgmrImpl implements NslcmMgmrInf{
 		return response;
 	}
 
-	public void notifyVnf(NslcmNotifyLCMEventsRequest driverRequest, String vnfmId, String vnfInstanceId) throws ClientProtocolException, IOException {
+	public void notifyVnf(NslcmNotifyLCMEventsRequest driverRequest, String vnfmId, String vnfInstanceId) throws IOException {
 		String httpPath = String.format(CommonConstants.NslcmNotifyPath, vnfmId, vnfInstanceId);
 		RequestMethod method = RequestMethod.POST;
 			
 		operateNslcmHttpTask(driverRequest, httpPath, method);
 	}
 	
-	private String operateNslcmHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws ClientProtocolException, IOException {
+	private String operateNslcmHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws IOException {
 		String url=adaptorEnv.getLcmApiUriFront() + httpPath;
 		
 		HashMap<String, String> map = new HashMap<>();
