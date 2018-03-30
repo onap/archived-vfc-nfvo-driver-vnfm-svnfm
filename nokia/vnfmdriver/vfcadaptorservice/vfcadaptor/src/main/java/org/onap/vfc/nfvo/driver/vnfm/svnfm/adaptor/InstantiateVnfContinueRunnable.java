@@ -1,5 +1,5 @@
-/*
- * Copyright 2016-2017, Nokia Corporation
+/**
+ * Copyright 2016-2017, Nokia Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,7 +158,7 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		
 	}
 
-	private CBAMInstantiateVnfResponse handleInstantiate() throws Exception {
+	private CBAMInstantiateVnfResponse handleInstantiate() throws IOException {
 		CBAMInstantiateVnfRequest  instantiateReq = requestConverter.instantiateRequestConvert(driverRequest, null, null, null);
 		CBAMInstantiateVnfResponse cbamInstantiateResponse = cbamMgmr.instantiateVnf(instantiateReq, vnfInstanceId);
 		handleCbamInstantiateResponse(cbamInstantiateResponse, jobId);
@@ -186,9 +186,7 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 	private CBAMModifyVnfRequest generateModifyVnfRequest() throws IOException{
 		String filePath = "/etc/vnfpkginfo/cbam_extension.json";
 		String fileContent = CommonUtil.getJsonStrFromFile(filePath);
-		CBAMModifyVnfRequest req = gson.fromJson(fileContent, CBAMModifyVnfRequest.class);
-		
-		return req;
+		return gson.fromJson(fileContent, CBAMModifyVnfRequest.class);
 	}
 
 	private void handleVnfPackage() {
@@ -260,7 +258,7 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 		request.setJobId(jobId);
 		
 		ResourceDefinition resource = getFreeVnfResource();
-		List<ResourceDefinition> resourceList = new ArrayList<ResourceDefinition>();
+		List<ResourceDefinition> resourceList = new ArrayList<>();
 		resourceList.add(resource);
 		request.setAddResource(resourceList);
 		

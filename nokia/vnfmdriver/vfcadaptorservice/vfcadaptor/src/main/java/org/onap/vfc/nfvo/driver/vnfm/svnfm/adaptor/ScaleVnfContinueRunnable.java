@@ -1,5 +1,5 @@
-/*
- * Copyright 2016-2017, Nokia Corporation
+/**
+ * Copyright 2016-2017, Nokia Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,8 @@ public class ScaleVnfContinueRunnable implements Runnable {
 	private ScaleVnfRequest driverRequest;
 	private String vnfInstanceId;
 	private String jobId;
-	
+	private String vnfmId;
+	private ScaleType type;
 	@Autowired
 	private VnfmJobExecutionMapper jobDbMgmr;
 	
@@ -64,6 +65,7 @@ public class ScaleVnfContinueRunnable implements Runnable {
 		this.requestConverter = requestConverter;
 		this.jobId = jobId;
 		this.jobDbMgmr = dbManager;
+		this.vnfmId = vnfmId;
 	}
 	
 	private void handleGrant(){
@@ -151,6 +153,14 @@ public class ScaleVnfContinueRunnable implements Runnable {
 
 	public void setJobId(String jobId) {
 		this.jobId = jobId;
+	}
+
+	public void setVnfmId(String vnfmId) {
+		this.vnfmId = vnfmId;
+	}
+
+	public void setType(ScaleType type) {
+		this.type = type;
 	}
 
 	public void setRequestConverter(Driver2CbamRequestConverter requestConverter) {

@@ -53,9 +53,7 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
 		
 		logger.info("AaiMgmrInfImpl->queryVnfm, the vnfmInfo is {}", responseStr);
 		
-		AaiVnfmInfo response = gson.fromJson(responseStr, AaiVnfmInfo.class);
-		
-		return response;
+		return gson.fromJson(responseStr, AaiVnfmInfo.class);
 	}
 	
 	private String operateHttpTask(Object httpBodyObj, String httpPath, RequestMethod method) throws IOException {
@@ -72,9 +70,7 @@ public class AaiMgmrInfImpl implements AaiMgmrInf{
         headerMap.put("Authorization", "Basic " + authen);
         logger.info("getVimById headerMap: {}", headerMap.toString());
 		
-		String responseStr = httpClientProcessor.process(url, method, headerMap, gson.toJson(httpBodyObj)).getContent();
-		
-		return responseStr;
+		return httpClientProcessor.process(url, method, headerMap, gson.toJson(httpBodyObj)).getContent();
 	}
 
 	public void setAdaptorEnv(AdaptorEnv env) {

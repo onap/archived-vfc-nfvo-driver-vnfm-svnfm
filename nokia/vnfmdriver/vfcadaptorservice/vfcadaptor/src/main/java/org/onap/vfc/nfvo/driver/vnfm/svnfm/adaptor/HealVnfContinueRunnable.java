@@ -1,5 +1,5 @@
-/*
- * Copyright 2016-2017, Nokia Corporation
+/**
+ * Copyright 2016-2017, Nokia Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class HealVnfContinueRunnable implements Runnable {
 	private Driver2CbamRequestConverter requestConverter;
 	
 	
-	public HealVnfContinueRunnable(String vnfmId, HealVnfRequest driverRequest, String vnfInstanceId, String jobId,
+	public HealVnfContinueRunnable(String inVnfmId, HealVnfRequest driverRequest, String vnfInstanceId, String jobId,
 			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper dbManager)
 	{
 		this.driverRequest = driverRequest;
@@ -64,7 +64,7 @@ public class HealVnfContinueRunnable implements Runnable {
 		this.requestConverter = requestConverter;
 		this.jobId = jobId;
 		this.jobDbMgmr = dbManager;
-		this.vnfmId = vnfmId;
+		this.vnfmId = inVnfmId;
 	}
 	
 	private void handleGrant(){
@@ -86,7 +86,7 @@ public class HealVnfContinueRunnable implements Runnable {
 	private CBAMHealVnfResponse handleHeal() {
 		CBAMHealVnfResponse cbamResponse = null;
 		try {
-			CBAMHealVnfRequest  modifyReq = requestConverter.healReqConvert(driverRequest);
+			CBAMHealVnfRequest  modifyReq = requestConverter.healReqConvert();
 			cbamResponse = cbamMgmr.healVnf(modifyReq, vnfInstanceId);
 			handleCbamHealResponse(cbamResponse, jobId);
 		} catch (Exception e) {
@@ -117,7 +117,7 @@ public class HealVnfContinueRunnable implements Runnable {
 		request.setJobId(jobId);
 		
 		ResourceDefinition resource = getFreeVnfResource();
-		List<ResourceDefinition> resourceList = new ArrayList<ResourceDefinition>();
+		List<ResourceDefinition> resourceList = new ArrayList<>();
 		resourceList.add(resource);
 		request.setRemoveResource(resourceList);
 		
@@ -154,7 +154,7 @@ public class HealVnfContinueRunnable implements Runnable {
 		this.requestConverter = requestConverter;
 	}
 
-	public void setVnfmId(String vnfmId) {
-		this.vnfmId = vnfmId;
+	public void setVnfmId(String inVnfmId) {
+		this.vnfmId = inVnfmId;
 	}
 }
