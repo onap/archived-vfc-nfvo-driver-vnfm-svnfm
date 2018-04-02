@@ -37,6 +37,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonConstants;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmSubscriptionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfcResourceInfoMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmSubscriptionsMapper;
@@ -363,7 +364,11 @@ public class VnfmDriverMgmrImpl implements VnfmDriverMgmrInf {
 			cbamRequest.setFilter(request.getFilter());
 			CBAMCreateSubscriptionResponse cbamResponse = cbamMgmr.createSubscription(cbamRequest);
 			driverResponse = responseConverter.queryRspConvert(cbamResponse);
-			subscriptionsMapper.insert(cbamResponse.getId());
+			VnfmSubscriptionInfo subscriptionInfo = new VnfmSubscriptionInfo();
+			subscriptionInfo.setId(cbamResponse.getId());
+			subscriptionInfo.setDriverCallbackUrl(cbamResponse.getId());
+			subscriptionInfo.setNslcmCallbackUrl(request.getCallbackUri());
+			subscriptionsMapper.insert(subscriptionInfo);
 		} catch (Exception e) {
 			logger.error("error VnfmDriverMgmrImpl --> createSubscripiton. ", e);
 			throw new VnfmDriverException(HttpStatus.SC_INTERNAL_SERVER_ERROR, CommonConstants.HTTP_ERROR_DESC_500);

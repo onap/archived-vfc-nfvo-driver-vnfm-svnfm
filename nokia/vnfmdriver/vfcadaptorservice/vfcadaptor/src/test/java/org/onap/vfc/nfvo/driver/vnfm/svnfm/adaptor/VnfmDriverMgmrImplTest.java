@@ -52,6 +52,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.common.bo.AdaptorEnv;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.CommonEnum;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.constant.ScaleType;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmJobExecutionInfo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.bean.VnfmSubscriptionInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmJobExecutionMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfmSubscriptionsMapper;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
@@ -239,7 +240,7 @@ public class VnfmDriverMgmrImplTest {
 		mockCbamResponse.setId("subscriptionId_001");
 		mockCbamResponse.setCallbackUrl("callbackUrl");
 		when(cbamMgmr.createSubscription(Mockito.any(CBAMCreateSubscriptionRequest.class))).thenReturn(mockCbamResponse);
-		doNothing().when(subscriptionsMapper).insert(Mockito.anyString());
+		doNothing().when(subscriptionsMapper).insert(Mockito.any(VnfmSubscriptionInfo.class));
 		CreateSubscriptionRequest request = new CreateSubscriptionRequest();
 		CreateSubscriptionResponse response = vnfmDriverMgmr.createSubscription(request);
 		Assert.assertEquals("callbackUrl", response.getCallbackUri());

@@ -33,6 +33,10 @@ public class VnfmSubscriptionInfo implements Serializable {
 //	@Id
 //	@Column(name = "id")
 	private String id;
+	
+	private String driverCallbackUrl;
+	
+	private String nslcmCallbackUrl;
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -46,10 +50,24 @@ public class VnfmSubscriptionInfo implements Serializable {
 		this.id = id;
 	}
 
-	@Override
-	public String toString() {
-		return " VnfmSubscriptionInfo: [ " + super.toString() + ", id = " + id + "]";
-
+	public String getDriverCallbackUrl() {
+		return driverCallbackUrl;
 	}
 
+	public void setDriverCallbackUrl(String driverCallbackUrl) {
+		this.driverCallbackUrl = driverCallbackUrl;
+	}
+
+	public String getNslcmCallbackUrl() {
+		return nslcmCallbackUrl;
+	}
+
+	public void setNslcmCallbackUrl(String nslcmCallbackUrl) {
+		this.nslcmCallbackUrl = nslcmCallbackUrl;
+	}
+	
+	@Override
+	public String toString() {
+		return " VnfmSubscriptionInfo: [ " + super.toString() + ", id = " + id + ", driverCallbackUrl = " + driverCallbackUrl +", nslcmCallbackUrl = " + nslcmCallbackUrl + "]";
+	}
 }
