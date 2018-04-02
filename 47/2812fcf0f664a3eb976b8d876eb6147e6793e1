@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+1: Dénes Németh <denes.nemeth@nokia.com>
+Code-Review+2: Fu Jinhua <fu.jinhua@zte.com.cn>
+Submitted-by: Fu Jinhua <fu.jinhua@zte.com.cn>
+Submitted-at: Mon, 02 Apr 2018 02:44:27 +0000
+Reviewed-on: https://gerrit.onap.org/r/40195
+Project: vfc/nfvo/driver/vnfm/svnfm
+Branch: refs/heads/master
