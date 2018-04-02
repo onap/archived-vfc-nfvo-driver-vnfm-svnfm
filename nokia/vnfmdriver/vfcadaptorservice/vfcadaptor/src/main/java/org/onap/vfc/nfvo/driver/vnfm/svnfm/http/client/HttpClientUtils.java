@@ -52,7 +52,7 @@ public class HttpClientUtils {
 	
 	@Bean
 	public static HttpClientBuilder createHttpClientBuilder() {
-		org.apache.commons.httpclient.protocol.Protocol.unregisterProtocol("https"); 
+//		org.apache.commons.httpclient.protocol.Protocol.unregisterProtocol("https"); 
 		SSLContext sslcontext = null;
 		try {
 			sslcontext = createIgnoreVerifySSL();

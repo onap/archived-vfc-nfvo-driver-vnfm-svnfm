@@ -305,5 +305,32 @@ public class VnfmDriverControllerTest {
 		JSONObject jsonObj = new JSONObject(responseString);
 		Assert.assertEquals("jobId is ", mockResponse.getCallbackUri(), jsonObj.get("callbackUri"));
 	}
+	
+	@Test
+	public void testNotificationVnfCreateSubscripitonPost() throws Exception {
+		CreateSubscriptionResponse mockResponse = new CreateSubscriptionResponse();
+		mockResponse.setCallbackUri("callbackUri");
+		String jsonString = "{\"callbackUri\":\"callbackUri\"," + "\"authentication\":{\"userName\":\"userName\",\"password\":\"password\",\"clientName\":\"clientName\"}}";
+		
+		when(vnfmDriverMgmr.createSubscription(Mockito.any(CreateSubscriptionRequest.class))).thenReturn(mockResponse);
+		
+		mockMvc.perform(
+				post("/api/nokiavnfmdriver/v1/notifications").
+				characterEncoding("UTF-8").
+				accept(MediaType.APPLICATION_JSON).
+				contentType(MediaType.APPLICATION_JSON).
+				content(jsonString))
+				.andDo(print())
+				.andExpect(status().isNoContent())
+				.andReturn().getResponse().getContentAsString();
+	}
+	
+	@Test
+	public void testNotificationVnfCreateSubscripitonGet() throws Exception {
+		mockMvc.perform(
+				get("/api/nokiavnfmdriver/v1/notifications"))
+				.andDo(print())
+				.andExpect(status().isNoContent());
+	}
 
 }

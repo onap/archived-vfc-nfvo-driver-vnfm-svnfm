@@ -16,12 +16,15 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.controller;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
+import com.alibaba.dubbo.common.utils.IOUtils;
 import org.apache.http.HttpStatus;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.exception.VnfmDriverException;
@@ -60,9 +63,6 @@ public class VnfmDriverController {
 	@Autowired
 	private VnfmDriverMgmrInf vnfmDriverMgmr;
 	
-	@Autowired
-	private CbamMgmrInf cbamMgmr;
-	
 	private Gson gson = new Gson();
 	
 	@RequestMapping(value = "/swagger.json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -70,7 +70,7 @@ public class VnfmDriverController {
 	public String apidoc() throws IOException {
 //		String client = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getRemoteAddr();
 		ClassLoader classLoader = getClass().getClassLoader();
-        return IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
+        return IOUtils.read(new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream("swagger.json"))));
     }
 	
 	@RequestMapping(value = "/{vnfmId}/vnfs", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -197,29 +197,30 @@ public class VnfmDriverController {
 		return null;
     }
 	
-//	@RequestMapping(value = "/notifications", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-//	public CBAMVnfNotificationResponse notificationVnf(@RequestBody CBAMVnfNotificationRequest request, HttpServletResponse httpResponse) throws ClientProtocolException, Exception
 	@RequestMapping(value = "/notifications")
-//    @ResponseBody
-    public void notificationVnf(HttpServletRequest request, HttpServletResponse httpResponse)
+    public void notificationVnf(HttpServletRequest request, HttpServletResponse httpResponse) throws IOException
     {
 		
-//		String jsonString = gson.toJson(request);
-//		logger.info("notificationVnf request:  bodyMessage is " + jsonString);
-		logger.info("notificationVnf request:  bodyMessage is " + request.getMethod() + ",");
+		logger.info("VnfmDriverController -> notificationVnf request:  request method is " + request.getMethod() + ",");
 		
 		try {
-//			CBAMVnfNotificationResponse response = cbamMgmr.getNotification(request);
-			httpResponse.setStatus(204);
-//			logger.info("cbamController --> notificationVnf response is " + gson.toJson(response));
-//			return response;
+			if("GET".equalsIgnoreCase(request.getMethod())) // this is for link test
+			{
+				httpResponse.setStatus(HttpStatus.SC_NO_CONTENT);
+			}
+			else if("POST".equalsIgnoreCase(request.getMethod()))
+			{
+				httpResponse.setStatus(HttpStatus.SC_NO_CONTENT);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
+				String bodyString = IOUtils.read(reader);
+				logger.info("VnfmDriverController -> notificationVnf request:  bodyMessage is " + bodyString);
+			}
 		}
 		catch(VnfmDriverException e)
 		{
 			processControllerException(httpResponse, e);
 		}
 		
-//		return null;
     }
 
 	private void processControllerException(HttpServletResponse httpResponse, VnfmDriverException e) {
