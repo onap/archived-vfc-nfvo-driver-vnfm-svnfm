@@ -67,7 +67,7 @@ public class SystemFunctions {
      * operating system and may be larger.  For example, many
      * operating systems measure time in units of tens of
      * milliseconds.
-     * <p>
+     *
      * <p> See the description of the class <code>Date</code> for
      * a discussion of slight discrepancies that may arise between
      * Unable to load /unittests/missing     * "computer time" and coordinated universal time (UTC).

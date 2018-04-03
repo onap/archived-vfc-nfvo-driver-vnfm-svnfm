@@ -1,24 +1,26 @@
 Integrate ONAP with Nokia VNFM
 ==============================
 
-Prepare CBAM
-------------
+The following section describes how the Nokia VNFM can be integrated into ONAP. The integration is the easiest if the
+VNFM is installed before ONAP.
 
-* Start CBAM in ONAP network
-
- - via image: (read the CBAM installation guide)
+Prepare the VNFM
+----------------
+* Start VNFM: The VNFM must be able to communicate with the ONAP VF-C interface, the cloud and the VNF, so the VNFM must
+ have the correct network setup. The VNFM will use LCNs to notify VF-C of the executed changes, so the LCN zone of the
+ VNFM must be configured so that the VNFM is able to reach the VF-C LCN interface.
 
 * Register driver in CBAM
 
- - Log into CBAM via SSH and get keycloak admin password
+ - Log into CBAM via SSH and determine the keycloak admin password
 
   - ectl get /cbam/cluster/components/keycloak/admin_credentials/password
 
- - Log into keycloak https://<cbamIp>/auth/admin with admin username and password from previous step and change password (save the changed password)
+ - Log into keycloak https://<cbamIp>/auth/admin with admin username and password from previous step and change password (note the changed password)
  - Add a new client
 
   - set client id to onapClient
-  - change credential type to confidental
+  - change credential type to confidential
   - enable Standard Flow Enabled, Direct Access Grants Enabled, Service Accounts Enabled
   - add * for redirect URL
   - save
@@ -32,13 +34,13 @@ Prepare CBAM
   - reset password
   - assign the "user" role to the created user
 
- - Log into CBAM GUI usin the created user
+ - Log into CBAM GUI using the created user
 
   - change and note the password <onapPassword>
 
  - Add SSL certificates for all VIM connection or disable certificate verification
 
-  - For insecure
+  - For insecure (all certificates are automatically trusted)
 
    - sudo su -
    - ectl set /cbam/cluster/components/tlm/insecure_vim_connection true
@@ -48,27 +50,26 @@ Prepare CBAM
 
   - For secure: (read CBAM documentation)
 
-Prepare /ets/hosts file on your machine (optional easier to copy paste URLs)
+Prepare /ets/hosts file on your laptop (optional easier to copy paste URLs)
 ----------------------------------------------------------------------------
 
-+--------------+---------------------------------+
-| IP address   | DNS entry                       |
-+==============+=================================+
-| 1.2.3.4      | portal.api.simpledemo.onap.org  |
-+--------------+---------------------------------+
-| 1.2.3.4      | policy.api.simpledemo.onap.org  |
-+--------------+---------------------------------+
-| 1.2.3.4      | sdc.api.simpledemo.onap.org     |
-+--------------+---------------------------------+
-| 1.2.3.4      | vid.api.simpledemo.onap.org     |
-+--------------+---------------------------------+
-| 1.2.3.4      | aai.api.simpledemo.onap.org     |
-+--------------+---------------------------------+
-| 1.2.3.4      | msb.api.simpledemo.onap.org     |
-+--------------+---------------------------------+
-| 1.2.3.4      | robot.api.simpledemo.onap.org   |
-+--------------+---------------------------------+
-
++-------------------+---------------------------------+
+| IP address        | DNS entry                       |
++===================+=================================+
+| <fill IP address> | portal.api.simpledemo.onap.org  |
++-------------------+---------------------------------+
+| <fill IP address> | policy.api.simpledemo.onap.org  |
++-------------------+---------------------------------+
+| <fill IP address> | sdc.api.simpledemo.onap.org     |
++-------------------+---------------------------------+
+| <fill IP address> | vid.api.simpledemo.onap.org     |
++-------------------+---------------------------------+
+| <fill IP address> | aai.api.simpledemo.onap.org     |
++-------------------+---------------------------------+
+| <fill IP address> | msb.api.simpledemo.onap.org     |
++-------------------+---------------------------------+
+| <fill IP address> | robot.api.simpledemo.onap.org   |
++-------------------+---------------------------------+
 
 Add the VNFM driver to ONAP
 ---------------------------
@@ -85,7 +86,7 @@ Add the VNFM driver to ONAP
 - Create tenant (may already exist) (repeat for all tenants planed to be used within the cloud)
 
  + tool: Postman
- + change tenant id, region id owner id
+ + change tenantId, cloudRegion and cloudOwner
  + method: PUT
  + url: https://aai.api.simpledemo.onap.org:8443/aai/v11/cloud-infrastructure/cloud-regions/cloud-region/<cloudOwner>/<cloudRegion>/tenants/tenant/<tenantId>
  + Headers
@@ -99,7 +100,7 @@ Add the VNFM driver to ONAP
 
   - change tenant id, region id owner id and tenant name
 
-- Register the VNFM as external system (repeat for all cloud planed to be used)
+- Register the VNFM as external system (repeat for all clouds planed to be used)
 
  - Visit MSB http://msb.api.simpledemo.onap.org:9518/api/aai-esr-server/v1/vims
 
@@ -135,14 +136,12 @@ Add the VNFM driver to ONAP
   - visit http://msb.api.simpledemo.onap.org:9518/api/aai-esr-server/v1/vnfms and search for the previously registered VNFM
   - note the id field <vnfmId>
 
- - Download the cbam driver into ONAP multi service node
- - Load the image into docker and note the image identifier <imageId>
+Configure the SVNFM driver (generic)
+------------------------------------
 
-.. code-block:: console
-
-   docker load -i /tmp/nokia.img
-
-Start the driver (fill in values)
+ - Download the CBAM SVNFM driver
+   - docker pull https://nexus.onap.org/content/sites/raw/onap/vfc/nfvo/svnfm/nokiav2:1.1.0-STAGING-latest
+ - Start the driver (fill in values)
 
 .. code-block:: console
 
@@ -154,3 +153,9 @@ Start the driver (fill in values)
    export CBAM_USERNAME=<onapUsername>
    docker run --name vfc_nokia -p 8089:8089 -e "MSB_IP=$MULTI_NODE_IP" -e "CONFIGURE=kuku" -e "EXTERNAL_IP=$MULTI_NODE_IP" -e "CBAM_CATALOG_URL=https://$CBAM_IP:443/api/catalog/adapter/" -e "CBAM_LCN_URL=https://$CBAM_IP:443/vnfm/lcn/v3/" -e "CBAM_KEYCLOAK_URL=https://$CBAM_IP:443/auth/" -e "CBAM_USERNAME=$CBAM_USERNAME" -e "CBAM_PASSWORD=$CBAM_PASSWORD" -e "VNFM_ID=$VNFM_ID" -d --stop-timeout 300 $IMAGE_ID
 
+Configure the SVNFM driver (ONAP demo environment)
+--------------------------------------------------
+ - Configure the already running instance
+ - docker exec -it `docker ps | grep nokiav2 | awk '{print $1}'` /bin/bash
+ - Edit /service/application.properties
+ - Fill values for cbamCatalogUrl, cbamLcnUrl, cbamKeyCloakBaseUrl, cbamUsername, cbamPassword, vnfmId

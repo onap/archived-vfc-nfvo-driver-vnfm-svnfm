@@ -6,13 +6,14 @@ Automatic
 
 - Visit http://msb.api.simpledemo.onap.org/api/NokiaSVNFM/v1/convert
 - Select the CBAM package to be converted into an ONAP package
-- Click on upload button and the ONAP package will be donwloaded 
+- Click on upload button and the ONAP package will be downloaded
 
 
 Manual
 ------
 
-- the VNF must declare the externalVnfmId and onapCsarId as modifyable attribute in CBAM package (value will be filled out by CBAM)
+- the VNF must declare the externalVnfmId and onapCsarId as modifyable attribute in CBAM package. Each should have
+a default value. (The concrete value will be filled out by CBAM)
 - each operation must declare a jobId additional parameter in CBAM package (value will be filled out by CBAM)
 - the heal operation must declare the jobId, vmName and action parameters in CBAM package (values will be filled out by CBAM)
 - each operation (including built-in) must include the following section as the last pre_action (all JS are provided by CBAM)

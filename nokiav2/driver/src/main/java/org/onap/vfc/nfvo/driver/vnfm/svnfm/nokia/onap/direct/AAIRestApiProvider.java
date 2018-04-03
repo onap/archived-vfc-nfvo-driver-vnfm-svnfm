@@ -23,10 +23,8 @@ import org.onap.aai.api.CloudInfrastructureApi;
 import org.onap.aai.api.ExternalSystemApi;
 import org.onap.aai.api.NetworkApi;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager.SERVICE_NAME;
@@ -36,7 +34,6 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrati
  * Handles authentication and mandatory parameters.
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
 public class AAIRestApiProvider {
     private final MsbApiProvider msbApiProvider;
     private final AaiSecurityProvider aaiSecurityProvider;

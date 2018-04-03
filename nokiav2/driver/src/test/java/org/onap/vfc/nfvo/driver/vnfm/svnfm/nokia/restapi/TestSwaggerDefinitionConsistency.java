@@ -37,7 +37,7 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil.loadFile;
 
 public class TestSwaggerDefinitionConsistency extends TestBase {
 
-    public static final HashSet<Class<?>> CLASSES = Sets.newHashSet(LcmApi.class, LcnApi.class, SwaggerApi.class, ConverterApi.class);
+    public static final HashSet<Class<?>> CLASSES = Sets.newHashSet(LcmApi.class, LcnApi.class, SwaggerApi.class, ConverterApi.class, SoApi.class);
 
     @Test
     public void test() throws Exception {
@@ -69,15 +69,31 @@ public class TestSwaggerDefinitionConsistency extends TestBase {
     }
 
     private void locate(String path) {
+        Set<String> paths = new HashSet<>();
         for (Class<?> clazz : CLASSES) {
             RequestMapping basePath = clazz.getAnnotation(RequestMapping.class);
             for (Method method : clazz.getMethods()) {
                 RequestMapping methodMapping = method.getAnnotation(RequestMapping.class);
-                if (methodMapping != null && path.equals(basePath.value()[0] + methodMapping.value()[0])) {
-                    return;
+                if (methodMapping != null) {
+                    paths.add(basePath.value()[0] + methodMapping.value()[0]);
+                    if (path.equals(basePath.value()[0] + methodMapping.value()[0])) {
+                        return;
+                    }
                 }
             }
         }
-        throw new NoSuchElementException(path);
+        for (Class<?> clazz : CLASSES) {
+            RequestMapping basePath = clazz.getAnnotation(RequestMapping.class);
+            for (Method method : clazz.getMethods()) {
+                RequestMapping methodMapping = method.getAnnotation(RequestMapping.class);
+                if (methodMapping != null) {
+                    paths.add(basePath.value()[0] + methodMapping.value()[0]);
+                    if (path.equals(basePath.value()[0] + methodMapping.value()[0])) {
+                        return;
+                    }
+                }
+            }
+        }
+        throw new NoSuchElementException(path + " in " + paths);
     }
 }

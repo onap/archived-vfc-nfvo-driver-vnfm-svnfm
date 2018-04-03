@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.StoreLoader;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.UserVisibleError;
 import org.onap.vnfmdriver.model.ExtVirtualLinkInfo;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.VimInfo;
@@ -113,6 +112,10 @@ public class LifecycleManager {
         return find(NEWEST_OPERATIONS_FIRST.sortedCopy(operationExecutions), op -> INSTANTIATE.equals(op.getOperationType()));
     }
 
+    public static String getVnfdIdFromModifyableAttributes(com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
+        return find(vnf.getExtensions(), p -> p.getName().equals(ONAP_CSAR_ID)).getValue().toString();
+    }
+
     /**
      * Create the VNF. It consists of the following steps
      * <ul>
@@ -123,7 +126,7 @@ public class LifecycleManager {
      * The rollback of the failed operation is not implemented
      * <ul>
      * <li>delete the VNF if error occurs before instantiation</li>
-     * <li>terminate & delete VNF if error occurs after instantiation</li>
+     * <li>terminateVnf & delete VNF if error occurs after instantiation</li>
      * </ul>
      *
      * @param vnfmId      the identifier of the VNFM
@@ -157,22 +160,25 @@ public class LifecycleManager {
     /**
      * Instantiate the VNF
      *
-     * @param vnfmId               the identifier of the VNFM
-     * @param request              the VNF instantiation request
-     * @param httpResponse         the HTTP response that corresponds to the VNF instantiation request
-     * @param additionalParameters additional parameters
-     * @param vnfId                thr identifier of the VNF
-     * @param vnfdId               the identifier of the VNF package in CBAM
+     * @param vnfmId                        the identifier of the VNFM
+     * @param externalVirtualLinks          the external virtual links of the VNF
+     * @param httpResponse                  the HTTP response that corresponds to the VNF instantiation request
+     * @param additionalParameters          additional parameters
+     * @param vnfId                         the identifier of the VNF
+     * @param vnfmVnfdId                    the identifier of the VNF package in CBAM
+     * @param operationAdditionalParameters the additional parameters of the operation
+     * @param onapVnfdId                    the identifier of the VNFD in the VNFM
      * @return the instantiation response
      */
-    public VnfInstantiateResponse instantiate(String vnfmId, VnfInstantiateRequest request, HttpServletResponse httpResponse, AdditionalParameters additionalParameters, String vnfId, String vnfdId) {
-        logOperationInput(vnfId, "instantiation", request);
+    @SuppressWarnings("squid:S00107") //wrapping them into an object makes the code less readable
+    public VnfInstantiateResponse instantiate(String vnfmId, List<ExtVirtualLinkInfo> externalVirtualLinks, HttpServletResponse httpResponse, Object operationAdditionalParameters, AdditionalParameters additionalParameters, String vnfId, String onapVnfdId, String vnfmVnfdId) {
+        logOperationInput(vnfId, "instantiation", additionalParameters);
         validateVimType(additionalParameters.getVimType());
         VnfInstantiateResponse response = new VnfInstantiateResponse();
         response.setVnfInstanceId(vnfId);
-        String vimId = getVimId(request.getAdditionalParam());
+        String vimId = getVimId(operationAdditionalParameters);
         JobInfo spawnJob = scheduleExecution(vnfId, httpResponse, "instantiate", jobInfo ->
-                instantiateVnf(vnfmId, request, additionalParameters, vnfdId, vnfId, vimId, jobInfo)
+                instantiateVnf(vnfmId, externalVirtualLinks, additionalParameters, onapVnfdId, vnfmVnfdId, vnfId, vimId, jobInfo)
         );
         response.setJobId(spawnJob.getJobId());
         return response;
@@ -193,7 +199,7 @@ public class LifecycleManager {
      * The rollback of the failed operation is not implemented
      * <ul>
      * <li>delete the VNF if error occurs before instantiation</li>
-     * <li>terminate & delete VNf if error occurs after instantiation</li>
+     * <li>terminateVnf & delete VNf if error occurs after instantiation</li>
      * </ul>
      *
      * @param vnfmId       the identifier of the VNFM
@@ -205,18 +211,19 @@ public class LifecycleManager {
         AdditionalParameters additionalParameters = convertInstantiationAdditionalParams(request.getVnfPackageId(), request.getAdditionalParam());
         validateVimType(additionalParameters.getVimType());
         VnfCreationResult creationResult = create(vnfmId, request.getVnfDescriptorId(), request.getVnfInstanceName(), request.getVnfInstanceDescription());
-        return instantiate(vnfmId, request, httpResponse, additionalParameters, creationResult.vnfInfo.getId(), creationResult.vnfdId);
+        return instantiate(vnfmId, request.getExtVirtualLink(), httpResponse, request.getAdditionalParam(), additionalParameters, creationResult.vnfInfo.getId(), request.getVnfPackageId(), creationResult.vnfdId);
     }
 
-    private void instantiateVnf(String vnfmId, VnfInstantiateRequest request, AdditionalParameters additionalParameters, String vnfdId, String vnfId, String vimId, JobInfo jobInfo) {
-        String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, vnfdId);
-        GrantVNFResponseVim vim = grantManager.requestGrantForInstantiate(vnfmId, vnfId, vimId, request.getVnfPackageId(), additionalParameters.getInstantiationLevel(), vnfdContent, jobInfo.getJobId());
+    @SuppressWarnings("squid:S00107") //wrapping them into an object makes the code less readable
+    private void instantiateVnf(String vnfmId, List<ExtVirtualLinkInfo> extVirtualLinkInfos, AdditionalParameters additionalParameters, String onapVnfdId, String vnfmVnfdId, String vnfId, String vimId, JobInfo jobInfo) {
+        String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, vnfmVnfdId);
+        GrantVNFResponseVim vim = grantManager.requestGrantForInstantiate(vnfmId, vnfId, vimId, onapVnfdId, additionalParameters.getInstantiationLevel(), vnfdContent, jobInfo.getJobId());
         if (vim.getVimId() == null) {
             throw buildFatalFailure(logger, "VF-C did not send VIM identifier in grant response");
         }
         VimInfo vimInfo = vimInfoProvider.getVimInfo(vim.getVimId());
         InstantiateVnfRequest instantiationRequest = new InstantiateVnfRequest();
-        addExternalLinksToRequest(request.getExtVirtualLink(), additionalParameters, instantiationRequest, vimId);
+        addExternalLinksToRequest(extVirtualLinkInfos, additionalParameters, instantiationRequest, vimId);
         instantiationRequest.getVims().add(addVim(additionalParameters, vimId, vim, vimInfo));
         instantiationRequest.setFlavourId(getFlavorId(vnfdContent));
         instantiationRequest.setComputeResourceFlavours(additionalParameters.getComputeResourceFlavours());
@@ -328,7 +335,7 @@ public class LifecycleManager {
         OpenStackAccessInfoV3 accessInfov3 = new OpenStackAccessInfoV3();
         openstackv3INFO.accessInfo(accessInfov3);
         accessInfov3.setPassword(vimInfo.getPassword());
-        accessInfov3.setDomain(additionalParameters.getDomain());
+        accessInfov3.setDomain(vimInfo.getDomain());
         accessInfov3.setProject(vim.getAccessInfo().getTenant());
         accessInfov3.setRegion(getRegionName(vimId));
         accessInfov3.setUsername(vimInfo.getUserName());
@@ -400,44 +407,71 @@ public class LifecycleManager {
      */
     public JobInfo terminateAndDelete(String vnfmId, String vnfId, VnfTerminateRequest request, HttpServletResponse httpResponse) {
         logOperationInput(vnfId, "termination", request);
-        return scheduleExecution(vnfId, httpResponse, "terminate", jobInfo -> {
-            TerminateVnfRequest cbamRequest = new TerminateVnfRequest();
-            if (request.getTerminationType() == null) {
-                cbamRequest.setTerminationType(TerminationType.FORCEFUL);
-            } else {
-                if (request.getTerminationType().equals(VnfTerminationType.GRACEFUL)) {
-                    cbamRequest.setTerminationType(TerminationType.GRACEFUL);
-                    cbamRequest.setGracefulTerminationTimeout(parseInt(request.getGracefulTerminationTimeout()));
-                } else {
-                    cbamRequest.setTerminationType(TerminationType.FORCEFUL);
-                }
-            }
-            cbamRequest.setAdditionalParams(new Gson().toJsonTree(jobInfo).getAsJsonObject());
-            com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
-            if (vnf.getInstantiationState() == INSTANTIATED) {
-                terminateAndDelete(vnfmId, vnfId, jobInfo, cbamRequest, vnf);
-            } else {
-                logger.debug("The VNF {} with identifier is not instantiated no termination required", vnf.getId());
-                deleteVnf(vnfmId, vnfId);
-            }
+        return scheduleExecution(vnfId, httpResponse, "terminateVnf", jobInfo -> {
+            terminateVnf(vnfmId, vnfId, request, jobInfo);
+            deleteVnf(vnfmId, vnfId);
         });
     }
 
-    private void terminateAndDelete(String vnfmId, String vnfId, JobInfo jobInfo, TerminateVnfRequest cbamRequest, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
-        String vimId = getVimIdFromInstantiationRequest(vnfmId, vnf);
-        grantManager.requestGrantForTerminate(vnfmId, vnfId, vimId, getVnfdIdFromModifyableAttributes(vnf), vnf, jobInfo.getJobId());
-        OperationExecution terminationOperation = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdTerminatePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION).blockingFirst();
-        OperationExecution finishedOperation = waitForOperationToFinish(vnfmId, vnfId, terminationOperation.getId());
-        if (finishedOperation.getStatus() == FINISHED) {
-            notificationManager.waitForTerminationToBeProcessed(finishedOperation.getId());
-            deleteVnf(vnfmId, vnfId);
+    /**
+     * Terminates the VNF
+     * <ul>
+     * <li>fails if the VNF does not exist</li>
+     * <li>terminates if instantiated</li>
+     * <li>deletes the VNF</li>
+     * </ul>
+     *
+     * @param vnfmId       the identifier of the VNFM
+     * @param vnfId        the identifier of the VNF
+     * @param request      the termination request
+     * @param httpResponse the HTTP response
+     * @return the job for polling the progress of the termination
+     */
+    public JobInfo terminate(String vnfmId, String vnfId, VnfTerminateRequest request, HttpServletResponse httpResponse) {
+        logOperationInput(vnfId, "termination", request);
+        return scheduleExecution(vnfId, httpResponse, "terminate", jobInfo -> terminateVnf(vnfmId, vnfId, request, jobInfo));
+    }
 
+    private void terminateVnf(String vnfmId, String vnfId, VnfTerminateRequest request, JobInfo jobInfo) {
+        TerminateVnfRequest cbamRequest = new TerminateVnfRequest();
+        setState(request, cbamRequest);
+        cbamRequest.setAdditionalParams(new Gson().toJsonTree(jobInfo).getAsJsonObject());
+        com.nokia.cbam.lcm.v32.model.VnfInfo vnf = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+        if (vnf.getInstantiationState() == INSTANTIATED) {
+            String vimId = getVimIdFromInstantiationRequest(vnfmId, vnf);
+            grantManager.requestGrantForTerminate(vnfmId, vnfId, vimId, getVnfdIdFromModifyableAttributes(vnf), vnf, jobInfo.getJobId());
+            OperationExecution terminationOperation = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdTerminatePost(vnfId, cbamRequest, NOKIA_LCM_API_VERSION).blockingFirst();
+            OperationExecution finishedOperation = waitForOperationToFinish(vnfmId, vnfId, terminationOperation.getId());
+            if (finishedOperation.getStatus() == FINISHED) {
+                notificationManager.waitForTerminationToBeProcessed(finishedOperation.getId());
+            } else {
+                throw buildFatalFailure(logger, "Unable to terminate VNF the operation did not finish with success");
+            }
         } else {
-            logger.error("Unable to terminate VNF the operation did not finish with success");
+            logger.warn("The VNF with {} identifier is not instantiated no termination is required", vnfId);
         }
     }
 
-    private void deleteVnf(String vnfmId, String vnfId) {
+    private void setState(VnfTerminateRequest request, TerminateVnfRequest cbamRequest) {
+        if (request.getTerminationType() == null) {
+            cbamRequest.setTerminationType(TerminationType.FORCEFUL);
+        } else {
+            if (request.getTerminationType().equals(VnfTerminationType.GRACEFUL)) {
+                cbamRequest.setTerminationType(TerminationType.GRACEFUL);
+                cbamRequest.setGracefulTerminationTimeout(parseInt(request.getGracefulTerminationTimeout()));
+            } else {
+                cbamRequest.setTerminationType(TerminationType.FORCEFUL);
+            }
+        }
+    }
+
+    /**
+     * Delete the VNF
+     *
+     * @param vnfmId the identifier of the VNFM
+     * @param vnfId  the identifier fo the VNF
+     */
+    public void deleteVnf(String vnfmId, String vnfId) {
         logger.info("Deleting VNF with {} identifier", vnfId);
         cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
         logger.info("The VNF with {} identifier has been deleted", vnfId);
@@ -450,10 +484,6 @@ public class LifecycleManager {
         return childElement(childElement(root, "vims").getAsJsonArray().get(0).getAsJsonObject(), "id").getAsString();
     }
 
-    private String getVnfdIdFromModifyableAttributes(com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
-        return find(vnf.getExtensions(), p -> p.getName().equals(ONAP_CSAR_ID)).getValue().toString();
-    }
-
     /**
      * @param vnfmId the identifier of the VNFM
      * @param vnfId  the identifier of the VNF
@@ -462,21 +492,25 @@ public class LifecycleManager {
     public VnfInfo queryVnf(String vnfmId, String vnfId) {
         try {
             com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
-            VnfInfo vnfInfo = new VnfInfo();
-            vnfInfo.setVersion(cbamVnfInfo.getVnfSoftwareVersion());
-            vnfInfo.setVnfInstanceId(vnfId);
-            String onapCsarId = getVnfdIdFromModifyableAttributes(cbamVnfInfo);
-            vnfInfo.setVnfdId(onapCsarId);
-            vnfInfo.setVnfPackageId(onapCsarId);
-            vnfInfo.setVnfInstanceDescription(cbamVnfInfo.getDescription());
-            vnfInfo.setVnfInstanceName(cbamVnfInfo.getName());
-            vnfInfo.setVnfProvider(cbamVnfInfo.getVnfProvider());
-            vnfInfo.setVnfStatus("ACTIVE");
-            vnfInfo.setVnfType("Kuku");
-            return vnfInfo;
+            return convertVnfInfo(vnfId, cbamVnfInfo);
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNF (" + vnfId + ")", e);
         }
+    }
+
+    private VnfInfo convertVnfInfo(String vnfId, com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo) {
+        VnfInfo vnfInfo = new VnfInfo();
+        vnfInfo.setVersion(cbamVnfInfo.getVnfSoftwareVersion());
+        vnfInfo.setVnfInstanceId(vnfId);
+        String onapCsarId = getVnfdIdFromModifyableAttributes(cbamVnfInfo);
+        vnfInfo.setVnfdId(onapCsarId);
+        vnfInfo.setVnfPackageId(onapCsarId);
+        vnfInfo.setVnfInstanceDescription(cbamVnfInfo.getDescription());
+        vnfInfo.setVnfInstanceName(cbamVnfInfo.getName());
+        vnfInfo.setVnfProvider(cbamVnfInfo.getVnfProvider());
+        vnfInfo.setVnfStatus("ACTIVE");
+        vnfInfo.setVnfType("Kuku");
+        return vnfInfo;
     }
 
     private ScaleDirection convert(org.onap.vnfmdriver.model.ScaleDirection direction) {
@@ -566,6 +600,16 @@ public class LifecycleManager {
         });
     }
 
+    public JobInfo customOperation(String vnfmId, String vnfId, String operationId, Object additionalParams, HttpServletResponse httpResponse) {
+        logOperationInput(vnfId, "custom", additionalParams);
+        return scheduleExecution(vnfId, httpResponse, "custom", job -> {
+            CustomOperationRequest cbamRequest = new CustomOperationRequest();
+            cbamRequest.setAdditionalParams(additionalParams);
+            OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdCustomCustomOperationNamePost(vnfId, operationId, cbamRequest, NOKIA_LCM_API_VERSION).blockingFirst();
+            waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
+        });
+    }
+
     private JobInfo scheduleExecution(String vnfId, HttpServletResponse httpResponse, String operation, AsynchronousExecution asynchronExecution) {
         JobInfo jobInfo = new JobInfo();
         jobInfo.setJobId(jobManager.spawnJob(vnfId, httpResponse));
@@ -609,11 +653,16 @@ public class LifecycleManager {
 
     public static class VnfCreationResult {
         private final com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo;
+
         private final String vnfdId;
 
-        VnfCreationResult(com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo, String vnfdId) {
+        public VnfCreationResult(com.nokia.cbam.lcm.v32.model.VnfInfo vnfInfo, String vnfdId) {
             this.vnfInfo = vnfInfo;
             this.vnfdId = vnfdId;
+        }
+
+        public com.nokia.cbam.lcm.v32.model.VnfInfo getVnfInfo() {
+            return vnfInfo;
         }
     }
 }

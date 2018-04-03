@@ -36,7 +36,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 class ResultCaptor<T> implements Answer {
     private T result = null;

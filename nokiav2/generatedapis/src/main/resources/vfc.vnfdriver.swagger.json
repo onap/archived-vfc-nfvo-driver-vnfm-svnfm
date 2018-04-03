@@ -1355,6 +1355,10 @@
           "type": "string",
           "description": "vendor name"
         },
+        "domain": {
+          "type": "string",
+          "description": "domain"
+        },
         "version": {
           "type": "string",
           "description": "vim version"

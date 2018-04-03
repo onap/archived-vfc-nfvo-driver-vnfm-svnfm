@@ -24,7 +24,6 @@ import java.util.*;
  */
 public class AdditionalParameters {
     private VimInfoTypeEnum vimType;
-    private String domain;
     private String instantiationLevel;
     private List<VimComputeResourceFlavour> computeResourceFlavours = new ArrayList<>();
     private List<ZoneInfo> zones = new ArrayList<>();
@@ -64,20 +63,6 @@ public class AdditionalParameters {
      */
     public void setVimType(VimInfoTypeEnum vimType) {
         this.vimType = vimType;
-    }
-
-    /**
-     * @return the domain of the OpenStack (required for v3 API)
-     */
-    public String getDomain() {
-        return domain;
-    }
-
-    /**
-     * @param domain the domain of the OpenStack (required for v3 API)
-     */
-    public void setDomain(String domain) {
-        this.domain = domain;
     }
 
     /**
@@ -180,7 +165,6 @@ public class AdditionalParameters {
         if (o == null || getClass() != o.getClass()) return false;
         AdditionalParameters that = (AdditionalParameters) o;
         return vimType == that.vimType &&
-                Objects.equals(domain, that.domain) &&
                 Objects.equals(instantiationLevel, that.instantiationLevel) &&
                 Objects.equals(computeResourceFlavours, that.computeResourceFlavours) &&
                 Objects.equals(zones, that.zones) &&
@@ -194,14 +178,13 @@ public class AdditionalParameters {
     @Override
     public int hashCode() {
 
-        return Objects.hash(vimType, domain, instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, additionalParams);
+        return Objects.hash(vimType, instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, additionalParams);
     }
 
     @Override
     public String toString() {
         return "AdditionalParameters{" +
                 "vimType=" + vimType +
-                ", domain='" + domain + '\'' +
                 ", instantiationLevel='" + instantiationLevel + '\'' +
                 ", computeResourceFlavours=" + computeResourceFlavours +
                 ", zones=" + zones +

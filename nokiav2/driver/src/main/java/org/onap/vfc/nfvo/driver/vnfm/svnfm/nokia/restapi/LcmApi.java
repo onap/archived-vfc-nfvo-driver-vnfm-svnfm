@@ -73,9 +73,9 @@ public class LcmApi {
     /**
      * Terminate the VNF (defined further in the VF-C driver integration documentation)
      *
-     * @param request       the instantiation request
+     * @param request       the termination request
      * @param vnfmId        the identifier of the VNFM
-     * @param vnfInstanceId the identifer of the VNF
+     * @param vnfInstanceId the identifier of the VNF
      * @param httpResponse  the HTTP response
      * @return the job representing the VNF termination operation
      */
@@ -90,7 +90,7 @@ public class LcmApi {
      * Query the VNF (defined further in the VF-C driver integration documentation)
      *
      * @param vnfmId        the identifier of the VNFM
-     * @param vnfInstanceId the identifer of the VNF
+     * @param vnfInstanceId the identifier of the VNF
      * @param httpResponse  the HTTP response
      * @return the VNF info
      */
@@ -104,7 +104,7 @@ public class LcmApi {
     /**
      * Query the job (defined further in the VF-C driver integration documentation)
      *
-     * @param jobId        the identifer of the job
+     * @param jobId        the identifier of the job
      * @param vnfmId       the identifier of the VNFM
      * @param httpResponse the HTTP response
      * @return the instantiated VNF info

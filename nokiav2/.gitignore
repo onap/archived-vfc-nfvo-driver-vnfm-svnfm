@@ -5,3 +5,4 @@ bin
 tmp
 logs
 debug-logs
+NOTES.internal.txt
