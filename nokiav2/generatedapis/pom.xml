@@ -93,6 +93,26 @@ Release AAI
             </configuration>
           </execution>
           <execution>
+            <id>so</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/so.vnfm.json</inputSpec>
+              <language>java</language>
+              <library>retrofit2</library>
+              <output>${project.build.directory}/generated-sources/so</output>
+              <apiPackage>org.onap.vnfmadapter.so.api</apiPackage>
+              <modelPackage>org.onap.vnfmadapter.so.model</modelPackage>
+              <configOptions>
+                <jackson>true</jackson>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
             <id>msb</id>
             <goals>
               <goal>generate</goal>

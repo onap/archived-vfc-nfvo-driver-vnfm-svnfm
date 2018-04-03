@@ -90,6 +90,8 @@ public class TestLifecycleManager extends TestBase {
     private OperationExecution modifyPropertyoperationExecution = new OperationExecution();
     private OperationExecution scaleOperationExecution = new OperationExecution();
     private OperationExecution healOperationExecution = new OperationExecution();
+    private OperationExecution customOperationExecution = new OperationExecution();
+
 
     private VnfInfo vnfInfo = new VnfInfo();
     private List<OperationExecution> operationExecutions = new ArrayList<>();
@@ -100,6 +102,8 @@ public class TestLifecycleManager extends TestBase {
     private Set<Boolean> finished = new HashSet<>();
     private ArgumentCaptor<ScaleVnfRequest> actualScaleRequest = ArgumentCaptor.forClass(ScaleVnfRequest.class);
     private ArgumentCaptor<HealVnfRequest> actualHealRequest = ArgumentCaptor.forClass(HealVnfRequest.class);
+    private ArgumentCaptor<CustomOperationRequest> customOperationRequestArgumentCaptor = ArgumentCaptor.forClass(CustomOperationRequest.class);
+    private ArgumentCaptor<String> operationIdCaptor = ArgumentCaptor.forClass(String.class);
 
     private LifecycleManager lifecycleManager;
 
@@ -135,9 +139,12 @@ public class TestLifecycleManager extends TestBase {
         operationExecutions.add(instantiationOperationExecution);
         instantiationOperationExecution.setStatus(OperationStatus.FINISHED);
         modifyPropertyoperationExecution.setStatus(OperationStatus.FINISHED);
+        customOperationExecution.setStatus(OperationStatus.FINISHED);
         modifyPropertyoperationExecution.setId(UUID.randomUUID().toString());
         scaleOperationExecution.setId(UUID.randomUUID().toString());
         healOperationExecution.setId(UUID.randomUUID().toString());
+        customOperationExecution.setId(UUID.randomUUID().toString());
+
         when(vnfApi.vnfsVnfInstanceIdPatch(eq(VNF_ID), actualVnfModifyRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(modifyPropertyoperationExecution));
         doAnswer(new Answer() {
             @Override
@@ -158,6 +165,13 @@ public class TestLifecycleManager extends TestBase {
             public Observable<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
                 operationExecutions.add(healOperationExecution);
                 return buildObservable(healOperationExecution);
+            }
+        });
+        when(vnfApi.vnfsVnfInstanceIdCustomCustomOperationNamePost(eq(VNF_ID), operationIdCaptor.capture(), customOperationRequestArgumentCaptor.capture(), eq(NOKIA_LCM_API_VERSION))).thenAnswer(new Answer<Observable<OperationExecution>>() {
+            @Override
+            public Observable<OperationExecution> answer(InvocationOnMock invocation) throws Throwable {
+                operationExecutions.add(customOperationExecution);
+                return buildObservable(customOperationExecution);
             }
         });
     }
@@ -1392,6 +1406,22 @@ public class TestLifecycleManager extends TestBase {
         //verify
         waitForJobToFinishInJobManager(finished);
         verify(logger).error("Unable to heal VNF with myVnfId identifier", expectedException);
+    }
+
+
+    /**
+     * test custom operation basic scenario
+     */
+    @Test
+    public void testCustomOperation() throws Exception {
+        String operationId = "operationIdCaptor";
+        Object additionalParams = new JsonObject();
+        //when
+        JobInfo job = lifecycleManager.customOperation(VNFM_ID, VNF_ID, operationId, additionalParams, restResponse);
+        //verify
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(operationId, operationIdCaptor.getValue());
+        assertEquals(additionalParams, customOperationRequestArgumentCaptor.getValue().getAdditionalParams());
     }
 
     private void waitForJobToFinishInJobManager(Set<Boolean> finished) throws InterruptedException {

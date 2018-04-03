@@ -55,7 +55,6 @@ public class TestVnfcManager extends TestBase {
         when(aaiRestApiProvider.getNetworkApi()).thenReturn(networkApi);
     }
 
-
     /**
      * test create
      */
@@ -137,6 +136,15 @@ public class TestVnfcManager extends TestBase {
         verify(networkApi).deleteNetworkVnfcsVnfc("myVnfId_vnfcId", "v3");
         VOID_OBSERVABLE.assertCalled();
     }
+
+    /**
+     * test VNFC id conversion
+     */
+    @Test
+    public void testCbamId() {
+        assertEquals("b", VnfcManager.buildCbamId("a_b"));
+    }
+
 
     /**
      * test inheritence

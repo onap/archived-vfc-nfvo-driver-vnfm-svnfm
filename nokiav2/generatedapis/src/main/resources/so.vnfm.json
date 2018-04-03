@@ -1,0 +1,676 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "ONAP SO VNFM Adapter API",
+    "description": "Describes the API between SO and the adapter for VNFM",
+    "contact": {
+      "name": "ONAP SO VNFM",
+      "email": "onap-discuss@lists.onap.org",
+      "url": "https://gerrit.onap.org/r/#/admin/projects/vfc/nfvo/lcm"
+    }
+  },
+  "basePath": "/api/v1",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "{vnfmId}/vnfs": {
+      "post": {
+        "tags": [
+          "SO VNFM Adaptor"
+        ],
+        "summary": "VNF create",
+        "description": "VNF create",
+        "operationId": "vnf_create",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNFM in A&AI",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "VNF creation request parameter",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfCreationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/VnfCreationResponse"
+            }
+          }
+        }
+      }
+    },
+    "{vnfmId}/vnfs/{vnfId}": {
+      "post": {
+        "tags": [
+          "SO VNFM Adaptor"
+        ],
+        "summary": "VNF activation",
+        "description": "VNF activation",
+        "operationId": "vnf_activate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNFM in A&AI",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNF in A&AI",
+            "name": "vnfId",
+            "in": "path"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "instantiate request param",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfActivationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobHandler"
+            }
+          }
+        }
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}/scale": {
+      "post": {
+        "tags": [
+          "SO VNFM Adaptor"
+        ],
+        "summary": "VNF scale",
+        "description": "VNF scale request",
+        "operationId": "vnf_scale",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNFM in A&AI",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNF in A&AI",
+            "name": "vnfId",
+            "in": "path"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "VNF scale request parameters",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfScaleRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobHandler"
+            }
+          }
+        }
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}/customOperation": {
+      "post": {
+        "tags": [
+          "SO VNFM Adaptor"
+        ],
+        "summary": "VNF scale",
+        "description": "VNF scale request",
+        "operationId": "vnf_scale",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNFM in A&AI",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNF in A&AI",
+            "name": "vnfId",
+            "in": "path"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "VNF scale request parameters",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfCustomOperation"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobHandler"
+            }
+          }
+        }
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}/heal": {
+      "post": {
+        "tags": [
+          "SO VNFM driver"
+        ],
+        "summary": "VNF heal",
+        "description": "VNF heal",
+        "operationId": "vnf_heal",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNFM in A&AI",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNF in A&AI",
+            "name": "vnfId",
+            "in": "path"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "VNF heal request parameters",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfHealRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobHandler"
+            }
+          }
+        }
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}/terminate": {
+      "post": {
+        "tags": [
+          "SO VNFM driver"
+        ],
+        "summary": "VNF terminate",
+        "description": "VNF terminate",
+        "operationId": "vnf_terminate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNFM in A&AI",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNF in A&AI",
+            "name": "vnfId",
+            "in": "path"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "VNF termination request parameters",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VnfTerminationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/JobHandler"
+            }
+          }
+        }
+      }
+    },
+    "/{vnfmId}/vnfs/{vnfId}": {
+      "delete": {
+        "tags": [
+          "SO VNFM driver"
+        ],
+        "summary": "Deletes VNF",
+        "description": "Deletes the VNF. If the VNF was instantiated VNF termination must be called before VNF deletion",
+        "operationId": "delete_vnf",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNFM in A&AI",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNF in A&AI",
+            "name": "vnfId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The VNF was deleted successfully"
+          }
+        }
+      }
+    },
+    "/{vnfmId}/jobs/{jobId}": {
+      "get": {
+        "tags": [
+          "SO VNFM driver"
+        ],
+        "summary": "Query job status",
+        "description": "Query the job status",
+        "operationId": "get_jobstatus",
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the VNFM in A&AI",
+            "name": "vnfmId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "The identifier of the job",
+            "name": "jobId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The details of a job",
+            "schema": {
+              "$ref": "#/definitions/JobDetail"
+            }
+          },
+          "404": {
+            "description": "The job is unknown to the VNFM. The VNFM does not keep finished jobs for forever.",
+            "schema": {
+              "$ref": "#/definitions/JobDetail"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "JobHandler": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "required": true,
+          "description": "The identifier of the job",
+          "type": "string"
+        }
+      }
+    },
+    "JobStatus": {
+      "description": "The status of the job",
+      "type": "string",
+      "enum": [
+        "started",
+        "finished",
+        "failed"
+      ]
+    },
+    "JobDetail": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/JobHandler"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "required": true,
+              "description": "The status of the job",
+               "$ref": "#/definitions/JobStatus"
+            },
+            "description": {
+              "required": true,
+              "description": "The description of the current state of the job",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "VnfCreationRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "required": true,
+          "description": "The name of the VNF",
+          "type": "string"
+        },
+        "csarId": {
+          "required": true,
+          "description": "The identifier of the VNF package in SDC",
+          "type": "string"
+        },
+        "description": {
+          "required": false,
+          "description": "The description of the VNF",
+          "type": "string"
+        },
+        "additionalParams": {
+          "description": "Additional VNFM specific parameters",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "VnfCreationResponse": {
+      "type": "object",
+      "properties": {
+        "vnfId": {
+          "required": true,
+          "description": "The identifier of the created VNF",
+          "type": "string"
+        }
+      }
+    },
+    "VduMapping": {
+      "type": "object",
+      "properties": {
+        "vduId": {
+          "required": true,
+          "description": "The identifier of the VDU within the VNF package",
+          "type": "string"
+        },
+        "imageId": {
+          "required": true,
+          "description": "The provider id of the image to be used for the VDU",
+          "type": "string"
+        },
+        "flavourId": {
+          "required": true,
+          "description": "The provider id of the flavour to be used for the VDU",
+          "type": "string"
+        }
+      }
+    },
+    "ServerMapping": {
+      "type": "object",
+      "description": "Maps a server instance to a VDU and availability zone",
+      "properties": {
+        "vduId": {
+          "required": true,
+          "description": "The identifier of the VDU",
+          "type": "string"
+        },
+        "availabilityZoneId": {
+          "required": false,
+          "description": "The provider id of the availability zone to be used for the server instance",
+          "type": "string"
+        }
+      }
+    },
+    "AssignedAddresses": {
+      "type": "object",
+      "properties": {
+        "cpdId" : {
+          "required": true,
+          "description": "The identifier of the connection point descriptor",
+          "type" : "string"
+        },
+        "ipAddress": {
+          "required": true,
+          "description": "The IP address to be used",
+          "type": "string"
+        }
+      }
+    },
+    "NetworkMapping": {
+      "type": "object",
+      "properties": {
+        "vldId": {
+          "required": true,
+          "description": "The identifier of the network in the VNF package",
+          "type": "string"
+        },
+        "networkProviderId": {
+          "required": true,
+          "description": "The provider id of the network be used for the given purpose",
+          "type": "string"
+        },
+        "assignedAddresses": {
+          "required": true,
+          "description": "The assigned network addresses",
+          "type" : "array",
+          "items": {
+            "$ref": "#/definitions/AssignedAddresses"
+          }
+        }
+      }
+    },
+    "VnfActivationRequest": {
+      "type": "object",
+      "properties": {
+        "vimId" : {
+          "required" : true,
+           "type" : "string",
+          "description" : "The identifier of the VIM on which the VNF is to be instantiated"
+        },
+        "serverMappings": {
+          "required": true,
+          "description": "The server mappings",
+          "type" : "array",
+          "items": {
+            "$ref": "#/definitions/ServerMapping"
+          }
+        },
+        "vduMappings": {
+          "required": true,
+          "description": "The VDU mappings",
+          "type" : "array",
+          "items": {
+            "$ref": "#/definitions/VduMapping"
+          }
+        },
+        "networkMappings": {
+          "required": true,
+          "description": "The network mappings",
+          "type" : "array",
+          "items": {
+            "$ref": "#/definitions/NetworkMapping"
+          }
+        },
+        "additionalParams": {
+          "description": "Additional VNFM specific parameters",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "ScaleDirection": {
+      "description": "The direction of the scale",
+      "type": "string",
+      "enum": [
+        "in",
+        "out"
+      ]
+    },
+    "VnfScaleRequest": {
+      "type": "object",
+      "properties": {
+        "aspectId": {
+          "type": "string",
+          "description": "The identifier of the scaling aspect in the VNF package"
+        },
+        "steps": {
+          "type": "integer",
+          "description": "The expected absolute scale level"
+        },
+        "direction": {
+          "required": true,
+          "description": "The direction of the scale",
+          "$ref": "#/definitions/ScaleDirection"
+        },
+        "serverMappings": {
+          "required": true,
+          "description": "The server mappings",
+          "items": {
+            "$ref": "#/definitions/ServerMapping"
+          }
+        },
+        "additionalParams": {
+          "description": "Additional VNFM specific parameters",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "VnfCustomOperation": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "required" : true,
+          "type": "string",
+          "description": "The identifier of the custom operation"
+        },
+        "additionalParams": {
+          "description": "Additional VNFM specific parameters",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "VnfHealRequest": {
+      "type": "object",
+      "properties": {
+        "vnfcId": {
+          "type": "string",
+          "description": "The identifier of the VNFC to be healed"
+        },
+        "additionalParams": {
+          "description": "Additional VNFM specific parameters",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "TerminationMode": {
+      "description": "The way in which the VNF is terminated",
+      "type": "string",
+      "enum": [
+        "forceful",
+        "graceful"
+      ]
+    },
+    "VnfTerminationRequest": {
+      "type": "object",
+      "properties": {
+        "mode" : {
+          "required" : true,
+          "description" : "The VNF termination mode",
+          "$ref": "#/definitions/TerminationMode"
+        },
+        "gracefulTerminationTimeoutInMs": {
+          "required" : false,
+          "type": "integer",
+          "description": "The timeout for graceful termination. After the timeout has expired forceful termination is attempted."
+        },
+        "additionalParams": {
+          "description": "Additional VNFM specific parameters",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

@@ -27,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
+import static com.google.common.base.Splitter.on;
+import static com.google.common.collect.Lists.newArrayList;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 
 /**
@@ -44,6 +46,14 @@ public class VnfcManager extends AbstractManager {
 
     private static String buildId(String vnfId, String cbamVnfcId) {
         return vnfId + SEPARATOR + cbamVnfcId;
+    }
+
+    /**
+     * @param onapVnfcId the identifier of the VNFC in AAI
+     * @return the identifier of the VNFC in CBAM
+     */
+    public static String buildCbamId(String onapVnfcId){
+        return newArrayList(on(SEPARATOR).split(onapVnfcId)).get(1);
     }
 
     @Override
