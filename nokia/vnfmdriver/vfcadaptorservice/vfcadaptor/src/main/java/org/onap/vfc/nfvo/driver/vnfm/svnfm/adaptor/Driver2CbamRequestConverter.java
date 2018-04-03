@@ -57,16 +57,12 @@ public class Driver2CbamRequestConverter {
 			NslcmGrantVnfResponse nslc, GrantInfo grant, VimComputeResourceFlavour vimco) throws IOException {
         Gson gson = new Gson();
 		String inputJson = readcbamInputInfoFromJsonFile();
-		CBAMInstantiateVnfRequest request = gson.fromJson(inputJson, CBAMInstantiateVnfRequest.class);
-		
-		return request;
+		return gson.fromJson(inputJson, CBAMInstantiateVnfRequest.class);
 	}
 
 	private String readcbamInputInfoFromJsonFile() throws IOException {
 		String filePath = "/etc/vnfpkginfo/cbam_input.json";
-		String fileContent = CommonUtil.getJsonStrFromFile(filePath);
-
-		return fileContent;
+		return CommonUtil.getJsonStrFromFile(filePath);
 	}
 
 	public CBAMTerminateVnfRequest terminateReqConvert(TerminateVnfRequest driverRequest) {
@@ -77,7 +73,7 @@ public class Driver2CbamRequestConverter {
 		return request;
 	}
 
-	public CBAMHealVnfRequest healReqConvert(HealVnfRequest driverRequest) {
+	public CBAMHealVnfRequest healReqConvert() {
 		CBAMHealVnfRequest request = new CBAMHealVnfRequest();
 		request.setCause("");
 		request.setAdditionalParams("");
