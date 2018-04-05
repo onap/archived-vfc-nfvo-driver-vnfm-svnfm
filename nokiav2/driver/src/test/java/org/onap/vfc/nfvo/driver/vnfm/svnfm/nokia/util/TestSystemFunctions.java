@@ -20,6 +20,7 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Useless;
 
 import static org.junit.Assert.*;
 
@@ -108,9 +109,9 @@ public class TestSystemFunctions {
 
     /**
      * Test HTTP client wrapping
-     * (semi useless test)
      */
     @Test
+    @Useless //more less already ensured by Java type safety
     public void testHttp() {
         assertNotNull(SystemFunctions.systemFunctions().getHttpClient());
     }

@@ -18,18 +18,36 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertEquals;
 import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 
 
-public class TestDriverProperties {
+public class TestDriverProperties extends TestBase{
 
     /**
      * Test basic POJO behaviour
      */
     @Test
     public void test() {
-
-
         assertPojoMethodsFor(DriverProperties.class).areWellImplemented();
+    }
+
+    /**
+     * Test parameter initialization by Spring
+     *  - changes in this constants should be also altered in
+     *    - application*.properties
+     *    - in deployment configuration file
+     *    - documentation
+     */
+    @Test
+    public void testSpringParameterLoading(){
+        DriverProperties driverProperties = new DriverProperties();
+        setFieldWithPropertyAnnotation(driverProperties, "${cbamCatalogUrl}", "cbamCatalogUrl");
+        setFieldWithPropertyAnnotation(driverProperties, "${cbamLcnUrl}", "cbamLcnUrl");
+        setFieldWithPropertyAnnotation(driverProperties, "${vnfmId}", "vnfmId");
+        assertEquals("cbamCatalogUrl", driverProperties.getCbamCatalogUrl());
+        assertEquals("cbamLcnUrl", driverProperties.getCbamLcnUrl());
+        assertEquals("vnfmId", driverProperties.getVnfmId());
+
     }
 }

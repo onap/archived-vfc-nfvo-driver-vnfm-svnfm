@@ -31,7 +31,6 @@ import org.onap.vnfmadapter.so.model.*;
 import org.onap.vnfmdriver.model.ExtVirtualLinkInfo;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.VnfInfo;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,8 +41,6 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getVnfdIdFromModifyableAttributes;
 import static org.onap.vnfmadapter.so.model.SoJobStatus.*;
-import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * Responsible for providing access to AAI APIs.
@@ -52,7 +49,6 @@ import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
 public class SoLifecycleManager {
-    private static Logger logger = getLogger(SoLifecycleManager.class);
     private final LifecycleManager lifecycleManager;
     private final VimInfoProvider vimInfoProvider;
     private final CbamRestApiProvider cbamRestApiProvider;
@@ -96,9 +92,7 @@ public class SoLifecycleManager {
         org.onap.vnfmdriver.model.VimInfo vimInfo = vimInfoProvider.getVimInfo(vimId);
         additionalParameters.setVimType(vimTypeHeuristic(vimInfo.getUrl()));
         processVdus(soRequest, additionalParameters, vimId);
-        if (isEmpty(additionalParameters.getInstantiationLevel())) {
-            additionalParameters.setInstantiationLevel("default");
-        }
+        additionalParameters.setInstantiationLevel("default");
         processNetworks(soRequest, additionalParameters, vimId);
         processZones(soRequest, additionalParameters, vimId);
         com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
@@ -158,8 +152,13 @@ public class SoLifecycleManager {
      */
     public SoJobHandler deactivate(String vnfmId, String vnfId, SoVnfTerminationRequest soRequest, HttpServletResponse httpResponse) {
         VnfTerminateRequest driverRequest = new VnfTerminateRequest();
-        driverRequest.setTerminationType(soRequest.getMode() == SoTerminationMode.FORCEFUL ? VnfTerminationType.FORCEFUL : VnfTerminationType.GRACEFUL);
-        driverRequest.setGracefulTerminationTimeout(soRequest.getGracefulTerminationTimeoutInMs().toString());
+        if (soRequest.getMode() == SoTerminationMode.FORCEFUL) {
+            driverRequest.setTerminationType(VnfTerminationType.FORCEFUL);
+        } else {
+            driverRequest.setTerminationType(VnfTerminationType.GRACEFUL);
+            driverRequest.setGracefulTerminationTimeout(soRequest.getGracefulTerminationTimeoutInMs().toString());
+
+        }
         return buildJobHandler(lifecycleManager.terminateAndDelete(vnfmId, vnfId, driverRequest, httpResponse).getJobId());
     }
 
@@ -256,12 +255,16 @@ public class SoLifecycleManager {
                 ExtVirtualLinkData extVirtualLinkData = createExtVirtualLinkData(additionalParameters, networkMapping.getVldId());
                 extVirtualLinkData.setVimId(vimId);
                 extVirtualLinkData.setResourceId(networkMapping.getNetworkProviderId());
-                if (networkMapping.getAssignedAddresses() != null) {
-                    for (SoAssignedAddresses assignedAddresses : networkMapping.getAssignedAddresses()) {
-                        VnfExtCpData extCpData = createExtVirtualLinkData(extVirtualLinkData.getExtCps(), assignedAddresses.getCpdId());
-                        addMissing(extCpData, assignedAddresses.getIpAddress());
-                    }
-                }
+                processAssingedAddress(networkMapping, extVirtualLinkData);
+            }
+        }
+    }
+
+    private void processAssingedAddress(SoNetworkMapping networkMapping, ExtVirtualLinkData extVirtualLinkData) {
+        if (networkMapping.getAssignedAddresses() != null) {
+            for (SoAssignedAddresses assignedAddresses : networkMapping.getAssignedAddresses()) {
+                VnfExtCpData extCpData = createExtVirtualLinkData(extVirtualLinkData.getExtCps(), assignedAddresses.getCpdId());
+                addMissing(extCpData, assignedAddresses.getIpAddress());
             }
         }
     }
@@ -277,11 +280,9 @@ public class SoLifecycleManager {
     }
 
     private ZoneInfo locateOrCreateZone(List<ZoneInfo> zones, String vduId) {
-        if (zones != null) {
-            for (ZoneInfo zone : zones) {
-                if (zone.getId().equals(vduId)) {
-                    return zone;
-                }
+        for (ZoneInfo zone : zones) {
+            if (zone.getId().equals(vduId)) {
+                return zone;
             }
         }
         ZoneInfo zoneInfo = new ZoneInfo();
@@ -305,11 +306,9 @@ public class SoLifecycleManager {
     }
 
     private VnfExtCpData createExtVirtualLinkData(List<VnfExtCpData> extCps, String cpdId) {
-        if (extCps != null) {
-            for (VnfExtCpData extCp : extCps) {
-                if (extCp.getCpdId().equals(cpdId)) {
-                    return extCp;
-                }
+        for (VnfExtCpData extCp : extCps) {
+            if (extCp.getCpdId().equals(cpdId)) {
+                return extCp;
             }
         }
         VnfExtCpData extCp = new VnfExtCpData();

@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.mockito.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Useless;
 import org.slf4j.Logger;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.ContextClosedEvent;
@@ -149,8 +150,10 @@ public class TestNokiaSvnfmApplication {
 
     /**
      * static entry point calling an other static entry point can not be tested
+     * only using powermock
      */
     @Test
+    @Useless
     public void useless() throws Exception {
         try {
             NokiaSvnfmApplication.main(null);

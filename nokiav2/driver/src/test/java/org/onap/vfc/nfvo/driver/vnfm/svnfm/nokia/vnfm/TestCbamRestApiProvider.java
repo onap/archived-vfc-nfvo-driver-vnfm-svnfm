@@ -72,13 +72,15 @@ public class TestCbamRestApiProvider extends TestBase {
     private java.util.List<NodeInfo> nodes = new ArrayList<>();
 
     private CbamRestApiProvider cbamRestApiProvider;
-    private CbamSecurityProvider cbamSecurityProvider = spy(new CbamSecurityProvider());
+    private CbamSecurityProvider cbamSecurityProvider ;
 
     @Before
     public void init() {
+        CbamSecurityProvider real = new CbamSecurityProvider();
+        setFieldWithPropertyAnnotation(real, "${skipCertificateVerification}", true);
+        setFieldWithPropertyAnnotation(real, "${skipHostnameVerification}", true);
+        cbamSecurityProvider = spy(real);
         microServiceInfo.setNodes(nodes);
-        setField(cbamSecurityProvider, "skipCertificateVerification", true);
-        setField(cbamSecurityProvider, "skipHostnameVerification", true);
         cbamRestApiProvider = new CbamRestApiProvider(driverProperties, cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
         when(environment.getProperty(IpMappingProvider.IP_MAP, String.class, "")).thenReturn("");
         when(environment.getProperty(GenericExternalSystemInfoProvider.VNFM_INFO_CACHE_EVICTION_IN_MS, Long.class, Long.valueOf(10 * 60 * 1000))).thenReturn(10 * 60 * 1000L);
@@ -156,6 +158,7 @@ public class TestCbamRestApiProvider extends TestBase {
      * (questionable benefit [ this is more less ensured by Java type safety) ]
      */
     @Test
+    @Useless
     public void testCatalogAPiWrapping() {
         com.nokia.cbam.catalog.v1.ApiClient c = Mockito.mock(com.nokia.cbam.catalog.v1.ApiClient.class);
         class TestClasss extends CbamRestApiProvider {
@@ -169,6 +172,7 @@ public class TestCbamRestApiProvider extends TestBase {
             }
         }
         DefaultApi defaultApi = Mockito.mock(DefaultApi.class);
+        //when
         when(c.createService(DefaultApi.class)).thenReturn(defaultApi);
         //verify
         TestClasss testInstnace = new TestClasss();
@@ -181,6 +185,7 @@ public class TestCbamRestApiProvider extends TestBase {
      * (questionable benefit [ this is more less ensured by Java type safety) ]
      */
     @Test
+    @Useless
     public void testLcmAPiWrapping() {
         com.nokia.cbam.lcn.v32.ApiClient c = Mockito.mock(com.nokia.cbam.lcn.v32.ApiClient.class);
         class TestClasss extends CbamRestApiProvider {
@@ -194,6 +199,7 @@ public class TestCbamRestApiProvider extends TestBase {
             }
         }
         SubscriptionsApi defaultApi = Mockito.mock(SubscriptionsApi.class);
+        //when
         when(c.createService(SubscriptionsApi.class)).thenReturn(defaultApi);
         //verify
         TestClasss testInstnace = new TestClasss();
@@ -206,6 +212,7 @@ public class TestCbamRestApiProvider extends TestBase {
      * (questionable benefit [ this is more less ensured by Java type safety) ]
      */
     @Test
+    @Useless
     public void testLcnAPiWrapping() {
         com.nokia.cbam.lcm.v32.ApiClient c = Mockito.mock(com.nokia.cbam.lcm.v32.ApiClient.class);
         class TestClasss extends CbamRestApiProvider {
@@ -219,6 +226,7 @@ public class TestCbamRestApiProvider extends TestBase {
             }
         }
         VnfsApi defaultApi = Mockito.mock(VnfsApi.class);
+        //when
         when(c.createService(VnfsApi.class)).thenReturn(defaultApi);
         //verify
         TestClasss testInstnace = new TestClasss();
@@ -231,6 +239,7 @@ public class TestCbamRestApiProvider extends TestBase {
      * (questionable benefit [ this is more less ensured by Java type safety) ]
      */
     @Test
+    @Useless
     public void testOperationExecutionsApiAPiWrapping() {
         com.nokia.cbam.lcm.v32.ApiClient c = Mockito.mock(com.nokia.cbam.lcm.v32.ApiClient.class);
         class TestClasss extends CbamRestApiProvider {
@@ -244,6 +253,7 @@ public class TestCbamRestApiProvider extends TestBase {
             }
         }
         OperationExecutionsApi defaultApi = Mockito.mock(OperationExecutionsApi.class);
+        //when
         when(c.createService(OperationExecutionsApi.class)).thenReturn(defaultApi);
         //verify
         TestClasss testInstnace = new TestClasss();

@@ -43,7 +43,6 @@ public class SoApi {
 
     private final SoLifecycleManager soLifecycleManager;
 
-    //private final LifecycleManager d;
     @Autowired
     SoApi(SoLifecycleManager lifecycleManager) {
         this.soLifecycleManager = lifecycleManager;
@@ -77,7 +76,7 @@ public class SoApi {
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
     public SoJobHandler activateVnf(@RequestBody SoVnfActivationRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
-        logger.info("REST: Create the VNF");
+        logger.info("REST: Activate the VNF");
         return soLifecycleManager.activate(vnfmId, vnfId, request, httpResponse);
     }
 
@@ -92,7 +91,7 @@ public class SoApi {
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}/customOperation", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
     public SoJobHandler executeCustomOperation(@RequestBody SoVnfCustomOperation request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
-        logger.info("REST: Create the VNF");
+        logger.info("REST: Execute custom operation on the VNF");
         return soLifecycleManager.customOperation(vnfmId, vnfId, request, httpResponse);
     }
 
@@ -108,7 +107,7 @@ public class SoApi {
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}/terminate", method = POST, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public SoJobHandler deactivateVnf(@RequestBody SoVnfTerminationRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
-        logger.info("REST: Deactivate VNF");
+        logger.info("REST: Deactivate the VNF");
         return soLifecycleManager.deactivate(vnfmId, vnfId, request, httpResponse);
     }
 
@@ -121,7 +120,7 @@ public class SoApi {
      */
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}", method = DELETE)
     public void deleteVnf(@PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
-        logger.info("REST: Delete VNF");
+        logger.info("REST: Delete the VNF");
         soLifecycleManager.delete(vnfmId, vnfId);
         httpResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
@@ -137,7 +136,7 @@ public class SoApi {
     @RequestMapping(value = "/{vnfmId}/jobs/{jobId}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public SoJobDetail getJob(@PathVariable("vnfmId") String vnfmId, @PathVariable("jobId") String jobId, HttpServletResponse httpResponse) {
-        logger.debug("REST: Query the job");
+        logger.trace("REST: Query the job");
         return soLifecycleManager.getJobDetails(vnfmId, jobId);
     }
 
