@@ -253,7 +253,7 @@ public class LifecycleManager {
             return buildOpenStackV2INFO(vimId, vim, vimInfo);
 
         } else if (additionalParameters.getVimType() == OPENSTACK_V3_INFO) {
-            return buildOpenStackV3INFO(vimId, additionalParameters, vim, vimInfo);
+            return buildOpenStackV3INFO(vimId, vim, vimInfo);
 
         } else {
             //OTHER VIM TYPE is not possible
@@ -329,7 +329,7 @@ public class LifecycleManager {
         }
     }
 
-    private OPENSTACKV3INFO buildOpenStackV3INFO(String vimId, AdditionalParameters additionalParameters, GrantVNFResponseVim vim, org.onap.vnfmdriver.model.VimInfo vimInfo) {
+    private OPENSTACKV3INFO buildOpenStackV3INFO(String vimId, GrantVNFResponseVim vim, org.onap.vnfmdriver.model.VimInfo vimInfo) {
         OPENSTACKV3INFO openstackv3INFO = new OPENSTACKV3INFO();
         openstackv3INFO.setVimInfoType(OPENSTACK_V3_INFO);
         OpenStackAccessInfoV3 accessInfov3 = new OpenStackAccessInfoV3();

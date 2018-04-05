@@ -41,7 +41,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestSoLifecycleManager extends TestBase {
 
@@ -56,7 +55,6 @@ public class TestSoLifecycleManager extends TestBase {
 
     @Before
     public void init() {
-        setField(SoLifecycleManager.class, "logger", logger);
         soLifecycleManager = new SoLifecycleManager(lifecycleManager, vimInfoProvider, cbamRestApiProvider, jobManager);
     }
 
@@ -382,10 +380,10 @@ public class TestSoLifecycleManager extends TestBase {
     }
 
     /**
-     * test VNF scale
+     * test VNF scale in
      */
     @Test
-    public void testScaling() throws Exception {
+    public void testScaleIn() throws Exception {
         SoVnfScaleRequest soRequest = new SoVnfScaleRequest();
         ArgumentCaptor<org.onap.vnfmdriver.model.VnfScaleRequest> driverRequest = ArgumentCaptor.forClass(org.onap.vnfmdriver.model.VnfScaleRequest.class);
         JobInfo jobInfo = new JobInfo();
@@ -404,6 +402,32 @@ public class TestSoLifecycleManager extends TestBase {
         assertEquals(2, Integer.parseInt(driverRequest.getValue().getNumberOfSteps()));
         assertEquals("aspectId", driverRequest.getValue().getAspectId());
         assertEquals(org.onap.vnfmdriver.model.ScaleDirection.IN, driverRequest.getValue().getType());
+        assertEquals(additionalParams, driverRequest.getValue().getAdditionalParam());
+    }
+
+    /**
+     * test VNF scale out
+     */
+    @Test
+    public void testScaleOut() throws Exception {
+        SoVnfScaleRequest soRequest = new SoVnfScaleRequest();
+        ArgumentCaptor<org.onap.vnfmdriver.model.VnfScaleRequest> driverRequest = ArgumentCaptor.forClass(org.onap.vnfmdriver.model.VnfScaleRequest.class);
+        JobInfo jobInfo = new JobInfo();
+        jobInfo.setJobId(JOB_ID);
+
+        soRequest.setAspectId("aspectId");
+        soRequest.setDirection(SoScaleDirection.OUT);
+        soRequest.setSteps(2);
+        JsonObject additionalParams = new JsonObject();
+        soRequest.setAdditionalParams(additionalParams);
+        when(lifecycleManager.scaleVnf(eq(VNFM_ID), eq(VNF_ID), driverRequest.capture(), eq(httpResponse))).thenReturn(jobInfo);
+        //when
+        SoJobHandler jobHandler = soLifecycleManager.scale(VNFM_ID, VNF_ID, soRequest, httpResponse);
+        //verify
+        assertEquals(JOB_ID, jobHandler.getJobId());
+        assertEquals(2, Integer.parseInt(driverRequest.getValue().getNumberOfSteps()));
+        assertEquals("aspectId", driverRequest.getValue().getAspectId());
+        assertEquals(org.onap.vnfmdriver.model.ScaleDirection.OUT, driverRequest.getValue().getType());
         assertEquals(additionalParams, driverRequest.getValue().getAdditionalParam());
     }
 
@@ -451,6 +475,27 @@ public class TestSoLifecycleManager extends TestBase {
         assertEquals(JOB_ID, jobHandler.getJobId());
         assertEquals(VnfTerminationType.GRACEFUL, driverRequest.getValue().getTerminationType());
         assertEquals("1234", driverRequest.getValue().getGracefulTerminationTimeout());
+    }
+
+    /**
+     * test VNF deactivation
+     */
+    @Test
+    public void testDeactivationForceFull() throws Exception {
+        SoVnfTerminationRequest soRequest = new SoVnfTerminationRequest();
+        ArgumentCaptor<org.onap.vnfmdriver.model.VnfTerminateRequest> driverRequest = ArgumentCaptor.forClass(org.onap.vnfmdriver.model.VnfTerminateRequest.class);
+        JobInfo jobInfo = new JobInfo();
+        jobInfo.setJobId(JOB_ID);
+        soRequest.setMode(SoTerminationMode.FORCEFUL);
+        JsonObject additionalParams = new JsonObject();
+        soRequest.setAdditionalParams(additionalParams);
+        when(lifecycleManager.terminateAndDelete(eq(VNFM_ID), eq(VNF_ID), driverRequest.capture(), eq(httpResponse))).thenReturn(jobInfo);
+        //when
+        SoJobHandler jobHandler = soLifecycleManager.deactivate(VNFM_ID, VNF_ID, soRequest, httpResponse);
+        //verify
+        assertEquals(JOB_ID, jobHandler.getJobId());
+        assertEquals(VnfTerminationType.FORCEFUL, driverRequest.getValue().getTerminationType());
+        assertEquals(null, driverRequest.getValue().getGracefulTerminationTimeout());
     }
 
     /**
