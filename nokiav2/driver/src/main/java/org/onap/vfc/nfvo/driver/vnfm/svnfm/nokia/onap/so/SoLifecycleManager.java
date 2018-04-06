@@ -283,10 +283,13 @@ public class SoLifecycleManager {
                     return zone;
                 }
             }
-        }
+        }else{
+		zones = new ArrayList<>();
+	}
+	
         ZoneInfo zoneInfo = new ZoneInfo();
         zoneInfo.setId(vduId);
-        zones.add(zoneInfo);
+	zones.add(zoneInfo);
         return zoneInfo;
     }
 
@@ -311,7 +314,10 @@ public class SoLifecycleManager {
                     return extCp;
                 }
             }
-        }
+        }else{
+		extCps = new ArrayList<>();
+	}
+	
         VnfExtCpData extCp = new VnfExtCpData();
         extCp.setCpdId(cpdId);
         extCps.add(extCp);
