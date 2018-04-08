@@ -39,7 +39,7 @@ ENV CATALINA_HOME /service
 
 # Set up microservice
 
-RUN wget -q -O nfvo-driver-vnfm-nokia.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip" && unzip -q -o -B nfvo-driver-vnfm-nokia.zip && rm -f nfvo-driver-vnfm-nokia.zip
+RUN wget -q -O nfvo-driver-vnfm-nokia.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip" && unzip -q -o -B nfvo-driver-vnfm-nokia.zip && rm -f nfvo-driver-vnfm-nokia.zip
 # Set permissions
 RUN find . -type d -exec chmod o-w {} \;
 RUN find . -name "*.sh" -exec chmod +x {} \;
