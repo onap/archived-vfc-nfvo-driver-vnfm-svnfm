@@ -16,7 +16,12 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +33,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
+import static java.util.concurrent.Executors.newCachedThreadPool;
+
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -43,7 +51,7 @@ public class NokiaSvnfmApplication {
      * @param args arguments for the application (not used)
      */
     public static void main(String[] args) {
-        SpringApplication.run(NokiaSvnfmApplication.class, args);
+        systemFunctions().newSpringApplication(NokiaSvnfmApplication.class).run(args);
     }
 
     /**
@@ -55,19 +63,45 @@ public class NokiaSvnfmApplication {
     @Component
     @Profile("!test")
     public static class SelfRegistrationTrigger implements ApplicationListener<ApplicationReadyEvent> {
+        private final SelfRegistrationManager selfRegistrationManager;
+        private final JobManager jobManager;
+        /**
+         * Runs the registration process
+         */
+        private ExecutorService executorService = newCachedThreadPool();
+
         @Autowired
-        private SelfRegistrationManager selfRegistrationManager;
+        SelfRegistrationTrigger(SelfRegistrationManager selfRegistrationManager, JobManager jobManager){
+            this.jobManager = jobManager;
+            this.selfRegistrationManager = selfRegistrationManager;
+        }
 
         @Override
         public void onApplicationEvent(ApplicationReadyEvent contextRefreshedEvent) {
-            logger.info("Self registration started");
-            try {
-                selfRegistrationManager.register();
-                logger.info("Self registration finished");
-            } catch (RuntimeException e) {
-                logger.error("Self registration failed", e);
-                throw e;
-            }
+            Callable<Boolean> singleRegistration = () -> {
+                logger.info("Self registration started");
+                try {
+                    selfRegistrationManager.register();
+                    logger.info("Self registration finished");
+                } catch (RuntimeException e) {
+                    logger.error("Self registration failed", e);
+                    throw e;
+                }
+                return true;
+            };
+            executorService.submit(() -> {
+                while(!jobManager.isPreparingForShutDown()){
+                    try{
+                        executorService.submit(singleRegistration).get();
+                        //registration successful
+                        return;
+                    }
+                    catch (Exception e){
+                        logger.warn("Unable to execute self registration process", e);
+                    }
+                    systemFunctions().sleep(5000);
+                }
+            });
         }
     }
 
@@ -79,10 +113,14 @@ public class NokiaSvnfmApplication {
     @Component
     @Profile("!test")
     public static class SelfDeRegistrationTrigger implements ApplicationListener<ContextClosedEvent> {
+        private final SelfRegistrationManager selfRegistrationManager;
+        private final JobManager jobManager;
+
         @Autowired
-        private SelfRegistrationManager selfRegistrationManager;
-        @Autowired
-        private JobManager jobManager;
+        SelfDeRegistrationTrigger(SelfRegistrationManager selfRegistrationManager, JobManager jobManager){
+            this.jobManager = jobManager;
+            this.selfRegistrationManager = selfRegistrationManager;
+        }
 
         @Override
         public void onApplicationEvent(ContextClosedEvent contextClosedEvent) {

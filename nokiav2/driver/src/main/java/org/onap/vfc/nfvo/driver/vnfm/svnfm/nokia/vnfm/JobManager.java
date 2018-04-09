@@ -98,6 +98,13 @@ public class JobManager {
     }
 
     /**
+     * @return is the component preparing for shutdown
+     */
+    public boolean isPreparingForShutDown(){
+        return preparingForShutDown;
+    }
+
+    /**
      * Throws an exception in case the service is not ready to serve requests due to
      * not being able to register to MSB or to subscribe to CBAM LCNs
      *

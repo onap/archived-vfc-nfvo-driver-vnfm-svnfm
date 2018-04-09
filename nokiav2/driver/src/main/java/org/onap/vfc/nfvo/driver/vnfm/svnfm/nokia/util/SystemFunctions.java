@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.boot.SpringApplication;
 
 /**
  * Wrapper class for static method calls to core or core libraries.
@@ -159,5 +160,13 @@ public class SystemFunctions {
      */
     public CloseableHttpClient getHttpClient() {
         return HttpClients.createDefault();
+    }
+
+    /**
+     * @param clazz the main source of the Spring application
+     * @return a new Spring application
+     */
+    public SpringApplication newSpringApplication(Class clazz){
+        return new SpringApplication(clazz);
     }
 }

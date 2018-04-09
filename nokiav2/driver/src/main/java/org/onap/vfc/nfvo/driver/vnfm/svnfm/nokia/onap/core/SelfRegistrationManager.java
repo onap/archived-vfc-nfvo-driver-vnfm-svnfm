@@ -42,14 +42,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class SelfRegistrationManager {
     public static final String DRIVER_VERSION = "v1";
     public static final String SERVICE_NAME = "NokiaSVNFM";
-    // 1 means internal 0 means core :)
-    public static final String INTERNAL_SERVICE = "1";
     public static final String SWAGGER_API_DEFINITION = "self.swagger.json";
     private static Logger logger = getLogger(SelfRegistrationManager.class);
     private final DriverProperties driverProperties;
     private final MsbApiProvider msbApiProvider;
     private final CbamRestApiProvider cbamRestApiProvider;
-
     @Value("${driverMsbExternalIp}")
     private String driverMsbExternalIp;
     @Value("${driverVnfmExternalIp}")

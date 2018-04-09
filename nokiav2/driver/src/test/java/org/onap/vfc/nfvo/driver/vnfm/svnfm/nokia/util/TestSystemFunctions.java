@@ -20,7 +20,9 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Useless;
+import org.springframework.boot.SpringApplication;
 
 import static org.junit.Assert.*;
 
@@ -114,5 +116,15 @@ public class TestSystemFunctions {
     @Useless //more less already ensured by Java type safety
     public void testHttp() {
         assertNotNull(SystemFunctions.systemFunctions().getHttpClient());
+    }
+
+    /**
+     * Test spring application wrapping
+      */
+    @Test
+    public void testSpring(){
+        SpringApplication springApplication = SystemFunctions.systemFunctions().newSpringApplication(NokiaSvnfmApplication.class);
+
+        assertEquals(1, springApplication.getAllSources().size());
     }
 }
