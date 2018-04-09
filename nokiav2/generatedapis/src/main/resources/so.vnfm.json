@@ -114,7 +114,7 @@
       },
       "delete": {
         "tags": [
-          "SO VNFM driver"
+          "SO VNFM Adaptor"
         ],
         "summary": "Deletes VNF",
         "description": "Deletes the VNF. If the VNF was instantiated VNF termination must be called before VNF deletion",
@@ -249,7 +249,7 @@
     "/so/{vnfmId}/vnfs/{vnfId}/heal": {
       "post": {
         "tags": [
-          "SO VNFM driver"
+          "SO VNFM Adaptor"
         ],
         "summary": "VNF heal",
         "description": "VNF heal",
@@ -298,7 +298,7 @@
     "/so/{vnfmId}/vnfs/{vnfId}/terminate": {
       "post": {
         "tags": [
-          "SO VNFM driver"
+          "SO VNFM Adaptor"
         ],
         "summary": "VNF terminate",
         "description": "VNF terminate",
@@ -347,7 +347,7 @@
     "/so/{vnfmId}/jobs/{jobId}": {
       "get": {
         "tags": [
-          "SO VNFM driver"
+          "SO VNFM Adaptor"
         ],
         "summary": "Query job status",
         "description": "Query the job status",

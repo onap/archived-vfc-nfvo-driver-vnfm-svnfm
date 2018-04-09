@@ -118,6 +118,7 @@ public class TestJobManager extends TestBase {
         JobDetailInfo job = jobManager.getJob(VNFM_ID, jobId);
         //verify
         assertResult(jobId, job, JobStatus.FINISHED, "100", "Operation finished");
+        assertEquals(false, jobManager.isPreparingForShutDown());
     }
 
     /**
@@ -133,6 +134,7 @@ public class TestJobManager extends TestBase {
         } catch (Exception e) {
             verify(logger).error("The service is preparing to shut down");
         }
+        assertEquals(true, jobManager.isPreparingForShutDown());
     }
 
     /**
