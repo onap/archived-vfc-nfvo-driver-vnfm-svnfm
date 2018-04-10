@@ -18,6 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Base64;
 import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
@@ -42,8 +43,7 @@ public class TestOnapVnfPackageBuilder extends TestBase {
         when(systemFunctions.loadFile("cbam.collectConnectionPoints.js")).thenCallRealMethod();
         when(systemFunctions.loadFile("cbam.post.collectConnectionPoints.js")).thenCallRealMethod();
         when(systemFunctions.loadFile("TOSCA.meta")).thenCallRealMethod();
-        when(systemFunctions.loadFile("MainServiceTemplate.meta")).thenCallRealMethod();
-
+        when(systemFunctions.loadFile("MainServiceTemplate.mf")).thenCallRealMethod();
 
         String cbamVnfd = new String(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip.vnfd"));
         String expectedOnapVnfd = new OnapVnfdBuilder().toOnapVnfd(cbamVnfd);
@@ -52,9 +52,8 @@ public class TestOnapVnfPackageBuilder extends TestBase {
         OnapVnfPackageBuilder.main(null);
         //verify
         assertFileInZip(bos.toByteArray(), "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
-        assertFileInZip(bos.toByteArray(), "Definitions/MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
         assertFileInZip(bos.toByteArray(), "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
-        assertFileInZip(bos.toByteArray(), "MainServiceTemplate.meta", TestUtil.loadFile("MainServiceTemplate.meta"));
+        assertFileInZip(bos.toByteArray(), "MainServiceTemplate.mf", TestUtil.loadFile("MainServiceTemplate.mf"));
         ByteArrayOutputStream actualModifiedCbamVnfPackage = getFileInZip(new ByteArrayInputStream(bos.toByteArray()), "Artifacts/Deployment/OTHER/cbam.package.zip");
         byte[] expectedModifiedCbamPackage = new CbamVnfPackageBuilder().toModifiedCbamVnfPackage(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip"), "vnfdloc/a.yaml", new CbamVnfdBuilder().build(cbamVnfd));
         assertItenticalZips(expectedModifiedCbamPackage, actualModifiedCbamVnfPackage.toByteArray());
@@ -66,7 +65,7 @@ public class TestOnapVnfPackageBuilder extends TestBase {
      */
     @Test
     public void testPreventMove() {
-        assertEquals("org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfPackageBuilder", OnapVnfPackageBuilder.class.getCanonicalName());
+        assertEquals("b3JnLm9uYXAudmZjLm5mdm8uZHJpdmVyLnZuZm0uc3ZuZm0ubm9raWEucGFja2FnZXRyYW5zZm9ybWVyLk9uYXBWbmZQYWNrYWdlQnVpbGRlcg==", Base64.getEncoder().encodeToString(OnapVnfPackageBuilder.class.getCanonicalName().getBytes()));
     }
 
 
