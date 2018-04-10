@@ -16,9 +16,8 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
@@ -29,8 +28,9 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provide function for instantiate or terminate VNF
@@ -169,7 +169,7 @@ public class VnfMgr {
      * @return
      * @since VFC 1.0
      */
-    public JSONObject getVnf(String vnfId, String vnfmId) {
+    public JSONObject getVnf(String vnfId, String vnfmId) throws IOException {
         LOG.warn("function=getVnf ,msg=enter to get a vnf, vnfId:{}, vnfmId:{}", vnfId, vnfmId);
         JSONObject restJson = new JSONObject();
         restJson.put(Constant.RETCODE, Constant.REST_FAIL);
@@ -181,8 +181,9 @@ public class VnfMgr {
             }
 
             restJson = (new VnfMgrVnfm()).getVnf(vnfmObjcet, vnfId);
+            JSONObject ipObj = (new VnfMgrVnfm()).getIp(vnfmObjcet, vnfId);
 
-            return restJson.getInt(Constant.RETCODE) == Constant.REST_FAIL ? restJson : getVnfBody(restJson);
+            return restJson.getInt(Constant.RETCODE) == Constant.REST_FAIL ? restJson : getVnfBody(restJson, ipObj);
 
         } catch(JSONException e) {
             LOG.error("function=getVnf, msg=JSONException occurs, e={}.", e);
@@ -191,7 +192,7 @@ public class VnfMgr {
         return restJson;
     }
 
-    private JSONObject getVnfBody(JSONObject restJson) {
+    private JSONObject getVnfBody(JSONObject restJson, JSONObject ipObj) {
         try {
             JSONObject vnfInfoJson = new JSONObject();
             JSONObject basicInfoJson = new JSONObject();
@@ -208,7 +209,9 @@ public class VnfMgr {
             basicInfoJson.put("vnfProvider", "hw");
             basicInfoJson.put("vnfType", retJson.get("vnf_type"));
             basicInfoJson.put("vnfStatus", retJson.getString(Constant.STATUS));
-
+            if(ipObj.getInt(Constant.RETCODE) == Constant.REST_SUCCESS) {
+                basicInfoJson.put("ipInfo", ipObj.getJSONObject("data"));
+            }
             vnfInfoJson.put("vnfInfo", basicInfoJson);
             vnfInfoJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
             return vnfInfoJson;

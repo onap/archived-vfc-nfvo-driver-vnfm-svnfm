@@ -16,12 +16,10 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import mockit.Mock;
+import mockit.MockUp;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +29,12 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceExcepti
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
 
-import mockit.Mock;
-import mockit.MockUp;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class VnfRoaTest {
 
@@ -284,7 +284,7 @@ public class VnfRoaTest {
     }
 
     @Test
-    public void testGetVnfByVnfIdIsEmpty() throws ServiceException {
+    public void testGetVnfByVnfIdIsEmpty() throws IOException, ServiceException {
         final JSONObject restJson = new JSONObject();
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
         HttpServletRequest mockInstance = proxyStub.getMockInstance();
@@ -307,7 +307,7 @@ public class VnfRoaTest {
     }
 
     @Test
-    public void testGetVnfByVnfmIdIsEmpty() throws ServiceException {
+    public void testGetVnfByVnfmIdIsEmpty() throws IOException, ServiceException {
         final JSONObject restJson = new JSONObject();
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
         HttpServletRequest mockInstance = proxyStub.getMockInstance();
@@ -330,7 +330,7 @@ public class VnfRoaTest {
     }
 
     @Test
-    public void testGetVnfFail() throws ServiceException {
+    public void testGetVnfFail() throws IOException, ServiceException {
         final JSONObject restJson = new JSONObject();
         restJson.put("retCode", Constant.REST_FAIL);
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
@@ -361,7 +361,7 @@ public class VnfRoaTest {
     }
 
     @Test
-    public void testGetVnf() throws ServiceException {
+    public void testGetVnf() throws IOException, ServiceException {
         final JSONObject restJson = new JSONObject();
         restJson.put("retCode", Constant.REST_SUCCESS);
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};

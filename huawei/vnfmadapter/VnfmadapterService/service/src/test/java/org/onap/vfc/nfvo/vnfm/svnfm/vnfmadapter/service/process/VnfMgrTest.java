@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.junit.Before;
@@ -239,7 +240,7 @@ public class VnfMgrTest {
     }
 
     @Test
-    public void testGetVnf() {
+    public void testGetVnf() throws IOException {
         new MockUp<VnfmUtil>() {
 
             @Mock
@@ -296,7 +297,7 @@ public class VnfMgrTest {
     }
 
     @Test
-    public void testGetVnfFail() {
+    public void testGetVnfFail() throws IOException {
         new MockUp<VnfmUtil>() {
 
             @Mock
@@ -313,7 +314,7 @@ public class VnfMgrTest {
     }
 
     @Test
-    public void testGetVnfFail1() {
+    public void testGetVnfFail1() throws IOException {
         new MockUp<VnfmUtil>() {
 
             @Mock

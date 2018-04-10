@@ -103,6 +103,8 @@ public class ParamConstants {
 
     public static final String VNF_INSTANCE_GET = "/v2/vnfm/instances/%s";
 
+    public static final String VNF_CONFIGURATION_GET = "/v2/vnfm/configurations/%s";
+
     public static final String VNF_SCALE = "/v2/vapps/instances/%s/scale";
 
     public static final String VNF_GET_VMINFO = "/v2/vapps/instances/%s/vm";

@@ -16,6 +16,9 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.vnf;
 
+import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
@@ -202,6 +205,57 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         return restJson;
     }
 
+    public JSONObject getIp(JSONObject vnfmObject, String vnfId) throws IOException {
+        LOG.warn("function=getIp, msg=enter to getIp: {}", vnfId);
+        JSONObject restJson = new JSONObject();
+        restJson.put(Constant.RETCODE, Constant.REST_FAIL);
+
+        JSONObject queryResult = ResultRequestUtil.call(vnfmObject,
+                String.format(ParamConstants.VNF_CONFIGURATION_GET, vnfId), Constant.GET, null, Constant.CERTIFICATE);
+
+        int statusCode = queryResult.getInt(Constant.RETCODE);
+
+        if(statusCode == Constant.HTTP_OK || statusCode == Constant.HTTP_CREATED) {
+            if(null == (queryResult.get("data"))) {
+                LOG.warn("function=getIp, msg=query is null {}", queryResult.get("data"));
+                return restJson;
+            }
+            JSONObject config = JSONObject.fromObject(queryResult.getString("data"));
+            LOG.info("function=getIp, query configuration result: {}", config);
+            JSONObject vnfInfo = config.getJSONArray("configuration").getJSONObject(0);
+            JSONObject result = new JSONObject();
+            result.put("vnf_id", vnfInfo.getString("vnf_id"));
+            result.put("vnf_type", vnfInfo.getString("vnf_type"));
+            JSONArray inputs = vnfInfo.getJSONArray("inputs");
+
+            ClassLoader classLoader = getClass().getClassLoader();
+            String ipConfig = IOUtils.toString(classLoader.getResourceAsStream("ipConfig.json"));
+            LOG.info("ipConfig: {}", ipConfig);
+            JSONObject ipCon = JSONObject.fromObject(ipConfig);
+            String vnfType = vnfInfo.getString("vnf_type");
+            if(ipCon.containsKey(vnfType)) {
+                String ipKey = ipCon.getString(vnfInfo.getString("vnf_type"));
+                LOG.info("ipKey: {}", ipKey);
+                String ip = "";
+                for(int i = 0; i < inputs.size(); i++) {
+                    JSONObject obj = inputs.getJSONObject(i);
+                    if(obj.getString("key_name").equals(ipKey)) {
+                        ip = obj.getString("value");
+                        break;
+                    }
+                }
+                result.put("ip", ip);
+                restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
+                restJson.put("data", result);
+            }
+
+        } else {
+            LOG.error("function=getIp, msg=send get vnf msg to csm get wrong status: {}", statusCode);
+        }
+
+        return restJson;
+    }
+
     @Override
     public JSONObject getJob(JSONObject vnfmObject, String jobId) {
         LOG.warn("function=getJob, msg=enter to get a job: {}", jobId);
@@ -262,7 +316,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
         int statusCode = healResult.getInt(Constant.RETCODE);
         if(statusCode == Constant.HTTP_OK) {
-
+            LOG.info("healResult:{}", healResult);
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
         } else {
             LOG.error("function=healVnf, msg=send heal vnf msg to csm get wrong status: {}", statusCode);

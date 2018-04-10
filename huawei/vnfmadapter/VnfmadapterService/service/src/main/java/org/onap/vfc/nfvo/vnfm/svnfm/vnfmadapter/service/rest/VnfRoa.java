@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -209,7 +210,7 @@ public class VnfRoa {
     @GET
     @Path("/{vnfmId}/vnfs/{vnfInstanceId}")
     public String getVnf(@PathParam("vnfmId") String vnfmId, @Context HttpServletResponse resp,
-            @PathParam("vnfInstanceId") String vnfInstanceId) {
+            @PathParam("vnfInstanceId") String vnfInstanceId) throws IOException {
         LOG.warn("function=getVnf, msg=enter to get a vnf: vnfInstanceId: {}, vnfmId: {}", vnfInstanceId, vnfmId);
         JSONObject restJson = new JSONObject();
 
@@ -226,6 +227,7 @@ public class VnfRoa {
         }
 
         restJson.remove(Constant.RETCODE);
+        LOG.info("function=getVnf, restJson: {}", restJson);
         return restJson.toString();
     }
 
