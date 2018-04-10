@@ -16,7 +16,6 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
-import com.google.common.collect.Lists;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -72,11 +71,11 @@ public class TestConverterApi extends TestBase {
         when(systemFunctions.loadFile("cbam.collectConnectionPoints.js")).thenCallRealMethod();
         when(systemFunctions.loadFile("cbam.post.collectConnectionPoints.js")).thenCallRealMethod();
         when(systemFunctions.loadFile("TOSCA.meta")).thenCallRealMethod();
-        when(systemFunctions.loadFile("MainServiceTemplate.meta")).thenCallRealMethod();
+        when(systemFunctions.loadFile("MainServiceTemplate.mf")).thenCallRealMethod();
         when(httpResponse.getOutputStream()).thenReturn(new DelegatingServletOutputStream(actualOut));
         Part part = Mockito.mock(Part.class);
         when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
-        when(httpRequest.getParts()).thenReturn(Lists.newArrayList(part));
+        when(httpRequest.getPart("fileToUpload")).thenReturn(part);
         //when
         converterApi.convert(httpResponse, httpRequest);
         //verify
@@ -93,7 +92,7 @@ public class TestConverterApi extends TestBase {
         assertFileInZip(bos.toByteArray(), "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
         assertFileInZip(bos.toByteArray(), "Definitions/MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
         assertFileInZip(bos.toByteArray(), "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
-        assertFileInZip(bos.toByteArray(), "MainServiceTemplate.meta", TestUtil.loadFile("MainServiceTemplate.meta"));
+        assertFileInZip(bos.toByteArray(), "MainServiceTemplate.mf", TestUtil.loadFile("MainServiceTemplate.mf"));
         ByteArrayOutputStream actualModifiedCbamVnfPackage = getFileInZip(new ByteArrayInputStream(bos.toByteArray()), "Artifacts/Deployment/OTHER/cbam.package.zip");
         byte[] expectedModifiedCbamPackage = new CbamVnfPackageBuilder().toModifiedCbamVnfPackage(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip"), "vnfdloc/a.yaml", new CbamVnfdBuilder().build(cbamVnfd));
         assertItenticalZips(expectedModifiedCbamPackage, actualModifiedCbamVnfPackage.toByteArray());
@@ -121,7 +120,7 @@ public class TestConverterApi extends TestBase {
     @Test
     public void testUnableToExtractPackageToBeConverted() throws Exception {
         IOException expectedException = new IOException();
-        when(httpRequest.getParts()).thenThrow(expectedException);
+        when(httpRequest.getPart("fileToUpload")).thenThrow(expectedException);
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();
@@ -139,7 +138,7 @@ public class TestConverterApi extends TestBase {
     public void testUnableToConvertPackage() throws Exception {
         Part part = Mockito.mock(Part.class);
         when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
-        when(httpRequest.getParts()).thenReturn(Lists.newArrayList(part));
+        when(httpRequest.getPart("fileToUpload")).thenReturn(part);
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();
