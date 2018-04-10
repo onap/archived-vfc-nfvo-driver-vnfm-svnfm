@@ -166,7 +166,7 @@ public class SystemFunctions {
      * @param clazz the main source of the Spring application
      * @return a new Spring application
      */
-    public SpringApplication newSpringApplication(Class clazz){
+    public SpringApplication newSpringApplication(Class clazz) {
         return new SpringApplication(clazz);
     }
 }

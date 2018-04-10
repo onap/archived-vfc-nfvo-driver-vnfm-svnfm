@@ -16,7 +16,6 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
-import com.google.common.collect.Lists;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -76,7 +75,7 @@ public class TestConverterApi extends TestBase {
         when(httpResponse.getOutputStream()).thenReturn(new DelegatingServletOutputStream(actualOut));
         Part part = Mockito.mock(Part.class);
         when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
-        when(httpRequest.getParts()).thenReturn(Lists.newArrayList(part));
+        when(httpRequest.getPart("fileToUpload")).thenReturn(part);
         //when
         converterApi.convert(httpResponse, httpRequest);
         //verify
@@ -121,7 +120,7 @@ public class TestConverterApi extends TestBase {
     @Test
     public void testUnableToExtractPackageToBeConverted() throws Exception {
         IOException expectedException = new IOException();
-        when(httpRequest.getParts()).thenThrow(expectedException);
+        when(httpRequest.getPart("fileToUpload")).thenThrow(expectedException);
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();
@@ -139,7 +138,7 @@ public class TestConverterApi extends TestBase {
     public void testUnableToConvertPackage() throws Exception {
         Part part = Mockito.mock(Part.class);
         when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
-        when(httpRequest.getParts()).thenReturn(Lists.newArrayList(part));
+        when(httpRequest.getPart("fileToUpload")).thenReturn(part);
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();
