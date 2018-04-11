@@ -18,14 +18,10 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -71,7 +67,7 @@ public class NokiaSvnfmApplication {
         private ExecutorService executorService = newCachedThreadPool();
 
         @Autowired
-        SelfRegistrationTrigger(SelfRegistrationManager selfRegistrationManager, JobManager jobManager){
+        SelfRegistrationTrigger(SelfRegistrationManager selfRegistrationManager, JobManager jobManager) {
             this.jobManager = jobManager;
             this.selfRegistrationManager = selfRegistrationManager;
         }
@@ -90,13 +86,12 @@ public class NokiaSvnfmApplication {
                 return true;
             };
             executorService.submit(() -> {
-                while(!jobManager.isPreparingForShutDown()){
-                    try{
+                while (!jobManager.isPreparingForShutDown()) {
+                    try {
                         executorService.submit(singleRegistration).get();
                         //registration successful
                         return;
-                    }
-                    catch (Exception e){
+                    } catch (Exception e) {
                         logger.warn("Unable to execute self registration process", e);
                     }
                     systemFunctions().sleep(5000);
@@ -117,7 +112,7 @@ public class NokiaSvnfmApplication {
         private final JobManager jobManager;
 
         @Autowired
-        SelfDeRegistrationTrigger(SelfRegistrationManager selfRegistrationManager, JobManager jobManager){
+        SelfDeRegistrationTrigger(SelfRegistrationManager selfRegistrationManager, JobManager jobManager) {
             this.jobManager = jobManager;
             this.selfRegistrationManager = selfRegistrationManager;
         }

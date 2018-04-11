@@ -100,7 +100,7 @@ public class JobManager {
     /**
      * @return is the component preparing for shutdown
      */
-    public boolean isPreparingForShutDown(){
+    public boolean isPreparingForShutDown() {
         return preparingForShutDown;
     }
 

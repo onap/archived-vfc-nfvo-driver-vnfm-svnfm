@@ -17,27 +17,21 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia;
 
 import java.util.HashSet;
 import java.util.Set;
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.*;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Useless;
-import org.slf4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
+import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
@@ -80,15 +74,13 @@ public class TestNokiaSvnfmApplication extends TestBase {
         selfRegistrationTriggerer.onApplicationEvent(event);
         //verify
         boolean success = false;
-        while(!success)
-        {
+        while (!success) {
             try {
                 verify(selfRegistrationManager).register();
                 verify(logger).info("Self registration started");
                 verify(logger).info("Self registration finished");
                 success = true;
-            }
-            catch (Error e){
+            } catch (Error e) {
 
             }
             Thread.sleep(10);
@@ -141,7 +133,7 @@ public class TestNokiaSvnfmApplication extends TestBase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                if(expectedException.size() == 0){
+                if (expectedException.size() == 0) {
                     RuntimeException e = new RuntimeException();
                     expectedException.add(e);
                     throw e;
@@ -155,14 +147,14 @@ public class TestNokiaSvnfmApplication extends TestBase {
         //verify
         //wait for the registration to succeed
         boolean success = false;
-        while(!success){
-            try{
+        while (!success) {
+            try {
                 verify(logger).info("Self registration finished");
                 success = true;
                 Thread.sleep(10);
+            } catch (Exception e2) {
+            } catch (Error e) {
             }
-            catch (Exception e2){}
-            catch (Error e){}
         }
         verify(logger, times(2)).info("Self registration started");
         verify(logger).error("Self registration failed", expectedException.iterator().next());
@@ -203,7 +195,7 @@ public class TestNokiaSvnfmApplication extends TestBase {
      */
     @Test
     public void useless() throws Exception {
-        String[] args = new String [0];
+        String[] args = new String[0];
         SpringApplication springApplicaiton = Mockito.mock(SpringApplication.class);
         SystemFunctions systemFunctions = SystemFunctions.systemFunctions();
         when(this.systemFunctions.newSpringApplication(NokiaSvnfmApplication.class)).thenReturn(springApplicaiton);

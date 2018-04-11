@@ -71,11 +71,9 @@ public class OnapVnfPackageBuilder {
         out.putNextEntry(new ZipEntry("MainServiceTemplate.yaml"));
         out.write(onapVnfd.getBytes());
         out.closeEntry();
-        out.putNextEntry(new ZipEntry("Definitions/MainServiceTemplate.yaml"));
-        out.write(onapVnfd.getBytes());
         out.closeEntry();
-        out.putNextEntry(new ZipEntry("MainServiceTemplate.meta"));
-        out.write(systemFunctions().loadFile("MainServiceTemplate.meta"));
+        out.putNextEntry(new ZipEntry("MainServiceTemplate.mf"));
+        out.write(systemFunctions().loadFile("MainServiceTemplate.mf"));
         out.closeEntry();
         out.close();
         return result.toByteArray();

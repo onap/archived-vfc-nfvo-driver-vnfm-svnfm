@@ -42,7 +42,6 @@ import org.springframework.core.env.Environment;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 class ResultCaptor<T> implements Answer {
     private T result = null;
@@ -72,7 +71,7 @@ public class TestCbamRestApiProvider extends TestBase {
     private java.util.List<NodeInfo> nodes = new ArrayList<>();
 
     private CbamRestApiProvider cbamRestApiProvider;
-    private CbamSecurityProvider cbamSecurityProvider ;
+    private CbamSecurityProvider cbamSecurityProvider;
 
     @Before
     public void init() {

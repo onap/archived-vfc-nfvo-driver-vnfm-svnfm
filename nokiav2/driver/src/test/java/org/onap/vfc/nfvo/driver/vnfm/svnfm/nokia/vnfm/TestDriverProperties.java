@@ -22,7 +22,7 @@ import static junit.framework.TestCase.assertEquals;
 import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 
 
-public class TestDriverProperties extends TestBase{
+public class TestDriverProperties extends TestBase {
 
     /**
      * Test basic POJO behaviour
@@ -34,13 +34,13 @@ public class TestDriverProperties extends TestBase{
 
     /**
      * Test parameter initialization by Spring
-     *  - changes in this constants should be also altered in
-     *    - application*.properties
-     *    - in deployment configuration file
-     *    - documentation
+     * - changes in this constants should be also altered in
+     * - application*.properties
+     * - in deployment configuration file
+     * - documentation
      */
     @Test
-    public void testSpringParameterLoading(){
+    public void testSpringParameterLoading() {
         DriverProperties driverProperties = new DriverProperties();
         setFieldWithPropertyAnnotation(driverProperties, "${cbamCatalogUrl}", "cbamCatalogUrl");
         setFieldWithPropertyAnnotation(driverProperties, "${cbamLcnUrl}", "cbamLcnUrl");

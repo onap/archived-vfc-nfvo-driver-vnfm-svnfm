@@ -120,9 +120,9 @@ public class TestSystemFunctions {
 
     /**
      * Test spring application wrapping
-      */
+     */
     @Test
-    public void testSpring(){
+    public void testSpring() {
         SpringApplication springApplication = SystemFunctions.systemFunctions().newSpringApplication(NokiaSvnfmApplication.class);
 
         assertEquals(1, springApplication.getAllSources().size());

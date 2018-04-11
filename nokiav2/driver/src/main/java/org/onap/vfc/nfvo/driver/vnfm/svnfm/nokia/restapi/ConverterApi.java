@@ -59,7 +59,7 @@ public class ConverterApi {
         logger.info("REST: convert package");
         byte[] content;
         try {
-            Part part = request.getParts().iterator().next();
+            Part part = request.getPart("fileToUpload");
             content = ByteStreams.toByteArray(part.getInputStream());
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to extract package from REST parameters", e);
