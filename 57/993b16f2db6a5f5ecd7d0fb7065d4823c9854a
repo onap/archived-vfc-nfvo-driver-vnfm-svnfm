@@ -1,0 +1,7 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Gao Weitao <victor.gao@huawei.com>
+Submitted-by: Gao Weitao <victor.gao@huawei.com>
+Submitted-at: Wed, 11 Apr 2018 01:21:21 +0000
+Reviewed-on: https://gerrit.onap.org/r/42099
+Project: vfc/nfvo/driver/vnfm/svnfm
+Branch: refs/heads/master
