@@ -64,7 +64,7 @@ public class LcmApi {
     @RequestMapping(value = "/{vnfmId}/vnfs", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
     public VnfInstantiateResponse instantiateVnf(@RequestBody VnfInstantiateRequest request, @PathVariable("vnfmId") String vnfmId, HttpServletResponse httpResponse) {
-        logger.info("REST: Instantiate VNF");
+        logger.info("REST: Instantiate VNF with " + request.getVnfPackageId() + " CSAR identifier");
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(vnfmId, request, httpResponse);
         httpResponse.setStatus(SC_CREATED);
         return response;
@@ -73,32 +73,32 @@ public class LcmApi {
     /**
      * Terminate the VNF (defined further in the VF-C driver integration documentation)
      *
-     * @param request       the termination request
-     * @param vnfmId        the identifier of the VNFM
-     * @param vnfInstanceId the identifier of the VNF
-     * @param httpResponse  the HTTP response
+     * @param request      the termination request
+     * @param vnfmId       the identifier of the VNFM
+     * @param vnfId        the identifier of the VNF
+     * @param httpResponse the HTTP response
      * @return the job representing the VNF termination operation
      */
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}/terminate", method = POST, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
-    public JobInfo terminateVnf(@RequestBody VnfTerminateRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfInstanceId, HttpServletResponse httpResponse) {
-        logger.info("REST: Terminate VNF");
-        return lifecycleManager.terminateAndDelete(vnfmId, vnfInstanceId, request, httpResponse);
+    public JobInfo terminateVnf(@RequestBody VnfTerminateRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
+        logger.info("REST: Terminate VNF with " + vnfId + " identifier");
+        return lifecycleManager.terminateAndDelete(vnfmId, vnfId, request, httpResponse);
     }
 
     /**
      * Query the VNF (defined further in the VF-C driver integration documentation)
      *
-     * @param vnfmId        the identifier of the VNFM
-     * @param vnfInstanceId the identifier of the VNF
-     * @param httpResponse  the HTTP response
+     * @param vnfmId       the identifier of the VNFM
+     * @param vnfId        the identifier of the VNF
+     * @param httpResponse the HTTP response
      * @return the VNF info
      */
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}", method = GET, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
-    public VnfInfo queryVnf(@PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfInstanceId, HttpServletResponse httpResponse) {
-        logger.info("REST: Query VNF");
-        return lifecycleManager.queryVnf(vnfmId, vnfInstanceId);
+    public VnfInfo queryVnf(@PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
+        logger.info("REST: Query VNF with " + vnfId + " identifier");
+        return lifecycleManager.queryVnf(vnfmId, vnfId);
     }
 
     /**
@@ -112,39 +112,39 @@ public class LcmApi {
     @RequestMapping(value = "/{vnfmId}/jobs/{jobId}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public JobDetailInfo getJob(@PathVariable("vnfmId") String vnfmId, @PathVariable("jobId") String jobId, HttpServletResponse httpResponse) {
-        logger.debug("REST: Query job");
+        logger.debug("REST: Query job with " + jobId + " identifier");
         return jobManager.getJob(vnfmId, jobId);
     }
 
     /**
      * Scale the VNF (defined further in the VF-C driver integration documentation)
      *
-     * @param request       the scaling request
-     * @param vnfmId        the identifier of the VNFM
-     * @param vnfInstanceId the identifier of the VNF
-     * @param httpResponse  the HTTP response
+     * @param request      the scaling request
+     * @param vnfmId       the identifier of the VNFM
+     * @param vnfId        the identifier of the VNF
+     * @param httpResponse the HTTP response
      * @return the job representing the scaling operation
      */
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}/scale", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
-    public JobInfo scaleVnf(@RequestBody VnfScaleRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfInstanceId, HttpServletResponse httpResponse) {
-        logger.info("REST: Scale VNF");
-        return lifecycleManager.scaleVnf(vnfmId, vnfInstanceId, request, httpResponse);
+    public JobInfo scaleVnf(@RequestBody VnfScaleRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
+        logger.info("REST: Scale VNF with " + vnfId + " identifier");
+        return lifecycleManager.scaleVnf(vnfmId, vnfId, request, httpResponse);
     }
 
     /**
      * Heal the VNF (defined further in the VF-C driver integration documentation)
      *
-     * @param request       the healing request
-     * @param vnfmId        the identifier of the VNFM
-     * @param vnfInstanceId the identifier of the VNF
-     * @param httpResponse  the HTTP response
+     * @param request      the healing request
+     * @param vnfmId       the identifier of the VNFM
+     * @param vnfId        the identifier of the VNF
+     * @param httpResponse the HTTP response
      * @return the job representing the healing operation
      */
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}/heal", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
-    public JobInfo healVnf(@RequestBody VnfHealRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfInstanceId, HttpServletResponse httpResponse) {
-        logger.info("REST: Heal VNF");
-        return lifecycleManager.healVnf(vnfmId, vnfInstanceId, request, empty(), httpResponse);
+    public JobInfo healVnf(@RequestBody VnfHealRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
+        logger.info("REST: Heal VNF with " + vnfId + " identifier");
+        return lifecycleManager.healVnf(vnfmId, vnfId, request, empty(), httpResponse);
     }
 }

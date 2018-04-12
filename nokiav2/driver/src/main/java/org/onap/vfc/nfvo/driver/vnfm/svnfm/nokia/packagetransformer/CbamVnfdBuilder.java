@@ -37,6 +37,8 @@ public class CbamVnfdBuilder {
         JsonObject extensions = addChild(addChild(addChild(addChild(addChild(substitutionMappings, "capabilities"), "vnf"), "properties"), "modifiable_attributes"), "extensions");
         JsonObject onapCsarId = addChild(extensions, "onapCsarId");
         onapCsarId.add("default", new JsonPrimitive("kuku"));
+        JsonObject externalVnfmId = addChild(extensions, "externalVnfmId");
+        externalVnfmId.add("default", new JsonPrimitive("kuku"));
         JsonObject vimId = addChild(extensions, "vimId");
         vimId.add("default", new JsonPrimitive("kuku"));
         JsonObject interfaces = child(substitutionMappings, "interfaces");

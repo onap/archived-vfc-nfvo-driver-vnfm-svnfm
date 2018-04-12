@@ -115,7 +115,7 @@ public class CatalogManager {
         if (!isPackageReplicated(cbamVnfdId, cbamCatalogApi)) {
             try {
                 ByteArrayOutputStream cbamPackage = getFileInZip(new ByteArrayInputStream(packageProvider.getPackage(csarId)), CBAM_PACKAGE_NAME_IN_ZIP);
-                return cbamCatalogApi.create(create(parse(APPLICATION_OCTET_STREAM.toString()), cbamPackage.toByteArray())).execute().body();
+                return cbamCatalogApi.create(create(parse(APPLICATION_OCTET_STREAM.toString()), cbamPackage.toByteArray())).blockingFirst();
             } catch (Exception e) {
                 logger.debug("Probably concurrent package uploads", e);
                 //retest if the VNF package exists in CBAM. It might happen that an other operation
@@ -140,7 +140,7 @@ public class CatalogManager {
      */
     public String getCbamVnfdContent(String vnfmId, String vnfdId) {
         try {
-            byte[] vnfdContent = cbamRestApiProvider.getCbamCatalogApi(vnfmId).content(vnfdId).execute().body().bytes();
+            byte[] vnfdContent = cbamRestApiProvider.getCbamCatalogApi(vnfmId).content(vnfdId).blockingFirst().bytes();
             String vnfdPath = getVnfdLocation(new ByteArrayInputStream(vnfdContent));
             return new String(getFileInZip(new ByteArrayInputStream(vnfdContent), vnfdPath).toByteArray());
         } catch (Exception e) {
@@ -158,14 +158,14 @@ public class CatalogManager {
 
     private CatalogAdapterVnfpackage queryPackageFromCBAM(String cbamVnfdId, DefaultApi cbamCatalogApi) {
         try {
-            return cbamCatalogApi.getById(cbamVnfdId).execute().body();
+            return cbamCatalogApi.getById(cbamVnfdId).blockingFirst();
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNF package with " + cbamVnfdId + " from CBAM", e);
         }
     }
 
     private boolean isPackageReplicatedToCbam(String cbamVnfdId, DefaultApi cbamCatalogApi) throws IOException {
-        for (CatalogAdapterVnfpackage vnfPackage : cbamCatalogApi.list().execute().body()) {
+        for (CatalogAdapterVnfpackage vnfPackage : cbamCatalogApi.list().blockingFirst()) {
             if (vnfPackage.getVnfdId().equals(cbamVnfdId)) {
                 return true;
             }

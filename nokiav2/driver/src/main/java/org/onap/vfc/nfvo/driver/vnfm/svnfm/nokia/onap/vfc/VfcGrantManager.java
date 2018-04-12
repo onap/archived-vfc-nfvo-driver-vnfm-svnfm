@@ -157,14 +157,17 @@ public class VfcGrantManager implements IGrantManager {
 
     private GrantVNFResponseVim requestGrant(GrantVNFRequest grantRequest) {
         try {
-            return vfcRestApiProvider.getNsLcmApi().grantvnf(grantRequest).execute().body().getVim();
+            logger.info("Requesting grant with ", grantRequest);
+            GrantVNFResponse grantVNFResponse = vfcRestApiProvider.getNsLcmApi().grantvnf(grantRequest).blockingFirst();
+            logger.info("Successfully received grant {}", grantVNFResponse);
+            return grantVNFResponse.getVim();
         } catch (Exception e) {
-            throw buildFatalFailure(logger, "Unable to request grant", e);
+            throw buildFatalFailure(logger, "Unable to request grant with " + grantRequest, e);
         }
     }
 
-    private Set<ResourceChange> calculateResourceChangeDuringInstantiate(String vnfdContent, String instantiationLevelId) {
-        JsonObject root = new Gson().toJsonTree(new Yaml().load(vnfdContent)).getAsJsonObject();
+    private Set<ResourceChange> calculateResourceChangeDuringInstantiate(String cbamVnfdContent, String instantiationLevelId) {
+        JsonObject root = new Gson().toJsonTree(new Yaml().load(cbamVnfdContent)).getAsJsonObject();
         JsonObject capabilities = child(child(child(root, "topology_template"), "substitution_mappings"), "capabilities");
         JsonObject deploymentFlavorProperties = child(child(capabilities, "deployment_flavour"), "properties");
         JsonObject instantiationLevels = child(deploymentFlavorProperties, "instantiation_levels");

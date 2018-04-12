@@ -697,7 +697,12 @@
               "type": "string"
             },
             "vimId": {
-              "type": "string"
+              "type": "string",
+              "description": "The identifier of the VIM"
+            },
+            "vimid": {
+              "type": "string",
+              "description": "Same as vimId (backward incompatible API change https://jira.onap.org/browse/VFC-681)"
             },
             "interfaceInfo": {
               "type": "object",
@@ -717,6 +722,23 @@
               }
             },
             "accessInfo": {
+              "type": "object",
+              "properties": {
+                "tenant": {
+                  "type": "string",
+                  "description": "Tenant Name of tenant"
+                },
+                "username": {
+                  "type": "string",
+                  "description": "Username for login"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Password of login user"
+                }
+              }
+            },
+            "accessinfo": {
               "type": "object",
               "properties": {
                 "tenant": {

@@ -55,12 +55,13 @@ public class TestLcmApi extends TestBase {
     @Test
     public void testInstantiation() {
         VnfInstantiateRequest req = new VnfInstantiateRequest();
+        req.setVnfPackageId("casrId");
         //when
         lcmApi.instantiateVnf(req, VNFM_ID, httpResponse);
         //verify
         verify(lifecycleManager).createAndInstantiate(VNFM_ID, req, httpResponse);
         verify(httpResponse).setStatus(SC_CREATED);
-        verify(logger).info("REST: Instantiate VNF");
+        verify(logger).info("REST: Instantiate VNF with casrId CSAR identifier");
     }
 
     /**
@@ -73,7 +74,7 @@ public class TestLcmApi extends TestBase {
         lcmApi.healVnf(req, VNFM_ID, VNF_ID, httpResponse);
         //verify
         verify(lifecycleManager).healVnf(VNFM_ID, VNF_ID, req, empty(), httpResponse);
-        verify(logger).info("REST: Heal VNF");
+        verify(logger).info("REST: Heal VNF with " + VNF_ID + " identifier");
     }
 
     /**
@@ -85,7 +86,7 @@ public class TestLcmApi extends TestBase {
         lcmApi.queryVnf(VNFM_ID, VNF_ID, httpResponse);
         //verify
         verify(lifecycleManager).queryVnf(VNFM_ID, VNF_ID);
-        verify(logger).info("REST: Query VNF");
+        verify(logger).info("REST: Query VNF with " + VNF_ID + " identifier");
 
     }
 
@@ -99,7 +100,7 @@ public class TestLcmApi extends TestBase {
         lcmApi.scaleVnf(req, VNFM_ID, VNF_ID, httpResponse);
         //verify
         verify(lifecycleManager).scaleVnf(VNFM_ID, VNF_ID, req, httpResponse);
-        verify(logger).info("REST: Scale VNF");
+        verify(logger).info("REST: Scale VNF with " + VNF_ID + " identifier");
 
     }
 
@@ -113,7 +114,7 @@ public class TestLcmApi extends TestBase {
         lcmApi.terminateVnf(req, VNFM_ID, VNF_ID, httpResponse);
         //verify
         verify(lifecycleManager).terminateAndDelete(VNFM_ID, VNF_ID, req, httpResponse);
-        verify(logger).info("REST: Terminate VNF");
+        verify(logger).info("REST: Terminate VNF with " + VNF_ID + " identifier");
 
     }
 
@@ -126,7 +127,7 @@ public class TestLcmApi extends TestBase {
         lcmApi.getJob(VNFM_ID, JOB_ID, httpResponse);
         //verify
         verify(jobManager).getJob(VNFM_ID, JOB_ID);
-        verify(logger).debug("REST: Query job");
+        verify(logger).debug("REST: Query job with " + JOB_ID + " identifier");
 
     }
 }

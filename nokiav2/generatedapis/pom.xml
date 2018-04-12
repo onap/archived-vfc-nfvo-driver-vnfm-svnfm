@@ -187,6 +187,8 @@ Release AAI
               <configOptions>
                 <generateSupportingFiles>false</generateSupportingFiles>
                 <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
               </configOptions>
             </configuration>
           </execution>
@@ -205,6 +207,8 @@ Release AAI
               <configOptions>
                 <generateSupportingFiles>false</generateSupportingFiles>
                 <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
               </configOptions>
             </configuration>
           </execution>
@@ -223,6 +227,8 @@ Release AAI
               <configOptions>
                 <generateSupportingFiles>false</generateSupportingFiles>
                 <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
               </configOptions>
             </configuration>
           </execution>
@@ -242,6 +248,8 @@ Release AAI
               <configOptions>
                 <generateSupportingFiles>false</generateSupportingFiles>
                 <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
               </configOptions>
             </configuration>
           </execution>

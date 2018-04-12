@@ -77,7 +77,6 @@ public class TestBase {
     public static final String VIM_ID = "myCloudOwnerId_myRegionName";
     public static final String JOB_ID = "myJobId";
     public static final String CBAM_VNFD_ID = "cbamVnfdId";
-    protected static Call<Void> VOID_CALL = buildCall(null);
     protected static VoidObservable VOID_OBSERVABLE = new VoidObservable();
     @Mock
     protected CbamRestApiProvider cbamRestApiProvider;

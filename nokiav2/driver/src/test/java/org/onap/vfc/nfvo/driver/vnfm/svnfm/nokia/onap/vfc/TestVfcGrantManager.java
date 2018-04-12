@@ -36,7 +36,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.ScaleDirection;
-import retrofit2.Call;
 
 import static java.nio.file.Files.readAllBytes;
 
@@ -58,8 +57,7 @@ public class TestVfcGrantManager extends TestBase {
     @Before
     public void initMocks() throws Exception {
         setField(VfcGrantManager.class, "logger", logger);
-        Call<GrantVNFResponse> grantVNFResponseCall = buildCall(grantResponse);
-        when(nsLcmApi.grantvnf(grantRequest.capture())).thenReturn(grantVNFResponseCall);
+        when(nsLcmApi.grantvnf(grantRequest.capture())).thenReturn(buildObservable(grantResponse));
         grantResponse.setVim(vim);
     }
 
@@ -105,13 +103,15 @@ public class TestVfcGrantManager extends TestBase {
         String cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
         RuntimeException expectedException = new RuntimeException("a");
         when(nsLcmApi.grantvnf(Mockito.any())).thenThrow(expectedException);
+        ArgumentCaptor<String> logCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.doNothing().when(logger).error(logCaptor.capture(), Mockito.eq(expectedException));
         //when
         try {
             vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, "level1", cbamVnfdContent, JOB_ID);
             //verify
             fail();
         } catch (RuntimeException e) {
-            verify(logger).error("Unable to request grant", expectedException);
+            assertTrue(logCaptor.getValue().contains("Unable to request grant with "));
         }
     }
 
@@ -228,13 +228,16 @@ public class TestVfcGrantManager extends TestBase {
         vnf.getVnfConfigurableProperties().add(prop);
         RuntimeException expectedException = new RuntimeException();
         when(nsLcmApi.grantvnf(Mockito.any())).thenThrow(expectedException);
+        ArgumentCaptor<String> logCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.doNothing().when(logger).error(logCaptor.capture(), Mockito.eq(expectedException));
         //when
         try {
             vfcGrantManager.requestGrantForTerminate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, vnf, JOB_ID);
             //verify
             fail();
         } catch (RuntimeException e) {
-            verify(logger).error(Mockito.eq("Unable to request grant"), Mockito.eq(expectedException));
+            String value = logCaptor.getValue();
+            assertTrue(value.contains("Unable to request grant with "));
         }
     }
 

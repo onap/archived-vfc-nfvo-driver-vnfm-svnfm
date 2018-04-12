@@ -34,4 +34,5 @@ topology_template:
           modifiable_attributes:
             extensions:
               onapCsarId: {default: kuku}
+              externalVnfmId: {default: kuku}
               vimId: {default: kuku}

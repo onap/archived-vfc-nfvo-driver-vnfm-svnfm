@@ -18,7 +18,7 @@ topology_template:
         virtual_compute:
           properties:
             virtual_memory:
-              virtual_mem_size: 8192 MB
+              virtual_mem_size: 8192
             virtual_cpu:
               num_virtual_cpu: 4
       requirements:
@@ -33,13 +33,13 @@ topology_template:
       properties:
         id: myStorage1
         type_of_storage: volume
-        size_of_storage: 1G
+        size_of_storage: 1
     myStorage2:
       type: tosca.nodes.nfv.VDU.VirtualStorage
       properties:
         id: myStorage2
         type_of_storage: volume
-        size_of_storage: 2G
+        size_of_storage: 2
     myNetwork1:
       type: tosca.nodes.nfv.VnfVirtualLinkDesc
       properties:

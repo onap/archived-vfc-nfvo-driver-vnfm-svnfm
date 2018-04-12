@@ -32,6 +32,7 @@ public class AdditionalParameters {
     private Map<String, List<NetworkAddress>> externalConnectionPointAddresses = new HashMap<>();
     private List<ExtVirtualLinkData> extVirtualLinks = new ArrayList<>();
     private Object additionalParams;
+    private String domain;
 
     public AdditionalParameters() {
         //only used through reflection (gson)
@@ -165,6 +166,7 @@ public class AdditionalParameters {
         if (o == null || getClass() != o.getClass()) return false;
         AdditionalParameters that = (AdditionalParameters) o;
         return vimType == that.vimType &&
+                Objects.equals(domain, that.domain) &&
                 Objects.equals(instantiationLevel, that.instantiationLevel) &&
                 Objects.equals(computeResourceFlavours, that.computeResourceFlavours) &&
                 Objects.equals(zones, that.zones) &&
@@ -178,13 +180,14 @@ public class AdditionalParameters {
     @Override
     public int hashCode() {
 
-        return Objects.hash(vimType, instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, additionalParams);
+        return Objects.hash(vimType, domain, instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, additionalParams);
     }
 
     @Override
     public String toString() {
         return "AdditionalParameters{" +
                 "vimType=" + vimType +
+                ", domain='" + domain + '\'' +
                 ", instantiationLevel='" + instantiationLevel + '\'' +
                 ", computeResourceFlavours=" + computeResourceFlavours +
                 ", zones=" + zones +
@@ -194,5 +197,13 @@ public class AdditionalParameters {
                 ", extVirtualLinks=" + extVirtualLinks +
                 ", additionalParams=" + additionalParams +
                 '}';
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 }

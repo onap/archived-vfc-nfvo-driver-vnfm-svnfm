@@ -9,6 +9,7 @@ topology_template:
             extensions:
               existingAttribute: {default: value}
               onapCsarId: {default: kuku}
+              externalVnfmId: {default: kuku}
               vimId: {default: kuku}
     interfaces:
       Basic:

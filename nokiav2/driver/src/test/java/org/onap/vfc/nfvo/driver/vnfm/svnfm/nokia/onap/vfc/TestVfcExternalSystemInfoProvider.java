@@ -22,7 +22,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.test.util.ReflectionTestUtils;
-import retrofit2.Call;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
@@ -44,8 +43,7 @@ public class TestVfcExternalSystemInfoProvider extends TestBase {
     @Test
     public void testVimRetrieval() throws Exception {
         VimInfo expectedVimInfo = new VimInfo();
-        Call<VimInfo> vimInfoCall = buildCall(expectedVimInfo);
-        when(nsLcmApi.queryVIMInfo(VIM_ID)).thenReturn(vimInfoCall);
+        when(nsLcmApi.queryVIMInfo(VIM_ID)).thenReturn(buildObservable(expectedVimInfo));
         //when
         VimInfo vimInfo = vfcExternalSystemInfoProvider.getVimInfo(VIM_ID);
         //verify
@@ -75,8 +73,7 @@ public class TestVfcExternalSystemInfoProvider extends TestBase {
     @Test
     public void testVnfmRetrieval() throws Exception {
         VnfmInfo expectedVimInfo = new VnfmInfo();
-        Call<VnfmInfo> vnfmInfoCall = buildCall(expectedVimInfo);
-        when(nsLcmApi.queryVnfmInfo(VNFM_ID)).thenReturn(vnfmInfoCall);
+        when(nsLcmApi.queryVnfmInfo(VNFM_ID)).thenReturn(buildObservable(expectedVimInfo));
         //when
         VnfmInfo vimInfo = vfcExternalSystemInfoProvider.queryVnfmInfoFromSource(VNFM_ID);
         //verify

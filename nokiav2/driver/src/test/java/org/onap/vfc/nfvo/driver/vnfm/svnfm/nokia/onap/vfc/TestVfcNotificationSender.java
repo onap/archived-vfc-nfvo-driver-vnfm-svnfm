@@ -64,7 +64,7 @@ public class TestVfcNotificationSender extends TestBase {
     public void init() throws Exception {
         vfcNotificationSender = new VfcNotificationSender(driverProperties, vfcRestApiProvider);
         setField(VfcNotificationSender.class, "logger", logger);
-        when(nsLcmApi.vNFLCMNotification(eq(VNFM_ID), eq(VNF_ID), sentLcnToVfc.capture())).thenReturn(VOID_CALL);
+        when(nsLcmApi.vNFLCMNotification(eq(VNFM_ID), eq(VNF_ID), sentLcnToVfc.capture())).thenReturn(null);
         instantiationOperation.setId("instantiationOperationExecutionId");
         instantiationOperation.setStartTime(OffsetDateTime.now());
         instantiationOperation.setOperationType(OperationType.INSTANTIATE);

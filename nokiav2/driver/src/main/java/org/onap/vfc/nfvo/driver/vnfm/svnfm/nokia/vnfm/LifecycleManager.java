@@ -218,9 +218,7 @@ public class LifecycleManager {
     private void instantiateVnf(String vnfmId, List<ExtVirtualLinkInfo> extVirtualLinkInfos, AdditionalParameters additionalParameters, String onapVnfdId, String vnfmVnfdId, String vnfId, String vimId, JobInfo jobInfo) {
         String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, vnfmVnfdId);
         GrantVNFResponseVim vim = grantManager.requestGrantForInstantiate(vnfmId, vnfId, vimId, onapVnfdId, additionalParameters.getInstantiationLevel(), vnfdContent, jobInfo.getJobId());
-        if (vim.getVimId() == null) {
-            throw buildFatalFailure(logger, "VF-C did not send VIM identifier in grant response");
-        }
+        handleBackwardIncompatibleApiChangesInVfc(vim);
         VimInfo vimInfo = vimInfoProvider.getVimInfo(vim.getVimId());
         InstantiateVnfRequest instantiationRequest = new InstantiateVnfRequest();
         addExternalLinksToRequest(extVirtualLinkInfos, additionalParameters, instantiationRequest, vimId);
@@ -248,13 +246,37 @@ public class LifecycleManager {
         waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
     }
 
+    private void handleBackwardIncompatibleApiChangesInVfc(GrantVNFResponseVim vim) {
+        if (vim.getVimId() == null) {
+            if (vim.getVimid() == null) {
+                throw buildFatalFailure(logger, "VF-C did not send VIM identifier in grant response");
+            } else {
+                vim.setVimId(vim.getVimid());
+            }
+        }
+        if (vim.getAccessInfo() == null) {
+            if (vim.getAccessinfo() == null) {
+                throw buildFatalFailure(logger, "VF-C did not send access info in grant response");
+            } else {
+                vim.setAccessInfo(vim.getAccessinfo());
+            }
+        }
+    }
+
     private com.nokia.cbam.lcm.v32.model.VimInfo addVim(AdditionalParameters additionalParameters, String vimId, GrantVNFResponseVim vim, VimInfo vimInfo) {
         if (additionalParameters.getVimType() == OPENSTACK_V2_INFO) {
             return buildOpenStackV2INFO(vimId, vim, vimInfo);
 
         } else if (additionalParameters.getVimType() == OPENSTACK_V3_INFO) {
+            if (isEmpty(vimInfo.getDomain())) {
+                if (isEmpty(additionalParameters.getDomain())) {
+                    throw buildFatalFailure(logger, "The cloud did not supply the cloud domain (Amsterdam release) and was not supplied as additional data");
+                } else {
+                    logger.warn("Setting domain from additional parameters");
+                    vimInfo.setDomain(additionalParameters.getDomain());
+                }
+            }
             return buildOpenStackV3INFO(vimId, vim, vimInfo);
-
         } else {
             //OTHER VIM TYPE is not possible
             return buildVcloudInfo(vimId, vimInfo);
@@ -287,10 +309,10 @@ public class LifecycleManager {
         return childElement(deploymentFlavorProperties, "flavour_id").getAsString();
     }
 
-    private Set<Map.Entry<String, JsonElement>> getAcceptableOperationParameters(String vnfdContent, String categroryOfOperation, String operationName) {
+    private Set<Map.Entry<String, JsonElement>> getAcceptableOperationParameters(String vnfdContent, String categoryOfOperation, String operationName) {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(vnfdContent)).getAsJsonObject();
         JsonObject interfaces = child(child(child(root, "topology_template"), "substitution_mappings"), "interfaces");
-        JsonObject additionalParameters = child(child(child(child(interfaces, categroryOfOperation), operationName), "inputs"), "additional_parameters");
+        JsonObject additionalParameters = child(child(child(child(interfaces, categoryOfOperation), operationName), "inputs"), "additional_parameters");
         return additionalParameters.entrySet();
     }
 

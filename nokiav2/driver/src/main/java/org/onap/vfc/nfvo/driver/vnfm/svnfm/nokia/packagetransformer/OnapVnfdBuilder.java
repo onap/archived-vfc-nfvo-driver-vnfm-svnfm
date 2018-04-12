@@ -51,6 +51,11 @@ public class OnapVnfdBuilder {
         return pattern.matcher(content).replaceAll(sb.toString() + "$1");
     }
 
+    private static String trimUnit(String data) {
+        //FIXME the unit should not be trimmed VF-C bug
+        return data.trim().replaceAll("[^0-9]", "");
+    }
+
     /**
      * @param cbamVnfd the CBAM VNFD
      * @return the converted ONAP VNFD
@@ -121,8 +126,7 @@ public class OnapVnfdBuilder {
             if ("virtual_compute".equals(s)) {
                 JsonObject virtualCompute = get(next.getValue().getAsString(), nodes).getAsJsonObject();
                 cpuCount = childElement(child(child(virtualCompute, PROPERTIES), "virtual_cpu"), "num_virtual_cpu").getAsString();
-                memorySize = childElement(child(child(virtualCompute, PROPERTIES), "virtual_memory"), "virtual_mem_size").getAsString();
-
+                memorySize = trimUnit(childElement(child(child(virtualCompute, PROPERTIES), "virtual_memory"), "virtual_mem_size").getAsString());
             } else if ("virtual_storage".equals(s)) {
                 String item = indent(
                         "- virtual_storage:\n" +
@@ -140,7 +144,7 @@ public class OnapVnfdBuilder {
                 indent(
                         "properties:\n" +
                                 "  virtual_memory:\n" +
-                                "    virtual_mem_size: " + memorySize + "\n" +
+                                "    virtual_mem_size: " + trimUnit(memorySize) + "\n" +
                                 "  virtual_cpu:\n" +
                                 "    num_virtual_cpu: " + cpuCount + "\n", 3) +
                 "  " + REQUIREMENTS + ":\n", 2);
@@ -258,7 +262,7 @@ public class OnapVnfdBuilder {
                 "  properties:\n" +
                 "    id: " + nodeName + "\n" +
                 "    type_of_storage: volume\n" +
-                "    size_of_storage: " + childElement(child(volume, PROPERTIES), "size_of_storage").getAsString() + "\n", 2);
+                "    size_of_storage: " + trimUnit(childElement(child(volume, PROPERTIES), "size_of_storage").getAsString()) + "\n", 2);
     }
 
     private String buildVl(String name) {

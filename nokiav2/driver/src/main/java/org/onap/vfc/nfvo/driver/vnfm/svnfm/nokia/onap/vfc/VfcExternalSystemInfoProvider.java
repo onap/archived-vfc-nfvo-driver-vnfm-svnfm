@@ -46,7 +46,7 @@ public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProv
     @Override
     public VnfmInfo queryVnfmInfoFromSource(String vnfmId) {
         try {
-            return vfcRestApiProvider.getNsLcmApi().queryVnfmInfo(vnfmId).execute().body();
+            return vfcRestApiProvider.getNsLcmApi().queryVnfmInfo(vnfmId).blockingFirst();
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VNFM from VF-C with " + vnfmId + " identifier", e);
         }
@@ -55,7 +55,7 @@ public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProv
     @Override
     public VimInfo getVimInfo(String vimId) {
         try {
-            return vfcRestApiProvider.getNsLcmApi().queryVIMInfo(vimId).execute().body();
+            return vfcRestApiProvider.getNsLcmApi().queryVIMInfo(vimId).blockingFirst();
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VIM from VF-C with " + vimId + " identifier", e);
         }
