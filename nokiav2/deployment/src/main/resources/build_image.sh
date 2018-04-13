@@ -29,7 +29,8 @@ DOCKER_BUILD_DIR=`cd $DIRNAME/; pwd`
 echo "----- Build directory ${DOCKER_BUILD_DIR}"
 cd ${DOCKER_BUILD_DIR}
 
-VERSION=`xmlstarlet sel -t -v "/_:project/_:version" ../../../pom.xml | sed 's/-SNAPSHOT//g'`
+#VERSION=`xmlstarlet sel -t -v "/_:project/_:version" ../../../pom.xml | sed 's/-SNAPSHOT//g'`
+VERSION=`xmlstarlet sel -t -v "/_:project/_:version" ../../../pom.xml`
 echo "------ Detected version: $VERSION"
 
 PROJECT="vfc"
