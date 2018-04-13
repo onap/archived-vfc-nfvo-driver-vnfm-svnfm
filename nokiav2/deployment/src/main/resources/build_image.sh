@@ -30,7 +30,7 @@ echo "----- Build directory ${DOCKER_BUILD_DIR}"
 cd ${DOCKER_BUILD_DIR}
 
 #VERSION=`xmlstarlet sel -t -v "/_:project/_:version" ../../../pom.xml | sed 's/-SNAPSHOT//g'`
-VERSION=`xmlstarlet sel -t -v "/_:project/_:version" ../../../pom.xml`
+VERSION="1.1.0-SNAPSHOT"
 echo "------ Detected version: $VERSION"
 
 PROJECT="vfc"
