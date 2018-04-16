@@ -1,7 +1,12 @@
 {
   "vnfdIds":{
-     "vHSS_HW":"1",
-     "vSPGW_HW":"1",
-     "vSBC_vP-CSCF":"1"
+     "CSCF_SI":"",
+     "vCSCF":"",
+     "vMME":"",
+     "vSPGW":"",
+     "vHSS":"",
+     "vSBC":"",
+     "vPCRF":"",
+     "vTAS":""
   }
 }
