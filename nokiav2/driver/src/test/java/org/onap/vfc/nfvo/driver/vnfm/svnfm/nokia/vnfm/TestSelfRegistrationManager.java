@@ -37,7 +37,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 
 import static com.nokia.cbam.lcn.v32.model.OperationType.*;
 import static junit.framework.TestCase.*;
-import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.onap.msb.model.MicroServiceInfo.ProtocolEnum.REST;
 import static org.onap.msb.model.MicroServiceInfo.VisualRangeEnum._1;

@@ -30,7 +30,7 @@ import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.http.HttpStatus;
 
 import static junit.framework.TestCase.*;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
