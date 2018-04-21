@@ -54,105 +54,105 @@ import net.sf.json.JSONObject;
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthRoa {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AuthRoa.class);
+     private static final Logger LOG = LoggerFactory.getLogger(AuthRoa.class);
 
-	private AuthMgr authMgr;
+     private AuthMgr authMgr;
 
-	public void setAuthMgr(AuthMgr authMgr) {
-		this.authMgr = authMgr;
-	}
+     public void setAuthMgr(AuthMgr authMgr) {
+          this.authMgr = authMgr;
+     }
 
-	/**
-	 * Provide interface for add authInfo <br/>
-	 *
-	 * @param context
-	 * @return
-	 * @since VFC 1.0
-	 */
-	@PUT
-	@Path("/plat/smapp/v1/oauth/token")
-	public String authToken(@Context HttpServletRequest context, @Context HttpServletResponse resp) {
-		LOG.warn("function=login, msg=enter to get token.");
-		JSONObject subJsonObject = VnfmJsonUtil.getJsonFromContexts(context);
-		LOG.warn("subJsonObject: {}", subJsonObject);
+     /**
+      * Provide interface for add authInfo <br/>
+      *
+      * @param context
+      * @return
+      * @since VFC 1.0
+      */
+     @PUT
+     @Path("/plat/smapp/v1/oauth/token")
+     public String authToken(@Context HttpServletRequest context, @Context HttpServletResponse resp) {
+          LOG.warn("function=login, msg=enter to get token.");
+          JSONObject subJsonObject = VnfmJsonUtil.getJsonFromContexts(context);
+          LOG.warn("subJsonObject: {}", subJsonObject);
 
-		if (null == subJsonObject) {
-			LOG.error("function=login, msg=params are insufficient");
-			String resultStr = "Login params insufficient";
-			resp.setStatus(Constant.HTTP_BAD_REQUEST);
+          if (null == subJsonObject) {
+               LOG.error("function=login, msg=params are insufficient");
+               String resultStr = "Login params insufficient";
+               resp.setStatus(Constant.HTTP_BAD_REQUEST);
 
-			return resultStr;
-		}
+               return resultStr;
+          }
 
-		JSONObject authResult = authMgr.authToken(subJsonObject);
-		LOG.warn("authResult: {}", authResult);
-		if (authResult.getInt(Constant.RETCODE) == Constant.REST_SUCCESS) {
-			JSONObject data = authResult.getJSONObject("data");
-			resp.setStatus(Constant.HTTP_OK);
-			return data.toString();
-		} else if (authResult.getInt(Constant.RETCODE) == Constant.HTTP_INNERERROR) {
-			Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(authResult.getString("data")).build();
-			return String.format(ParamConstants.GET_TOKEN_FAIL_RESP, authResult.getString("data"));
-		} else {
-			Response.status(Response.Status.UNAUTHORIZED).entity(authResult.getString("data")).build();
-			return String.format(ParamConstants.GET_TOKEN_FAIL_RESP, authResult.getString("data"));
-		}
-	}
+          JSONObject authResult = authMgr.authToken(subJsonObject);
+          LOG.warn("authResult: {}", authResult);
+          if (authResult.getInt(Constant.RETCODE) == Constant.REST_SUCCESS) {
+               JSONObject data = authResult.getJSONObject("data");
+               resp.setStatus(Constant.HTTP_OK);
+               return data.toString();
+          } else if (authResult.getInt(Constant.RETCODE) == Constant.HTTP_INNERERROR) {
+               Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(authResult.getString("data")).build();
+               return String.format(ParamConstants.GET_TOKEN_FAIL_RESP, authResult.getString("data"));
+          } else {
+               Response.status(Response.Status.UNAUTHORIZED).entity(authResult.getString("data")).build();
+               return String.format(ParamConstants.GET_TOKEN_FAIL_RESP, authResult.getString("data"));
+          }
+     }
 
-	/**
-	 * Provide interface for delete authInfo <br/>
-	 *
-	 * @param userName
-	 * @param roarand
-	 * @return
-	 * @since VFC 1.0
-	 */
-	@DELETE
-	@Path("/plat/smapp/v1/auth/tokens/{userName}/{roarand}")
-	public String delAuthToken(@PathParam(Constant.USERNAME) String userName, @PathParam("roarand") String roarand,
-			@Context HttpServletResponse resp) {
-		LOG.warn("function=logout, msg=enter to logout");
-		JSONObject resultJson = new JSONObject();
+     /**
+      * Provide interface for delete authInfo <br/>
+      *
+      * @param userName
+      * @param roarand
+      * @return
+      * @since VFC 1.0
+      */
+     @DELETE
+     @Path("/plat/smapp/v1/auth/tokens/{userName}/{roarand}")
+     public String delAuthToken(@PathParam(Constant.USERNAME) String userName, @PathParam("roarand") String roarand,
+               @Context HttpServletResponse resp) {
+          LOG.warn("function=logout, msg=enter to logout");
+          JSONObject resultJson = new JSONObject();
 
-		resultJson.put("Information", "Operation success");
-		resp.setStatus(Constant.HTTP_NOCONTENT);
-		LOG.warn("function=logout, msg=end to logout");
-		return resultJson.toString();
-	}
+          resultJson.put("Information", "Operation success");
+          resp.setStatus(Constant.HTTP_NOCONTENT);
+          LOG.warn("function=logout, msg=end to logout");
+          return resultJson.toString();
+     }
 
-	/**
-	 * Provide interface for handshake authInfo <br/>
-	 *
-	 * @param roattr
-	 * @return
-	 * @since VFC 1.0
-	 */
-	@GET
-	@Path("/vnfmmed/v2/nfvo/shakehand")
-	public String shakehand(@QueryParam("roattr") String roattr, @Context HttpServletResponse resp) {
-		JSONObject resultJson = new JSONObject();
-		resultJson.put("status", "running");
-		resultJson.put("description", "Operation success");
-		resp.setStatus(Constant.HTTP_OK);
+     /**
+      * Provide interface for handshake authInfo <br/>
+      *
+      * @param roattr
+      * @return
+      * @since VFC 1.0
+      */
+     @GET
+     @Path("/vnfmmed/v2/nfvo/shakehand")
+     public String shakehand(@QueryParam("roattr") String roattr, @Context HttpServletResponse resp) {
+          JSONObject resultJson = new JSONObject();
+          resultJson.put("status", "running");
+          resultJson.put("description", "Operation success");
+          resp.setStatus(Constant.HTTP_OK);
 
-		return resultJson.toString();
-	}
+          return resultJson.toString();
+     }
 
-	/**
-	 * Provide interface for handshake authInfo <br/>
-	 *
-	 * @param roattr
-	 * @return
-	 * @since VFC 1.0
-	 */
-	@GET
-	@Path("/plat/smapp/v1/nfvo/shakehand")
-	public String shakehandOld(@QueryParam("roattr") String roattr, @Context HttpServletResponse resp) {
-		JSONObject resultJson = new JSONObject();
-		resultJson.put("status", "running");
-		resultJson.put("description", "Operation success");
-		resp.setStatus(Constant.HTTP_OK);
+     /**
+      * Provide interface for handshake authInfo <br/>
+      *
+      * @param roattr
+      * @return
+      * @since VFC 1.0
+      */
+     @GET
+     @Path("/plat/smapp/v1/nfvo/shakehand")
+     public String shakehandOld(@QueryParam("roattr") String roattr, @Context HttpServletResponse resp) {
+          JSONObject resultJson = new JSONObject();
+          resultJson.put("status", "running");
+          resultJson.put("description", "Operation success");
+          resp.setStatus(Constant.HTTP_OK);
 
-		return resultJson.toString();
-	}
+          return resultJson.toString();
+     }
 }
