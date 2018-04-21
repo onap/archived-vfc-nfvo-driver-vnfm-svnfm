@@ -237,9 +237,9 @@ public class VnfMgr {
         restJson.put("vapp_name", vnfObject.get("vnfInstanceName"));
         restJson.put("project_id", vnfmId);
         restJson.put("parameters", resObject.getJSONObject("parameters"));
-		if (resObject.containsKey("emsUuid")) {
-			restJson.put("emsUuid", resObject.getString("emsUuid"));
-		}
+        if(resObject.containsKey("emsUuid")) {
+            restJson.put("emsUuid", resObject.getString("emsUuid"));
+        }
         restJson.put("nfvo_id", "");
         restJson.put("location", "");
         restJson.put("vnfm_id", vnfmId);
@@ -372,4 +372,5 @@ public class VnfMgr {
         LOG.info("function=getVmsFromVnfm, restJson: {}", restJson);
         return restJson;
     }
+
 }
