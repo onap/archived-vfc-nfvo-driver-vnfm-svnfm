@@ -16,8 +16,10 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process;
 
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
@@ -28,9 +30,8 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 /**
  * Provide function for instantiate or terminate VNF
@@ -236,6 +237,9 @@ public class VnfMgr {
         restJson.put("vapp_name", vnfObject.get("vnfInstanceName"));
         restJson.put("project_id", vnfmId);
         restJson.put("parameters", resObject.getJSONObject("parameters"));
+		if (resObject.containsKey("emsUuid")) {
+			restJson.put("emsUuid", resObject.getString("emsUuid"));
+		}
         restJson.put("nfvo_id", "");
         restJson.put("location", "");
         restJson.put("vnfm_id", vnfmId);

@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
@@ -113,11 +114,15 @@ public class AdapterResourceManager implements IResourceManager {
 			resultObj.put(Constant.RETCODE, Constant.REST_FAIL);
 			return resultObj;
 		}
+		String emsUuid = "";
 		String vnfdName = transferFromCsar(csarName);
 		JSONObject vnfpkg = vnfpkgJson.getJSONObject(vnfdName);
 		JSONObject csarTempObj = vnfpkg.getJSONObject("template");
 		String csarfilepath = csarTempObj.getString("csar_file_path");
 		String csarfilename = csarTempObj.getString("csar_file_name");
+		if (csarTempObj.containsKey("emsUuid")) {
+			emsUuid = csarTempObj.getString("emsUuid");
+		}
 
 		// download csar package and save in location.
 		JSONObject downloadObject = downloadCsar(downloadUri, csarfilepath + csarfilename);
@@ -269,6 +274,9 @@ public class AdapterResourceManager implements IResourceManager {
 		resultObj.put("vnfdVersion", vnfdVersion);
 		resultObj.put("planName", planName);
 		resultObj.put("planId", planId);
+		if (StringUtils.isNotEmpty(emsUuid)) {
+			resultObj.put("emsUuid", emsUuid);
+		}
 		resultObj.put("parameters", inputsObj);
 		LOG.info("resultObj:" + resultObj.toString());
 

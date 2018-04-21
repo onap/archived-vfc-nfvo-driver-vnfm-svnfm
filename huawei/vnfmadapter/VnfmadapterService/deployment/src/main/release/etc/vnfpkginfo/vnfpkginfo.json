@@ -15,7 +15,8 @@
       "software_file_path": "",
       "software_file_name": "",
       "catalog": "",
-      "vim_id": "NE=34603199"
+      "vim_id": "NE=34603199",
+      "emsUuid": ""
     }
   },
   "2": {
@@ -38,5 +39,5 @@
     }
   },
   "vnfmid": "",
-  "vimid": ""
+  "vimid": ""  
 }
