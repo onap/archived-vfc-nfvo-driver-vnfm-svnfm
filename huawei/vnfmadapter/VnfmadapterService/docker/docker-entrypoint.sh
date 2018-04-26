@@ -47,7 +47,9 @@ echo
 ./instance-config.sh
 
 # Start mysql
-su mysql -c /usr/bin/mysqld_safe &
+#su mysql -c /usr/bin/mysqld_safe &
+find /var/lib/mysql -type f -exec touch {} \; && service mysql start
+sleep 1
 
 # Perform one-time config
 if [ ! -e init.log ]; then
