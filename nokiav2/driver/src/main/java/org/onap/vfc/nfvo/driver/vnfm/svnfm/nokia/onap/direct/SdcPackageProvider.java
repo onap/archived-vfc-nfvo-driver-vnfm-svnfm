@@ -25,12 +25,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IPackageProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
@@ -51,23 +48,20 @@ import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
  * Handles authentication and mandatory parameters.
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
 public class SdcPackageProvider implements IPackageProvider {
     private static final String SDC_MSB_NAME = "sdc";
     private static final String SDC_MSB_VERSION = "v1";
     private static final String GET_PACKAGE_URL = "%s/sdc/v1/catalog/resources/%s/toscaModel";
     private static Logger logger = getLogger(SdcPackageProvider.class);
     private final MsbApiProvider msbApiProvider;
-    private final DriverProperties driverProperties;
     @Value("${sdcUsername}")
     private String sdcUsername;
     @Value("${sdcPassword}")
     private String sdcPassword;
 
     @Autowired
-    SdcPackageProvider(MsbApiProvider msbApiProvider, DriverProperties driverProperties) {
+    SdcPackageProvider(MsbApiProvider msbApiProvider) {
         this.msbApiProvider = msbApiProvider;
-        this.driverProperties = driverProperties;
     }
 
     @Override
@@ -77,7 +71,7 @@ public class SdcPackageProvider implements IPackageProvider {
             CloseableHttpClient client = systemFunctions().getHttpClient();
             HttpGet httpget = new HttpGet(format(GET_PACKAGE_URL, baseUrl, csarId));
             httpget.setHeader(ACCEPT, APPLICATION_OCTET_STREAM_VALUE);
-            httpget.setHeader("X-ECOMP-InstanceID", driverProperties.getVnfmId());
+            httpget.setHeader("X-ECOMP-InstanceID", SERVICE_NAME);
             httpget.setHeader("X-FromAppId", SERVICE_NAME);
             CloseableHttpResponse response = client.execute(httpget);
             HttpEntity entity = response.getEntity();

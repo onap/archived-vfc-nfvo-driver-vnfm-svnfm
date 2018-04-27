@@ -36,7 +36,6 @@ import org.onap.msb.model.MicroServiceFullInfo;
 import org.onap.msb.model.NodeInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.IpMappingProvider;
-import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.core.env.Environment;
 
 import static junit.framework.TestCase.assertEquals;
@@ -80,7 +79,7 @@ public class TestCbamRestApiProvider extends TestBase {
         setFieldWithPropertyAnnotation(real, "${skipHostnameVerification}", true);
         cbamSecurityProvider = spy(real);
         microServiceInfo.setNodes(nodes);
-        cbamRestApiProvider = new CbamRestApiProvider(driverProperties, cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
+        cbamRestApiProvider = new CbamRestApiProvider(cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
         when(environment.getProperty(IpMappingProvider.IP_MAP, String.class, "")).thenReturn("");
         when(environment.getProperty(GenericExternalSystemInfoProvider.VNFM_INFO_CACHE_EVICTION_IN_MS, Long.class, Long.valueOf(10 * 60 * 1000))).thenReturn(10 * 60 * 1000L);
     }
@@ -90,9 +89,6 @@ public class TestCbamRestApiProvider extends TestBase {
      */
     @Test
     public void testCbamLcmApi() throws Exception {
-        VnfmInfo expectedVnfmInfo = new VnfmInfo();
-        when(vnfmInfoProvider.getVnfmInfo(VNFM_ID)).thenReturn(expectedVnfmInfo);
-        expectedVnfmInfo.setUrl("https://cbamurl:123/d/");
         ResultCaptor<SSLSocketFactory> sslSocketFactoryResultCaptor = new ResultCaptor<>();
         doAnswer(sslSocketFactoryResultCaptor).when(cbamSecurityProvider).buildSSLSocketFactory();
         when(cbamSecurityProvider.buildHostnameVerifier()).thenReturn(hostnameVerifier);
@@ -100,7 +96,7 @@ public class TestCbamRestApiProvider extends TestBase {
         //when
         ApiClient cbamLcmApi = cbamRestApiProvider.buildLcmApiClient(VNFM_ID);
         //verify
-        assertEquals("https://cbamurl:123/d/", cbamLcmApi.getAdapterBuilder().build().baseUrl().toString());
+        assertEquals(HTTP_LCM_URL, cbamLcmApi.getAdapterBuilder().build().baseUrl().toString());
         assertEquals(sslSocketFactoryResultCaptor.getResult(), cbamLcmApi.getOkBuilder().build().sslSocketFactory());
         Map<String, Interceptor> apiAuthorizations = cbamLcmApi.getApiAuthorizations();
         assertEquals(1, apiAuthorizations.size());
@@ -117,12 +113,11 @@ public class TestCbamRestApiProvider extends TestBase {
         doAnswer(sslSocketFactoryResultCaptor).when(cbamSecurityProvider).buildSSLSocketFactory();
         when(cbamSecurityProvider.buildHostnameVerifier()).thenReturn(hostnameVerifier);
         when(cbamTokenProvider.getToken(VNFM_ID)).thenReturn(interceptor);
-        when(driverProperties.getCbamCatalogUrl()).thenReturn("https://cbamurl:123/d/");
         //when
         com.nokia.cbam.catalog.v1.ApiClient cbamLcmApi = cbamRestApiProvider.buildCatalogApiClient(VNFM_ID);
         //verify
         String actual = cbamLcmApi.getAdapterBuilder().build().baseUrl().toString();
-        assertEquals("https://cbamurl:123/d/", actual);
+        assertEquals(HTTP_CATLOG_URL, actual);
         assertEquals(sslSocketFactoryResultCaptor.getResult(), cbamLcmApi.getOkBuilder().build().sslSocketFactory());
         Map<String, Interceptor> apiAuthorizations = cbamLcmApi.getApiAuthorizations();
         assertEquals(1, apiAuthorizations.size());
@@ -139,12 +134,11 @@ public class TestCbamRestApiProvider extends TestBase {
         doAnswer(sslSocketFactoryResultCaptor).when(cbamSecurityProvider).buildSSLSocketFactory();
         when(cbamSecurityProvider.buildHostnameVerifier()).thenReturn(hostnameVerifier);
         when(cbamTokenProvider.getToken(VNFM_ID)).thenReturn(interceptor);
-        when(driverProperties.getCbamLcnUrl()).thenReturn("https://cbamurl:123/d/");
         //when
         com.nokia.cbam.lcn.v32.ApiClient cbamLcmApi = cbamRestApiProvider.buildLcnApiClient(VNFM_ID);
         //verify
         String actual = cbamLcmApi.getAdapterBuilder().build().baseUrl().toString();
-        assertEquals("https://cbamurl:123/d/", actual);
+        assertEquals(HTTP_LCN_URL, actual);
         assertEquals(sslSocketFactoryResultCaptor.getResult(), cbamLcmApi.getOkBuilder().build().sslSocketFactory());
         Map<String, Interceptor> apiAuthorizations = cbamLcmApi.getApiAuthorizations();
         assertEquals(1, apiAuthorizations.size());
@@ -162,7 +156,7 @@ public class TestCbamRestApiProvider extends TestBase {
         com.nokia.cbam.catalog.v1.ApiClient c = Mockito.mock(com.nokia.cbam.catalog.v1.ApiClient.class);
         class TestClasss extends CbamRestApiProvider {
             public TestClasss() {
-                super(driverProperties, cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
+                super(cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
             }
 
             @Override
@@ -189,7 +183,7 @@ public class TestCbamRestApiProvider extends TestBase {
         com.nokia.cbam.lcn.v32.ApiClient c = Mockito.mock(com.nokia.cbam.lcn.v32.ApiClient.class);
         class TestClasss extends CbamRestApiProvider {
             public TestClasss() {
-                super(driverProperties, cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
+                super(cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
             }
 
             @Override
@@ -216,7 +210,7 @@ public class TestCbamRestApiProvider extends TestBase {
         com.nokia.cbam.lcm.v32.ApiClient c = Mockito.mock(com.nokia.cbam.lcm.v32.ApiClient.class);
         class TestClasss extends CbamRestApiProvider {
             public TestClasss() {
-                super(driverProperties, cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
+                super(cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
             }
 
             @Override
@@ -243,7 +237,7 @@ public class TestCbamRestApiProvider extends TestBase {
         com.nokia.cbam.lcm.v32.ApiClient c = Mockito.mock(com.nokia.cbam.lcm.v32.ApiClient.class);
         class TestClasss extends CbamRestApiProvider {
             public TestClasss() {
-                super(driverProperties, cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
+                super(cbamTokenProvider, vnfmInfoProvider, cbamSecurityProvider);
             }
 
             @Override

@@ -30,12 +30,11 @@ import org.onap.aai.api.CloudInfrastructureApi;
 import org.onap.aai.model.Relationship;
 import org.onap.aai.model.Vserver;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProviderForSo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.AbstractManager.buildRelationshipData;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.TestGenericVnfManager.assertRelation;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
@@ -47,13 +46,15 @@ public class TestVserverManager extends TestBase {
 
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
+    @Mock
+    private CbamRestApiProviderForSo cbamRestApiProviderForSo;
     private VserverManager vserverManager;
     @Mock
     private CloudInfrastructureApi cloudInfrastructureApi;
 
     @Before
     public void init() {
-        vserverManager = new VserverManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+        vserverManager = new VserverManager(aaiRestApiProvider, cbamRestApiProviderForSo);
         setField(VserverManager.class, "logger", logger);
         when(aaiRestApiProvider.getCloudInfrastructureApi()).thenReturn(cloudInfrastructureApi);
     }

@@ -17,7 +17,9 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
 import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManagerForVfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManagerForVfc;
 import org.onap.vnfmdriver.model.*;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import static javax.servlet.http.HttpServletResponse.SC_CREATED;
 import static java.util.Optional.empty;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Constants.BASE_URL;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -48,7 +50,7 @@ public class LcmApi {
     private final JobManager jobManager;
 
     @Autowired
-    LcmApi(LifecycleManager lifecycleManager, JobManager jobManager) {
+    LcmApi(LifecycleManagerForVfc lifecycleManager, JobManagerForVfc jobManager) {
         this.lifecycleManager = lifecycleManager;
         this.jobManager = jobManager;
     }

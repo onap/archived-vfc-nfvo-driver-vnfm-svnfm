@@ -47,7 +47,7 @@ public class TestLInterfaceManager extends TestBase {
 
     @Before
     public void init() {
-        lInterfaceManager = new LInterfaceManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+        lInterfaceManager = new LInterfaceManager(aaiRestApiProvider, cbamRestApiProviderForSo);
         setField(LInterfaceManager.class, "logger", logger);
         when(aaiRestApiProvider.getCloudInfrastructureApi()).thenReturn(cloudInfrastructureApi);
     }

@@ -440,6 +440,11 @@
           "description": "The identifier of the VNF package in SDC",
           "type": "string"
         },
+        "nsId": {
+          "required": false,
+          "description": "The identifier of the NS in AAI",
+          "type": "string"
+        },
         "description": {
           "required": false,
           "description": "The description of the VNF",

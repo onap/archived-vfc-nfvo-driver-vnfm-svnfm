@@ -19,12 +19,9 @@ import io.reactivex.Observable;
 import java.util.ArrayList;
 import org.onap.aai.model.Vnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProviderForSo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static com.google.common.base.Splitter.on;
@@ -35,13 +32,12 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR
  * Responsible for managing {@link Vnfc} in AAI
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
 public class VnfcManager extends AbstractManager {
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(VnfcManager.class);
 
     @Autowired
-    VnfcManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider, DriverProperties driverProperties) {
-        super(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+    VnfcManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProviderForSo cbamRestApiProvider) {
+        super(aaiRestApiProvider, cbamRestApiProvider);
     }
 
     private static String buildId(String vnfId, String cbamVnfcId) {

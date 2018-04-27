@@ -27,12 +27,11 @@ import org.mockito.Mock;
 import org.onap.aai.api.NetworkApi;
 import org.onap.aai.model.Vnfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProviderForSo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.AbstractManager.buildRelationshipData;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.TestGenericVnfManager.assertRelation;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
@@ -44,13 +43,15 @@ public class TestVnfcManager extends TestBase {
 
     @Mock
     private AAIRestApiProvider aaiRestApiProvider;
+    @Mock
+    private CbamRestApiProviderForSo cbamRestApiProviderForSo;
     private VnfcManager vnfcManager;
     @Mock
     private NetworkApi networkApi;
 
     @Before
     public void init() {
-        vnfcManager = new VnfcManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+        vnfcManager = new VnfcManager(aaiRestApiProvider, cbamRestApiProviderForSo);
         setField(VnfcManager.class, "logger", logger);
         when(aaiRestApiProvider.getNetworkApi()).thenReturn(networkApi);
     }

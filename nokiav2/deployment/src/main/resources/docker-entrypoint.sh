@@ -51,12 +51,6 @@ function configure(){
      switchLine driverMsbExternalIp $EXTERNAL_IP
      switchLine driverVnfmExternalIp $EXTERNAL_IP
      switchLine messageBusIp $MSB_IP
-     switchLine cbamCatalogUrl $CBAM_CATALOG_URL
-     switchLine cbamLcnUrl $CBAM_LCN_URL
-     switchLine cbamKeyCloakBaseUrl $CBAM_KEYCLOAK_URL
-     switchLine cbamLcnUrl $CBAM_LCN_URL
-     switchLine cbamUsername $CBAM_USERNAME
-     switchLine cbamPassword $CBAM_PASSWORD
      switchLine vnfmId $VNFM_ID
      switchLine ipMap $IP_MAP
   fi 
@@ -82,4 +76,3 @@ while true ; do
   done
   echo "Server quit (unexpected)"
 done
-

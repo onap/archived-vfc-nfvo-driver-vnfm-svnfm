@@ -27,11 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.AdditionalParameters;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.GenericVnfManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.*;
 import org.onap.vnfmadapter.so.model.*;
 import org.onap.vnfmdriver.model.*;
 
@@ -46,16 +44,18 @@ public class TestSoLifecycleManager extends TestBase {
 
     private static final String VNFD_ID = "cbamVnfdId";
     @Mock
-    private LifecycleManager lifecycleManager;
+    private LifecycleManagerForSo lifecycleManager;
     @Mock
-    private VimInfoProvider vimInfoProvider;
+    private AAIExternalSystemInfoProvider vimInfoProvider;
     @Mock
-    private JobManager jobManager;
+    private JobManagerForSo jobManager;
+    @Mock
+    private GenericVnfManager genericVnfManager;
     private SoLifecycleManager soLifecycleManager;
 
     @Before
     public void init() {
-        soLifecycleManager = new SoLifecycleManager(lifecycleManager, vimInfoProvider, cbamRestApiProvider, jobManager);
+        soLifecycleManager = new SoLifecycleManager(lifecycleManager, vimInfoProvider, cbamRestApiProviderForSo, jobManager, genericVnfManager);
     }
 
     /**

@@ -32,8 +32,6 @@ import org.onap.vnfmdriver.model.JobDetailInfoResponseDescriptor;
 import org.onap.vnfmdriver.model.JobResponseInfo;
 import org.onap.vnfmdriver.model.JobStatus;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static java.util.Optional.empty;
@@ -59,7 +57,6 @@ import static org.springframework.util.StringUtils.isEmpty;
  * The second UUID is passed as mandatory parameter to each executed operation.
  * This UUID is used to locate the operation execution from the ONAP job identifier
  */
-@Component
 public class JobManager {
     public static final String OPERATION_STARTED_DESCRIPTION = "Operation started";
     private static final Ordering<JobResponseInfo> OLDEST_FIRST = new Ordering<JobResponseInfo>() {
@@ -74,7 +71,6 @@ public class JobManager {
     private final SelfRegistrationManager selfRegistrationManager;
     private volatile boolean preparingForShutDown = false;
 
-    @Autowired
     JobManager(CbamRestApiProvider cbamRestApiProvider, SelfRegistrationManager selfRegistrationManager) {
         this.cbamRestApiProvider = cbamRestApiProvider;
         this.selfRegistrationManager = selfRegistrationManager;

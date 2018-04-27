@@ -15,18 +15,21 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
+import java.util.Set;
 import org.onap.aai.model.EsrSystemInfo;
 import org.onap.aai.model.EsrVnfm;
+import org.onap.aai.model.EsrVnfmList;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getCloudOwner;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.getRegionName;
@@ -36,7 +39,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Responsible for providing information related to the VNFM from VF-C source
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
+@Qualifier("so")
 public class AAIExternalSystemInfoProvider extends GenericExternalSystemInfoProvider {
     private static Logger logger = getLogger(AAIExternalSystemInfoProvider.class);
     private final AAIRestApiProvider aaiRestApiProvider;
@@ -113,5 +116,11 @@ public class AAIExternalSystemInfoProvider extends GenericExternalSystemInfoProv
         vnfmInfo.setUserName(esrSystemInfo.getUserName());
         vnfmInfo.setVnfmId(vnfmInAai.getVnfmId());
         return vnfmInfo;
+    }
+
+    @Override
+    public Set<String> getVnfms() {
+        EsrVnfmList esrVnfmList = aaiRestApiProvider.getExternalSystemApi().getExternalSystemEsrVnfmList().blockingFirst();
+        return newHashSet(transform(esrVnfmList.getEsrVnfm(), esr -> esr.getVnfmId()));
     }
 }

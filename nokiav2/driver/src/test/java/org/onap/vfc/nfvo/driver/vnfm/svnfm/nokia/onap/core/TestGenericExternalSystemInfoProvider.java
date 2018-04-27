@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -108,6 +109,11 @@ public class TestGenericExternalSystemInfoProvider extends TestBase {
             public VimInfo getVimInfo(String vimId) {
                 return null;
             }
+
+            @Override
+            public Set<String> getVnfms() {
+                return null;
+            }
         }
         try {
             new TestClass(null).getVnfmInfo(VNFM_ID);
@@ -131,6 +137,11 @@ public class TestGenericExternalSystemInfoProvider extends TestBase {
 
         @Override
         public VimInfo getVimInfo(String vimId) {
+            return null;
+        }
+
+        @Override
+        public Set<String> getVnfms() {
             return null;
         }
     }

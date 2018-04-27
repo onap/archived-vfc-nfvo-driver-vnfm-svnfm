@@ -16,18 +16,23 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
 import com.nokia.cbam.lcn.v32.model.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import org.onap.msb.model.MicroServiceFullInfo;
 import org.onap.msb.model.MicroServiceInfo;
 import org.onap.msb.model.Node;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.MultiException;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Constants;
+import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import static com.nokia.cbam.lcn.v32.model.SubscriptionAuthentication.TypeEnum.NONE;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
@@ -38,15 +43,15 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * Responsible for registering the driver in the core systems.
  */
-@Component
 public class SelfRegistrationManager {
     public static final String DRIVER_VERSION = "v1";
     public static final String SERVICE_NAME = "NokiaSVNFM";
     public static final String SWAGGER_API_DEFINITION = "self.swagger.json";
     private static Logger logger = getLogger(SelfRegistrationManager.class);
-    private final DriverProperties driverProperties;
     private final MsbApiProvider msbApiProvider;
     private final CbamRestApiProvider cbamRestApiProvider;
+    private final VnfmInfoProvider vnfmInfoProvider;
+    private final BiMap<String, String> vnfmIdToSubscriptionId = HashBiMap.create();
     @Value("${driverMsbExternalIp}")
     private String driverMsbExternalIp;
     @Value("${driverVnfmExternalIp}")
@@ -55,11 +60,10 @@ public class SelfRegistrationManager {
     private String driverPort;
     private volatile boolean ready = false;
 
-    @Autowired
-    SelfRegistrationManager(DriverProperties driverProperties, MsbApiProvider msbApiProvider, CbamRestApiProvider cbamRestApiProvider) {
+    SelfRegistrationManager(VnfmInfoProvider vnfmInfoProvider, MsbApiProvider msbApiProvider, CbamRestApiProvider cbamRestApiProvider) {
         this.cbamRestApiProvider = cbamRestApiProvider;
         this.msbApiProvider = msbApiProvider;
-        this.driverProperties = driverProperties;
+        this.vnfmInfoProvider = vnfmInfoProvider;
     }
 
     /**
@@ -67,11 +71,11 @@ public class SelfRegistrationManager {
      */
     public void register() {
         //the order is important (only publish it's existence after the subscription has been created)
-        subscribeToLcn(driverProperties.getVnfmId());
+        subscribeToLcns();
         try {
             registerMicroService();
         } catch (RuntimeException e) {
-            deleteSubscription(driverProperties.getVnfmId());
+            deleteSubscriptions();
             throw e;
         }
         ready = true;
@@ -98,7 +102,18 @@ public class SelfRegistrationManager {
                 throw buildFatalFailure(logger, "Unable to deRegister Nokia VNFM driver", e);
             }
         }
-        deleteSubscription(driverProperties.getVnfmId());
+        deleteSubscriptions();
+    }
+
+    /**
+     * Subscribes to LCN if not yet subscribed
+     *
+     * @param vnfmId the identifier of the VNFM
+     */
+    public void assureSubscription(String vnfmId) {
+        if (!vnfmIdToSubscriptionId.containsKey(vnfmId)) {
+            subscribeToLcn(vnfmId);
+        }
     }
 
     /**
@@ -108,15 +123,38 @@ public class SelfRegistrationManager {
         return systemFunctions().loadFile(SWAGGER_API_DEFINITION);
     }
 
+    /**
+     * @param subscriptionId the identifier of the subscription
+     * @return the identifier of the VNFM for the subscription
+     */
+    public String getVnfmId(String subscriptionId) {
+        return vnfmIdToSubscriptionId.inverse().get(subscriptionId);
+    }
+
     private String getDriverVnfmUrl() {
-        return "http://" + driverVnfmExternalIp + ":" + driverPort + DriverProperties.BASE_URL;
+        return "http://" + driverVnfmExternalIp + ":" + driverPort + Constants.BASE_URL;
+    }
+
+    private void deleteSubscriptions() {
+        Set<Exception> exceptions = new HashSet<>();
+        for (String vnfmId : vnfmIdToSubscriptionId.keySet()) {
+            try {
+                deleteSubscription(vnfmId);
+            } catch (Exception e) {
+                exceptions.add(e);
+                logger.warn("Unable to delete subscription for the " + vnfmId);
+            }
+        }
+        if (!exceptions.isEmpty()) {
+            throw new MultiException("Unable to delete some of the subscriptions", exceptions);
+        }
     }
 
     private void deleteSubscription(String vnfmId) {
         logger.info("Deleting CBAM LCN subscription");
         SubscriptionsApi lcnApi = cbamRestApiProvider.getCbamLcnApi(vnfmId);
         try {
-            String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_URL;
+            String callbackUrl = getDriverVnfmUrl() + Constants.LCN_URL;
             for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION).blockingFirst()) {
                 if (subscription.getCallbackUrl().equals(callbackUrl)) {
                     logger.info("Deleting subscription with {} identifier", subscription.getId());
@@ -131,7 +169,7 @@ public class SelfRegistrationManager {
     private MicroServiceFullInfo registerMicroService() {
         logger.info("Registering micro service");
         MicroServiceInfo microServiceInfo = new MicroServiceInfo();
-        microServiceInfo.setUrl(DriverProperties.BASE_URL);
+        microServiceInfo.setUrl(Constants.BASE_URL);
         //the PATH should not be set
         microServiceInfo.setProtocol(MicroServiceInfo.ProtocolEnum.REST);
         microServiceInfo.setVisualRange(MicroServiceInfo.VisualRangeEnum._1);
@@ -151,14 +189,23 @@ public class SelfRegistrationManager {
         }
     }
 
+    private void subscribeToLcns() {
+        for (String vnfmId : vnfmInfoProvider.getVnfms()) {
+            subscribeToLcn(vnfmId);
+        }
+    }
+
     private void subscribeToLcn(String vnfmId) {
-        String callbackUrl = getDriverVnfmUrl() + DriverProperties.LCN_URL;
-        logger.info("Subscribing to CBAM LCN {} with callback to {}", driverProperties.getCbamLcnUrl(), callbackUrl);
+        String callbackUrl = getDriverVnfmUrl() + Constants.LCN_URL;
+        VnfmInfo vnfmInfo = vnfmInfoProvider.getVnfmInfo(vnfmId);
+        VnfmUrls vnfmUrls = GenericExternalSystemInfoProvider.convert(vnfmInfo);
+        logger.info("Subscribing to CBAM LCN {} with callback to {}", vnfmUrls.getLcnUrl(), callbackUrl);
         SubscriptionsApi lcnApi = cbamRestApiProvider.getCbamLcnApi(vnfmId);
         try {
             for (Subscription subscription : lcnApi.subscriptionsGet(NOKIA_LCN_API_VERSION).blockingFirst()) {
                 if (subscription.getCallbackUrl().equals(callbackUrl)) {
                     logger.warn("The subscription with {} identifier has the same callback URL", subscription.getId());
+                    vnfmIdToSubscriptionId.put(vnfmId, subscription.getId());
                     return;
                 }
             }
@@ -176,6 +223,7 @@ public class SelfRegistrationManager {
             request.setAuthentication(subscriptionAuthentication);
             Subscription createdSubscription = lcnApi.subscriptionsPost(request, NOKIA_LCN_API_VERSION).blockingFirst();
             logger.info("Subscribed to LCN with {} identifier", createdSubscription.getId());
+            vnfmIdToSubscriptionId.put(vnfmId, createdSubscription.getId());
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to subscribe to CBAM LCN", e);
         }

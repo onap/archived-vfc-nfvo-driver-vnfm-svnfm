@@ -50,6 +50,8 @@ public class CTDirectReal {
      */
     @Test
     public void testBasicWorkflow() throws Exception {
+        SystemFunctions.systemFunctions().sleep(10000000 * 1000L);
+
         VimInfo nokia_regionOne = externalSystemInfoProvider.getVimInfo("Nokia_RegionOne");
 
         VnfLifecycleChangeNotification recievedNot = new VnfLifecycleChangeNotification();
@@ -86,8 +88,7 @@ public class CTDirectReal {
         addedCp.setTenantId("de8fd0d1d5874503a47b920c10f4322a");
         addedCp.setCpdId("cpdId");
         affectedConnectionPoints.getPost().add(addedCp);
-        notificationProcessor.processNotification(recievedNot, null, of(affectedConnectionPoints), "Nokia_RegionOne");
-        SystemFunctions.systemFunctions().sleep(10000000 * 1000L);
+        notificationProcessor.processNotification(recievedNot, null, of(affectedConnectionPoints), "Nokia_RegionOne", "vnfmId");
     }
 
     JsonObject additionalData(String key, String value) {

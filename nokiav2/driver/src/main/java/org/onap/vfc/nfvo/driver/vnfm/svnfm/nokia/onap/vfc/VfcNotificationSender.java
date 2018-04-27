@@ -22,15 +22,12 @@ import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedConnectionPoints;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedCp;
 import org.onap.vnfmdriver.model.*;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static java.util.Optional.of;
@@ -46,20 +43,17 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Responsible for sending notifications to VF-C
  */
 @Component
-@Conditional(value = Conditions.UseForVfc.class)
 public class VfcNotificationSender implements INotificationSender {
     private static Logger logger = getLogger(VfcNotificationSender.class);
-    private final DriverProperties driverProperties;
     private final VfcRestApiProvider vfcRestApiProvider;
 
     @Autowired
-    VfcNotificationSender(DriverProperties driverProperties, VfcRestApiProvider vfcRestApiProvider) {
-        this.driverProperties = driverProperties;
+    VfcNotificationSender(VfcRestApiProvider vfcRestApiProvider) {
         this.vfcRestApiProvider = vfcRestApiProvider;
     }
 
     @Override
-    public void processNotification(VnfLifecycleChangeNotification recievedNotification, OperationExecution operationExecution, Optional<ReportedAffectedConnectionPoints> affectedCps, String vimId) {
+    public void processNotification(VnfLifecycleChangeNotification recievedNotification, OperationExecution operationExecution, Optional<ReportedAffectedConnectionPoints> affectedCps, String vimId, String vnfmId) {
         VNFLCMNotification notificationToSend = new VNFLCMNotification();
         notificationToSend.setJobId(extractOnapJobId(operationExecution.getOperationParams()));
         notificationToSend.setOperation(getOperation(operationExecution, recievedNotification.getOperation()));
@@ -72,15 +66,15 @@ public class VfcNotificationSender implements INotificationSender {
         } else {
             notificationToSend.setStatus(VnfLcmNotificationStatus.START);
         }
-        sendNotification(notificationToSend);
+        sendNotification(vnfmId, notificationToSend);
     }
 
-    private void sendNotification(VNFLCMNotification notification) {
+    private void sendNotification(String vnfmId, VNFLCMNotification notification) {
         try {
             if (logger.isInfoEnabled()) {
                 logger.info("Sending LCN: {}", new Gson().toJson(notification));
             }
-            vfcRestApiProvider.getNsLcmApi().vNFLCMNotification(driverProperties.getVnfmId(), notification.getVnfInstanceId(), notification);
+            vfcRestApiProvider.getNsLcmApi().vNFLCMNotification(vnfmId, notification.getVnfInstanceId(), notification);
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to send LCN to VF-C", e);
         }

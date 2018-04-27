@@ -21,13 +21,10 @@ import org.onap.aai.model.L3InterfaceIpv4AddressList;
 import org.onap.aai.model.L3InterfaceIpv6AddressList;
 import org.onap.aai.model.LInterface;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProviderForSo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedCp;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
@@ -39,13 +36,12 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ge
  * Responsible for managing the {@link LInterface} in AAI
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
 class LInterfaceManager extends AbstractManager {
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(LInterfaceManager.class);
 
     @Autowired
-    LInterfaceManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider, DriverProperties driverProperties) {
-        super(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+    LInterfaceManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProviderForSo cbamRestApiProvider) {
+        super(aaiRestApiProvider, cbamRestApiProvider);
     }
 
     static String buildUrl(String vimId, ReportedAffectedCp affectedCp) {

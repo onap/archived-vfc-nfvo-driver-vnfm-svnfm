@@ -15,12 +15,12 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api;
 
+import java.util.Set;
 import org.onap.vnfmdriver.model.VnfmInfo;
 
 /**
  * Responsible for providing information from the VNFM itself
  */
-@FunctionalInterface
 public interface VnfmInfoProvider {
 
     /**
@@ -28,4 +28,9 @@ public interface VnfmInfoProvider {
      * @return the description of the VNFM
      */
     VnfmInfo getVnfmInfo(String vnfmId);
+
+    /**
+     * @return the identifiers of the VNFMs that are managed by this driver
+     */
+    Set<String> getVnfms();
 }

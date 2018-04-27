@@ -28,10 +28,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManagerForVfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vnfmdriver.model.*;
@@ -50,8 +49,7 @@ public class TestVfcGrantManager extends TestBase {
     private GrantVNFResponseVim vim = new GrantVNFResponseVim();
     private GrantVNFResponse grantResponse = new GrantVNFResponse();
     @Mock
-    private CatalogManager cbamCatalogManager;
-    @InjectMocks
+    private CatalogManagerForVfc cbamCatalogManager;
     private VfcGrantManager vfcGrantManager;
 
     @Before
@@ -59,6 +57,7 @@ public class TestVfcGrantManager extends TestBase {
         setField(VfcGrantManager.class, "logger", logger);
         when(nsLcmApi.grantvnf(grantRequest.capture())).thenReturn(buildObservable(grantResponse));
         grantResponse.setVim(vim);
+        vfcGrantManager = new VfcGrantManager(cbamCatalogManager, cbamRestApiProviderForVfc, vfcRestApiProvider);
     }
 
     /**

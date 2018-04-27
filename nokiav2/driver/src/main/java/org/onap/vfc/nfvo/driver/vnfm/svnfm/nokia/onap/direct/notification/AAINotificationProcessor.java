@@ -23,13 +23,13 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedConnectionPoints;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.ReportedAffectedCp;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
+
+import static java.util.Optional.empty;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.tryFind;
@@ -43,7 +43,6 @@ import static org.springframework.util.StringUtils.isEmpty;
  * Responsible for providing information related to the VNFM from VF-C source
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
 public class AAINotificationProcessor implements INotificationSender {
     private static Logger logger = getLogger(AAINotificationProcessor.class);
     private final GenericVnfManager genericVnfManager;
@@ -62,9 +61,9 @@ public class AAINotificationProcessor implements INotificationSender {
     }
 
     @Override
-    public void processNotification(VnfLifecycleChangeNotification receivedNotification, OperationExecution operationExecution, Optional<ReportedAffectedConnectionPoints> affectedConnectionPoints, String vimId) {
+    public void processNotification(VnfLifecycleChangeNotification receivedNotification, OperationExecution operationExecution, Optional<ReportedAffectedConnectionPoints> affectedConnectionPoints, String vimId, String vnfmId) {
         boolean inMaintenance = STARTED.equals(receivedNotification.getStatus());
-        genericVnfManager.createOrUpdate(receivedNotification.getVnfInstanceId(), inMaintenance);
+        genericVnfManager.createOrUpdate(receivedNotification.getVnfInstanceId(), inMaintenance, vnfmId, empty());
         addOrUpdateVls(receivedNotification, vimId);
         addOrUpdateVnfcs(receivedNotification, vimId, inMaintenance);
         processCps(receivedNotification, affectedConnectionPoints, vimId, inMaintenance);

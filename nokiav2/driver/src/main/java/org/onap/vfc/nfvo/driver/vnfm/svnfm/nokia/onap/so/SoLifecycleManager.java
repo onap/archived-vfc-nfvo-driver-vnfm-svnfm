@@ -22,11 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.GenericVnfManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.AdditionalParameters;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.*;
 import org.onap.vnfmadapter.so.model.*;
 import org.onap.vnfmdriver.model.ExtVirtualLinkInfo;
 import org.onap.vnfmdriver.model.*;
@@ -35,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 
 import static com.nokia.cbam.lcm.v32.model.VimInfo.VimInfoTypeEnum.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.VnfcManager.buildCbamId;
@@ -53,13 +53,16 @@ public class SoLifecycleManager {
     private final VimInfoProvider vimInfoProvider;
     private final CbamRestApiProvider cbamRestApiProvider;
     private final JobManager jobManager;
+    private final GenericVnfManager genericVnfManager;
+
 
     @Autowired
-    SoLifecycleManager(LifecycleManager lifecycleManager, VimInfoProvider vimInfoProvider, CbamRestApiProvider cbamRestApiProvider, JobManager jobManager) {
+    SoLifecycleManager(LifecycleManagerForSo lifecycleManager, AAIExternalSystemInfoProvider vimInfoProvider, CbamRestApiProviderForSo cbamRestApiProvider, JobManagerForSo jobManager, GenericVnfManager genericVnfManager) {
         this.lifecycleManager = lifecycleManager;
         this.vimInfoProvider = vimInfoProvider;
         this.cbamRestApiProvider = cbamRestApiProvider;
         this.jobManager = jobManager;
+        this.genericVnfManager = genericVnfManager;
     }
 
     /**
@@ -73,6 +76,7 @@ public class SoLifecycleManager {
         SoVnfCreationResponse response = new SoVnfCreationResponse();
         LifecycleManager.VnfCreationResult result = lifecycleManager.create(vnfmId, request.getCsarId(), request.getName(), request.getDescription());
         response.setVnfId(result.getVnfInfo().getId());
+        genericVnfManager.createOrUpdate(response.getVnfId(), false, vnfmId, ofNullable(request.getNsId()));
         return response;
     }
 

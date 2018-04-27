@@ -27,14 +27,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.ILifecycleChangeNotificationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -64,7 +62,6 @@ import static org.slf4j.LoggerFactory.getLogger;
  * on all LCN deliveries. The consequence of this is that the information known by VF-C / A&AI may be inconsistent with
  * reality (VNF having been deleted)
  */
-@Component
 public class LifecycleChangeNotificationManager implements ILifecycleChangeNotificationManager {
 
     public static final String PROBLEM = "All operations must return the { \"operationResult\" : { \"cbam_pre\" : [<fillMeOut>], \"cbam_post\" : [<fillMeOut>] } } structure";
@@ -84,15 +81,14 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
     private static Logger logger = getLogger(LifecycleChangeNotificationManager.class);
 
     private final CbamRestApiProvider restApiProvider;
-    private final DriverProperties driverProperties;
     private final INotificationSender notificationSender;
+    private final SelfRegistrationManager selfRegistrationManager;
     private Set<ProcessedNotification> processedNotifications = newConcurrentHashSet();
 
-    @Autowired
-    LifecycleChangeNotificationManager(CbamRestApiProvider restApiProvider, DriverProperties driverProperties, INotificationSender notificationSender) {
+    LifecycleChangeNotificationManager(CbamRestApiProvider restApiProvider, SelfRegistrationManager selfRegistrationManager, INotificationSender notificationSender) {
         this.notificationSender = notificationSender;
-        this.driverProperties = driverProperties;
         this.restApiProvider = restApiProvider;
+        this.selfRegistrationManager = selfRegistrationManager;
     }
 
     /**
@@ -115,7 +111,8 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
         if (logger.isInfoEnabled()) {
             logger.info("Received LCN: {}", new Gson().toJson(receivedNotification));
         }
-        VnfsApi cbamLcmApi = restApiProvider.getCbamLcmApi(driverProperties.getVnfmId());
+        String vnfmId = selfRegistrationManager.getVnfmId(receivedNotification.getSubscriptionId());
+        VnfsApi cbamLcmApi = restApiProvider.getCbamLcmApi(vnfmId);
         try {
             List<VnfInfo> vnfs = cbamLcmApi.vnfsGet(NOKIA_LCM_API_VERSION).blockingFirst();
             com.google.common.base.Optional<VnfInfo> currentVnf = tryFind(vnfs, vnf -> vnf.getId().equals(receivedNotification.getVnfInstanceId()));
@@ -131,7 +128,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
                     logger.warn(vnfHeader + " is not a managed VNF");
                     return;
                 }
-                if (!externalVnfmId.get().getValue().equals(driverProperties.getVnfmId())) {
+                if (!externalVnfmId.get().getValue().equals(vnfmId)) {
                     logger.warn(vnfHeader + " is not a managed by the VNFM with id " + externalVnfmId.get().getValue());
                     return;
                 }
@@ -139,7 +136,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to list VNFs / query VNF", e);
         }
-        OperationExecutionsApi cbamOperationExecutionApi = restApiProvider.getCbamOperationExecutionApi(driverProperties.getVnfmId());
+        OperationExecutionsApi cbamOperationExecutionApi = restApiProvider.getCbamOperationExecutionApi(vnfmId);
         List<OperationExecution> operationExecutions;
         try {
             operationExecutions = cbamLcmApi.vnfsVnfInstanceIdOperationExecutionsGet(receivedNotification.getVnfInstanceId(), NOKIA_LCM_API_VERSION).blockingFirst();
@@ -154,7 +151,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
         }
         OperationExecution closestInstantiationToOperation = findLastInstantiationBefore(operationExecutions, operationExecution);
         String vimId = getVimId(cbamOperationExecutionApi, closestInstantiationToOperation);
-        notificationSender.processNotification(receivedNotification, operationExecution, buildAffectedCps(operationExecution), vimId);
+        notificationSender.processNotification(receivedNotification, operationExecution, buildAffectedCps(operationExecution), vimId, vnfmId);
         if (isTerminationFinished(receivedNotification)) {
             //signal LifecycleManager to continue the deletion of the VNF
             processedNotifications.add(new ProcessedNotification(receivedNotification.getLifecycleOperationOccurrenceId(), receivedNotification.getStatus()));

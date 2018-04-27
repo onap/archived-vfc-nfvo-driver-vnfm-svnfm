@@ -33,6 +33,7 @@ public interface INotificationSender {
      * @param operationExecution       the executed operation that triggered the LCN
      * @param affectedConnectionPoints the affected connection points during the operation
      * @param vimId                    the identifier of the VIM in ONAP
+     * @param vnfmId                   the identifier of the VNFM
      */
-    void processNotification(VnfLifecycleChangeNotification receivedNotification, OperationExecution operationExecution, Optional<ReportedAffectedConnectionPoints> affectedConnectionPoints, String vimId);
+    void processNotification(VnfLifecycleChangeNotification receivedNotification, OperationExecution operationExecution, Optional<ReportedAffectedConnectionPoints> affectedConnectionPoints, String vimId, String vnfmId);
 }

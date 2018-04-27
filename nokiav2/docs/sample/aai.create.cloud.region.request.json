@@ -1,0 +1,12 @@
+{
+  "cloud-owner": "Nokia",
+  "cloud-region-id": "RegionOne",
+  "cloud-type": "openstack",
+  "owner-defined-type": "Nokia",
+  "cloud-region-version": "ocata",
+  "identity-url": "https://10.41.49.22:5000/v3",
+  "cloud-zone": "any",
+  "complex-name": "any",
+  "sriov-automation": false,
+  "cloud-extra-info": ""
+}

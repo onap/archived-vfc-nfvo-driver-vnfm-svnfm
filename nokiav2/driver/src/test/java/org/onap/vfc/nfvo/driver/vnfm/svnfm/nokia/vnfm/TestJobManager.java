@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -54,7 +53,6 @@ public class TestJobManager extends TestBase {
     @Mock
     private HttpServletResponse httpResponse;
 
-    @InjectMocks
     private JobManager jobManager;
     private List<VnfInfo> vnfs = new ArrayList<>();
 
@@ -62,7 +60,8 @@ public class TestJobManager extends TestBase {
     public void initMocks() throws Exception {
         ReflectionTestUtils.setField(JobManager.class, "logger", logger);
         when(vnfApi.vnfsGet(NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfs));
-        when(selfRegistrationManager.isReady()).thenReturn(true);
+        when(selfRegistrationManagerForVfc.isReady()).thenReturn(true);
+        jobManager = new JobManager(cbamRestApiProviderForVfc, selfRegistrationManagerForVfc);
     }
 
     /**
@@ -550,7 +549,7 @@ public class TestJobManager extends TestBase {
     @Test
     public void noJobCanBeStartedIfRegistrationNotFinished() throws Exception {
         //given
-        when(selfRegistrationManager.isReady()).thenReturn(false);
+        when(selfRegistrationManagerForVfc.isReady()).thenReturn(false);
         //when
         try {
             jobManager.spawnJob(VNF_ID, httpResponse);
