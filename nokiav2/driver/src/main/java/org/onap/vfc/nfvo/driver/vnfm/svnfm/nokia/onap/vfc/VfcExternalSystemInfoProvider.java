@@ -15,16 +15,18 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
+import java.util.Set;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -32,10 +34,12 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Responsible for providing information related to the VNFM from VF-C source
  */
 @Component
-@Conditional(value = Conditions.UseForVfc.class)
+@Qualifier("vfc")
 public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProvider {
     private static Logger logger = getLogger(VfcExternalSystemInfoProvider.class);
     private final VfcRestApiProvider vfcRestApiProvider;
+    @Value("${vnfmId}")
+    private String vnfmId;
 
     @Autowired
     VfcExternalSystemInfoProvider(Environment environment, VfcRestApiProvider vfcRestApiProvider) {
@@ -59,5 +63,11 @@ public class VfcExternalSystemInfoProvider extends GenericExternalSystemInfoProv
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to query VIM from VF-C with " + vimId + " identifier", e);
         }
+    }
+
+    @Override
+    public Set<String> getVnfms() {
+        //FIXME in the Casablanca release add API to VF-C to be able to list VNFMs VFC-886 task
+        return newHashSet(vnfmId);
     }
 }

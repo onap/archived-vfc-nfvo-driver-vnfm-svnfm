@@ -18,10 +18,9 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManagerForVfc;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManagerForVfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vnfmdriver.model.VnfHealRequest;
 import org.onap.vnfmdriver.model.VnfInstantiateRequest;
@@ -38,15 +37,15 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 public class TestLcmApi extends TestBase {
 
     @Mock
-    private LifecycleManager lifecycleManager;
+    private LifecycleManagerForVfc lifecycleManager;
     @Mock
-    private JobManager jobManager;
-    @InjectMocks
+    private JobManagerForVfc jobManager;
     private LcmApi lcmApi;
 
     @Before
     public void initMocks() throws Exception {
         setField(LcmApi.class, "logger", logger);
+        lcmApi = new LcmApi(lifecycleManager, jobManager);
     }
 
     /**

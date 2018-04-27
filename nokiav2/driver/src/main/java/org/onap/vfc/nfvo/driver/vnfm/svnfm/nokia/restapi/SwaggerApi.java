@@ -18,13 +18,14 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManagerForVfc;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Constants.BASE_URL;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -38,10 +39,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RequestMapping(value = BASE_URL)
 public class SwaggerApi {
     private static Logger logger = getLogger(SwaggerApi.class);
+    //FIXME this should not depened on self registration manager
     private final SelfRegistrationManager selfRegistrationManager;
 
     @Autowired
-    SwaggerApi(SelfRegistrationManager selfRegistrationManager) {
+    SwaggerApi(SelfRegistrationManagerForVfc selfRegistrationManager) {
         this.selfRegistrationManager = selfRegistrationManager;
     }
 

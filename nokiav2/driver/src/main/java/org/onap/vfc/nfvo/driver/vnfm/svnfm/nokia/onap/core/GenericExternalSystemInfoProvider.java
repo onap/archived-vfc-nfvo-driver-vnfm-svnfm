@@ -15,8 +15,11 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
+import com.google.common.base.Splitter;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
@@ -28,6 +31,7 @@ import org.springframework.core.env.Environment;
 import static java.lang.Long.valueOf;
 
 import static com.google.common.cache.CacheBuilder.newBuilder;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -50,6 +54,17 @@ public abstract class GenericExternalSystemInfoProvider extends IpMappingProvide
     public GenericExternalSystemInfoProvider(Environment environment) {
         super(environment);
         this.environment = environment;
+    }
+
+    public static VnfmUrls convert(VnfmInfo vnfmInfo) {
+        ArrayList<String> urls = Lists.newArrayList(Splitter.on(SEPARATOR).split(vnfmInfo.getUrl()));
+        return new VnfmUrls(urls.get(0), urls.get(1), urls.get(2), urls.get(3));
+    }
+
+    public static VnfmCredentials convertToCredentials(VnfmInfo vnfmInfo) {
+        ArrayList<String> userNames = Lists.newArrayList(Splitter.on(SEPARATOR).split(vnfmInfo.getUserName()));
+        ArrayList<String> passwords = Lists.newArrayList(Splitter.on(SEPARATOR).split(vnfmInfo.getPassword()));
+        return new VnfmCredentials(userNames.get(0), passwords.get(0), userNames.get(1), passwords.get(1));
     }
 
     /**
@@ -88,4 +103,5 @@ public abstract class GenericExternalSystemInfoProvider extends IpMappingProvide
      * @return the description of the VNFM
      */
     public abstract VnfmInfo queryVnfmInfoFromSource(String vnfmId);
+
 }

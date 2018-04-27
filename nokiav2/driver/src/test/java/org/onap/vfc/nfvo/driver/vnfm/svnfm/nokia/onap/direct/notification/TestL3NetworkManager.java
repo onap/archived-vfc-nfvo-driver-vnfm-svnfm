@@ -49,7 +49,7 @@ public class TestL3NetworkManager extends TestBase {
 
     @Before
     public void init() {
-        l3NetworkManager = new L3NetworkManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+        l3NetworkManager = new L3NetworkManager(aaiRestApiProvider, cbamRestApiProviderForSo);
         setField(L3NetworkManager.class, "logger", logger);
         when(aaiRestApiProvider.getNetworkApi()).thenReturn(networkApi);
     }

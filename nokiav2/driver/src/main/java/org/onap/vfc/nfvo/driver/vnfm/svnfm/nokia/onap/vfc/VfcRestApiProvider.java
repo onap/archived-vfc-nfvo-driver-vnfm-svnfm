@@ -17,19 +17,16 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vnfmdriver.ApiClient;
 import org.onap.vnfmdriver.api.NslcmApi;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * Responsible for providing access to VF-C REST APIs
  */
 @Component
-@Conditional(value = Conditions.UseForVfc.class)
 public class VfcRestApiProvider {
     static final String NSLCM_API_SERVICE_NAME = "nslcm";
     static final String NSLCM_API_VERION = "v1";

@@ -89,7 +89,7 @@ public class TestAAINotificationProcessor extends TestBase {
         addedCp.setServerProviderId("serverId");
         affectedConnectionPoints.getPost().add(addedCp);
         //when
-        aaiNotificationProcessor.processNotification(recievenNotification, null, of(affectedConnectionPoints), VIM_ID);
+        aaiNotificationProcessor.processNotification(recievenNotification, null, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         InOrder inOrder = Mockito.inOrder(genericVnfManager, l3NetworkManager, lInterfaceManager, vnfcManager, vserverManager);
         inOrder.verify(l3NetworkManager).update(VIM_ID, VNF_ID, addedLink);
@@ -137,7 +137,7 @@ public class TestAAINotificationProcessor extends TestBase {
         affectedConnectionPoints.getPost().add(changedCpAfter);
 
         //when
-        aaiNotificationProcessor.processNotification(recievenNotification, null, of(affectedConnectionPoints), VIM_ID);
+        aaiNotificationProcessor.processNotification(recievenNotification, null, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         verify(lInterfaceManager).update(VNF_ID, VIM_ID, unchangedCp, inMaintenance);
         verify(lInterfaceManager, never()).update(VNF_ID, VIM_ID, changedCpBefore, inMaintenance);
@@ -182,7 +182,7 @@ public class TestAAINotificationProcessor extends TestBase {
         affectedConnectionPoints.getPost().add(cpWithoutServer);
 
         //when
-        aaiNotificationProcessor.processNotification(recievenNotification, null, of(affectedConnectionPoints), VIM_ID);
+        aaiNotificationProcessor.processNotification(recievenNotification, null, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         InOrder inOrder = Mockito.inOrder(genericVnfManager, l3NetworkManager, lInterfaceManager, vnfcManager, vserverManager);
         inOrder.verify(l3NetworkManager).update(VIM_ID, VNF_ID, addedLink);
@@ -212,7 +212,7 @@ public class TestAAINotificationProcessor extends TestBase {
         recievenNotification.setAffectedVirtualLinks(new ArrayList<>());
         recievenNotification.setVnfInstanceId(VNF_ID);
         //when
-        aaiNotificationProcessor.processNotification(recievenNotification, null, empty(), VIM_ID);
+        aaiNotificationProcessor.processNotification(recievenNotification, null, empty(), VIM_ID, VNFM_ID);
         //verify
         verify(logger).warn("The changed connection points are not present in VNF with {} identifier", VNF_ID);
     }

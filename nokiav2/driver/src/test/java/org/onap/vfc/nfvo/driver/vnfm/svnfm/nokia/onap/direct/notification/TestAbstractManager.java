@@ -26,7 +26,6 @@ import org.onap.aai.model.Relationship;
 import org.onap.aai.model.RelationshipData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.slf4j.Logger;
 
@@ -40,7 +39,7 @@ public class TestAbstractManager extends TestBase {
 
     @Before
     public void init() {
-        dummyManager = new DummyManager(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+        dummyManager = new DummyManager(aaiRestApiProvider, cbamRestApiProvider);
     }
 
     /**
@@ -234,8 +233,8 @@ public class TestAbstractManager extends TestBase {
 
     class DummyManager extends AbstractManager {
 
-        DummyManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider, DriverProperties driverProperties) {
-            super(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+        DummyManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider) {
+            super(aaiRestApiProvider, cbamRestApiProvider);
         }
 
         @Override

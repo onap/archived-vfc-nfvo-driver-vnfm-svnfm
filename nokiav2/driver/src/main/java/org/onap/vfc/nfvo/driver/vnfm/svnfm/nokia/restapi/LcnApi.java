@@ -18,6 +18,8 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForSo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForVfc;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,8 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.BASE_URL;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties.LCN_URL;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Constants.BASE_URL;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Constants.LCN_URL;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -40,11 +42,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(value = BASE_URL)
 public class LcnApi {
     private static Logger logger = getLogger(LcnApi.class);
-    private final LifecycleChangeNotificationManager lcnManager;
+    private final LifecycleChangeNotificationManager lifecycleChangeNotificationManagerForSo;
+    private final LifecycleChangeNotificationManager lifecycleChangeNotificationManagerForVfc;
 
     @Autowired
-    LcnApi(LifecycleChangeNotificationManager lcnManager) {
-        this.lcnManager = lcnManager;
+    LcnApi(LifecycleChangeNotificationManagerForSo lifecycleManagerForSo, LifecycleChangeNotificationManagerForVfc lifecycleManagerForVfc) {
+        this.lifecycleChangeNotificationManagerForSo = lifecycleManagerForSo;
+        this.lifecycleChangeNotificationManagerForVfc = lifecycleManagerForVfc;
     }
 
     /**
@@ -66,6 +70,7 @@ public class LcnApi {
     @ResponseStatus(code = NO_CONTENT)
     public void handleLcn(@RequestBody VnfLifecycleChangeNotification lcn) {
         logger.info("REST: handle LCN");
-        lcnManager.handleLcn(lcn);
+        //FIXME fork between where the VNF is managed
+        lifecycleChangeNotificationManagerForVfc.handleLcn(lcn);
     }
 }

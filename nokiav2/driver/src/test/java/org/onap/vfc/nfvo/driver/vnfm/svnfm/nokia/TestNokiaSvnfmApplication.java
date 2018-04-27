@@ -25,11 +25,15 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManagerForSo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.JobManagerForVfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
@@ -38,7 +42,9 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestNokiaSvnfmApplication extends TestBase {
     @Mock
-    private JobManager jobManager;
+    private JobManagerForVfc jobManagerForVfc;
+    @Mock
+    private JobManagerForSo jobManagerForSo;
 
     private NokiaSvnfmApplication.SelfRegistrationTrigger selfRegistrationTriggerer;
     private NokiaSvnfmApplication.SelfDeRegistrationTrigger selfUnregistrationTriggerer;
@@ -46,8 +52,8 @@ public class TestNokiaSvnfmApplication extends TestBase {
 
     @Before
     public void initMocks() throws Exception {
-        selfRegistrationTriggerer = new NokiaSvnfmApplication.SelfRegistrationTrigger(selfRegistrationManager, jobManager);
-        selfUnregistrationTriggerer = new NokiaSvnfmApplication.SelfDeRegistrationTrigger(selfRegistrationManager, jobManager);
+        selfRegistrationTriggerer = new NokiaSvnfmApplication.SelfRegistrationTrigger(selfRegistrationManagerForVfc, selfRegistrationManagerForSo, jobManagerForSo, jobManagerForVfc);
+        selfUnregistrationTriggerer = new NokiaSvnfmApplication.SelfDeRegistrationTrigger(selfRegistrationManagerForVfc, selfRegistrationManagerForSo, jobManagerForSo, jobManagerForVfc);
         setField(NokiaSvnfmApplication.class, "logger", logger);
     }
 
@@ -70,13 +76,14 @@ public class TestNokiaSvnfmApplication extends TestBase {
     public void testRegistrationIsCalledAfterComponentIsUp() throws Exception {
         //given
         ApplicationReadyEvent event = Mockito.mock(ApplicationReadyEvent.class);
+        useVfc(event);
         //when
         selfRegistrationTriggerer.onApplicationEvent(event);
         //verify
         boolean success = false;
         while (!success) {
             try {
-                verify(selfRegistrationManager).register();
+                verify(selfRegistrationManagerForVfc).register();
                 verify(logger).info("Self registration started");
                 verify(logger).info("Self registration finished");
                 success = true;
@@ -89,6 +96,21 @@ public class TestNokiaSvnfmApplication extends TestBase {
         assertTrue(ApplicationReadyEvent.class.isAssignableFrom(event.getClass()));
     }
 
+    private void useVfc(ApplicationReadyEvent event) {
+        ConfigurableApplicationContext context = Mockito.mock(ConfigurableApplicationContext.class);
+        ConfigurableEnvironment environment = Mockito.mock(ConfigurableEnvironment.class);
+        when(context.getEnvironment()).thenReturn(environment);
+        when(event.getApplicationContext()).thenReturn(context);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{});
+    }
+
+    private void useVfc(ContextClosedEvent event) {
+        ApplicationContext context = Mockito.mock(ApplicationContext.class);
+        when(context.getEnvironment()).thenReturn(environment);
+        when(event.getApplicationContext()).thenReturn(context);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{});
+    }
+
     /**
      * Assert that the self de-registration process is started after the servlet has been ramped down
      */
@@ -96,12 +118,14 @@ public class TestNokiaSvnfmApplication extends TestBase {
     public void testUnRegistrationIsCalledAfterComponentIsUp() throws Exception {
         //given
         ContextClosedEvent event = Mockito.mock(ContextClosedEvent.class);
+        useVfc(event);
         //when
         selfUnregistrationTriggerer.onApplicationEvent(event);
         //verify
-        InOrder inOrder = Mockito.inOrder(jobManager, selfRegistrationManager);
-        inOrder.verify(jobManager).prepareForShutdown();
-        inOrder.verify(selfRegistrationManager).deRegister();
+        InOrder inOrder = Mockito.inOrder(jobManagerForVfc, jobManagerForSo, selfRegistrationManagerForVfc);
+        inOrder.verify(jobManagerForVfc).prepareForShutdown();
+        inOrder.verify(jobManagerForSo).prepareForShutdown();
+        inOrder.verify(selfRegistrationManagerForVfc).deRegister();
         verify(logger).info("Self de-registration started");
         verify(logger).info("Self de-registration finished");
         // this forces the event to be fired after the servlet is down (prevents refactor)
@@ -115,11 +139,11 @@ public class TestNokiaSvnfmApplication extends TestBase {
     public void testPreparingForShutdownDoesNotStartRegistration() throws Exception {
         //given
         ApplicationReadyEvent event = Mockito.mock(ApplicationReadyEvent.class);
-        when(jobManager.isPreparingForShutDown()).thenReturn(true);
+        when(jobManagerForVfc.isPreparingForShutDown()).thenReturn(true);
         //when
         selfRegistrationTriggerer.onApplicationEvent(event);
         //verify
-        verify(selfRegistrationManager, never()).register();
+        verify(selfRegistrationManagerForVfc, never()).register();
     }
 
     /**
@@ -129,6 +153,7 @@ public class TestNokiaSvnfmApplication extends TestBase {
     @SuppressWarnings("squid:S2925") //the execution is asynchronous no other way to wait
     public void failedFirstRegistration() {
         //given
+
         Set<RuntimeException> expectedException = new HashSet<>();
         doAnswer(new Answer() {
             @Override
@@ -140,8 +165,9 @@ public class TestNokiaSvnfmApplication extends TestBase {
                 }
                 return null;
             }
-        }).when(selfRegistrationManager).register();
+        }).when(selfRegistrationManagerForVfc).register();
         ApplicationReadyEvent event = Mockito.mock(ApplicationReadyEvent.class);
+        useVfc(event);
         //when
         selfRegistrationTriggerer.onApplicationEvent(event);
         //verify
@@ -167,8 +193,9 @@ public class TestNokiaSvnfmApplication extends TestBase {
     public void failedDeRegistration() {
         //given
         RuntimeException expectedException = new RuntimeException();
-        Mockito.doThrow(expectedException).when(selfRegistrationManager).deRegister();
+        Mockito.doThrow(expectedException).when(selfRegistrationManagerForVfc).deRegister();
         ContextClosedEvent event = Mockito.mock(ContextClosedEvent.class);
+        useVfc(event);
         //when
         try {
             selfUnregistrationTriggerer.onApplicationEvent(event);

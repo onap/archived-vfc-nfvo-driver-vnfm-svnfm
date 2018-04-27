@@ -51,7 +51,6 @@ import static java.nio.file.Files.readAllBytes;
 import static java.util.Optional.empty;
 
 import static junit.framework.TestCase.*;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.child;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;

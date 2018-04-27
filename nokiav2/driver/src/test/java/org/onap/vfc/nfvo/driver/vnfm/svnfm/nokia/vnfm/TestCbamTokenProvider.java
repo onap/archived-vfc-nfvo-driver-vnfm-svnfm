@@ -26,13 +26,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.onap.vnfmdriver.model.VnfmInfo;
 import org.springframework.http.HttpStatus;
 
 import static junit.framework.TestCase.*;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestCbamTokenProvider extends TestBase {
@@ -40,7 +37,6 @@ public class TestCbamTokenProvider extends TestBase {
     private static String GOOD_RESPONSE = "{ \"access_token\" : \"myToken\", \"expires_in\" : 1000 }";
     @InjectMocks
     private CbamTokenProvider cbamTokenProvider;
-    private VnfmInfo vnfmInfo = new VnfmInfo();
     private HttpTestServer testServer;
 
     public static String extractToken(Interceptor token) throws IOException {
@@ -56,18 +52,13 @@ public class TestCbamTokenProvider extends TestBase {
     @Before
     public void initMocks() throws Exception {
         setField(CbamTokenProvider.class, "logger", logger);
-        setField(cbamTokenProvider, "username", "myUserName");
-        setField(cbamTokenProvider, "password", "myPassword");
         setField(cbamTokenProvider, "skipCertificateVerification", true);
         setField(cbamTokenProvider, "skipHostnameVerification", true);
         when(vnfmInfoProvider.getVnfmInfo(VNFM_ID)).thenReturn(vnfmInfo);
-        vnfmInfo.setPassword("vnfmPassword");
-        vnfmInfo.setUserName("vnfmUserName");
-        vnfmInfo.setUrl("http://127.0.0.3:12345");
         testServer = new HttpTestServer();
         testServer.start();
         URI uri = testServer._server.getURI();
-        setField(cbamTokenProvider, "cbamKeyCloakBaseUrl", uri.toString());
+        vnfmInfo.setUrl(vnfmInfo.getUrl().replace(HTTP_AUTH_URL, uri.toString()));
     }
 
     private void addGoodTokenResponse() {
@@ -203,9 +194,9 @@ public class TestCbamTokenProvider extends TestBase {
 
     private void assertTokenRequest(String body) {
         assertContains(body, "grant_type", "password");
-        assertContains(body, "client_id", "vnfmUserName");
-        assertContains(body, "client_secret", "vnfmPassword");
-        assertContains(body, "username", "myUserName");
+        assertContains(body, "client_id", "myClientId");
+        assertContains(body, "client_secret", "myClientSecret");
+        assertContains(body, "username", "myUsername");
         assertContains(body, "password", "myPassword");
     }
 

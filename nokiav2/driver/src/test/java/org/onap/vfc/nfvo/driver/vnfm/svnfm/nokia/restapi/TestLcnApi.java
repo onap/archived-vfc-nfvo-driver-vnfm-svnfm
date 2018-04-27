@@ -19,10 +19,10 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 import com.nokia.cbam.lcm.v32.model.VnfLifecycleChangeNotification;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForSo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForVfc;
 
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -33,13 +33,16 @@ public class TestLcnApi extends TestBase {
     @Mock
     private VnfLifecycleChangeNotification lcn;
     @Mock
-    private LifecycleChangeNotificationManager lcnManager;
-    @InjectMocks
+    private LifecycleChangeNotificationManagerForVfc lifecycleChangeNotificationManagerForVfc;
+    @Mock
+    private LifecycleChangeNotificationManagerForSo lifecycleChangeNotificationManagerForSo;
+
     private LcnApi lcnApi;
 
     @Before
     public void initMocks() throws Exception {
         setField(LcnApi.class, "logger", logger);
+        lcnApi = new LcnApi(lifecycleChangeNotificationManagerForSo, lifecycleChangeNotificationManagerForVfc);
     }
 
     /**
@@ -59,7 +62,7 @@ public class TestLcnApi extends TestBase {
         //when
         lcnApi.handleLcn(lcn);
         //verify
-        verify(lcnManager).handleLcn(lcn);
+        verify(lifecycleChangeNotificationManagerForVfc).handleLcn(lcn);
         verify(logger).info("REST: handle LCN");
     }
 }

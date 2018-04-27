@@ -35,8 +35,6 @@ import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfInfo;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
 import static java.lang.Integer.parseInt;
@@ -60,7 +58,6 @@ import static org.springframework.util.StringUtils.isEmpty;
 /**
  * Responsible for executing lifecycle operation on the VNF
  */
-@Component
 public class LifecycleManager {
     public static final String ONAP_CSAR_ID = "onapCsarId";
     public static final long OPERATION_STATUS_POLLING_INTERVAL_IN_MS = 5000L;
@@ -82,7 +79,6 @@ public class LifecycleManager {
      */
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    @Autowired
     LifecycleManager(CatalogManager catalogManager, IGrantManager grantManager, CbamRestApiProvider restApiProvider, VimInfoProvider vimInfoProvider, JobManager jobManager, ILifecycleChangeNotificationManager notificationManager) {
         this.vimInfoProvider = vimInfoProvider;
         this.grantManager = grantManager;

@@ -71,6 +71,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         healOperation.setId("healOperaitonExecutionId");
         healOperation.setOperationType(OperationType.HEAL);
         recievedLcn.setLifecycleOperationOccurrenceId("instantiationOperationExecutionId");
+        recievedLcn.setSubscriptionId(SUBCRIPTION_ID);
         healOperation.setStartTime(OffsetDateTime.now().plusDays(1));
         recievedLcn.setVnfInstanceId(VNF_ID);
         when(vnfApi.vnfsVnfInstanceIdOperationExecutionsGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(operationExecutions));
@@ -78,7 +79,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         prepOperation(scaleOperation);
         prepOperation(healOperation);
         prepOperation(terminationOperation);
-        doNothing().when(notificationSender).processNotification(eq(recievedLcn), currentOperationExecution.capture(), affectedConnectionPoints.capture(), eq(VIM_ID));
+        doNothing().when(notificationSender).processNotification(eq(recievedLcn), currentOperationExecution.capture(), affectedConnectionPoints.capture(), eq(VIM_ID), eq(VNFM_ID));
         InstantiateVnfRequest instantiateVnfRequest = new InstantiateVnfRequest();
         VimInfo vimInfo = new VimInfo();
         vimInfo.setId(VIM_ID);
@@ -341,6 +342,7 @@ public class TestLifecycleChangeNotificationManager extends TestBase {
         //given
         //add an non processed notification
         VnfLifecycleChangeNotification nonProcessedEvent = new VnfLifecycleChangeNotification();
+        nonProcessedEvent.setSubscriptionId(SUBCRIPTION_ID);
         nonProcessedEvent.setStatus(OperationStatus.FINISHED);
         nonProcessedEvent.setOperation(OperationType.TERMINATE);
         OperationExecution secondTerminationOperationExecution = new OperationExecution();

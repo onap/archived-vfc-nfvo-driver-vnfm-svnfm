@@ -42,8 +42,6 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 import static junit.framework.TestCase.*;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -62,7 +60,7 @@ public class TestVfcNotificationSender extends TestBase {
 
     @Before
     public void init() throws Exception {
-        vfcNotificationSender = new VfcNotificationSender(driverProperties, vfcRestApiProvider);
+        vfcNotificationSender = new VfcNotificationSender(vfcRestApiProvider);
         setField(VfcNotificationSender.class, "logger", logger);
         when(nsLcmApi.vNFLCMNotification(eq(VNFM_ID), eq(VNF_ID), sentLcnToVfc.capture())).thenReturn(null);
         instantiationOperation.setId("instantiationOperationExecutionId");
@@ -114,7 +112,7 @@ public class TestVfcNotificationSender extends TestBase {
         recievedLcn.setStatus(OperationStatus.STARTED);
         recievedLcn.setOperation(OperationType.INSTANTIATE);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, empty(), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, empty(), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
         assertNull(sentLcnToVfc.getValue().getAffectedVl());
@@ -188,7 +186,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, of(affectedConnectionPoints), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -271,7 +269,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, of(affectedConnectionPoints), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -352,7 +350,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, terminationOperation, of(affectedConnectionPoints), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, terminationOperation, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -473,7 +471,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, healOperation, of(affectedConnectionPoints), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, healOperation, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -585,7 +583,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         scaleOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, of(affectedConnectionPoints), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -698,7 +696,7 @@ public class TestVfcNotificationSender extends TestBase {
         scaleOperation.setAdditionalData(additionalData);
         scaleOperation.setOperationType(OperationType.SCALE);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, of(affectedConnectionPoints), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -762,7 +760,7 @@ public class TestVfcNotificationSender extends TestBase {
         scaleOperation.setOperationType(OperationType.SCALE);
         when(logger.isInfoEnabled()).thenReturn(false);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, empty(), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, scaleOperation, empty(), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -821,7 +819,7 @@ public class TestVfcNotificationSender extends TestBase {
         JsonElement additionalData = new Gson().toJsonTree(operationResult);
         instantiationOperation.setAdditionalData(additionalData);
         //when
-        vfcNotificationSender.processNotification(recievedLcn, healOperation, of(affectedConnectionPoints), VIM_ID);
+        vfcNotificationSender.processNotification(recievedLcn, healOperation, of(affectedConnectionPoints), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
@@ -846,7 +844,7 @@ public class TestVfcNotificationSender extends TestBase {
         recievedLcn.setOperation(OperationType.INSTANTIATE);
         //when
         try {
-            vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, empty(), VIM_ID);
+            vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, empty(), VIM_ID, VNFM_ID);
             //verify
             fail();
         } catch (Exception e) {
