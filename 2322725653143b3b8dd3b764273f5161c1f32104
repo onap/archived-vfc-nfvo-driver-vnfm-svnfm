@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_397a7f88",
+        "filename": "nokia/vnfmdriver/vfcadaptorservice/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 2763
+      },
+      "writtenOn": "2018-04-30T04:53:45Z",
+      "side": 1,
+      "message": "This is not correct place to declare the VOLUME, its causing the data from /var/lib/mysql to erase and creating issues even in single node cluster.",
+      "range": {
+        "startLine": 11,
+        "startChar": 12,
+        "endLine": 11,
+        "endChar": 15
+      },
+      "revId": "2322725653143b3b8dd3b764273f5161c1f32104",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_d96cbbd2",
+        "filename": "nokia/vnfmdriver/vfcadaptorservice/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 2763
+      },
+      "writtenOn": "2018-04-30T04:53:45Z",
+      "side": 1,
+      "message": "VOLUME should be declared after this line.",
+      "range": {
+        "startLine": 32,
+        "startChar": 19,
+        "endLine": 32,
+        "endChar": 20
+      },
+      "revId": "2322725653143b3b8dd3b764273f5161c1f32104",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
