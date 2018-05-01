@@ -8,7 +8,6 @@
 
 FROM centos:7
 
-VOLUME /var/lib/mysql
 
 RUN sed -i 's/enabled=1/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf
 RUN sed -i 's|#baseurl=http://mirror.centos.org/centos|baseurl=http://mirrors.ocf.berkeley.edu/centos|' /etc/yum.repos.d/*.repo
@@ -27,6 +26,8 @@ RUN wget -q http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm && rp
 RUN yum -y update
 RUN yum -y install -y mysql-server
 RUN mysql_install_db --user=mysql --datadir=/var/lib/mysql
+
+VOLUME /var/lib/mysql
 EXPOSE 3306
 RUN sed -i "s|bind-address.*|# bind-address = 127.0.0.1|" /etc/my.cnf
 COPY init-mysql.sh .
