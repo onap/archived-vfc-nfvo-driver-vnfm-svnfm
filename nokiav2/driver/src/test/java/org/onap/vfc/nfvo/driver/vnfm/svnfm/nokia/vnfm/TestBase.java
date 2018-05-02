@@ -59,13 +59,16 @@ import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vnfmdriver.api.NslcmApi;
 import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 import retrofit2.Call;
 import retrofit2.Response;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
@@ -264,5 +267,12 @@ public class TestBase {
         public Observable<Void> value() {
             return s;
         }
+    }
+
+    protected void assertBean(Class<?> clazz){
+        assertEquals(1, clazz.getDeclaredConstructors().length);
+        Autowired annotation = clazz.getDeclaredConstructors()[0].getAnnotation(Autowired.class);
+        assertNotNull(annotation);
+        assertNotNull(clazz.getAnnotation(Component.class));
     }
 }

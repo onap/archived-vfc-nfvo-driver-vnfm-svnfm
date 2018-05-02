@@ -160,7 +160,7 @@ public class CatalogManager {
         }
     }
 
-    private boolean isPackageReplicatedToCbam(String cbamVnfdId, DefaultApi cbamCatalogApi) throws IOException {
+    private boolean isPackageReplicatedToCbam(String cbamVnfdId, DefaultApi cbamCatalogApi) {
         for (CatalogAdapterVnfpackage vnfPackage : cbamCatalogApi.list().blockingFirst()) {
             if (vnfPackage.getVnfdId().equals(cbamVnfdId)) {
                 return true;

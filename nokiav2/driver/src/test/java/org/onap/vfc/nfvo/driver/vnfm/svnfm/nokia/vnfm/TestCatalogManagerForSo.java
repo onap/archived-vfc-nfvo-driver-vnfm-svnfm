@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.SdcPackageProvider;
 
-/**
- * Common constants
- */
-public class Constants {
+import static junit.framework.TestCase.assertNotNull;
 
-    public static final String BASE_SUFFIX = "/" + SelfRegistrationManager.SERVICE_NAME + "/v1";
-    public static final String BASE_URL = "/api" + BASE_SUFFIX;
-    public static final String LCN_URL = "/lcn";
-
-    private Constants(){
-        //use in static way
+public class TestCatalogManagerForSo extends TestBase{
+    /**
+     * Test bean
+     */
+    @Test
+    public void testPojo(){
+        SdcPackageProvider sdcPackageProvider = Mockito.mock(SdcPackageProvider.class);
+        CatalogManagerForSo catalogManagerForSo = new CatalogManagerForSo(cbamRestApiProviderForSo, sdcPackageProvider);
+        assertNotNull(catalogManagerForSo);
+        assertBean(JobManagerForVfc.class);
     }
 }

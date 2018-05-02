@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Responsible for executing lifecycle operation on the VNF
+ * Responsible for executing lifecycle operation on the VNF operated by SO
  */
 @Component
 public class LifecycleManagerForSo extends LifecycleManager {

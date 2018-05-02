@@ -68,6 +68,7 @@ public class VnfmCredentials {
     }
 
     @Override
+    @SuppressWarnings("squid:S2068") //the password is hashed
     public String toString() {
         return "VnfmCredentials{" +
                 "username='" + username + '\'' +

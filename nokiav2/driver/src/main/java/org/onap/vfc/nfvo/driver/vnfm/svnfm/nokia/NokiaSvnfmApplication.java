@@ -55,10 +55,6 @@ public class NokiaSvnfmApplication {
         systemFunctions().newSpringApplication(NokiaSvnfmApplication.class).run(args);
     }
 
-    private static boolean isDirect(ConfigurableApplicationContext applicationContext) {
-        return newHashSet(applicationContext.getEnvironment().getActiveProfiles()).contains("direct");
-    }
-
     /**
      * Responsible for starting the self registration process after the servlet has been started
      * and is ready to answer REST request
@@ -104,7 +100,8 @@ public class NokiaSvnfmApplication {
                 return true;
             };
             executorService.submit(() -> {
-                while (!jobManagerForVfc.isPreparingForShutDown() && !jobManagerForSo.isPreparingForShutDown()) {
+                boolean notPrepareForShutDown = !jobManagerForVfc.isPreparingForShutDown() && !jobManagerForSo.isPreparingForShutDown();
+                while (notPrepareForShutDown) {
                     try {
                         executorService.submit(singleRegistration).get();
                         //registration successful
@@ -112,9 +109,15 @@ public class NokiaSvnfmApplication {
                     } catch (Exception e) {
                         logger.warn("Unable to execute self registration process", e);
                     }
+
                     systemFunctions().sleep(5000);
                 }
+                logger.warn("Component is preparing for shutdown giving up component start");
             });
+        }
+
+        private static boolean isDirect(ConfigurableApplicationContext applicationContext) {
+            return newHashSet(applicationContext.getEnvironment().getActiveProfiles()).contains("direct");
         }
 
     }

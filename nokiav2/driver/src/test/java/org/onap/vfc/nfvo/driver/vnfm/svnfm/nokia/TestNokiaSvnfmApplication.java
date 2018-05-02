@@ -96,6 +96,155 @@ public class TestNokiaSvnfmApplication extends TestBase {
         assertTrue(ApplicationReadyEvent.class.isAssignableFrom(event.getClass()));
     }
 
+    /**
+     * Assert that the self registration process is started after the servlet is up and is able to answer REST requests.
+     */
+    @Test
+    @SuppressWarnings("squid:S2925") //the execution is asynchronous no other way to wait
+    public void testRegistrationIsNotCalledIfPreparingForShutdown() throws Exception {
+        //given
+        ApplicationReadyEvent event = Mockito.mock(ApplicationReadyEvent.class);
+        useSo(event);
+        when(jobManagerForSo.isPreparingForShutDown()).thenReturn(true);
+        //when
+        selfRegistrationTriggerer.onApplicationEvent(event);
+        //verify
+        boolean success = false;
+        while (!success) {
+            try {
+                verify(logger).warn("Component is preparing for shutdown giving up component start");
+                success = true;
+            } catch (Error e) {
+
+            }
+            Thread.sleep(10);
+        }
+        verify(selfRegistrationManagerForSo, never()).register();
+        // this forces the event to be fired after the servlet is up (prevents refactor)
+        assertTrue(ApplicationReadyEvent.class.isAssignableFrom(event.getClass()));
+    }
+
+
+    /**
+     * Assert that the self registration process is started after the servlet is up and is able to answer REST requests.
+     */
+    @Test
+    @SuppressWarnings("squid:S2925") //the execution is asynchronous no other way to wait
+    public void testRegistrationIsCalledAfterComponentIsUpForSo() throws Exception {
+        //given
+        ApplicationReadyEvent event = Mockito.mock(ApplicationReadyEvent.class);
+        useSo(event);
+        //when
+        selfRegistrationTriggerer.onApplicationEvent(event);
+        //verify
+        boolean success = false;
+        while (!success) {
+            try {
+                verify(selfRegistrationManagerForSo).register();
+                verify(logger).info("Self registration started");
+                verify(logger).info("Self registration finished");
+                success = true;
+            } catch (Error e) {
+
+            }
+            Thread.sleep(10);
+        }
+        // this forces the event to be fired after the servlet is up (prevents refactor)
+        assertTrue(ApplicationReadyEvent.class.isAssignableFrom(event.getClass()));
+    }
+
+    /**
+     * Failuires in the self registration process is retried for SO
+     */
+    @Test
+    @SuppressWarnings("squid:S2925") //the execution is asynchronous no other way to wait
+    public void testFailuresInRegistrationIsRetriedForSo() throws Exception {
+        //given
+        ApplicationReadyEvent event = Mockito.mock(ApplicationReadyEvent.class);
+        RuntimeException e2 = new RuntimeException();
+        useSo(event);
+        Set<Boolean> calls = new HashSet<>();
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                if(calls.size() == 0){
+                    calls.add(true);
+                    throw e2;
+                }
+                return null;
+            }
+        }).when(selfRegistrationManagerForSo).register();
+        //when
+        selfRegistrationTriggerer.onApplicationEvent(event);
+        //verify
+        boolean success = false;
+        while (!success) {
+            try {
+                verify(logger).info("Self registration finished");
+                success = true;
+            } catch (Error e) {
+
+            }
+            Thread.sleep(10);
+        }
+        verify(selfRegistrationManagerForSo, times(2)).register();
+        verify(systemFunctions).sleep(5000);
+        verify(logger, times(2)).info("Self registration started");
+        verify(logger).error("Self registration failed", e2);
+        // this forces the event to be fired after the servlet is up (prevents refactor)
+        assertTrue(ApplicationReadyEvent.class.isAssignableFrom(event.getClass()));
+    }
+
+    /**
+     * Failuires in the self registration process is retried for VFC
+     */
+    @Test
+    @SuppressWarnings("squid:S2925") //the execution is asynchronous no other way to wait
+    public void testFailuresInRegistrationIsRetriedForVfc() throws Exception {
+        //given
+        ApplicationReadyEvent event = Mockito.mock(ApplicationReadyEvent.class);
+        RuntimeException e2 = new RuntimeException();
+        useVfc(event);
+        Set<Boolean> calls = new HashSet<>();
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                if(calls.size() == 0){
+                    calls.add(true);
+                    throw e2;
+                }
+                return null;
+            }
+        }).when(selfRegistrationManagerForVfc).register();
+        //when
+        selfRegistrationTriggerer.onApplicationEvent(event);
+        //verify
+        boolean success = false;
+        while (!success) {
+            try {
+                verify(logger).info("Self registration finished");
+                success = true;
+            } catch (Error e) {
+
+            }
+            Thread.sleep(10);
+        }
+        verify(selfRegistrationManagerForVfc, times(2)).register();
+        verify(systemFunctions).sleep(5000);
+        verify(logger, times(2)).info("Self registration started");
+        verify(logger).error("Self registration failed", e2);
+        // this forces the event to be fired after the servlet is up (prevents refactor)
+        assertTrue(ApplicationReadyEvent.class.isAssignableFrom(event.getClass()));
+    }
+
+    private void useSo(ApplicationReadyEvent event) {
+        ConfigurableApplicationContext context = Mockito.mock(ConfigurableApplicationContext.class);
+        ConfigurableEnvironment environment = Mockito.mock(ConfigurableEnvironment.class);
+        when(context.getEnvironment()).thenReturn(environment);
+        when(event.getApplicationContext()).thenReturn(context);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"direct"});
+    }
+
     private void useVfc(ApplicationReadyEvent event) {
         ConfigurableApplicationContext context = Mockito.mock(ConfigurableApplicationContext.class);
         ConfigurableEnvironment environment = Mockito.mock(ConfigurableEnvironment.class);
@@ -109,6 +258,13 @@ public class TestNokiaSvnfmApplication extends TestBase {
         when(context.getEnvironment()).thenReturn(environment);
         when(event.getApplicationContext()).thenReturn(context);
         when(environment.getActiveProfiles()).thenReturn(new String[]{});
+    }
+
+    private void useSo(ContextClosedEvent event) {
+        ApplicationContext context = Mockito.mock(ApplicationContext.class);
+        when(context.getEnvironment()).thenReturn(environment);
+        when(event.getApplicationContext()).thenReturn(context);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"direct"});
     }
 
     /**
@@ -126,6 +282,27 @@ public class TestNokiaSvnfmApplication extends TestBase {
         inOrder.verify(jobManagerForVfc).prepareForShutdown();
         inOrder.verify(jobManagerForSo).prepareForShutdown();
         inOrder.verify(selfRegistrationManagerForVfc).deRegister();
+        verify(logger).info("Self de-registration started");
+        verify(logger).info("Self de-registration finished");
+        // this forces the event to be fired after the servlet is down (prevents refactor)
+        assertTrue(ContextClosedEvent.class.isAssignableFrom(event.getClass()));
+    }
+
+    /**
+     * Assert that the self de-registration process is started after the servlet has been ramped down
+     */
+    @Test
+    public void testUnRegistrationIsCalledAfterComponentIsUpForSo() throws Exception {
+        //given
+        ContextClosedEvent event = Mockito.mock(ContextClosedEvent.class);
+        useSo(event);
+        //when
+        selfUnregistrationTriggerer.onApplicationEvent(event);
+        //verify
+        InOrder inOrder = Mockito.inOrder(jobManagerForVfc, jobManagerForSo, selfRegistrationManagerForSo);
+        inOrder.verify(jobManagerForVfc).prepareForShutdown();
+        inOrder.verify(jobManagerForSo).prepareForShutdown();
+        inOrder.verify(selfRegistrationManagerForSo).deRegister();
         verify(logger).info("Self de-registration started");
         verify(logger).info("Self de-registration finished");
         // this forces the event to be fired after the servlet is down (prevents refactor)
@@ -151,9 +328,9 @@ public class TestNokiaSvnfmApplication extends TestBase {
      */
     @Test
     @SuppressWarnings("squid:S2925") //the execution is asynchronous no other way to wait
+
     public void failedFirstRegistration() {
         //given
-
         Set<RuntimeException> expectedException = new HashSet<>();
         doAnswer(new Answer() {
             @Override

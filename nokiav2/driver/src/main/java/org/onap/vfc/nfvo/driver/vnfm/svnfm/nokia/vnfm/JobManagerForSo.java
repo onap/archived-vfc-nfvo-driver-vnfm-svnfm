@@ -20,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
+/**
+ * Responsible for providing jobs for SO
+ */
 @Component
 public class JobManagerForSo extends JobManager {
 

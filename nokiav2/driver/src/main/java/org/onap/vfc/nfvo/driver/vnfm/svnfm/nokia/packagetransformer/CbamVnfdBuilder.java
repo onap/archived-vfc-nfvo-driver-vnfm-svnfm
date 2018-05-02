@@ -27,6 +27,8 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.child;
  */
 public class CbamVnfdBuilder {
 
+    public static final String DEFAULT = "default";
+
     /**
      * @param cbamVnfdContent the original CBAM VNFD
      * @return the modified content CBAM VNFD
@@ -36,11 +38,11 @@ public class CbamVnfdBuilder {
         JsonObject substitutionMappings = child(child(root, "topology_template"), "substitution_mappings");
         JsonObject extensions = addChild(addChild(addChild(addChild(addChild(substitutionMappings, "capabilities"), "vnf"), "properties"), "modifiable_attributes"), "extensions");
         JsonObject onapCsarId = addChild(extensions, "onapCsarId");
-        onapCsarId.add("default", new JsonPrimitive("kuku"));
+        onapCsarId.add(DEFAULT, new JsonPrimitive("kuku"));
         JsonObject externalVnfmId = addChild(extensions, "externalVnfmId");
-        externalVnfmId.add("default", new JsonPrimitive("kuku"));
+        externalVnfmId.add(DEFAULT, new JsonPrimitive("kuku"));
         JsonObject vimId = addChild(extensions, "vimId");
-        vimId.add("default", new JsonPrimitive("kuku"));
+        vimId.add(DEFAULT, new JsonPrimitive("kuku"));
         JsonObject interfaces = child(substitutionMappings, "interfaces");
         JsonObject basic = addChild(interfaces, "Basic");
         addOperationParams(addChild(basic, "instantiate"));
