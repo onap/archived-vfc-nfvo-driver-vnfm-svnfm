@@ -50,12 +50,14 @@ import org.onap.msb.api.ServiceResourceApi;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManagerForSo;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManagerForVfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AaiSecurityProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vnfmdriver.api.NslcmApi;
+import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -66,6 +68,7 @@ import retrofit2.Response;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager.getFileInZip;
 
 
@@ -77,9 +80,18 @@ public class TestBase {
     public static final String VIM_ID = "myCloudOwnerId_myRegionName";
     public static final String JOB_ID = "myJobId";
     public static final String CBAM_VNFD_ID = "cbamVnfdId";
+    public static final String HTTP_AUTH_URL = "http://authurl/";
+    public static final String HTTP_LCM_URL = "http://lcmurl/";
+    public static final String HTTP_LCN_URL = "http://lcnurl/";
+    public static final String HTTP_CATLOG_URL = "http://catlogurl/";
+    public static final String SUBCRIPTION_ID = "subcriptionId";
     protected static VoidObservable VOID_OBSERVABLE = new VoidObservable();
     @Mock
     protected CbamRestApiProvider cbamRestApiProvider;
+    @Mock
+    protected CbamRestApiProviderForSo cbamRestApiProviderForSo;
+    @Mock
+    protected CbamRestApiProviderForVfc cbamRestApiProviderForVfc;
     @Mock
     protected VfcRestApiProvider vfcRestApiProvider;
     @Mock
@@ -93,7 +105,9 @@ public class TestBase {
     @Mock
     protected OperationExecutionsApi operationExecutionApi;
     @Mock
-    protected SelfRegistrationManager selfRegistrationManager;
+    protected SelfRegistrationManagerForVfc selfRegistrationManagerForVfc;
+    @Mock
+    protected SelfRegistrationManagerForSo selfRegistrationManagerForSo;
     @Mock
     protected Logger logger;
     @Mock
@@ -101,7 +115,7 @@ public class TestBase {
     @Mock
     protected ServiceResourceApi msbClient;
     @Mock
-    protected DriverProperties driverProperties;
+    protected Constants driverProperties;
     @Mock
     protected NslcmApi nsLcmApi;
     @Mock
@@ -123,6 +137,8 @@ public class TestBase {
     protected HttpServletResponse httpResponse;
     @Mock
     protected Environment environment;
+
+    protected VnfmInfo vnfmInfo = new VnfmInfo();
 
     protected static <T> Call<T> buildCall(T response) {
         Call<T> call = Mockito.mock(Call.class);
@@ -146,18 +162,34 @@ public class TestBase {
         when(cbamRestApiProvider.getCbamOperationExecutionApi(VNFM_ID)).thenReturn(operationExecutionApi);
         when(cbamRestApiProvider.getCbamLcnApi(VNFM_ID)).thenReturn(lcnApi);
         when(cbamRestApiProvider.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
+        when(cbamRestApiProviderForSo.getCbamLcmApi(VNFM_ID)).thenReturn(vnfApi);
+        when(cbamRestApiProviderForSo.getCbamOperationExecutionApi(VNFM_ID)).thenReturn(operationExecutionApi);
+        when(cbamRestApiProviderForSo.getCbamLcnApi(VNFM_ID)).thenReturn(lcnApi);
+        when(cbamRestApiProviderForSo.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
+
+        when(cbamRestApiProviderForVfc.getCbamLcmApi(VNFM_ID)).thenReturn(vnfApi);
+        when(cbamRestApiProviderForVfc.getCbamOperationExecutionApi(VNFM_ID)).thenReturn(operationExecutionApi);
+        when(cbamRestApiProviderForVfc.getCbamLcnApi(VNFM_ID)).thenReturn(lcnApi);
+        when(cbamRestApiProviderForVfc.getCbamCatalogApi(VNFM_ID)).thenReturn(cbamCatalogApi);
+
         when(msbApiProvider.getMsbApi()).thenReturn(msbClient);
         when(vfcRestApiProvider.getNsLcmApi()).thenReturn(nsLcmApi);
         when(vfcRestApiProvider.getVfcCatalogApi()).thenReturn(vfcCatalogApi);
         when(systemFunctions.getHttpClient()).thenReturn(httpClient);
         when(httpClient.execute(request.capture())).thenReturn(response);
         when(response.getEntity()).thenReturn(entity);
-        when(driverProperties.getVnfmId()).thenReturn(VNFM_ID);
         when(systemFunctions.getHttpClient()).thenReturn(httpClient);
         when(logger.isInfoEnabled()).thenReturn(true);
         when(logger.isDebugEnabled()).thenReturn(true);
         when(logger.isWarnEnabled()).thenReturn(true);
         when(logger.isErrorEnabled()).thenReturn(true);
+        when(vnfmInfoProvider.getVnfmInfo(VNFM_ID)).thenReturn(vnfmInfo);
+        vnfmInfo.setUrl(HTTP_AUTH_URL + SEPARATOR + HTTP_LCM_URL + SEPARATOR + HTTP_LCN_URL + SEPARATOR + HTTP_CATLOG_URL);
+        vnfmInfo.setUserName("myUsername" + SEPARATOR + "myClientId");
+        vnfmInfo.setPassword("myPassword" + SEPARATOR + "myClientSecret");
+        when(selfRegistrationManagerForSo.getVnfmId(SUBCRIPTION_ID)).thenReturn(VNFM_ID);
+        when(selfRegistrationManagerForVfc.getVnfmId(SUBCRIPTION_ID)).thenReturn(VNFM_ID);
+
     }
 
     @After
@@ -215,7 +247,7 @@ public class TestBase {
         throw new NoSuchElementException("The " + obj.getClass() + " does not have a filed with " + key + " annotation");
     }
 
-    protected static class VoidObservable {
+    public static class VoidObservable {
         boolean called = false;
         ObservableFromCallable<Void> s = new ObservableFromCallable(new Callable() {
             @Override

@@ -23,12 +23,11 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 import okhttp3.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.VnfmCredentials;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.VnfmUrls;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
-import org.onap.vnfmdriver.model.VnfmInfo;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -38,7 +37,6 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 /**
  * Responsible for providing a token to access CBAM APIs
  */
-@Component
 //even if the value for grant type an user password is the same they do not mean the same thing
 //the duplication of this is intentional
 @SuppressWarnings("squid:S1192")
@@ -49,15 +47,8 @@ public class CbamTokenProvider extends CbamSecurityProvider {
     private static final String CBAM_TOKEN_URL = "realms/cbam/protocol/openid-connect/token";
     private static Logger logger = getLogger(CbamTokenProvider.class);
     private final VnfmInfoProvider vnfmInfoProvider;
-    @Value("${cbamKeyCloakBaseUrl}")
-    private String cbamKeyCloakBaseUrl;
-    @Value("${cbamUsername}")
-    private String username;
-    @Value("${cbamPassword}")
-    private String password;
     private volatile CurrentToken token;
 
-    @Autowired
     CbamTokenProvider(VnfmInfoProvider vnfmInfoProvider) {
         this.vnfmInfoProvider = vnfmInfoProvider;
     }
@@ -66,11 +57,10 @@ public class CbamTokenProvider extends CbamSecurityProvider {
      * @return the token to access CBAM APIs (ex. 123456)
      */
     public Interceptor getToken(String vnfmId) {
-        VnfmInfo vnfmInfo = vnfmInfoProvider.getVnfmInfo(vnfmId);
-        return new OauthInterceptor(getToken(vnfmInfo.getUserName(), vnfmInfo.getPassword()));
+        return new OauthInterceptor(getTokenInternal(vnfmId));
     }
 
-    private String getToken(String clientId, String clientSecret) {
+    private String getTokenInternal(String vnfmId) {
         logger.trace("Requesting token for accessing CBAM API");
         synchronized (this) {
             long now = SystemFunctions.systemFunctions().currentTimeMillis();
@@ -80,7 +70,7 @@ public class CbamTokenProvider extends CbamSecurityProvider {
                 } else {
                     logger.debug("Token expired {} ms ago", (now - token.refreshAfter));
                 }
-                refresh(clientId, clientSecret);
+                refresh(vnfmId);
             } else {
                 logger.debug("Token will expire in {} ms", (now - token.refreshAfter));
             }
@@ -88,13 +78,17 @@ public class CbamTokenProvider extends CbamSecurityProvider {
         return token.token.accessToken;
     }
 
-    private void refresh(String clientId, String clientSecret) {
+    private void refresh(String vnfmId) {
+        VnfmUrls vnfmUrls = GenericExternalSystemInfoProvider.convert(vnfmInfoProvider.getVnfmInfo(vnfmId));
+        VnfmCredentials vnfmCredentials = GenericExternalSystemInfoProvider.convertToCredentials(vnfmInfoProvider.getVnfmInfo(vnfmId));
+
         FormBody body = new FormBody.Builder()
                 .add("grant_type", GRANT_TYPE)
-                .add("client_id", clientId)
-                .add("client_secret", clientSecret)
-                .add("username", username)
-                .add(CLIENT_SECRET, password).build();
+                .add("client_id", vnfmCredentials.getClientId())
+                .add("client_secret", vnfmCredentials.getClientSecret())
+                .add("username", vnfmCredentials.getUsername())
+                .add(CLIENT_SECRET, vnfmCredentials.getPassword()).build();
+        String cbamKeyCloakBaseUrl = vnfmUrls.getAuthUrl();
         Request request = new Request.Builder().url(cbamKeyCloakBaseUrl + CBAM_TOKEN_URL).addHeader(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE).post(body).build();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         SSLSocketFactory sslSocketFac = buildSSLSocketFactory();

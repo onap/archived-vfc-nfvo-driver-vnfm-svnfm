@@ -25,13 +25,13 @@ import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import com.nokia.cbam.lcm.v32.model.VnfcResourceInfo;
 import java.util.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManagerForVfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProviderForVfc;
 import org.onap.vnfmdriver.model.*;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
@@ -46,7 +46,6 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Responsible for handling granting before the execution of a VNF operation
  */
 @Component
-@Conditional(value = Conditions.UseForVfc.class)
 public class VfcGrantManager implements IGrantManager {
     private static Logger logger = getLogger(VfcGrantManager.class);
     private final CatalogManager catalogManager;
@@ -54,7 +53,7 @@ public class VfcGrantManager implements IGrantManager {
     private final VfcRestApiProvider vfcRestApiProvider;
 
     @Autowired
-    VfcGrantManager(CatalogManager catalogManager, CbamRestApiProvider cbamRestApiProvider, VfcRestApiProvider vfcRestApiProvider) {
+    VfcGrantManager(CatalogManagerForVfc catalogManager, CbamRestApiProviderForVfc cbamRestApiProvider, VfcRestApiProvider vfcRestApiProvider) {
         this.catalogManager = catalogManager;
         this.cbamRestApiProvider = cbamRestApiProvider;
         this.vfcRestApiProvider = vfcRestApiProvider;

@@ -24,7 +24,6 @@ import org.onap.aai.model.Relationship;
 import org.onap.aai.model.RelationshipData;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
 import org.slf4j.Logger;
 
 import static com.google.common.collect.Iterables.find;
@@ -36,12 +35,10 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR
 abstract class AbstractManager {
     protected final AAIRestApiProvider aaiRestApiProvider;
     protected final CbamRestApiProvider cbamRestApiProvider;
-    protected final DriverProperties driverProperties;
 
-    AbstractManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider, DriverProperties driverProperties) {
+    AbstractManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider) {
         this.aaiRestApiProvider = aaiRestApiProvider;
         this.cbamRestApiProvider = cbamRestApiProvider;
-        this.driverProperties = driverProperties;
     }
 
     /**

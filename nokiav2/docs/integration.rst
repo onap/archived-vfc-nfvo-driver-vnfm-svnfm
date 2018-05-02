@@ -1,14 +1,14 @@
 Integrate ONAP with Nokia VNFM
 ==============================
 
-The following section describes how to integrate the Nokia Virtualized Network Function Manager (VNFM) into ONAP. The integration is easier if the
-VNFM is installed before ONAP.
+The following section describes how to integrate the Nokia Virtualized Network Function Manager (VNFM) into ONAP.
 
 Prepare the VNFM
 ----------------
 
 * Start the VNFM.
- The VNFM must be able to communicate with the ONAP VF-C interface, the virtualized infrastructure manager (VIM) and the virtualized network function (VNF), so the VNFM must
+
+ - The VNFM must be able to communicate with the ONAP VF-C interface, the virtualized infrastructure manager (VIM) and the virtualized network function (VNF), so the VNFM must
  have the correct network setup. The VNFM uses lifecycle notifications (LCNs) to notify the VF-C about the executed changes, therefore, the LCN zone of the
  VNFM must be configured so that the VNFM is able to reach the VF-C LCN interface.
 
@@ -17,7 +17,7 @@ Prepare the VNFM
  - Using SSH, log in to the CloudBand Application Manager (CBAM) virtual machine as cbam user and determine the Keycloak
   auto-generated admin password with the following command: ectl get /cbam/cluster/components/keycloak/admin_credentials/password
 
-  - Copy the printout of the command.
+ - Copy the printout of the command.
 
  - Access the Keycloak login page with the following URL: https://<cbamIp>/auth/admin where <cbamIp> is the FQDN or IP
  address assigned to CBAM node during instantiation. Optionally, it may contain a port, for example, cbam.mycompany.com:port or 1.2.3.4:port.
@@ -196,11 +196,19 @@ Add the VNFM driver to ONAP
 
 - Register the VNFM as an external system:
 
-  - Note: - Repeat this step for all VIMs planned to be used.
-
  - Access the following URL: http://msb.api.simpledemo.onap.org/iui/aai-esr-gui/extsys/vnfm/vnfmView.html
 
    - Result: The ONAP platform opens
+
+ - The VNFM has four end points. These end points must be configured in the external system configuration of the VNFM.
+
+  - Authentication endpoint: https://$CBAM_IP:443/auth/
+
+  - Life-cycle management endpoint: https://<cbamIp>:443/vnfm/lcm/v3/
+
+  - Life-cycle change notification endpoint: https://<cbamIp>:443/vnfm/lcn/v3/
+
+  - Catalog endpoint: https://<cbamIp>:443/api/catalog/adapter/
 
  - On the platform, click Register.
 
@@ -210,27 +218,27 @@ Add the VNFM driver to ONAP
 
    - Note: Cloud credentials are supplied by the VNF integrator.
 
-+-----------------+-----------------------------------+
-| key             | Value                             |
-+-----------------+-----------------------------------+
-| Name            | CbamVnfm                          |
-+-----------------+-----------------------------------+
-| type            | NokiaSVNFM                        |
-+-----------------+-----------------------------------+
-| Vendor          | Nokia                             |
-+-----------------+-----------------------------------+
-| version         | v1                                |
-+-----------------+-----------------------------------+
-| URL             | https://<cbamIp>:443/vnfm/lcm/v3/ |
-+-----------------+-----------------------------------+
-| VIM             | <cloudOwner>_<cloudRegionId>      |
-+-----------------+-----------------------------------+
-| certificate URL |                                   |
-+-----------------+-----------------------------------+
-| Username        | <clientId>                        |
-+-----------------+-----------------------------------+
-| Password        | <clientSecret>                    |
-+-----------------+-----------------------------------+
++-----------------+------------------------------------------+
+| key             | Value                                    |
++-----------------+------------------------------------------+
+| Name            | CbamVnfm                                 |
++-----------------+------------------------------------------+
+| type            | NokiaSVNFM                               |
++-----------------+------------------------------------------+
+| Vendor          | Nokia                                    |
++-----------------+------------------------------------------+
+| version         | v1                                       |
++-----------------+------------------------------------------+
+| URL             | <authUrl>_<lcmUrl>_<lcnUrl>_<catalogUrl> |
++-----------------+------------------------------------------+
+| VIM             | any                                      |
++-----------------+------------------------------------------+
+| certificate URL |                                          |
++-----------------+------------------------------------------+
+| Username        | <onapUsername>_<clientId>                |
++-----------------+------------------------------------------+
+| Password        | <onapPassword>_<clientSecret>            |
++-----------------+------------------------------------------+
 
  - Click Save.
 
@@ -238,7 +246,6 @@ Add the VNFM driver to ONAP
 
  - Determine the UUID of the VNFM:
 
-   - Note: If the VNFM was registered multiple times, select one of them at random
    - Access the following URL: http://msb.api.simpledemo.onap.org:9518/api/aai-esr-server/v1/vnfms
    - Look for the previously registered VNFM and note the value of <vnfmId>.
 
@@ -260,13 +267,10 @@ Configure the SVNFM driver (generic)
 
 .. code-block:: console
 
-   export CBAM_IP=<cbamIp>
    export MULTI_NODE_IP=<multiNodeIp>
    export VNFM_ID=<vnfmId>
    export IMAGE_ID=<imageId>
-   export CBAM_PASSWORD=<onapPassword>
-   export CBAM_USERNAME=<onapUsername>
-   docker run --name vfc_nokia -p 8089:8089 -e "MSB_IP=$MULTI_NODE_IP" -e "CONFIGURE=kuku" -e "EXTERNAL_IP=$MULTI_NODE_IP" -e "CBAM_CATALOG_URL=https://$CBAM_IP:443/api/catalog/adapter/" -e "CBAM_LCN_URL=https://$CBAM_IP:443/vnfm/lcn/v3/" -e "CBAM_KEYCLOAK_URL=https://$CBAM_IP:443/auth/" -e "CBAM_USERNAME=$CBAM_USERNAME" -e "CBAM_PASSWORD=$CBAM_PASSWORD" -e "VNFM_ID=$VNFM_ID" -d --stop-timeout 300 $IMAGE_ID
+   docker run --name vfc_nokia -p 8089:8089 -e "MSB_IP=$MULTI_NODE_IP" -e "CONFIGURE=kuku" -e "EXTERNAL_IP=$MULTI_NODE_IP" -e "VNFM_ID=$VNFM_ID" -d --stop-timeout 300 $IMAGE_ID
 
 - Determine the identifier of the container:
 
@@ -295,6 +299,11 @@ This step is executed instead of the "Configure the SVNFM driver (generic)" in c
 - Configure the already running instance:
 
  - Execute the following command: docker exec -it `docker ps | grep nokiav2 | awk '{print $1}'` /bin/bash
+
  - Edit /service/application.properties:
 
-   - In this file, change the default values of the following keys to the correct values: cbamCatalogUrl, cbamLcnUrl, cbamKeyCloakBaseUrl, cbamUsername, cbamPassword, vnfmId
+   - In this file, change the default values of the following keys to the correct values: vnfmId
+
+ - Restart the VNFM service
+
+   - Execute the following command: ps -ef | grep java |

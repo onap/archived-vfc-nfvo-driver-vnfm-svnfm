@@ -30,8 +30,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IPackageProvider;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.filter;
@@ -47,7 +45,6 @@ import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
  * - the VNF package is uploaded as part of the instantiation
  * - the VNF package is not deleted after VNF deletion
  */
-@Component
 public class CatalogManager {
     /**
      * The location of the CBAM package within the ONAP package
@@ -59,7 +56,6 @@ public class CatalogManager {
     private final CbamRestApiProvider cbamRestApiProvider;
     private final IPackageProvider packageProvider;
 
-    @Autowired
     CatalogManager(CbamRestApiProvider cbamRestApiProvider, IPackageProvider packageProvider) {
         this.cbamRestApiProvider = cbamRestApiProvider;
         this.packageProvider = packageProvider;

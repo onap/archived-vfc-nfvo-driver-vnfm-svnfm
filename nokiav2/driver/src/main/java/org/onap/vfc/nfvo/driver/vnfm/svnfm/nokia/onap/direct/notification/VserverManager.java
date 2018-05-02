@@ -27,13 +27,10 @@ import org.onap.aai.model.Relationship;
 import org.onap.aai.model.Volume;
 import org.onap.aai.model.Vserver;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProviderForSo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import static com.google.common.collect.Iterables.find;
@@ -45,13 +42,12 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ge
  * Responsible for managing {@link Vserver} in AAI
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
 class VserverManager extends AbstractManager {
     private static Logger logger = LoggerFactory.getLogger(AbstractManager.class);
 
     @Autowired
-    VserverManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider, DriverProperties driverProperties) {
-        super(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+    VserverManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProviderForSo cbamRestApiProvider) {
+        super(aaiRestApiProvider, cbamRestApiProvider);
     }
 
     static Relationship linkTo(String vimId, String tenantId, String serverProviderId) {

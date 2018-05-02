@@ -18,17 +18,17 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import org.onap.aai.model.GenericVnf;
 import org.onap.aai.model.Relationship;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.DriverProperties;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProviderForSo;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager.SERVICE_NAME;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.buildFatalFailure;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 
@@ -36,14 +36,13 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.sys
  * Responsible for managing the {@link GenericVnf} in AAI
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
-class GenericVnfManager extends AbstractManager {
+public class GenericVnfManager extends AbstractManager {
     private static final long MAX_MS_TO_WAIT_FOR_VNF_TO_APPEAR = 30 * 1000L;
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(GenericVnfManager.class);
 
     @Autowired
-    GenericVnfManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProvider cbamRestApiProvider, DriverProperties driverProperties) {
-        super(aaiRestApiProvider, cbamRestApiProvider, driverProperties);
+    GenericVnfManager(AAIRestApiProvider aaiRestApiProvider, CbamRestApiProviderForSo cbamRestApiProvider) {
+        super(aaiRestApiProvider, cbamRestApiProvider);
     }
 
     static Relationship linkTo(String vnfId) {
@@ -54,43 +53,54 @@ class GenericVnfManager extends AbstractManager {
         return relationship;
     }
 
+    private static Relationship linkToNs(String nsId) {
+        Relationship relationship = new Relationship();
+        relationship.setRelatedTo("service-instance");
+        relationship.setRelationshipData(new ArrayList<>());
+        relationship.getRelationshipData().add(buildRelationshipData("service-instance.service-instance-id", nsId));
+        return relationship;
+    }
+
     @Override
     protected Logger getLogger() {
         return logger;
     }
 
-    void createOrUpdate(String vnfId, boolean inMaintenance) {
+    public void createOrUpdate(String vnfId, boolean inMaintenance, String vnfmId, Optional<String> nsId) {
         try {
             GenericVnf vnf = waitForVnfToAppearInAai(vnfId);
-            updateFields(vnf, vnfId, inMaintenance);
+            updateFields(vnf, vnfId, inMaintenance, vnfmId, nsId);
         } catch (NoSuchElementException e) {
             try {
                 logger.warn("The VNF with " + vnfId + " identifier did not appear in time", e);
-                updateFields(new GenericVnf(), vnfId, inMaintenance);
+                updateFields(new GenericVnf(), vnfId, inMaintenance, vnfmId, nsId);
             } catch (Exception e2) {
                 logger.warn("The VNF with " + vnfId + " identifier has been created since after the maximal wait for VNF to appear timeout", e2);
                 //the VNF might have been created since the last poll
-                updateFields(getExistingVnf(vnfId), vnfId, inMaintenance);
+                updateFields(getExistingVnf(vnfId), vnfId, inMaintenance, vnfmId, nsId);
             }
         }
     }
 
-    private GenericVnf getExistingVnf(String vnfId) {
-        return aaiRestApiProvider.getNetworkApi().getNetworkGenericVnfsGenericVnf(vnfId, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null).blockingFirst();
-    }
-
-    private void updateFields(GenericVnf vnf, String vnfId, boolean inMaintenance) {
+    private void updateFields(GenericVnf vnf, String vnfId, boolean inMaintenance, String vnfmId, Optional<String> nsId) {
         try {
-            VnfInfo vnfInfo = cbamRestApiProvider.getCbamLcmApi(driverProperties.getVnfmId()).vnfsVnfInstanceIdGet(vnfId, CbamRestApiProvider.NOKIA_LCM_API_VERSION).blockingFirst();
+            VnfInfo vnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, CbamRestApiProvider.NOKIA_LCM_API_VERSION).blockingFirst();
             vnf.setVnfName(vnfInfo.getName());
         } catch (RuntimeException e) {
             throw buildFatalFailure(logger, "Unable to query VNF with " + vnfId + " identifier from CBAM", e);
         }
         vnf.setVnfId(vnfId);
         vnf.setInMaint(inMaintenance);
+        vnf.setNfType(SERVICE_NAME);
         //FIXME whould be good to know if this parameter is relevant or not? (mandatory)
         vnf.setVnfType("NokiaVNF");
         vnf.setIsClosedLoopDisabled(inMaintenance);
+        if (vnf.getRelationshipList() == null) {
+            vnf.setRelationshipList(new ArrayList<>());
+        }
+        if (nsId.isPresent()) {
+            addSingletonRelation(vnf.getRelationshipList(), linkTo(nsId.get()));
+        }
         aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkGenericVnfsGenericVnf(vnf.getVnfId(), vnf).blockingFirst();
     }
 
@@ -107,4 +117,7 @@ class GenericVnfManager extends AbstractManager {
         throw new NoSuchElementException();
     }
 
+    private GenericVnf getExistingVnf(String vnfId) {
+        return aaiRestApiProvider.getNetworkApi().getNetworkGenericVnfsGenericVnf(vnfId, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null).blockingFirst();
+    }
 }

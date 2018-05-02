@@ -18,12 +18,11 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.Conditions;
 import org.onap.vnfmdriver.model.GrantVNFResponseVim;
 import org.onap.vnfmdriver.model.VnfHealRequest;
 import org.onap.vnfmdriver.model.VnfScaleRequest;
 import org.slf4j.Logger;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -32,7 +31,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Responsible for handling granting before the execution of a VNF operation in case of direct integration
  */
 @Component
-@Conditional(value = Conditions.UseForDirect.class)
+@Qualifier("so")
 public class GrantlessGrantManager implements IGrantManager {
     private static Logger logger = getLogger(GrantlessGrantManager.class);
 

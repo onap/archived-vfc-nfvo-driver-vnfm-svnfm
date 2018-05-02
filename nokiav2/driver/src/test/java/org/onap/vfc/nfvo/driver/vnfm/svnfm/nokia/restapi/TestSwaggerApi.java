@@ -19,8 +19,9 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 import javax.servlet.ServletOutputStream;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManagerForVfc;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -32,13 +33,14 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TestSwaggerApi extends TestBase {
 
-    @InjectMocks
     private SwaggerApi swaggerApi;
-
+    @Mock
+    private SelfRegistrationManagerForVfc selfRegistrationManagerForVfc;
 
     @Before
     public void initMocks() throws Exception {
         setField(SwaggerApi.class, "logger", logger);
+        swaggerApi = new SwaggerApi(selfRegistrationManagerForVfc);
     }
 
     /**
@@ -47,7 +49,7 @@ public class TestSwaggerApi extends TestBase {
     @Test
     public void testSwaggerRetrieval() throws Exception {
         byte[] bytes = new byte[]{1, 2};
-        when(selfRegistrationManager.getSwaggerApiDefinition()).thenReturn(bytes);
+        when(selfRegistrationManagerForVfc.getSwaggerApiDefinition()).thenReturn(bytes);
         ServletOutputStream os = Mockito.mock(ServletOutputStream.class);
         when(httpResponse.getOutputStream()).thenReturn(os);
         //when

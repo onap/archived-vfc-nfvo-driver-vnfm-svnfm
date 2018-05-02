@@ -23,32 +23,21 @@ import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
 import org.onap.vnfmdriver.model.VnfmInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider.convert;
 
 /**
  * Responsible for providing client to access CBAM REST API
  */
-@Component
 public class CbamRestApiProvider {
     public static final String NOKIA_LCN_API_VERSION = "3.2";
     public static final String NOKIA_LCM_API_VERSION = "3.2";
     public static final String AUTH_NAME = "test";
-    private final DriverProperties driverProperties;
     private final CbamTokenProvider tokenProvider;
     private final VnfmInfoProvider vnfmInfoProvider;
     private final CbamSecurityProvider cbamSecurityProvider;
-    @Value("${cbamKeyCloakBaseUrl}")
-    private String cbamKeyCloakBaseUrl;
-    @Value("${cbamUsername}")
-    private String username;
-    @Value("${cbamPassword}")
-    private String password;
 
-    @Autowired
-    public CbamRestApiProvider(DriverProperties driverProperties, CbamTokenProvider cbamTokenProvider, VnfmInfoProvider vnfmInfoProvider, CbamSecurityProvider cbamSecurityProvider) {
-        this.driverProperties = driverProperties;
+    CbamRestApiProvider(CbamTokenProvider cbamTokenProvider, VnfmInfoProvider vnfmInfoProvider, CbamSecurityProvider cbamSecurityProvider) {
         this.tokenProvider = cbamTokenProvider;
         this.vnfmInfoProvider = vnfmInfoProvider;
         this.cbamSecurityProvider = cbamSecurityProvider;
@@ -92,7 +81,7 @@ public class CbamRestApiProvider {
         apiClient.getOkBuilder().sslSocketFactory(cbamSecurityProvider.buildSSLSocketFactory(), cbamSecurityProvider.buildTrustManager());
         apiClient.getOkBuilder().hostnameVerifier(cbamSecurityProvider.buildHostnameVerifier());
         apiClient.addAuthorization(AUTH_NAME, tokenProvider.getToken(vnfmId));
-        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(driverProperties.getCbamLcnUrl()));
+        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(convert(vnfmInfoProvider.getVnfmInfo(vnfmId)).getLcnUrl()));
         return apiClient;
     }
 
@@ -102,7 +91,7 @@ public class CbamRestApiProvider {
         apiClient.getOkBuilder().sslSocketFactory(cbamSecurityProvider.buildSSLSocketFactory(), cbamSecurityProvider.buildTrustManager());
         apiClient.getOkBuilder().hostnameVerifier(cbamSecurityProvider.buildHostnameVerifier());
         apiClient.addAuthorization(AUTH_NAME, tokenProvider.getToken(vnfmId));
-        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(driverProperties.getCbamCatalogUrl()));
+        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(convert(vnfmInfoProvider.getVnfmInfo(vnfmId)).getCatalogUrl()));
         return apiClient;
     }
 
@@ -113,7 +102,7 @@ public class CbamRestApiProvider {
         apiClient.getOkBuilder().sslSocketFactory(cbamSecurityProvider.buildSSLSocketFactory(), cbamSecurityProvider.buildTrustManager());
         apiClient.getOkBuilder().hostnameVerifier(cbamSecurityProvider.buildHostnameVerifier());
         apiClient.addAuthorization(AUTH_NAME, tokenProvider.getToken(vnfmId));
-        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(vnfmInfo.getUrl()));
+        apiClient.setAdapterBuilder(apiClient.getAdapterBuilder().baseUrl(convert(vnfmInfoProvider.getVnfmInfo(vnfmId)).getLcmUrl()));
         return apiClient;
     }
 }

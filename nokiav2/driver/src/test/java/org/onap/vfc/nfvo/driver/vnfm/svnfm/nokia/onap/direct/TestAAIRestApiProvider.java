@@ -31,6 +31,7 @@ import org.mockito.stubbing.Answer;
 import org.onap.aai.api.CloudInfrastructureApi;
 import org.onap.aai.api.ExternalSystemApi;
 import org.onap.aai.api.NetworkApi;
+import org.onap.aai.auth.HttpBasicAuth;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
@@ -82,15 +83,12 @@ public class TestAAIRestApiProvider extends TestBase {
         assertEquals("http://1.2.3.4/a/", apiClient.getAdapterBuilder().build().baseUrl().toString());
         assertEquals(sslSocketFactoryResultCaptor.getResult(), apiClient.getOkBuilder().build().sslSocketFactory());
         assertEquals(hostnameVerifier, apiClient.getOkBuilder().build().hostnameVerifier());
+        HttpBasicAuth basic = (HttpBasicAuth) apiClient.getApiAuthorizations().get("basic");
+        assertEquals("username", basic.getUsername());
+        assertEquals("aaiPassword", basic.getPassword());
 
         //given
         Response resp = new Response.Builder().message("a").code(200).protocol(Protocol.HTTP_1_0).request(new Request.Builder().url("http://1.2.3.4/d").build()).build();
-        //when
-        Request authenticate = apiClient.getOkBuilder().build().authenticator().authenticate(null, resp);
-        //verify
-        assertEquals("Basic dXNlcm5hbWU6YWFpUGFzc3dvcmQ=", authenticate.headers().get("Authorization"));
-
-        //given
         Interceptor.Chain chain = Mockito.mock(Interceptor.Chain.class);
         when(chain.request()).thenReturn(new Request.Builder().url("http://1.2.3.4/d").build());
         ArgumentCaptor<Request> modifedRequest = ArgumentCaptor.forClass(Request.class);
@@ -122,8 +120,9 @@ public class TestAAIRestApiProvider extends TestBase {
         assertEquals(sslSocketFactoryResultCaptor.getResult(), apiClient.getOkBuilder().build().sslSocketFactory());
         assertEquals(hostnameVerifier, apiClient.getOkBuilder().build().hostnameVerifier());
         Response resp = new Response.Builder().message("a").code(200).protocol(Protocol.HTTP_1_0).request(new Request.Builder().url("http://1.2.3.4/d").build()).build();
-        Request authenticate = apiClient.getOkBuilder().build().authenticator().authenticate(null, resp);
-        assertEquals("Basic dXNlcm5hbWU6YWFpUGFzc3dvcmQ=", authenticate.headers().get("Authorization"));
+        HttpBasicAuth basic = (HttpBasicAuth) apiClient.getApiAuthorizations().get("basic");
+        assertEquals("username", basic.getUsername());
+        assertEquals("aaiPassword", basic.getPassword());
     }
 
     /**
@@ -146,8 +145,9 @@ public class TestAAIRestApiProvider extends TestBase {
         assertEquals(sslSocketFactoryResultCaptor.getResult(), apiClient.getOkBuilder().build().sslSocketFactory());
         assertEquals(hostnameVerifier, apiClient.getOkBuilder().build().hostnameVerifier());
         Response resp = new Response.Builder().message("a").code(200).protocol(Protocol.HTTP_1_0).request(new Request.Builder().url("http://1.2.3.4/d").build()).build();
-        Request authenticate = apiClient.getOkBuilder().build().authenticator().authenticate(null, resp);
-        assertEquals("Basic dXNlcm5hbWU6YWFpUGFzc3dvcmQ=", authenticate.headers().get("Authorization"));
+        HttpBasicAuth basic = (HttpBasicAuth) apiClient.getApiAuthorizations().get("basic");
+        assertEquals("username", basic.getUsername());
+        assertEquals("aaiPassword", basic.getPassword());
     }
 
     /**
@@ -170,8 +170,9 @@ public class TestAAIRestApiProvider extends TestBase {
         assertEquals(sslSocketFactoryResultCaptor.getResult(), apiClient.getOkBuilder().build().sslSocketFactory());
         assertEquals(hostnameVerifier, apiClient.getOkBuilder().build().hostnameVerifier());
         Response resp = new Response.Builder().message("a").code(200).protocol(Protocol.HTTP_1_0).request(new Request.Builder().url("http://1.2.3.4/d").build()).build();
-        Request authenticate = apiClient.getOkBuilder().build().authenticator().authenticate(null, resp);
-        assertEquals("Basic dXNlcm5hbWU6YWFpUGFzc3dvcmQ=", authenticate.headers().get("Authorization"));
+        HttpBasicAuth basic = (HttpBasicAuth) apiClient.getApiAuthorizations().get("basic");
+        assertEquals("username", basic.getUsername());
+        assertEquals("aaiPassword", basic.getPassword());
     }
 
     /**

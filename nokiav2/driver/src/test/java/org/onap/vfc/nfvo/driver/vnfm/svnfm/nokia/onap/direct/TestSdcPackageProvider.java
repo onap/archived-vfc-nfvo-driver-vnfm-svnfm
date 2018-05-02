@@ -27,10 +27,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.apache.http.HttpHeaders.ACCEPT;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager.SERVICE_NAME;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -40,7 +37,7 @@ public class TestSdcPackageProvider extends TestBase {
 
     @Before
     public void init() {
-        sdcPackageProvider = new SdcPackageProvider(msbApiProvider, driverProperties);
+        sdcPackageProvider = new SdcPackageProvider(msbApiProvider);
         setField(SdcPackageProvider.class, "logger", logger);
         setFieldWithPropertyAnnotation(sdcPackageProvider, "${sdcUsername}", "sdcUsername");
         setFieldWithPropertyAnnotation(sdcPackageProvider, "${sdcPassword}", "sdcPassword");
@@ -58,7 +55,7 @@ public class TestSdcPackageProvider extends TestBase {
         //verify
         assertEquals("test", new String("test"));
         HttpGet httpGet = (HttpGet) request.getValue();
-        assertEquals(VNFM_ID, httpGet.getFirstHeader("X-ECOMP-InstanceID").getValue());
+        assertEquals(SERVICE_NAME, httpGet.getFirstHeader("X-ECOMP-InstanceID").getValue());
         assertEquals(SERVICE_NAME, httpGet.getFirstHeader("X-FromAppId").getValue());
         assertEquals(APPLICATION_OCTET_STREAM_VALUE, httpGet.getFirstHeader(ACCEPT).getValue());
         assertEquals("https://1.2.3.4:456/g/sdc/v1/catalog/resources/csarId/toscaModel", httpGet.getURI().toASCIIString());

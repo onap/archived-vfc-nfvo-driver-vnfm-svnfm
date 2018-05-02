@@ -16,12 +16,13 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
 import com.google.common.annotations.VisibleForTesting;
-import okhttp3.Credentials;
+import java.util.UUID;
 import okhttp3.Request;
 import org.onap.aai.ApiClient;
 import org.onap.aai.api.CloudInfrastructureApi;
 import org.onap.aai.api.ExternalSystemApi;
 import org.onap.aai.api.NetworkApi;
+import org.onap.aai.auth.HttpBasicAuth;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,14 +77,22 @@ public class AAIRestApiProvider {
         apiClient.getOkBuilder().sslSocketFactory(aaiSecurityProvider.buildSSLSocketFactory(), aaiSecurityProvider.buildTrustManager());
         apiClient.getOkBuilder().hostnameVerifier(aaiSecurityProvider.buildHostnameVerifier());
         apiClient.getOkBuilder().addInterceptor(chain -> {
-            Request request = chain.request().newBuilder().addHeader("X-FromAppId", SERVICE_NAME).build();
+            Request request = chain.request().newBuilder()
+                    .addHeader("X-FromAppId", SERVICE_NAME)
+                    //backward incompatibe API change in Beijing release
+                    .addHeader("X-TransactionId", UUID.randomUUID().toString())
+                    .addHeader("Accept", "application/json").
+                            build();
             return chain.proceed(request);
         });
-        apiClient.getOkBuilder().authenticator((route, response) -> {
-            String credential = Credentials.basic(aaiUsername, aaiPassword);
-            return response.request().newBuilder().header("Authorization", credential).build();
-        });
+        HttpBasicAuth httpBasicAuth = new HttpBasicAuth();
+        httpBasicAuth.setCredentials(aaiUsername, aaiPassword);
+        apiClient.addAuthorization("basic", httpBasicAuth);
         String url = msbApiProvider.getMicroServiceUrl(service.getServiceName(), "v11");
+        //the returned swagger schema is inconsistent with base URL
+        url = url.replaceAll("/external-system$", "");
+        url = url.replaceAll("/cloud-infrastructure$", "");
+        url = url.replaceAll("/network$", "");
         if (!url.endsWith("/")) {
             url = url + "/";
         }

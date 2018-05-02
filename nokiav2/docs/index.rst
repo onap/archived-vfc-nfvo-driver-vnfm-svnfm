@@ -10,6 +10,7 @@ Welcome to Nokia SVNFM documentation!
    :caption: Contents:
 
    integration.rst
+   fix.rst
    samplevnf.rst
    vnfintegration.rst
    onboarding.rst
