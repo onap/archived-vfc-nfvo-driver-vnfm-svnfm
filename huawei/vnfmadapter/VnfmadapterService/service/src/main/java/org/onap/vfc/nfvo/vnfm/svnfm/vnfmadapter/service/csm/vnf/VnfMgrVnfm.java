@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.vnf;
 import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
@@ -90,7 +91,13 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
             if(statusCode == Constant.HTTP_CREATED || statusCode == Constant.HTTP_OK) {
                 restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
-                restJson.put("data", queryResult.getJSONObject("data").getJSONObject("scale_info"));
+                // restJson.put("data",
+                // queryResult.getJSONObject("data").getJSONObject("scale_info"));
+                JSONObject appInfo = queryResult.getJSONObject("data").getJSONObject("scale_info");
+                JSONObject resultObj = new JSONObject();
+                // resultObj.put(Constant.JOBID, vnfInstanceId + "_" + Constant.PUT);
+                handleResponse(resultObj, appInfo, vnfInstanceId, Constant.PUT);
+                restJson.put("data", resultObj);
             } else {
                 LOG.error("function=scaleVnf, msg=send create vnf msg to csm get wrong status: " + statusCode);
             }
@@ -144,8 +151,10 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
                 restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
                 JSONObject appInfo = JSONObject.fromObject(queryResult.getString("data")).getJSONObject("app_info");
                 JSONObject resultObj = new JSONObject();
-                resultObj.put("vnfInstanceId", appInfo.getString("id"));
-                resultObj.put(Constant.JOBID, appInfo.getString("id") + "_" + Constant.POST);
+                // resultObj.put("vnfInstanceId", appInfo.getString("id"));
+                // resultObj.put(Constant.JOBID, appInfo.getString("id") + "_" + Constant.POST);
+                String vnfInstanceId = appInfo.getString("id");
+                handleResponse(resultObj, appInfo, vnfInstanceId, Constant.POST);
                 restJson.put("data", resultObj);
             } else {
                 LOG.error("function=createVnf, msg=send create vnf msg to csm get wrong status: " + statusCode);
@@ -156,6 +165,17 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         }
 
         return restJson;
+    }
+
+    private void handleResponse(JSONObject result, JSONObject returnObj, String vnfInstanceId, String type) {
+        String jobId = "";
+        if(returnObj.containsKey("job_id")) {
+            jobId = returnObj.getString("job_id") + ":job";
+        } else {
+            jobId = vnfInstanceId + "_" + type + ":no";
+        }
+        result.put("vnfInstanceId", vnfInstanceId);
+        result.put(Constant.JOBID, jobId);
     }
 
     @Override
@@ -172,7 +192,16 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
         if(statusCode == Constant.HTTP_NOCONTENT || statusCode == Constant.HTTP_OK) {
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
-            restJson.put("data", JSONObject.fromObject(queryResult.getString("data")));
+            // restJson.put("data", JSONObject.fromObject(queryResult.getString("data")));
+            JSONObject appInfo = new JSONObject();
+            if(queryResult.containsKey("data") && StringUtils.isNotEmpty(queryResult.getString("data")))
+            {
+                appInfo = JSONObject.fromObject(queryResult.getString("data"));
+            }
+            JSONObject resultObj = new JSONObject();
+            // resultObj.put(Constant.JOBID, vnfId + "_" + Constant.DELETE);
+            handleResponse(resultObj, appInfo, vnfId, Constant.DELETE);
+            restJson.put("data", resultObj);
         } else {
             LOG.error("function=removeVnf, msg=send remove vnf msg to csm get wrong status: {}", statusCode);
         }
@@ -276,7 +305,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
                 return restJson;
             }
             restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
-            restJson.put("data", JSONObject.fromObject(queryResult.getString("data")).getJSONArray("basic"));
+            restJson.put("data", JSONObject.fromObject(queryResult.getString("data")).getJSONArray("vnf_list"));
         } else {
             LOG.error("function=getJob, msg=send get vnf msg to csm get wrong status: {}", statusCode);
         }
@@ -327,6 +356,7 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
     public JSONObject getJobFromVnfm(JSONObject vnfmObjcet, String jobId) {
         LOG.warn("function=getJobFromVnfm, jobId: {}", jobId);
+
         JSONObject restJson = new JSONObject();
         restJson.put(Constant.RETCODE, Constant.REST_FAIL);
 
@@ -347,4 +377,5 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
         return restJson;
     }
+
 }

@@ -262,6 +262,20 @@ public class VnfRoa {
     public String getJob(@PathParam("jobId") String jobId, @PathParam("vnfmId") String vnfmId,
             @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) {
         LOG.warn("function=getJob, msg=enter to get a job: jobId: {}, responseId: {}", jobId, responseId);
+        return getJob(jobId, vnfmId, resp);
+    }
+
+    /**
+     * <br>
+     * common getJob method
+     * 
+     * @param jobId
+     * @param vnfmId
+     * @param resp
+     * @return
+     * @since VFC 1.0
+     */
+    private String getJob(String jobId, String vnfmId, HttpServletResponse resp) {
         JSONObject restJson = new JSONObject();
 
         if(StringUtils.isEmpty(jobId) || StringUtils.isEmpty(vnfmId)) {
@@ -276,7 +290,7 @@ public class VnfRoa {
             return restJson.toString();
         }
 
-        return getJobBody(restJson);
+        return getJobBody(restJson, jobId);
     }
 
     /**
@@ -323,12 +337,12 @@ public class VnfRoa {
         return restJson.toString();
     }
 
-    private String getJobBody(JSONObject restJson) {
+    private String getJobBody(JSONObject restJson, String jobId) {
         LOG.warn("function=getJobBody, restJson: {}", restJson);
         JSONObject responseJson = new JSONObject();
         JSONObject jobInfoJson = new JSONObject();
         JSONObject retJson = restJson.getJSONArray("data").getJSONObject(0);
-        jobInfoJson.put("jobId", retJson.getString("id"));
+        jobInfoJson.put("jobId", jobId);
         responseJson.put("progress", progressItem.get(retJson.getString(Constant.STATUS)));
         responseJson.put("status", jobstatusItem.get(retJson.getString(Constant.STATUS)));
         responseJson.put("errorCode", "null");
@@ -395,14 +409,23 @@ public class VnfRoa {
     public String getJobFromVnfm(@PathParam("jobId") String jobId, @PathParam("vnfmId") String vnfmId,
             @Context HttpServletResponse resp, @QueryParam("@responseId") String responseId) {
         LOG.warn("function=getJobFromVnfm, msg=enter to get a job: jobId: {}, responseId: {}", jobId, responseId);
-        JSONObject restJson = vnfMgr.getJobFromVnfm(jobId, vnfmId);
+        String[] temps = jobId.split(":");
+        String tmpJobId = temps[0];
+        String flag = temps[1];
+        LOG.warn("function=getJobFromVnfm, tmpJobId: {}, flag: {}", tmpJobId, flag);
 
-        if(restJson.getInt(Constant.RETCODE) == Constant.REST_FAIL) {
-            LOG.error("function=getJobFromVnfm, msg=getJobFromVnfm fail");
-            resp.setStatus(Constant.HTTP_INNERERROR);
-            return restJson.toString();
+        if(flag.equalsIgnoreCase("no")) {
+            return getJob(tmpJobId, vnfmId, resp);
+        } else {
+            JSONObject restJson = vnfMgr.getJobFromVnfm(tmpJobId, vnfmId);
+
+            if(restJson.getInt(Constant.RETCODE) == Constant.REST_FAIL) {
+                LOG.error("function=getJobFromVnfm, msg=getJobFromVnfm fail");
+                resp.setStatus(Constant.HTTP_INNERERROR);
+                return restJson.toString();
+            }
+
+            return vnfMgr.transferToLcm(restJson);
         }
-
-        return vnfMgr.transferToLcm(restJson);
     }
 }
