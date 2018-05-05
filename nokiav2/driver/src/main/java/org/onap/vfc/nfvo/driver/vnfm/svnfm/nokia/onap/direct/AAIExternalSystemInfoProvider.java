@@ -121,6 +121,6 @@ public class AAIExternalSystemInfoProvider extends GenericExternalSystemInfoProv
     @Override
     public Set<String> getVnfms() {
         EsrVnfmList esrVnfmList = aaiRestApiProvider.getExternalSystemApi().getExternalSystemEsrVnfmList().blockingFirst();
-        return newHashSet(transform(esrVnfmList.getEsrVnfm(), esr -> esr.getVnfmId()));
+        return newHashSet(transform(esrVnfmList.getEsrVnfm(), EsrVnfm::getVnfmId));
     }
 }

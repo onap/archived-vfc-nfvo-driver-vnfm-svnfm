@@ -22,7 +22,6 @@ import com.nokia.cbam.lcm.v32.api.OperationExecutionsApi;
 import com.nokia.cbam.lcm.v32.api.VnfsApi;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VnfmInfoProvider;
-import org.onap.vnfmdriver.model.VnfmInfo;
 
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.GenericExternalSystemInfoProvider.convert;
 
@@ -97,7 +96,6 @@ public class CbamRestApiProvider {
 
     @VisibleForTesting
     ApiClient buildLcmApiClient(String vnfmId) {
-        VnfmInfo vnfmInfo = vnfmInfoProvider.getVnfmInfo(vnfmId);
         ApiClient apiClient = new ApiClient();
         apiClient.getOkBuilder().sslSocketFactory(cbamSecurityProvider.buildSSLSocketFactory(), cbamSecurityProvider.buildTrustManager());
         apiClient.getOkBuilder().hostnameVerifier(cbamSecurityProvider.buildHostnameVerifier());

@@ -44,6 +44,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping(value = BASE_URL)
 public class LcmApi {
+    public static final String IDENTIFIER = " identifier";
     private static Logger logger = getLogger(LcmApi.class);
 
     private final LifecycleManager lifecycleManager;
@@ -84,7 +85,7 @@ public class LcmApi {
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}/terminate", method = POST, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public JobInfo terminateVnf(@RequestBody VnfTerminateRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
-        logger.info("REST: Terminate VNF with " + vnfId + " identifier");
+        logger.info("REST: Terminate VNF with " + vnfId + IDENTIFIER);
         return lifecycleManager.terminateAndDelete(vnfmId, vnfId, request, httpResponse);
     }
 
@@ -99,7 +100,7 @@ public class LcmApi {
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}", method = GET, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
     public VnfInfo queryVnf(@PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
-        logger.info("REST: Query VNF with " + vnfId + " identifier");
+        logger.info("REST: Query VNF with " + vnfId + IDENTIFIER);
         return lifecycleManager.queryVnf(vnfmId, vnfId);
     }
 
@@ -114,7 +115,7 @@ public class LcmApi {
     @RequestMapping(value = "/{vnfmId}/jobs/{jobId}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public JobDetailInfo getJob(@PathVariable("vnfmId") String vnfmId, @PathVariable("jobId") String jobId, HttpServletResponse httpResponse) {
-        logger.debug("REST: Query job with " + jobId + " identifier");
+        logger.debug("REST: Query job with " + jobId + IDENTIFIER);
         return jobManager.getJob(vnfmId, jobId);
     }
 
@@ -130,7 +131,7 @@ public class LcmApi {
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}/scale", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
     public JobInfo scaleVnf(@RequestBody VnfScaleRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
-        logger.info("REST: Scale VNF with " + vnfId + " identifier");
+        logger.info("REST: Scale VNF with " + vnfId + IDENTIFIER);
         return lifecycleManager.scaleVnf(vnfmId, vnfId, request, httpResponse);
     }
 
@@ -146,7 +147,7 @@ public class LcmApi {
     @RequestMapping(value = "/{vnfmId}/vnfs/{vnfId}/heal", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
     public JobInfo healVnf(@RequestBody VnfHealRequest request, @PathVariable("vnfmId") String vnfmId, @PathVariable("vnfId") String vnfId, HttpServletResponse httpResponse) {
-        logger.info("REST: Heal VNF with " + vnfId + " identifier");
+        logger.info("REST: Heal VNF with " + vnfId + IDENTIFIER);
         return lifecycleManager.healVnf(vnfmId, vnfId, request, empty(), httpResponse);
     }
 }

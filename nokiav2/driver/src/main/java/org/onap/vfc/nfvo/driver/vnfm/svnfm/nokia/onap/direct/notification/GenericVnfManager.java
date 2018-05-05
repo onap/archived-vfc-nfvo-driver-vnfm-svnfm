@@ -99,7 +99,7 @@ public class GenericVnfManager extends AbstractManager {
             vnf.setRelationshipList(new ArrayList<>());
         }
         if (nsId.isPresent()) {
-            addSingletonRelation(vnf.getRelationshipList(), linkTo(nsId.get()));
+            addSingletonRelation(vnf.getRelationshipList(), linkToNs(nsId.get()));
         }
         aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkGenericVnfsGenericVnf(vnf.getVnfId(), vnf).blockingFirst();
     }
