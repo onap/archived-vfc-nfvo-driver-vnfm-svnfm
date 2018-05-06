@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.NokiaSvnfmApplication;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.Useless;
@@ -43,28 +44,40 @@ public class TestSystemFunctions {
      * test interrupted sleep
      */
     @Test
+    @SuppressWarnings("squid:S2925") //testing asynchronous execution
     public void testInterruptedSleep() throws Exception {
+        AtomicBoolean entered = new AtomicBoolean(false);
         long start = System.currentTimeMillis();
         Set<RuntimeException> exceptions = new HashSet<>();
         class Inter extends Thread {
             @Override
             public void run() {
                 try {
-                    SystemFunctions.systemFunctions().sleep(10000);
+                    entered.set(true);
+                    SystemFunctions.systemFunctions().sleep(1000000);
                 } catch (RuntimeException e) {
                     exceptions.add(e);
+                    throw e;
                 }
             }
         }
         Inter inter = new Inter();
         inter.start();
+        //wait for thread to enter waiting
+        while(!entered.get() && inter.getState() != Thread.State.TIMED_WAITING && (System.currentTimeMillis() < start + 60*1000) ){
+            Thread.sleep(10);
+        }
+        if(!(System.currentTimeMillis() < start + 60*1000)){
+            throw new RuntimeException("Thread did not enter waiting state");
+        }
         //when
         inter.interrupt();
-
         //verify
-        while (exceptions.size() != 1) {
-
+        while (exceptions.size() != 1 && (System.currentTimeMillis() < start + 60*1000)) {
+            Thread.sleep(10);
         }
+        assertEquals(1, exceptions.size());
+        assertEquals("Interrupted while sleeping", exceptions.iterator().next().getMessage());
     }
 
     /**

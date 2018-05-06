@@ -57,7 +57,7 @@ public class SystemFunctions {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new UserInvisibleError("Interrupted while sleep", e);
+            throw new UserInvisibleError("Interrupted while sleeping", e);
         }
     }
 
