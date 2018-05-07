@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import junit.framework.TestCase;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcExternalSystemInfoProvider;
 
-public class TestCbamTokenProviderForSo extends TestBase {
+
+public class TestCbamRestApiProviderForVfc extends TestBase{
     @Test
     public void testBean(){
-        AAIExternalSystemInfoProvider aaiExternalSystemInfoProvider = Mockito.mock(AAIExternalSystemInfoProvider.class);
-        CbamTokenProviderForSo cbamTokenProviderForSo = new CbamTokenProviderForSo(aaiExternalSystemInfoProvider);
-        TestCase.assertNotNull(cbamTokenProviderForSo);
-        assertBean(CbamTokenProviderForSo.class);
+        CbamTokenProviderForVfc cbamTokenProvider = Mockito.mock(CbamTokenProviderForVfc.class);
+        VfcExternalSystemInfoProvider c = Mockito.mock(VfcExternalSystemInfoProvider.class);
+        CbamSecurityProvider cbamSecurityProvider = Mockito.mock(CbamSecurityProvider.class);
+        CbamRestApiProviderForVfc cbamRestApiProviderForVfc = new CbamRestApiProviderForVfc(cbamTokenProvider, c, cbamSecurityProvider);
+        TestCase.assertNotNull(cbamRestApiProviderForVfc);
+        assertBean(CbamRestApiProviderForVfc.class);
     }
 }

@@ -26,11 +26,9 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcExternalSystemInfoP
 public class TestCbamTokenProviderForVfc extends TestBase {
     @Test
     public void testBean(){
-        CbamTokenProviderForVfc cbamTokenProvider = Mockito.mock(CbamTokenProviderForVfc.class);
         VfcExternalSystemInfoProvider vfcExternalSystemInfoProvider = Mockito.mock(VfcExternalSystemInfoProvider.class);
-        CbamSecurityProvider cbamSecurityProvider = Mockito.mock(CbamSecurityProvider.class);
-        CbamRestApiProviderForVfc cbamRestApiProviderForVfc = new CbamRestApiProviderForVfc(cbamTokenProvider, vfcExternalSystemInfoProvider, cbamSecurityProvider);
-        TestCase.assertNotNull(cbamRestApiProviderForSo);
-        assertBean(CbamRestApiProviderForSo.class);
+        CbamTokenProviderForVfc cbamTokenProviderForVfc = new CbamTokenProviderForVfc(vfcExternalSystemInfoProvider);
+        TestCase.assertNotNull(cbamTokenProviderForVfc);
+        assertBean(CbamTokenProviderForVfc.class);
     }
 }

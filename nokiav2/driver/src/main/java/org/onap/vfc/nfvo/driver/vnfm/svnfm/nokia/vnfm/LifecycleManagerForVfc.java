@@ -19,6 +19,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.GrantlessGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForVfc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class LifecycleManagerForVfc extends LifecycleManager {
 
     @Autowired
-    LifecycleManagerForVfc(CatalogManagerForVfc catalogManager, GrantlessGrantManager grantManager, CbamRestApiProviderForVfc restApiProvider, VfcExternalSystemInfoProvider vimInfoProvider, JobManagerForVfc jobManager, LifecycleChangeNotificationManagerForVfc notificationManager) {
+    LifecycleManagerForVfc(CatalogManagerForVfc catalogManager, VfcGrantManager grantManager, CbamRestApiProviderForVfc restApiProvider, VfcExternalSystemInfoProvider vimInfoProvider, JobManagerForVfc jobManager, LifecycleChangeNotificationManagerForVfc notificationManager) {
         super(catalogManager, grantManager, restApiProvider, vimInfoProvider, jobManager, notificationManager);
     }
 
