@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
@@ -95,5 +96,14 @@ public class TestVfcExternalSystemInfoProvider extends TestBase {
             assertEquals("Unable to query VNFM from VF-C with myVnfmId identifier", e.getMessage());
             verify(logger).error("Unable to query VNFM from VF-C with myVnfmId identifier", expectedException);
         }
+    }
+
+    /**
+     * The VNFM identifier is loaded from property files
+     */
+    @Test
+    public void testGetVnfms(){
+        setFieldWithPropertyAnnotation(vfcExternalSystemInfoProvider, "${vnfmId}", "myVnfmId");
+        assertEquals(Sets.newHashSet("myVnfmId"), vfcExternalSystemInfoProvider.getVnfms());
     }
 }

@@ -390,6 +390,7 @@ public class TestLifecycleManager extends TestBase {
     /**
      * test instantiation with backward compatibility test with Amsterdam release
      * - the vim identifier is supplied as vimid with not camel case
+     * - the access info is supplied as accessinfo with not camel case
      */
     @Test
     public void testInstantiationNoVimId() throws Exception {
@@ -777,7 +778,33 @@ public class TestLifecycleManager extends TestBase {
         assertEquals(0, actualInstantiationRequest.getAllValues().size());
         //verify
         verify(logger).error("VF-C did not send VIM identifier in grant response");
+    }
 
+    /**
+     * instantiation fails if VF-C does not send access info in grant response
+     */
+    @Test
+    public void testVfcFailsToSendAccessInfo() throws Exception {
+        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
+
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
+        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        grantResponse.setVimId(VIM_ID);
+        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
+        accessInfo.setTenant(TENANT);
+        String caCert = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/localhost.cert.pem").toURI())));
+        vimInfo.setSslInsecure("false");
+        vimInfo.setSslCacert(caCert);
+        //grantResponse.setAccessInfo(accessInfo);
+        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
+        //when
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(0, actualInstantiationRequest.getAllValues().size());
+        //verify
+        verify(logger).error("VF-C did not send access info in grant response");
     }
 
     /**

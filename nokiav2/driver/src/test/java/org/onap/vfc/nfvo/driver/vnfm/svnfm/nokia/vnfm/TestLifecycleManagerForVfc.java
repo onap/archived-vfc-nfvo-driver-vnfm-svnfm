@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.GrantlessGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForSo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForVfc;
 
@@ -32,11 +33,11 @@ public class TestLifecycleManagerForVfc extends TestBase{
     @Test
     public void testBean(){
         CatalogManagerForVfc catalogManager = mock(CatalogManagerForVfc.class);
-        GrantlessGrantManager grantManager = mock(GrantlessGrantManager.class);
-        VfcExternalSystemInfoProvider aaiExternalSystemInfoProvider = mock(VfcExternalSystemInfoProvider.class);
-        JobManagerForVfc jobManagerForSo = mock(JobManagerForVfc.class);
-        LifecycleChangeNotificationManagerForVfc lifecycleChangeNotificationManagerForSo = mock(LifecycleChangeNotificationManagerForVfc.class);
-        LifecycleManagerForVfc lifecycleManagerForSo = new LifecycleManagerForVfc(catalogManager, grantManager, cbamRestApiProviderForVfc, aaiExternalSystemInfoProvider, jobManagerForSo, lifecycleChangeNotificationManagerForSo);
+        VfcGrantManager vfcGrantManager = mock(VfcGrantManager.class);
+        VfcExternalSystemInfoProvider vfcExternalSystemInfoProvider = mock(VfcExternalSystemInfoProvider.class);
+        JobManagerForVfc lifecycleManagerForVfc = mock(JobManagerForVfc.class);
+        LifecycleChangeNotificationManagerForVfc lifecycleChangeNotificationManagerForVfc = mock(LifecycleChangeNotificationManagerForVfc.class);
+        LifecycleManagerForVfc lifecycleManagerForSo = new LifecycleManagerForVfc(catalogManager, vfcGrantManager, cbamRestApiProviderForVfc, vfcExternalSystemInfoProvider, lifecycleManagerForVfc, lifecycleChangeNotificationManagerForVfc);
         assertNotNull(lifecycleManagerForSo);
         assertBean(LifecycleChangeNotificationManagerForVfc.class);
     }

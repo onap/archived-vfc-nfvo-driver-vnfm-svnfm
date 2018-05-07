@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
-
-import junit.framework.TestCase;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcExternalSystemInfoProvider;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcNotificationSender;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
-public class TestCbamTokenProviderForSo extends TestBase {
+import static junit.framework.TestCase.assertNotNull;
+
+public class TestSelfRegistrationManagerForVfc extends TestBase {
     @Test
-    public void testBean(){
-        AAIExternalSystemInfoProvider aaiExternalSystemInfoProvider = Mockito.mock(AAIExternalSystemInfoProvider.class);
-        CbamTokenProviderForSo cbamTokenProviderForSo = new CbamTokenProviderForSo(aaiExternalSystemInfoProvider);
-        TestCase.assertNotNull(cbamTokenProviderForSo);
-        assertBean(CbamTokenProviderForSo.class);
+    public void testBean() {
+        VfcExternalSystemInfoProvider vfcExternalSystemInfoProvider = Mockito.mock(VfcExternalSystemInfoProvider.class);
+        SelfRegistrationManagerForVfc selfRegistrationManagerForVfc = new SelfRegistrationManagerForVfc(vfcExternalSystemInfoProvider, msbApiProvider, cbamRestApiProviderForVfc);
+        assertNotNull(selfRegistrationManagerForVfc);
+        assertBean(SelfRegistrationManagerForVfc.class);
     }
 }
