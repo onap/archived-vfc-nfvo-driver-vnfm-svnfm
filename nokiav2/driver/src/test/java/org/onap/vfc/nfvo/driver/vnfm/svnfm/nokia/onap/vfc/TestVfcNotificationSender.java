@@ -62,7 +62,7 @@ public class TestVfcNotificationSender extends TestBase {
     public void init() throws Exception {
         vfcNotificationSender = new VfcNotificationSender(vfcRestApiProvider);
         setField(VfcNotificationSender.class, "logger", logger);
-        when(nsLcmApi.vNFLCMNotification(eq(VNFM_ID), eq(VNF_ID), sentLcnToVfc.capture())).thenReturn(null);
+        when(nsLcmApi.vNFLCMNotification(eq(VNFM_ID), eq(VNF_ID), sentLcnToVfc.capture())).thenReturn(VOID_OBSERVABLE.value());
         instantiationOperation.setId("instantiationOperationExecutionId");
         instantiationOperation.setStartTime(OffsetDateTime.now());
         instantiationOperation.setOperationType(OperationType.INSTANTIATE);
@@ -115,15 +115,16 @@ public class TestVfcNotificationSender extends TestBase {
         vfcNotificationSender.processNotification(recievedLcn, instantiationOperation, empty(), VIM_ID, VNFM_ID);
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
-        assertNull(sentLcnToVfc.getValue().getAffectedVl());
-        assertNull(sentLcnToVfc.getValue().getAffectedVnfc());
-        assertNull(sentLcnToVfc.getValue().getAffectedCp());
-        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVl().size());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVnfc().size());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedCp().size());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVirtualStorage().size());
 
         assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
         assertEquals(org.onap.vnfmdriver.model.OperationType.INSTANTIATE, sentLcnToVfc.getValue().getOperation());
         assertEquals(VnfLcmNotificationStatus.START, sentLcnToVfc.getValue().getStatus());
         assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -223,11 +224,12 @@ public class TestVfcNotificationSender extends TestBase {
         assertEquals("myPortName", actualAffectedCp.getPortResource().getResourceName());
         assertEquals(VnfCpNotificationType.ADDED, actualAffectedCp.getChangeType());
 
-        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVirtualStorage().size());
         assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
         assertEquals(org.onap.vnfmdriver.model.OperationType.INSTANTIATE, sentLcnToVfc.getValue().getOperation());
         assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());
         assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -288,6 +290,7 @@ public class TestVfcNotificationSender extends TestBase {
         assertEquals("portProviderId", actualAffectedCp.getPortResource().getResourceid());
         assertEquals("myPortName", actualAffectedCp.getPortResource().getResourceName());
         assertEquals(VnfCpNotificationType.ADDED, actualAffectedCp.getChangeType());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -387,11 +390,12 @@ public class TestVfcNotificationSender extends TestBase {
         assertEquals("portProviderId", actualAffectedCp.getPortResource().getResourceid());
         assertEquals("myPortName", actualAffectedCp.getPortResource().getResourceName());
 
-        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVirtualStorage().size());
         assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
         assertEquals(org.onap.vnfmdriver.model.OperationType.TERMINAL, sentLcnToVfc.getValue().getOperation());
         assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());
         assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -508,11 +512,12 @@ public class TestVfcNotificationSender extends TestBase {
         assertEquals("myPortName", actualAffectedCp.getPortResource().getResourceName());
         assertEquals(VnfCpNotificationType.CHANGED, actualAffectedCp.getChangeType());
 
-        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVirtualStorage().size());
         assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
         assertEquals(org.onap.vnfmdriver.model.OperationType.HEAL, sentLcnToVfc.getValue().getOperation());
         assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());
         assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -620,11 +625,12 @@ public class TestVfcNotificationSender extends TestBase {
         assertEquals("myPortName", actualAffectedCp.getPortResource().getResourceName());
         assertEquals(VnfCpNotificationType.ADDED, actualAffectedCp.getChangeType());
 
-        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVirtualStorage().size());
         assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
         assertEquals(org.onap.vnfmdriver.model.OperationType.SCALEOUT, sentLcnToVfc.getValue().getOperation());
         assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());
         assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -733,11 +739,12 @@ public class TestVfcNotificationSender extends TestBase {
         assertEquals("myPortName", actualAffectedCp.getPortResource().getResourceName());
         assertEquals(VnfCpNotificationType.REMOVED, actualAffectedCp.getChangeType());
 
-        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVirtualStorage().size());
         assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
         assertEquals(org.onap.vnfmdriver.model.OperationType.SCALEIN, sentLcnToVfc.getValue().getOperation());
         assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());
         assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
+        VOID_OBSERVABLE.assertCalled();
     }
 
 
@@ -764,15 +771,16 @@ public class TestVfcNotificationSender extends TestBase {
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
-        assertNull(sentLcnToVfc.getValue().getAffectedVl());
-        assertNull(sentLcnToVfc.getValue().getAffectedVnfc());
-        assertNull(sentLcnToVfc.getValue().getAffectedCp());
-        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVl().size());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVnfc().size());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedCp().size());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVirtualStorage().size());
         assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
         assertEquals(org.onap.vnfmdriver.model.OperationType.SCALEIN, sentLcnToVfc.getValue().getOperation());
         assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());
         assertEquals(VNF_ID, sentLcnToVfc.getValue().getVnfInstanceId());
         verify(logger, never()).info(eq("Sending LCN: {}"), anyString());
+        VOID_OBSERVABLE.assertCalled();
     }
 
     /**
@@ -823,10 +831,10 @@ public class TestVfcNotificationSender extends TestBase {
         //verify
         assertEquals(1, sentLcnToVfc.getAllValues().size());
 
-        assertNull(sentLcnToVfc.getValue().getAffectedVl());
-        assertNull(sentLcnToVfc.getValue().getAffectedVnfc());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVl().size());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVnfc().size());
         assertEquals(0, sentLcnToVfc.getValue().getAffectedCp().size());
-        assertNull(sentLcnToVfc.getValue().getAffectedVirtualStorage());
+        assertEquals(0, sentLcnToVfc.getValue().getAffectedVirtualStorage().size());
         assertEquals(JOB_ID, sentLcnToVfc.getValue().getJobId());
         assertEquals(org.onap.vnfmdriver.model.OperationType.HEAL, sentLcnToVfc.getValue().getOperation());
         assertEquals(VnfLcmNotificationStatus.RESULT, sentLcnToVfc.getValue().getStatus());

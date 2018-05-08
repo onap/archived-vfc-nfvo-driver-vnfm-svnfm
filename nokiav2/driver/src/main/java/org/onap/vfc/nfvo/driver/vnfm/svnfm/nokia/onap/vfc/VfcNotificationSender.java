@@ -54,7 +54,7 @@ public class VfcNotificationSender implements INotificationSender {
 
     @Override
     public void processNotification(VnfLifecycleChangeNotification recievedNotification, OperationExecution operationExecution, Optional<ReportedAffectedConnectionPoints> affectedCps, String vimId, String vnfmId) {
-        VNFLCMNotification notificationToSend = new VNFLCMNotification();
+        VNFLCMNotification notificationToSend = buildNotification();
         notificationToSend.setJobId(extractOnapJobId(operationExecution.getOperationParams()));
         notificationToSend.setOperation(getOperation(operationExecution, recievedNotification.getOperation()));
         notificationToSend.setVnfInstanceId(recievedNotification.getVnfInstanceId());
@@ -69,12 +69,21 @@ public class VfcNotificationSender implements INotificationSender {
         sendNotification(vnfmId, notificationToSend);
     }
 
+    private VNFLCMNotification buildNotification() {
+        VNFLCMNotification notificationToSend = new VNFLCMNotification();
+        notificationToSend.setAffectedVirtualStorage(new ArrayList<>());
+        notificationToSend.setAffectedVnfc(new ArrayList<>());
+        notificationToSend.setAffectedVl(new ArrayList<>());
+        notificationToSend.setAffectedCp(new ArrayList<>());
+        return notificationToSend;
+    }
+
     private void sendNotification(String vnfmId, VNFLCMNotification notification) {
         try {
             if (logger.isInfoEnabled()) {
                 logger.info("Sending LCN: {}", new Gson().toJson(notification));
             }
-            vfcRestApiProvider.getNsLcmApi().vNFLCMNotification(vnfmId, notification.getVnfInstanceId(), notification);
+            vfcRestApiProvider.getNsLcmApi().vNFLCMNotification(vnfmId, notification.getVnfInstanceId(), notification).blockingFirst(null);
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to send LCN to VF-C", e);
         }
@@ -102,7 +111,6 @@ public class VfcNotificationSender implements INotificationSender {
 
     private void addAffectedVnfcs(String vimId, String vnfId, VNFLCMNotification notificationToSend, VnfLifecycleChangeNotification request) {
         if (request.getAffectedVnfcs() != null) {
-            notificationToSend.setAffectedVnfc(new ArrayList<>());
             for (com.nokia.cbam.lcm.v32.model.AffectedVnfc affectedVnfc : request.getAffectedVnfcs()) {
                 org.onap.vnfmdriver.model.AffectedVnfc onapVnfc = new org.onap.vnfmdriver.model.AffectedVnfc();
                 onapVnfc.setChangeType(getChangeType(affectedVnfc.getChangeType()));
@@ -118,7 +126,6 @@ public class VfcNotificationSender implements INotificationSender {
 
     private void addAffectedVirtualLinks(VnfLifecycleChangeNotification request, VNFLCMNotification notification) {
         if (request.getAffectedVirtualLinks() != null) {
-            notification.setAffectedVl(new ArrayList<>());
             for (com.nokia.cbam.lcm.v32.model.AffectedVirtualLink affectedVirtualLink : request.getAffectedVirtualLinks()) {
                 org.onap.vnfmdriver.model.AffectedVirtualLink onapVirtualLink = new org.onap.vnfmdriver.model.AffectedVirtualLink();
                 onapVirtualLink.setVlInstanceId(request.getVnfInstanceId() + SEPARATOR + affectedVirtualLink.getId());
@@ -146,7 +153,6 @@ public class VfcNotificationSender implements INotificationSender {
 
     private void addAffectedCps(String vimId, VNFLCMNotification notificationToSend, Optional<ReportedAffectedConnectionPoints> affectedCps) {
         if (affectedCps.isPresent()) {
-            notificationToSend.setAffectedCp(new ArrayList<>());
             for (ReportedAffectedCp pre : affectedCps.get().getPre()) {
                 Optional<VnfCpNotificationType> changeType = getChangeType(affectedCps.get(), pre);
                 if (of(VnfCpNotificationType.REMOVED).equals(changeType)) {

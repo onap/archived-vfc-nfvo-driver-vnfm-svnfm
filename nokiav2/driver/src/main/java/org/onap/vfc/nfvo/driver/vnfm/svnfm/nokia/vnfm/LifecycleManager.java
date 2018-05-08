@@ -491,7 +491,7 @@ public class LifecycleManager {
      */
     public void deleteVnf(String vnfmId, String vnfId) {
         logger.info("Deleting VNF with {} identifier", vnfId);
-        cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
+        cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst(null);
         logger.info("The VNF with {} identifier has been deleted", vnfId);
     }
 
