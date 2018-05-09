@@ -1,41 +1,7 @@
 {
-  "nsInstanceId": "e7d79bd8-8e97-48fa-bbb8-fe2e8166b61c",
+  "nsInstanceId": "69c095e8-e24f-4e0b-821e-f6f8d342a929",
   "additionalParamForNs": {
     "location": "Nokia_RegionOne",
-    "vnfs": {
-      "669e8f94-b3a4-47ff-9245-c023c9fd5657": {
-        "computeResourceFlavours": [
-          {
-            "vnfdVirtualComputeDescId": "server_compute",
-            "resourceId": "m1.small"
-          }
-        ],
-        "extVirtualLinks": [
-          {
-            "extCps": [
-              {
-                "cpdId": "comuniversal_ecp"
-              }
-            ],
-            "resourceId": "external"
-          }
-        ],
-        "zones": [
-          {
-            "resourceId": "nova",
-            "id": "zoneInfoId"
-          }
-        ],
-        "flavourId": "scalable",
-        "vimType": "OPENSTACK_V2_INFO",
-        "instantiationLevel": "default",
-        "softwareImages": [
-          {
-            "resourceId": "ubuntu-16.04",
-            "vnfdSoftwareImageId": "server_image"
-          }
-        ]
-      }
-    }
+    "61fbe643-8c92-4b95-a90a-d65f1ba359a9": "{ \"computeResourceFlavours\": [ { \"vnfdVirtualComputeDescId\": \"server_compute\", \"resourceId\": \"m1.small\" } ], \"extVirtualLinks\": [ { \"extCps\": [ { \"cpdId\": \"universal_ecp\" } ], \"resourceId\": \"pub_net\" } ], \"zones\": [ { \"resourceId\": \"compute-a\", \"id\": \"zoneInfoId\" } ], \"flavourId\": \"scalable\", \"vimType\": \"OPENSTACK_V3_INFO\", \"instantiationLevel\": \"default\", \"softwareImages\": [ { \"resourceId\": \"ubuntu.16.04\", \"vnfdSoftwareImageId\": \"server_image\" } ] }"
   }
 }

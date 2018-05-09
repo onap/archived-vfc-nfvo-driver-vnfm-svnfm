@@ -20,6 +20,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.ScaleDirection;
@@ -290,11 +291,11 @@ public class LifecycleManager {
     }
 
     private AdditionalParameters convertInstantiationAdditionalParams(String csarId, Object additionalParams) {
-        JsonObject vnfParameters = child(child(new Gson().toJsonTree(additionalParams).getAsJsonObject(), "inputs"), "vnfs");
-        if (!vnfParameters.has(csarId)) {
+        JsonObject inputs = child(new Gson().toJsonTree(additionalParams).getAsJsonObject(), "inputs");
+        if (!inputs.has(csarId)) {
             throw buildFatalFailure(logger, "The additional parameter section does not contain setting for VNF with " + csarId + " CSAR id");
         }
-        JsonElement additionalParamsForVnf = vnfParameters.get(csarId);
+        JsonElement additionalParamsForVnf = new JsonParser().parse(inputs.get(csarId).getAsString());
         return new Gson().fromJson(additionalParamsForVnf, AdditionalParameters.class);
     }
 

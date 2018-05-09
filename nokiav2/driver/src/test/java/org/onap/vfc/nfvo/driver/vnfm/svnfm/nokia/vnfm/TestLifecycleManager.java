@@ -15,10 +15,8 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import com.google.gson.annotations.SerializedName;
 import com.nokia.cbam.catalog.v1.model.CatalogAdapterVnfpackage;
 import com.nokia.cbam.lcm.v32.model.*;
 import com.nokia.cbam.lcm.v32.model.OperationType;
@@ -53,6 +51,7 @@ import static java.util.Optional.empty;
 import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.*;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.child;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.childElement;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions.systemFunctions;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider.NOKIA_LCM_API_VERSION;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -310,8 +309,9 @@ public class TestLifecycleManager extends TestBase {
         ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
         when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
         JsonObject inputs = child((JsonObject) instantiationRequest.getAdditionalParam(), "inputs");
-        JsonObject vnfs = child(child(inputs, "vnfs"), ONAP_CSAR_ID);
-        vnfs.remove("additionalParams");
+        JsonObject vnf = new JsonParser().parse(childElement(inputs, ONAP_CSAR_ID).getAsString()).getAsJsonObject();
+        vnf.remove("additionalParams");
+        inputs.add(ONAP_CSAR_ID, new JsonPrimitive(new Gson().toJson(vnf)));
         //when
         VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
         waitForJobToFinishInJobManager(finished);
@@ -1652,6 +1652,21 @@ public class TestLifecycleManager extends TestBase {
         }
     }
 
+    public static class X{
+        public Map<String, String> getInputs() {
+            return inputs;
+        }
+
+        public void setInputs(Map<String, String> inputs) {
+            this.inputs = inputs;
+        }
+
+        @SerializedName("inputs")
+        public Map<String,String> inputs = new HashMap<String,String>();
+
+        public String vimId;
+    }
+
     private VnfInstantiateRequest prepareInstantiationRequest(VimInfo.VimInfoTypeEnum cloudType) {
         VnfInstantiateRequest instantiationRequest = new VnfInstantiateRequest();
         instantiationRequest.setVnfPackageId(ONAP_CSAR_ID);
@@ -1717,8 +1732,11 @@ public class TestLifecycleManager extends TestBase {
         additionalParam.getSoftwareImages().add(image);
         additionalParam.setAdditionalParams(new JsonParser().parse("{ \"a\" : \"b\" }"));
         String params = new Gson().toJson(additionalParam);
-        String src = "{ \"inputs\" : { \"vnfs\" : { \"" + ONAP_CSAR_ID + "\" : " + params + "}}, \"vimId\" : \"" + VIM_ID + "\"}";
-        instantiationRequest.setAdditionalParam(new JsonParser().parse(src));
+        X x = new X();
+        x.inputs.put(ONAP_CSAR_ID, params);
+        x.vimId = VIM_ID;
+        JsonElement additionalParam = new Gson().toJsonTree(x);
+        instantiationRequest.setAdditionalParam(additionalParam);
         return instantiationRequest;
     }
 
