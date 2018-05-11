@@ -10,9 +10,9 @@
           "relationship": [{
             "related-to": "tenant",
             "relationship-data": [
-              {"relationship-key": "cloud-region.cloud-owner", "relationship-value": "Nokia"},
-              {"relationship-key": "cloud-region.cloud-region-id", "relationship-value": "RegionOne"},
-              {"relationship-key": "tenant.tenant-id", "relationship-value": "2ca57d2dbeda4e8a84739319bab769f4"}
+              {"relationship-key": "cloud-region.cloud-owner", "relationship-value": "<cloudOwner"},
+              {"relationship-key": "cloud-region.cloud-region-id", "relationship-value": "<cloudRegion>"},
+              {"relationship-key": "tenant.tenant-id", "relationship-value": "<tenantId>"}
             ]
           }]
         }

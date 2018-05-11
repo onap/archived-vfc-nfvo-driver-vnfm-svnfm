@@ -6,7 +6,9 @@ Requirements on the VNF package
 -------------------------------
 
 - the VNFD must have a instantiation level named default
+
 - each VDU must have a corresponding software image named <vduname>_image
+
 - the VNF integrator must use the availability zones to specify the location of the VNFCs. One availability zone
 will be defined for each VDU
 

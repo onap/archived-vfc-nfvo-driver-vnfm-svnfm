@@ -1,6 +1,6 @@
 {
-    "nsName": "cbam_ns_dual_2",
-    "csarId": "0479b45c-85cb-4dae-979a-e44618b1a49f",
+    "nsName": "cbam_ns_simple_1",
+    "csarId": "2ef6e605-7b83-4692-94a6-32c1ff72b6bb",
     "context": {
         "globalCustomerId" : "123456",
         "serviceType" :  "Database"

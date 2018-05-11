@@ -15,7 +15,7 @@ Manual
 - the VNF must declare the externalVnfmId and onapCsarId as modifyable attribute in CBAM package. Each should have
 a default value. (The concrete value will be filled out by CBAM)
 - each operation must declare a jobId additional parameter in CBAM package (value will be filled out by CBAM)
-- the heal operation must declare the jobId, vmName and action parameters in CBAM package (values will be filled out by CBAM)
+- the heal operation must declare the jobId, vmName, vnfcId and action parameters in CBAM package (values will be filled out by CBAM)
 - each operation (including built-in) must include the following section as the last pre_action (all JS are provided by CBAM)
 
 .. code-block:: console

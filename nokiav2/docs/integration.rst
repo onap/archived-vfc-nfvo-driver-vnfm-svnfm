@@ -162,12 +162,19 @@ Add the VNFM driver to ONAP
    - Note: Cloud credentials are supplied by the VNF integrator.
 
    - To obtain the value of the Auth URL field and the tenant id (which will be required later), follow these steps:
+
      - Note: The actual steps depend on the OpenStack Dashboard version and vendor.
+
      - Go to OpenStack Horizon Dashboard.
+
      - Select the Project main tab.
+
      - Select the API Access tab.
+
      - Click View Credentials.
+
      - Copy the value of Authentication URL and paste it in the Auth URL field.
+
      - Note the value of Project ID: this is the <tenantId> which will be required later (Repeat this step for all tenants planned to be used within the VIM.)
 
  - Click Save.
@@ -185,13 +192,47 @@ Add the VNFM driver to ONAP
  - Using a REST client of your choice, send a request to the following URL: https://aai.api.simpledemo.onap.org:8443/aai/v11/cloud-infrastructure/cloud-regions/cloud-region/<cloudOwner>/<cloudRegion>/tenants/tenant/<tenantId>
 
    - download the content of the request: `aai.create.tenant.request.json <sample/aai.create.tenant.request.json>`
+
    - In the request URL and in the content of the request, substitute <tenantId>, <cloudRegion> and <cloudOwner> with the respective values.
+
    - HTTP method: PUT
+
    - Set the following values in the Header of the request:
 
      - basic auth AAI:AAI
+
      - X-FromAppId : any
+
+     - X-TransactionId: any
+
      - Content-type: application/json
+
+     - Accept: application/json
+
+- Create customer in A&AI
+
+ - Note:
+
+   - The customer may already exists
+
+ - Using a REST client of your choice, send a request to the following URL:  https://aai.api.simpledemo.onap.org:8443/aai/v11/business/customers/customer/123456
+
+   - download the content of the request: `aai.create.customer.request.json <sample/aai.create.customer.request.json>`
+
+   - In the downloaded content of the request, substitute <tenantName>, <tenantId>, <cloudRegion> and <cloudOwner> with the respective values.
+
+   - HTTP method: PUT
+
+   - Set the following values in the Header of the request:
+
+     - basic auth AAI:AAI
+
+     - X-FromAppId : any
+
+     - X-TransactionId: any
+
+     - Content-type: application/json
+
      - Accept: application/json
 
 - Register the VNFM as an external system:
@@ -231,7 +272,7 @@ Add the VNFM driver to ONAP
 +-----------------+------------------------------------------+
 | URL             | <authUrl>_<lcmUrl>_<lcnUrl>_<catalogUrl> |
 +-----------------+------------------------------------------+
-| VIM             | any                                      |
+| VIM             | <cloudOwner>_<cloudRegion>               |
 +-----------------+------------------------------------------+
 | certificate URL |                                          |
 +-----------------+------------------------------------------+
@@ -246,8 +287,23 @@ Add the VNFM driver to ONAP
 
  - Determine the UUID of the VNFM:
 
-   - Access the following URL: http://msb.api.simpledemo.onap.org:9518/api/aai-esr-server/v1/vnfms
-   - Look for the previously registered VNFM and note the value of <vnfmId>.
+   - Using a REST client of your choice, send a request to the following URL:  https://aai.api.simpledemo.onap.org:8447/aai/v11/external-system/esr-vnfm-list/esr-vnfm?depth=all
+
+   - HTTP method: GET
+
+   - Set the following values in the Header of the request:
+
+     - basic auth AAI:AAI
+
+     - X-FromAppId : any
+
+     - X-TransactionId: any
+
+     - Content-type: application/json
+
+     - Accept: application/json
+
+   - Look for the previously registered VNFM and note the value of (vnfm-id) <vnfmId>.
 
 
 Configure the SVNFM driver (generic)
@@ -259,6 +315,7 @@ Configure the SVNFM driver (generic)
 - Determine the IMAGE ID:
 
  - Execute the following command: docker images
+
  - Find the required image and note the IMAGE ID.
 
 - Start the driver:
@@ -275,6 +332,7 @@ Configure the SVNFM driver (generic)
 - Determine the identifier of the container:
 
  - Execute the following command: docker ps
+
  - Find the required container and note the CONTAINER ID (first column/first row on the list).
 
 - Verify if the VNFM driver has been successfully started by executing the following commands:
@@ -289,6 +347,7 @@ Configure the SVNFM driver (generic)
 - Verify if the SVNFM is registered into MSB:
 
  - Go to http://msb.api.simpledemo.onap.org/msb
+
  - Check if NokiaSVNFM micro service is present in the boxes.
 
 
@@ -306,4 +365,4 @@ This step is executed instead of the "Configure the SVNFM driver (generic)" in c
 
  - Restart the VNFM service
 
-   - Execute the following command: ps -ef | grep java |
+   - Execute the following command: kill -9 `ps -ef | grep java | grep -v grep | awk '{print $2}'`

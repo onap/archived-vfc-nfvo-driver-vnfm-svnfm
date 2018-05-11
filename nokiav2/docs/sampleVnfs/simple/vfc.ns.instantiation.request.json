@@ -1,5 +1,5 @@
 {
-  "nsInstanceId": "69c095e8-e24f-4e0b-821e-f6f8d342a929",
+  "nsInstanceId": "23fd3ae5-c261-4662-9fcd-35107d33954f",
   "additionalParamForNs": {
     "location": "Nokia_RegionOne",
     "61fbe643-8c92-4b95-a90a-d65f1ba359a9": "{ \"computeResourceFlavours\": [ { \"vnfdVirtualComputeDescId\": \"server_compute\", \"resourceId\": \"m1.small\" } ], \"extVirtualLinks\": [ { \"extCps\": [ { \"cpdId\": \"universal_ecp\" } ], \"resourceId\": \"pub_net\" } ], \"zones\": [ { \"resourceId\": \"compute-a\", \"id\": \"zoneInfoId\" } ], \"flavourId\": \"scalable\", \"vimType\": \"OPENSTACK_V3_INFO\", \"instantiationLevel\": \"default\", \"softwareImages\": [ { \"resourceId\": \"ubuntu.16.04\", \"vnfdSoftwareImageId\": \"server_image\" } ] }"

@@ -1,6 +1,6 @@
   {
-    "cloud-owner": "Nokia",
-    "cloud-region-id": "RegionOne",
-    "tenant-id": "2ca57d2dbeda4e8a84739319bab769f4",
-    "tenant-name": "VFC"
+    "cloud-owner": "<cloudOwner>",
+    "cloud-region-id": "<cloudRegion>",
+    "tenant-id": "<tenantId>",
+    "tenant-name": "<tenantName>"
   }

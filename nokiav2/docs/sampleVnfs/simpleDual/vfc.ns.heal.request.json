@@ -1,12 +1,12 @@
 {
   "healVnfData": {
-    "vnfInstanceId": "05901205-622e-495b-9673-25c433c1c35a",
+    "vnfInstanceId": "9c45cbf7-e5df-44a0-a469-89b80ded8d8c",
     "cause": "cause",
     "additionalParams": {
-      "action": "restartvm",
+      "action": "auto",
       "actionvminfo": {
-        "vmid": "vmId",
-        "vmname": "vmname"
+        "vmid": "fef21eb0-d020-4790-8d43-3c1a9aa634dc",
+        "vmname": "CBAM-a5ec0302fe3a46c7a8f60b28d61fe25c-simple-1"
       }
     }
   }
