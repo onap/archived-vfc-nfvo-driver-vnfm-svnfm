@@ -655,6 +655,43 @@ public class AdapterResourceManager implements IResourceManager {
           return fileContent;
      }
 
+    /**
+     * Get scalein vm ids.<br>
+     *
+     * @return
+     * @throws IOException
+     * @since VFC 1.0
+     */
+    public static JSONObject readScaleInVmIdFromJson() {
+        String fileContent = "";
+
+        String fileName = SystemEnvVariablesFactory.getInstance().getAppRoot()
+                + System.getProperty(Constant.FILE_SEPARATOR) + "etc" + System.getProperty(Constant.FILE_SEPARATOR)
+                + "vnfpkginfo" + System.getProperty(Constant.FILE_SEPARATOR) + "scalein_vm_ids.json";
+
+        try (InputStream ins = new FileInputStream(fileName)) {
+            try (BufferedInputStream bins = new BufferedInputStream(ins)) {
+                byte[] contentByte = new byte[ins.available()];
+                int num = bins.read(contentByte);
+
+                if(num > 0) {
+                    fileContent = new String(contentByte);
+                }
+            }
+
+            if(StringUtils.isNotEmpty(fileContent)) {
+                return JSONObject.fromObject(fileContent);
+            }
+        } catch(FileNotFoundException e) {
+            LOG.error(fileName + "is not found!", e);
+        } catch(JSONException e) {
+            LOG.error(fileName + "is not json!", e);
+        } catch(IOException e) {
+            LOG.error(fileName + "io exception!", e);
+        }
+        return null;
+    }
+
      private static JSONObject readVnfdIdInfoFromJson() {
           JSONObject jsonObject = new JSONObject();
 

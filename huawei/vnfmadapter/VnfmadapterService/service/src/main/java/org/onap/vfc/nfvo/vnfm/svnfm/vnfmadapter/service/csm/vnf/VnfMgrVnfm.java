@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.UrlConstant;
@@ -75,12 +76,15 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
             // scale_in
             JSONArray vmList = new JSONArray();
             try {
-                JSONObject additionalParam = vnfObject.getJSONObject("additionalParam");
-                vmList = additionalParam.getJSONArray("vm_list");
+                // JSONObject additionalParam = vnfObject.getJSONObject("additionalParam");
+                // vmList = additionalParam.getJSONArray("vm_list");
+                vmList = AdapterResourceManager.readScaleInVmIdFromJson().getJSONArray("vm_list");
             } catch(JSONException e) {
                 LOG.error("the param 'additionalParam' or 'vm_list' not found,please check it", e);
             }
-            scaleInfo.put("vm_list", vmList);
+            if(null != vmList && !vmList.isEmpty()) {
+                scaleInfo.put("vm_list", vmList);
+            }
         }
         paramJson.put("scale_info", scaleInfo);
         JSONObject queryResult =
@@ -93,7 +97,9 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
                 restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
                 // restJson.put("data",
                 // queryResult.getJSONObject("data").getJSONObject("scale_info"));
-                JSONObject appInfo = queryResult.getJSONObject("data").getJSONObject("scale_info");
+                // JSONObject appInfo =
+                // queryResult.getJSONObject("data").getJSONObject("scale_info");
+                JSONObject appInfo = new JSONObject();
                 JSONObject resultObj = new JSONObject();
                 // resultObj.put(Constant.JOBID, vnfInstanceId + "_" + Constant.PUT);
                 handleResponse(resultObj, appInfo, vnfInstanceId, Constant.PUT);
