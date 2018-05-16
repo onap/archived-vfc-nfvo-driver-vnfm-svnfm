@@ -366,7 +366,7 @@ public class VnfMgr {
         if(vnfInstanceId == null) {
             url = "/v2/vapps/instances/query/vms";
         } else {
-            url = String.format("/v2/vapps/instances/%s/vms", vnfInstanceId);
+            url = String.format("/v2/vapps/instances/%s/vm", vnfInstanceId);
         }
         restJson = ResultRequestUtil.call(vnfmObjcet, url, Constant.GET, null, Constant.CERTIFICATE);
         LOG.info("function=getVmsFromVnfm, restJson: {}", restJson);
