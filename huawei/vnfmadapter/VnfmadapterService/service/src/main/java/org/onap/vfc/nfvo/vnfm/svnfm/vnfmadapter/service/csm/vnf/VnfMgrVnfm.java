@@ -97,9 +97,12 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
                 restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
                 // restJson.put("data",
                 // queryResult.getJSONObject("data").getJSONObject("scale_info"));
-                // JSONObject appInfo =
-                // queryResult.getJSONObject("data").getJSONObject("scale_info");
                 JSONObject appInfo = new JSONObject();
+                try {
+                    appInfo = JSONObject.fromObject(queryResult.getString("data")).getJSONObject("scale_info");
+                } catch(JSONException e) {
+                    LOG.error("function=scaleVnf, msg=csm return obj is not a json, e={}.", e);
+                }
                 JSONObject resultObj = new JSONObject();
                 // resultObj.put(Constant.JOBID, vnfInstanceId + "_" + Constant.PUT);
                 handleResponse(resultObj, appInfo, vnfInstanceId, Constant.PUT);
