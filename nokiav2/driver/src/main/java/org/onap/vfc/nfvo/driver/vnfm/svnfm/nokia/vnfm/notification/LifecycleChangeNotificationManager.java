@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.OperationMustBeAborted;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.ILifecycleChangeNotificationManager;
@@ -210,15 +212,19 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
                 JsonObject operationResult = root.getAsJsonObject().get("operationResult").getAsJsonObject();
                 if (isAbsent(operationResult, "cbam_pre") ||
                         isAbsent(operationResult, "cbam_post")) {
-                    return handleFailure(operationExecution, null);
+                    return handleFailure(operationExecution);
                 } else {
                     return of(new Gson().fromJson(operationResult, ReportedAffectedConnectionPoints.class));
                 }
             } else {
-                return handleFailure(operationExecution, null);
+                return handleFailure(operationExecution);
             }
-        } catch (Exception e) {
-            return handleFailure(operationExecution, e);
+        }
+        catch(OperationMustBeAborted handledFailuire){
+            throw handledFailuire;
+        }
+        catch (Exception e) {
+            return toleratedFailure();
         }
     }
 
@@ -226,15 +232,16 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
         return !operationResult.has(key) || !operationResult.get(key).isJsonArray();
     }
 
-    private Optional<ReportedAffectedConnectionPoints> handleFailure(OperationExecution operationExecution, Exception e) {
+    private Optional<ReportedAffectedConnectionPoints> handleFailure(OperationExecution operationExecution) {
         if (operationExecution.getStatus() == OperationStatus.FAILED) {
-            logger.warn("The operation failed and the affected connection points were not reported");
-            return empty();
+            return toleratedFailure();
         } else {
-            if (e != null) {
-                throw buildFatalFailure(logger, PROBLEM, e);
-            }
             throw buildFatalFailure(logger, PROBLEM);
         }
+    }
+
+    private Optional<ReportedAffectedConnectionPoints> toleratedFailure() {
+        logger.warn("The operation failed and the affected connection points were not reported");
+        return empty();
     }
 }

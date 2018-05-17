@@ -81,7 +81,7 @@ public class CbamUtils {
         return new OperationMustBeAborted(msg);
     }
 
-    private static class OperationMustBeAborted extends RuntimeException {
+    public static class OperationMustBeAborted extends RuntimeException {
         OperationMustBeAborted(String msg) {
             super(msg);
         }
