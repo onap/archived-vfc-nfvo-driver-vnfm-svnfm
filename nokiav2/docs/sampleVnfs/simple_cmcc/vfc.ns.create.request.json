@@ -1,0 +1,9 @@
+{
+    "nsName": "simple_20180517_1",
+    "csarId": "58b0320f-f4f1-421f-ba38-2dda1f2d6484",
+    "context": {
+        "globalCustomerId" : "Demonstration",
+        "serviceType" :  "Database"
+    },
+    "description": "string"
+}

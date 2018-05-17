@@ -1,0 +1,7 @@
+{
+  "nsInstanceId": "601f68d2-b1cd-4c47-8af9-1a781eb5fa2a",
+  "additionalParamForNs": {
+    "location": "NokiaNonAdmin_RegionOne",
+    "45dd6e04-34d4-452f-8eff-d944c2b8e075": "{ \"computeResourceFlavours\": [ { \"vnfdVirtualComputeDescId\": \"server_compute\", \"resourceId\": \"m1.small\" } ], \"extVirtualLinks\": [ { \"extCps\": [ { \"cpdId\": \"universal_ecp\" } ], \"resourceId\": \"oam-nokia\" } ], \"zones\": [ { \"resourceId\": \"nova\", \"id\": \"zoneInfoId\" } ], \"flavourId\": \"scalable\", \"vimType\": \"OPENSTACK_V3_INFO\", \"instantiationLevel\": \"default\", \"softwareImages\": [ { \"resourceId\": \"ubuntu.16.04\", \"vnfdSoftwareImageId\": \"server_image\" } ] }"
+  }
+}

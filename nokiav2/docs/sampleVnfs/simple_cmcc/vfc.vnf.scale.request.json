@@ -1,0 +1,8 @@
+{
+  "scaleVnfData" :
+  {
+    "type" : "SCALE_OUT",
+    "aspectId"  : "simpleAspect",
+    "numberOfSteps" : "1"
+  }
+}
