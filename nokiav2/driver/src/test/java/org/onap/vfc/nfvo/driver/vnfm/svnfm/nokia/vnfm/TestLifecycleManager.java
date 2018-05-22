@@ -264,6 +264,7 @@ public class TestLifecycleManager extends TestBase {
         verify(jobManager).spawnJob(VNF_ID, restResponse);
         verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("creation"), eq("not yet specified"), anyString());
         verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("instantiation"), eq(VNF_ID), anyString());
+        verify(logger).info("The instantiation input for VNF with {} CSAR id does not have a properties section", ONAP_CSAR_ID);
     }
 
     /**
@@ -1192,8 +1193,8 @@ public class TestLifecycleManager extends TestBase {
             VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
             fail();
         } catch (Exception e) {
-            assertEquals("The additional parameter section does not contain setting for VNF with myOnapCsarId CSAR id", e.getMessage());
-            verify(logger).error("The additional parameter section does not contain setting for VNF with myOnapCsarId CSAR id");
+            assertEquals("The additional parameter section does not contain settings for VNF with myOnapCsarId CSAR id", e.getMessage());
+            verify(logger).error("The additional parameter section does not contain settings for VNF with myOnapCsarId CSAR id");
         }
     }
 
@@ -1665,6 +1666,8 @@ public class TestLifecycleManager extends TestBase {
         public Map<String,String> inputs = new HashMap<String,String>();
 
         public String vimId;
+
+        public String properties;
     }
 
     private VnfInstantiateRequest prepareInstantiationRequest(VimInfo.VimInfoTypeEnum cloudType) {
@@ -1673,6 +1676,23 @@ public class TestLifecycleManager extends TestBase {
         instantiationRequest.setVnfDescriptorId(ONAP_CSAR_ID);
         instantiationRequest.setVnfInstanceDescription("myDescription");
         instantiationRequest.setVnfInstanceName("vnfName");
+        externalVirtualLink.setCpdId("myCpdId");
+        externalVirtualLink.setResourceId("myNetworkProviderId");
+        externalVirtualLink.setVlInstanceId("myEVlId");
+        externalVirtualLink.setResourceSubnetId("notUsedSubnetId");
+        instantiationRequest.setExtVirtualLink(new ArrayList<>());
+        instantiationRequest.getExtVirtualLink().add(externalVirtualLink);
+        buildAdditionalParams(cloudType);
+        String params = new Gson().toJson(additionalParam);
+        X x = new X();
+        x.inputs.put(ONAP_CSAR_ID, params);
+        x.vimId = VIM_ID;
+        JsonElement additionalParam = new Gson().toJsonTree(x);
+        instantiationRequest.setAdditionalParam(additionalParam);
+        return instantiationRequest;
+    }
+
+    private void buildAdditionalParams(VimInfo.VimInfoTypeEnum cloudType) {
         additionalParam.setInstantiationLevel("level1");
         switch (cloudType) {
             case OPENSTACK_V2_INFO:
@@ -1713,12 +1733,6 @@ public class TestLifecycleManager extends TestBase {
         ecp2.setNumDynamicAddresses(2);
         evl.getExtCps().add(ecp2);
         additionalParam.getExtVirtualLinks().add(evl);
-        externalVirtualLink.setCpdId("myCpdId");
-        externalVirtualLink.setResourceId("myNetworkProviderId");
-        externalVirtualLink.setVlInstanceId("myEVlId");
-        externalVirtualLink.setResourceSubnetId("notUsedSubnetId");
-        instantiationRequest.setExtVirtualLink(new ArrayList<>());
-        instantiationRequest.getExtVirtualLink().add(externalVirtualLink);
         additionalParam.getExtManagedVirtualLinks().add(extManVl);
         ZoneInfo zone = new ZoneInfo();
         zone.setId("zoneId");
@@ -1731,13 +1745,6 @@ public class TestLifecycleManager extends TestBase {
         image.setVnfdSoftwareImageId("imageId");
         additionalParam.getSoftwareImages().add(image);
         additionalParam.setAdditionalParams(new JsonParser().parse("{ \"a\" : \"b\" }"));
-        String params = new Gson().toJson(additionalParam);
-        X x = new X();
-        x.inputs.put(ONAP_CSAR_ID, params);
-        x.vimId = VIM_ID;
-        JsonElement additionalParam = new Gson().toJsonTree(x);
-        instantiationRequest.setAdditionalParam(additionalParam);
-        return instantiationRequest;
     }
 
     /**
@@ -1747,5 +1754,92 @@ public class TestLifecycleManager extends TestBase {
     public void testVimIdSplitting() {
         assertEquals("regionId", LifecycleManager.getRegionName("cloudOwner_regionId"));
         assertEquals("cloudOwner", LifecycleManager.getCloudOwner("cloudOwner_regionId"));
+    }
+
+    /**
+     * additional params of instantiation may be passed as VNF property
+     */
+    @Test
+    public void testVnfConfigurationBasedOnPackageParameters() throws Exception {
+        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
+        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        grantResponse.setVimId(VIM_ID);
+        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
+        accessInfo.setTenant(TENANT);
+        grantResponse.setAccessInfo(accessInfo);
+        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
+        X x = new X();
+        JsonObject root = new JsonObject();
+        root.addProperty(LifecycleManager.ETSI_CONFIG, new Gson().toJson(additionalParam));
+        x.properties = new Gson().toJson(root);
+        x.vimId = VIM_ID;
+        JsonElement additionalParam = new Gson().toJsonTree(x);
+        instantiationRequest.setAdditionalParam(additionalParam);
+        //when
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
+        //verify
+        OPENSTACKV3INFO actualVim = (OPENSTACKV3INFO) actualInstantiationRequest.getValue().getVims().get(0);
+        assertEquals(VIM_ID, actualVim.getId());
+        assertEquals(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO, actualVim.getVimInfoType());
+        assertEquals(Boolean.valueOf(parseBoolean(vimInfo.getSslInsecure())), actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertEquals("cloudUrl", actualVim.getInterfaceInfo().getEndpoint());
+        //FIXME assertEquals();actualVim.getInterfaceInfo().getTrustedCertificates());
+        assertEquals("vimPassword", actualVim.getAccessInfo().getPassword());
+        assertEquals("regionId", actualVim.getAccessInfo().getRegion());
+        assertEquals("myTenant", actualVim.getAccessInfo().getProject());
+        assertEquals("myDomain", actualVim.getAccessInfo().getDomain());
+        assertEquals("vimUsername", actualVim.getAccessInfo().getUsername());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
+    }
+
+    /**
+     * additional params of instantiation may be passed as VNF property
+     */
+    @Test
+    public void testVnfConfigurationBasedOnPackageParametersMissingPropertiesEtsiConfig() throws Exception {
+        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
+        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        grantResponse.setVimId(VIM_ID);
+        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
+        accessInfo.setTenant(TENANT);
+        grantResponse.setAccessInfo(accessInfo);
+        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
+        X x = new X();
+        JsonObject root = new JsonObject();
+        root.addProperty(LifecycleManager.ETSI_CONFIG, new Gson().toJson(additionalParam));
+        x.properties = "{  }";
+        new Gson().toJson(root);
+        x.inputs.put(ONAP_CSAR_ID, new Gson().toJson(additionalParam));
+        x.vimId = VIM_ID;
+        JsonElement additionalParam = new Gson().toJsonTree(x);
+        instantiationRequest.setAdditionalParam(additionalParam);
+        //when
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
+        //verify
+        OPENSTACKV3INFO actualVim = (OPENSTACKV3INFO) actualInstantiationRequest.getValue().getVims().get(0);
+        assertEquals(VIM_ID, actualVim.getId());
+        assertEquals(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO, actualVim.getVimInfoType());
+        assertEquals(Boolean.valueOf(parseBoolean(vimInfo.getSslInsecure())), actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertEquals("cloudUrl", actualVim.getInterfaceInfo().getEndpoint());
+        //FIXME assertEquals();actualVim.getInterfaceInfo().getTrustedCertificates());
+        assertEquals("vimPassword", actualVim.getAccessInfo().getPassword());
+        assertEquals("regionId", actualVim.getAccessInfo().getRegion());
+        assertEquals("myTenant", actualVim.getAccessInfo().getProject());
+        assertEquals("myDomain", actualVim.getAccessInfo().getDomain());
+        assertEquals("vimUsername", actualVim.getAccessInfo().getUsername());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
+        verify(logger).info("The instantiation input for VNF with {} CSAR id does not have an " + LifecycleManager.ETSI_CONFIG + " section", ONAP_CSAR_ID);
     }
 }

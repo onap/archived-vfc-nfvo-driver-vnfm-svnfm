@@ -102,6 +102,10 @@ public class OnapVnfdBuilder {
                 "  name: " + properties.get("product_name").getAsString() + "\n" +
                 "  vnfdVersion: " + descriptorVersion + "\n\n" +
                 "topology_template:\n" +
+                "  inputs:\n" +
+                "    etsi_config:\n" +
+                "      type: string\n"+
+                "      description: The ETSI configuration\n"+
                 "  node_templates:\n";
     }
 
