@@ -67,6 +67,7 @@ public class LifecycleManager {
      */
     public static final String EXTERNAL_VNFM_ID = "externalVnfmId";
     public static final String SCALE_OPERATION_NAME = "scale";
+    public static final String ETSI_CONFIG = "etsi_config";
     private static Logger logger = getLogger(LifecycleManager.class);
     private final CatalogManager catalogManager;
     private final IGrantManager grantManager;
@@ -291,9 +292,23 @@ public class LifecycleManager {
     }
 
     private AdditionalParameters convertInstantiationAdditionalParams(String csarId, Object additionalParams) {
-        JsonObject inputs = child(new Gson().toJsonTree(additionalParams).getAsJsonObject(), "inputs");
+        JsonObject root = new Gson().toJsonTree(additionalParams).getAsJsonObject();
+        if(root.has("properties")){
+            JsonObject properties = new JsonParser().parse(root.get("properties").getAsString()).getAsJsonObject();
+            if(properties.has(ETSI_CONFIG)){
+                JsonElement etsi_config = properties.get(ETSI_CONFIG);
+                return new Gson().fromJson(etsi_config.getAsString(), AdditionalParameters.class);
+            }
+            else{
+                logger.info("The instantiation input for VNF with {} CSAR id does not have an " + ETSI_CONFIG +" section", csarId);
+            }
+        }
+        else{
+            logger.info("The instantiation input for VNF with {} CSAR id does not have a properties section", csarId);
+        }
+        JsonObject inputs = child(root, "inputs");
         if (!inputs.has(csarId)) {
-            throw buildFatalFailure(logger, "The additional parameter section does not contain setting for VNF with " + csarId + " CSAR id");
+            throw buildFatalFailure(logger, "The additional parameter section does not contain settings for VNF with " + csarId + " CSAR id");
         }
         JsonElement additionalParamsForVnf = new JsonParser().parse(inputs.get(csarId).getAsString());
         return new Gson().fromJson(additionalParamsForVnf, AdditionalParameters.class);

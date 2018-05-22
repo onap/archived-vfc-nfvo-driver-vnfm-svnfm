@@ -11,6 +11,10 @@ metadata:
   vnfdVersion: 1.0
 
 topology_template:
+  inputs:
+    etsi_config:
+      type: string
+      description: The ETSI configuration
   node_templates:
     vduNode:
       type: tosca.nodes.nfv.VDU.Compute

@@ -1,0 +1,14 @@
+{
+  "vnfInstanceName": "vnfc3bc829b-6057-4001-ad04-7c6",
+  "extVirtualLink": [],
+  "vnfPackageId": "c3bc829b-6057-4001-ad04-7c6bfdf30138",
+  "additionalParam": {
+    "inputs": {
+      "location": "Nokia_RegionOne"
+    },
+    "extVirtualLinks": [],
+    "properties": "{\"etsi_config\": \"{'zones': [{'resourceId': 'compute-a', 'id': 'zoneInfoId'}], 'extVirtualLinks': [{'resourceId': 'pub_net', 'extCps': [{'cpdId': 'universal_ecp'}]}], 'vimType': 'OPENSTACK_V3_INFO', 'instantiationLevel': 'default', 'softwareImages': [{'vnfdSoftwareImageId': 'server_image', 'resourceId': 'ubuntu.16.04'}], 'computeResourceFlavours': [{'resourceId': 'm1.small', 'vnfdVirtualComputeDescId': 'server_compute'}], 'flavourId': 'scalable'}\", \"id\": \"c3bc829b-6057-4001-ad04-7c6bfdf30138\", \"availability_zone_max_count\": \"1\"}",
+    "vimId": "Nokia_RegionOne"
+  },
+  "vnfDescriptorId": "c3bc829b-6057-4001-ad04-7c6bfdf30138"
+}
