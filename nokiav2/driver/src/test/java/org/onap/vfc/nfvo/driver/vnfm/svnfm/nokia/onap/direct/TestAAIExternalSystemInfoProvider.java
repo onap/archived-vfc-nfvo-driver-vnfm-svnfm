@@ -16,6 +16,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct;
 
 import java.util.ArrayList;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,6 +25,7 @@ import org.onap.aai.api.ExternalSystemApi;
 import org.onap.aai.model.CloudRegion;
 import org.onap.aai.model.EsrSystemInfo;
 import org.onap.aai.model.EsrVnfm;
+import org.onap.aai.model.EsrVnfmList;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfmInfo;
@@ -194,5 +196,22 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
             verify(logger).error("Unable to query VNFM with " + VNFM_ID + " identifier from AAI", expectedException);
             assertEquals(expectedException, e.getCause());
         }
+    }
+
+    /**
+     * the list of VNFMs is retrieved from AAI
+     */
+    @Test
+    public void testQueryAAIExternaSystemProvider() throws Exception{
+        EsrVnfmList e = new EsrVnfmList();
+        EsrVnfm esrVnfmItem = new EsrVnfm();
+        esrVnfmItem.setVnfmId(VNFM_ID);
+        e.addEsrVnfmItem(esrVnfmItem);
+        when(externalSystemApi.getExternalSystemEsrVnfmList()).thenReturn(buildObservable(e));
+        //when
+        Set<String> vnfms = aaiExternalSystemInfoProvider.getVnfms();
+        //verify
+        assertEquals(1, vnfms.size());
+        assertEquals(VNFM_ID, vnfms.iterator().next());
     }
 }

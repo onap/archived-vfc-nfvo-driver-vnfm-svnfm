@@ -101,6 +101,9 @@ public class GenericVnfManager extends AbstractManager {
         if (nsId.isPresent()) {
             addSingletonRelation(vnf.getRelationshipList(), linkToNs(nsId.get()));
         }
+        else{
+            logger.warn("Not linking VNF with {} identifier to any NS", vnfId);
+        }
         aaiRestApiProvider.getNetworkApi().createOrUpdateNetworkGenericVnfsGenericVnf(vnf.getVnfId(), vnf).blockingFirst();
     }
 

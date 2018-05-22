@@ -234,6 +234,7 @@ public class TestSelfRegistrationManager extends TestBase {
             return buildObservable(subscription);
         });
         selfRegistrationManager.assureSubscription(VNFM_ID);
+        selfRegistrationManager.assureSubscription(VNFM_ID);
         when(jobManager.hasOngoingJobs()).thenReturn(false);
         when(lcnApi.subscriptionsSubscriptionIdDelete(subscription.getId(), NOKIA_LCN_API_VERSION)).thenReturn(VOID_OBSERVABLE.value());
         VoidObservable MSB_DELETE = new VoidObservable();

@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.INotificationSender;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.OperationMustBeAborted;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.SystemFunctions;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;

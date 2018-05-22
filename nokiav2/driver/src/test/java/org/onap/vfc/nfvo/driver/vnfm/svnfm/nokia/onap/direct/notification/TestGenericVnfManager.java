@@ -17,10 +17,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification;
 
 import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import io.reactivex.Observable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +36,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CbamRestApiProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
 import static java.lang.Boolean.TRUE;
+import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 import static junit.framework.TestCase.assertEquals;
@@ -140,8 +138,10 @@ public class TestGenericVnfManager extends TestBase {
         when(cbamRestApiProviderForSo.getCbamLcmApi(VNFM_ID).vnfsVnfInstanceIdGet(VNF_ID, CbamRestApiProvider.NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         when(networkApi.createOrUpdateNetworkGenericVnfsGenericVnf(eq(VNF_ID), payload.capture())).thenReturn(VOID_OBSERVABLE.value());
         vnfInfo.setName("vnfName");
+        vnfInAaai.setRelationshipList(new ArrayList<>());
+        vnfInAaai.getRelationshipList().add(new Relationship());
         //when
-        genericVnfManager.createOrUpdate(VNF_ID, true, VNFM_ID, of("nsId"));
+        genericVnfManager.createOrUpdate(VNF_ID, true, VNFM_ID, empty());
         //verify
         GenericVnf vnfSentToAai = payload.getValue();
         assertEquals(VNF_ID, vnfSentToAai.getVnfId());
@@ -152,6 +152,7 @@ public class TestGenericVnfManager extends TestBase {
         assertEquals("vnfName", vnfSentToAai.getVnfName());
         verify(systemFunctions, never()).sleep(anyLong());
         VOID_OBSERVABLE.assertCalled();
+        assertEquals(1, vnfInAaai.getRelationshipList().size());
         verify(networkApi, times(1)).getNetworkGenericVnfsGenericVnf(VNF_ID, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 

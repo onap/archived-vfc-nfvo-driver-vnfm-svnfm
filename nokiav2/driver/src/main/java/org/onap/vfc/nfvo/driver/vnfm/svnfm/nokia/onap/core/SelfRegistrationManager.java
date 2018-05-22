@@ -16,6 +16,7 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.nokia.cbam.lcn.v32.api.SubscriptionsApi;
@@ -110,6 +111,7 @@ public class SelfRegistrationManager {
      *
      * @param vnfmId the identifier of the VNFM
      */
+    @VisibleForTesting
     public void assureSubscription(String vnfmId) {
         if (!vnfmIdToSubscriptionId.containsKey(vnfmId)) {
             subscribeToLcn(vnfmId);

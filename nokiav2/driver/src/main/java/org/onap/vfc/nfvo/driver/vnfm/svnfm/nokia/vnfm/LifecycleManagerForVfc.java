@@ -17,7 +17,6 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.GrantlessGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForVfc;
