@@ -51,6 +51,11 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
     @Override
     public JSONObject scaleVnf(JSONObject vnfObject, JSONObject vnfmObject, String vnfmId, String vnfInstanceId) {
         LOG.warn("function=scaleVnf, msg=enter to scale a vnf");
+
+        JSONObject queryVms = ResultRequestUtil.call(vnfmObject,
+                String.format(ParamConstants.VNF_GET_VMINFO, vnfInstanceId), Constant.GET, null, Constant.CERTIFICATE);
+        LOG.info("function=scaleVnf, msg=query vms result=" + queryVms);
+
         JSONObject restJson = new JSONObject();
         restJson.put(Constant.RETCODE, Constant.REST_FAIL);
         String path = String.format(ParamConstants.VNF_SCALE, vnfInstanceId);
@@ -61,7 +66,12 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         JSONObject scaleInfo = new JSONObject();
         JSONArray vduList = new JSONArray();
         JSONObject vdu = new JSONObject();
-        vdu.put("vdu_type", this.getVduType(vnfmObject, vnfInstanceId));
+
+        if(vnfObject.containsKey("configedVduType")) {
+            vdu.put("vdu_type", vnfObject.getString("configedVduType"));
+        } else {
+            vdu.put("vdu_type", this.getVduType(vnfmObject, queryVms));
+        }
         vdu.put("h_steps", vnfObject.get("numberOfSteps"));
         vduList.add(vdu);
         scaleInfo.put("vnf_id", vnfInstanceId);
@@ -78,13 +88,18 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
             try {
                 // JSONObject additionalParam = vnfObject.getJSONObject("additionalParam");
                 // vmList = additionalParam.getJSONArray("vm_list");
-                vmList = AdapterResourceManager.readScaleInVmIdFromJson().getJSONArray("vm_list");
+                vmList = ScaleManager.beforeScaleIn(queryVms, vnfInstanceId);
+                if(vmList.isEmpty()) {
+                    vmList = AdapterResourceManager.readScaleInVmIdFromJson().getJSONArray("vm_list");
+                }
             } catch(JSONException e) {
                 LOG.error("the param 'additionalParam' or 'vm_list' not found,please check it", e);
             }
             if(null != vmList && !vmList.isEmpty()) {
                 scaleInfo.put("vm_list", vmList);
             }
+        } else if(scaleType == PARAM_ONE) {
+            ScaleManager.beforeScaleOut(queryVms, vnfInstanceId);
         }
         paramJson.put("scale_info", scaleInfo);
         JSONObject queryResult =
@@ -118,13 +133,9 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         return restJson;
     }
 
-    private String getVduType(JSONObject vnfmObject, String vnfInstanceId) {
+    private String getVduType(JSONObject vnfmObject, JSONObject queryResult) {
         String vduType = "";
         try {
-            JSONObject queryResult =
-                    ResultRequestUtil.call(vnfmObject, String.format(ParamConstants.VNF_GET_VMINFO, vnfInstanceId),
-                            Constant.GET, null, Constant.CERTIFICATE);
-            LOG.info("getVduType result=" + queryResult);
             vduType = queryResult.getJSONObject("data").getJSONArray("vms").getJSONObject(0).getString("vdu_type");
         } catch(Exception e) {
             LOG.error("get vdu_type failed.", e);

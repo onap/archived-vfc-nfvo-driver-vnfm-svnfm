@@ -41,6 +41,8 @@
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
 
+    <context:property-placeholder location="classpath:jdbc.properties" ignore-unresolvable="true"/>
+    
     <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
 
     <bean id="source" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -75,6 +77,7 @@
 
     <bean id="vnfMgr" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr">
         <property name="vnfmDao" ref="vnfmDao"></property>
+        <property name="configedVduType" value="${vnf.scaleout.config.vdutype}"></property>
     </bean>
 
     <bean id="VnfRoa" class="org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest.VnfRoa">
