@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
@@ -48,6 +49,16 @@ public class VnfMgr {
 
     public void setVnfmDao(VnfmDao vnfmDao) {
         this.vnfmDao = vnfmDao;
+    }
+
+    private String configedVduType;
+
+
+    /**
+     * @param configedVduType The configedVduType to set.
+     */
+    public void setConfigedVduType(String configedVduType) {
+        this.configedVduType = configedVduType;
     }
 
     /**
@@ -79,6 +90,9 @@ public class VnfMgr {
             if(vnfmObjcet.isNullObject()) {
                 LOG.error("function=scaleVNF,can't find vnfm from db by vnfmId=" + vnfmId);
                 return restJson;
+            }
+            if(StringUtils.isNotEmpty(configedVduType)) {
+                vnfObject.put("configedVduType", configedVduType);
             }
             restJson = (new VnfMgrVnfm()).scaleVnf(vnfObject, vnfmObjcet, vnfmId, vnfInstanceId);
         } catch(JSONException e) {
@@ -344,9 +358,17 @@ public class VnfMgr {
         JSONObject responseJson = new JSONObject();
         JSONObject jobInfoJson = new JSONObject();
         JSONObject jobInfo = restJson.getJSONObject("data").getJSONObject("job_info");
-        jobInfoJson.put("jobId", jobInfo.getString("job_id"));
+        jobInfoJson.put("jobId", jobInfo.getString("job_id") + ":job");
         responseJson.put("progress", jobInfo.getString("task_progress_rate"));
-        responseJson.put("status", jobInfo.getString("task_status"));
+
+        String taskStatus = jobInfo.getString("task_status");
+        if(taskStatus.equalsIgnoreCase("Successfully") || taskStatus.equalsIgnoreCase("finished")) {
+            responseJson.put("status", "finished");
+        } else if(taskStatus.equalsIgnoreCase("Failed")) {
+            responseJson.put("status", "error");
+        } else {
+            responseJson.put("status", "processing");
+        }
         responseJson.put("errorCode", jobInfo.getString("error_code"));
         responseJson.put("responseId", jobInfo.getString("task_progress_rate"));
         jobInfoJson.put("responsedescriptor", responseJson);

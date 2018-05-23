@@ -133,12 +133,13 @@ public class VnfResourceRoa {
             JSONObject vm = vmList.getJSONObject(i);
             LOG.info("function=callLcmNotify, vm: {}", vm);
             JSONObject affectedVm = new JSONObject();
-            affectedVm.put("vnfcInstanceId", vm.getString("vm_id"));
+            String vimVimId = vm.getString("vim_vm_id");
+            affectedVm.put("vnfcInstanceId", vimVimId);
             affectedVm.put("changeType", changeType);
             affectedVm.put("vimid", vimId);
-            affectedVm.put("vmid", vm.getString("vm_id"));
+            affectedVm.put("vmid", vimVimId);
             affectedVm.put("vmname", vm.getString("vm_name"));
-            affectedVm.put("vduid", vm.getString("vm_id"));
+            affectedVm.put("vduid", vimVimId);
             LOG.info("function=callLcmNotify, affectedVm: {}", affectedVm);
             affectedVnfc.add(affectedVm);
         }
