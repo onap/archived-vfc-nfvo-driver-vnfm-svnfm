@@ -350,13 +350,13 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
 
         String action = jsonObject.getString("action");
         JSONObject affectedVm = jsonObject.getJSONObject("affectedvm");
-        String vmId = affectedVm.getString("vmid");
+        String vmId = getNativeVmId(affectedVm.getString("vmid"), vnfmObjcet, vnfInstanceId);
         String path = String.format(ParamConstants.HEAL_VNF, vmId);
 
         JSONObject subJsonObject = new JSONObject();
         subJsonObject.put("type", "hard");
         subJsonObject.put("boot_mode", "");
-        if("vmReset".equals(action)) {
+        if("vmReset".equalsIgnoreCase(action)) {
             subJsonObject.put("action", "reset");
         }
         LOG.info("healVnf subJsonObject :" + subJsonObject);
@@ -372,6 +372,22 @@ public class VnfMgrVnfm implements InterfaceVnfMgr {
         }
 
         return restJson;
+    }
+
+    private String getNativeVmId(String vimVmId, JSONObject vnfmObjcet, String vnfInstanceId) {
+        JSONObject queryVms = ResultRequestUtil.call(vnfmObjcet,
+                String.format(ParamConstants.VNF_GET_VMINFO, vnfInstanceId), Constant.GET, null, Constant.CERTIFICATE);
+        LOG.info("function=getNativeVmId, msg=query vms result=" + queryVms);
+        JSONArray vms = queryVms.getJSONObject("data").getJSONArray("vms");
+        for(int i = 0; i < vms.size(); i++) {
+            JSONObject obj = vms.getJSONObject(i);
+            String tmpVimVmId = obj.getString("backend_id");
+            if(vimVmId.equalsIgnoreCase(tmpVimVmId)) {
+                return obj.getString("id");
+            }
+        }
+        LOG.error("function=getNativeVmId, msg=get native vmId failed.");
+        return "";
     }
 
     public JSONObject getJobFromVnfm(JSONObject vnfmObjcet, String jobId) {
