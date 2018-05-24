@@ -1,0 +1,8 @@
+Code-Review-1: Dénes Németh <denes.nemeth@nokia.com>
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Yan Yang <yangyanyj@chinamobile.com>
+Submitted-by: Yan Yang <yangyanyj@chinamobile.com>
+Submitted-at: Thu, 24 May 2018 05:50:53 +0000
+Reviewed-on: https://gerrit.onap.org/r/48861
+Project: vfc/nfvo/driver/vnfm/svnfm
+Branch: refs/heads/master
