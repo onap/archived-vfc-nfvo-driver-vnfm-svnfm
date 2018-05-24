@@ -31,6 +31,7 @@ public class AdditionalParameters {
     private List<ExtManagedVirtualLinkData> extManagedVirtualLinks = new ArrayList<>();
     private Map<String, List<NetworkAddress>> externalConnectionPointAddresses = new HashMap<>();
     private List<ExtVirtualLinkData> extVirtualLinks = new ArrayList<>();
+    private List<VnfProperty> extensions = new ArrayList<>();
     private Object additionalParams;
     private String domain;
 
@@ -158,6 +159,28 @@ public class AdditionalParameters {
         this.extVirtualLinks = extVirtualLinks;
     }
 
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    /**
+     * @return the extensions of the VNF modifiable attributes
+     */
+    public List<VnfProperty> getExtensions() {
+        return extensions;
+    }
+
+    /**
+     * @param extensions the extensions of the VNF modifiable attributes
+     */
+    public void setExtensions(List<VnfProperty> extensions) {
+        this.extensions = extensions;
+    }
+
     @Override
     //generated code. This is the recommended way to formulate equals
     @SuppressWarnings({"squid:S00122", "squid:S1067"})
@@ -174,20 +197,19 @@ public class AdditionalParameters {
                 Objects.equals(extManagedVirtualLinks, that.extManagedVirtualLinks) &&
                 Objects.equals(externalConnectionPointAddresses, that.externalConnectionPointAddresses) &&
                 Objects.equals(extVirtualLinks, that.extVirtualLinks) &&
+                Objects.equals(extensions, that.extensions) &&
                 Objects.equals(additionalParams, that.additionalParams);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(vimType, domain, instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, additionalParams);
+        return Objects.hash(vimType, domain, instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, extensions, additionalParams);
     }
 
     @Override
     public String toString() {
         return "AdditionalParameters{" +
                 "vimType=" + vimType +
-                ", domain='" + domain + '\'' +
                 ", instantiationLevel='" + instantiationLevel + '\'' +
                 ", computeResourceFlavours=" + computeResourceFlavours +
                 ", zones=" + zones +
@@ -195,15 +217,9 @@ public class AdditionalParameters {
                 ", extManagedVirtualLinks=" + extManagedVirtualLinks +
                 ", externalConnectionPointAddresses=" + externalConnectionPointAddresses +
                 ", extVirtualLinks=" + extVirtualLinks +
+                ", extensions=" + extensions +
                 ", additionalParams=" + additionalParams +
+                ", domain='" + domain + '\'' +
                 '}';
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
     }
 }

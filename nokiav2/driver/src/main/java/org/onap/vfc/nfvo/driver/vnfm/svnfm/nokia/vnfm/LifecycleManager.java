@@ -17,6 +17,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 
+import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -43,7 +44,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Ordering.natural;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.nokia.cbam.lcm.v32.model.InstantiationState.INSTANTIATED;
 import static com.nokia.cbam.lcm.v32.model.OperationStatus.FINISHED;
@@ -68,6 +71,7 @@ public class LifecycleManager {
     public static final String EXTERNAL_VNFM_ID = "externalVnfmId";
     public static final String SCALE_OPERATION_NAME = "scale";
     public static final String ETSI_CONFIG = "etsi_config";
+    public static final String PROPERTIES = "properties";
     private static Logger logger = getLogger(LifecycleManager.class);
     private final CatalogManager catalogManager;
     private final IGrantManager grantManager;
@@ -215,6 +219,7 @@ public class LifecycleManager {
     @SuppressWarnings("squid:S00107") //wrapping them into an object makes the code less readable
     private void instantiateVnf(String vnfmId, List<ExtVirtualLinkInfo> extVirtualLinkInfos, AdditionalParameters additionalParameters, String onapVnfdId, String vnfmVnfdId, String vnfId, String vimId, JobInfo jobInfo) {
         String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, vnfmVnfdId);
+        addSpecifiedExtensions(vnfmId, vnfId, additionalParameters);
         GrantVNFResponseVim vim = grantManager.requestGrantForInstantiate(vnfmId, vnfId, vimId, onapVnfdId, additionalParameters.getInstantiationLevel(), vnfdContent, jobInfo.getJobId());
         handleBackwardIncompatibleApiChangesInVfc(vim);
         VimInfo vimInfo = vimInfoProvider.getVimInfo(vim.getVimId());
@@ -293,11 +298,11 @@ public class LifecycleManager {
 
     private AdditionalParameters convertInstantiationAdditionalParams(String csarId, Object additionalParams) {
         JsonObject root = new Gson().toJsonTree(additionalParams).getAsJsonObject();
-        if(root.has("properties")){
-            JsonObject properties = new JsonParser().parse(root.get("properties").getAsString()).getAsJsonObject();
+        if(root.has(PROPERTIES)){
+            JsonObject properties = new JsonParser().parse(root.get(PROPERTIES).getAsString()).getAsJsonObject();
             if(properties.has(ETSI_CONFIG)){
-                JsonElement etsi_config = properties.get(ETSI_CONFIG);
-                return new Gson().fromJson(etsi_config.getAsString(), AdditionalParameters.class);
+                JsonElement etsiConfig = properties.get(ETSI_CONFIG);
+                return new Gson().fromJson(etsiConfig.getAsString(), AdditionalParameters.class);
             }
             else{
                 logger.info("The instantiation input for VNF with {} CSAR id does not have an " + ETSI_CONFIG +" section", csarId);
@@ -317,7 +322,7 @@ public class LifecycleManager {
     private String getFlavorId(String vnfdContent) {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(vnfdContent)).getAsJsonObject();
         JsonObject capabilities = child(child(child(root, "topology_template"), "substitution_mappings"), "capabilities");
-        JsonObject deploymentFlavorProperties = child(child(capabilities, "deployment_flavour"), "properties");
+        JsonObject deploymentFlavorProperties = child(child(capabilities, "deployment_flavour"), PROPERTIES);
         return childElement(deploymentFlavorProperties, "flavour_id").getAsString();
     }
 
@@ -345,21 +350,37 @@ public class LifecycleManager {
 
     private void addVnfdIdToVnfModifyableAttributeExtensions(String vnfmId, String vnfId, String onapCsarId) {
         ModifyVnfInfoRequest request = new ModifyVnfInfoRequest();
+        request.setExtensions(new ArrayList<>());
         VnfProperty onapCsarIdProperty = new VnfProperty();
         onapCsarIdProperty.setName(ONAP_CSAR_ID);
         onapCsarIdProperty.setValue(onapCsarId);
-        request.setExtensions(new ArrayList<>());
         request.getExtensions().add(onapCsarIdProperty);
         VnfProperty externalVnfmIdProperty = new VnfProperty();
         externalVnfmIdProperty.setName(EXTERNAL_VNFM_ID);
         externalVnfmIdProperty.setValue(vnfmId);
         request.getExtensions().add(externalVnfmIdProperty);
-        request.setVnfConfigurableProperties(null);
+        executeModifyVnfInfo(vnfmId, vnfId, request);
+    }
+
+    private void executeModifyVnfInfo(String vnfmId, String vnfId, ModifyVnfInfoRequest request) {
         try {
             OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdPatch(vnfId, request, NOKIA_LCM_API_VERSION).blockingFirst();
             waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
         } catch (Exception e) {
-            throw buildFatalFailure(logger, "Unable to set the " + ONAP_CSAR_ID + " property on the VNF", e);
+            String properties = Joiner.on(",").join(natural().sortedCopy(transform(request.getExtensions(), VnfProperty::getName)));
+            throw buildFatalFailure(logger, "Unable to set the " + properties + " properties on the VNF with " + vnfId + " identifier", e);
+        }
+    }
+
+    private void addSpecifiedExtensions(String vnfmId, String vnfId, AdditionalParameters additionalParameters){
+        if(!additionalParameters.getExtensions().isEmpty()){
+            ModifyVnfInfoRequest request = new ModifyVnfInfoRequest();
+            request.setExtensions(new ArrayList<>());
+            request.getExtensions().addAll(additionalParameters.getExtensions());
+            executeModifyVnfInfo(vnfmId, vnfId, request);
+        }
+        else{
+            logger.info("No extensions specified for VNF with {} identifier", vnfId);
         }
     }
 

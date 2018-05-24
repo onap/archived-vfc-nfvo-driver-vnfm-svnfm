@@ -223,6 +223,7 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
             throw handledFailuire;
         }
         catch (Exception e) {
+            logger.warn("Unable to build affected connection points", e);
             return toleratedFailure();
         }
     }
