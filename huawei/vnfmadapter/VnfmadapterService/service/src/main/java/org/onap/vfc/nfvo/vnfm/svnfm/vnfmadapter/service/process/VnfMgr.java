@@ -359,18 +359,22 @@ public class VnfMgr {
         JSONObject jobInfoJson = new JSONObject();
         JSONObject jobInfo = restJson.getJSONObject("data").getJSONObject("job_info");
         jobInfoJson.put("jobId", jobInfo.getString("job_id") + ":job");
-        responseJson.put("progress", jobInfo.getString("task_progress_rate"));
+        String taskProgress = jobInfo.getString("task_progress_rate");
+        responseJson.put("progress", taskProgress);
 
+        int responseId = Integer.parseInt(taskProgress);
         String taskStatus = jobInfo.getString("task_status");
         if(taskStatus.equalsIgnoreCase("Successfully") || taskStatus.equalsIgnoreCase("finished")) {
             responseJson.put("status", "finished");
+            responseId++;
         } else if(taskStatus.equalsIgnoreCase("Failed")) {
             responseJson.put("status", "error");
+            responseId++;
         } else {
             responseJson.put("status", "processing");
         }
         responseJson.put("errorCode", jobInfo.getString("error_code"));
-        responseJson.put("responseId", jobInfo.getString("task_progress_rate"));
+        responseJson.put("responseId", String.valueOf(responseId));
         jobInfoJson.put("responsedescriptor", responseJson);
         LOG.warn("function=getJobBody, jobInfoJson: {}", jobInfoJson);
         return jobInfoJson.toString();

@@ -124,9 +124,15 @@ public class VnfResourceRoa {
         if(1 == dataObject.getInt("event_type")) {
             changeType = "added";
             operation = "Instantiate";
-        } else {
+        } else if(4 == dataObject.getInt("event_type")) {
             changeType = "removed";
             operation = "Terminal";
+        } else if(3 == dataObject.getInt("event_type")) {
+            changeType = "added";
+            operation = "Scaleout";
+        } else if(2 == dataObject.getInt("event_type")) {
+            changeType = "removed";
+            operation = "Scalein";
         }
         String vnfInstanceId = dataObject.getString("vnf_id");
         for(int i = 0; i < vmList.size(); i++) {

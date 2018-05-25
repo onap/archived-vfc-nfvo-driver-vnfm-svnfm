@@ -302,7 +302,7 @@ public class VnfRoa {
      *            "affectedvm": {
      *            "vmid": "804cca71 - 9ae9 - 4511 - 8e30 - d1387718caff",
      *            "vduid": "vdu_100",
-     *            "vmname": "ZTE_SSS_111_PP_2_L"
+     *            "vmname": "SBC_111_PP_2_L"
      *            }
      *            }
      * @param resp
