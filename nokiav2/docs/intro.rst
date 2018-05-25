@@ -43,3 +43,5 @@ Supported features
    - L3 networks
 
    - logical interfaces
+
+ - Supported CBAM versions: 17.5 SP1, 17.5 SP2, 17.5 MP1, 18.0, 18.5

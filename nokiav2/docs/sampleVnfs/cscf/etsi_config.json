@@ -1,0 +1,392 @@
+{
+  "extVirtualLinks": [
+    {
+      "resourceId": "NOKIA_IMS_02",
+      "extCps": [
+        {
+          "cpdId": "lbCpdeth3",
+          "addresses": [
+            {
+              "ip": "10.8.10.35"
+            },
+            {
+              "ip": "10.8.10.36"
+            }
+          ]
+        },
+        {
+          "cpdId": "lbMovingCpdeth3",
+          "addresses": [
+            {
+              "ip": "10.8.10.34"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resourceId": "NOKIA_IMS_01",
+      "extCps": [
+        {
+          "cpdId": "lbCpdeth2",
+          "addresses": [
+            {
+              "ip": "10.8.10.8"
+            },
+            {
+              "ip": "10.8.10.9"
+            }
+          ]
+        },
+        {
+          "cpdId": "lbMovingCpdeth2",
+          "addresses": [
+            {
+              "ip": "10.8.10.6"
+            },
+            {
+              "ip": "10.8.10.7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resourceId": "oam-nokia",
+      "extCps": [
+        {
+          "cpdId": "oamCpdeth1",
+          "addresses": [
+            {
+              "ip": "172.30.24.21"
+            },
+            {
+              "ip": "172.30.24.22"
+            },
+            {
+              "ip": "172.30.24.23"
+            }
+          ]
+        },
+        {
+          "cpdId": "oamMovingCpdeth1",
+          "addresses": [
+            {
+              "ip": "172.30.24.20"
+            }
+          ]
+        },
+        {
+          "cpdId": "lbCpdeth1",
+          "addresses": [
+            {
+              "ip": "172.30.24.18"
+            },
+            {
+              "ip": "172.30.24.19"
+            }
+          ]
+        },
+        {
+          "cpdId": "lbMovingCpdeth1",
+          "addresses": [
+            {
+              "ip": "172.30.24.17"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resourceId": "NOKIA_IMS_03",
+      "extCps": [
+        {
+          "cpdId": "lbCpdeth4",
+          "addresses": [
+            {
+              "ip": "10.8.10.67"
+            },
+            {
+              "ip": "10.8.10.68"
+            }
+          ]
+        },
+        {
+          "cpdId": "lbMovingCpdeth4",
+          "addresses": [
+            {
+              "ip": "10.8.10.66"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "softwareImages": [
+    {
+      "vnfdSoftwareImageId": "cscfImage",
+      "resourceId": "NOKIA-CSCF"
+    },
+    {
+      "vnfdSoftwareImageId": "oamImage",
+      "resourceId": "NOKIA-OAM"
+    }
+  ],
+  "flavourId": "cscf_si1",
+  "zones": [
+    {
+      "resourceId": "nova",
+      "id": "zoneInfoId1"
+    },
+    {
+      "resourceId": "nova",
+      "id": "zoneInfoId2"
+    }
+  ],
+  "instantiationLevelId": "basic",
+  "computeResourceFlavours": [
+    {
+      "resourceId": "NOKIA_CSCF_FLAVOR",
+      "vnfdVirtualComputeDescId": "cscfCompute"
+    },
+    {
+      "resourceId": "NOKIA_LB_FLAVOR",
+      "vnfdVirtualComputeDescId": "lbCompute"
+    },
+    {
+      "resourceId": "NOKIA_OAM_FLAVOR",
+      "vnfdVirtualComputeDescId": "oamCompute"
+    }
+  ],
+  "vimType": "OPENSTACK_V3_INFO",
+  "extensions": [
+      {
+        "name": "cscf_names_second_of_pair",
+        "value": [
+          "cscf02",
+          "cscf04",
+          "cscf06"
+        ]
+      },
+      {
+        "name": "cscf_uuids_second_of_pair",
+        "value": [
+          "Gw0uC0Z9",
+          "Lz3oK4C4",
+          "Os9eH7H2"
+        ]
+      },
+      {
+        "name": "cakey",
+        "value": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lEQVYwbk1BMEdDU3FHU0liM0RRRUJDd1VBTUJZeEZEQVNCZ05WQkFNVEN6RTMKTWk0ek1DNHlOQzQyTUI0WERURTNNRGt4T1RBME1EZ3dNVm9YRFRJM01Ea3hOekEwTURnd01Wb3dGakVVTUJJRwpBMVVFQXhNTE1UY3lMak13TGpJMExqWXdnZ0VnTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRFFBd2dnRUlBb0lCCkFRRFFOUXVlVzNqSXl6VjNKeXN6L2RhZmNpcWg3ZTdPeFh3RzNYOVBhUnh5NTRGM1l0cEhxbExOMjkrWEVxTHEKcnhaYy9CL0p1S3dyNDlYRkRBMWlsTkFLblM2dHgwbStIaWFoNUh3dXRhS1Q1T2NhdStmc1VtUnNuRXZjTlNoTApEQkxBeWpWZDhKY3owNk9mMjNXWkF1Qjg0eXN4aWQ3amg0NW1XOGFnODN3TGoxZC9pbDllaGhQRmcyUXkvWVE4CmRjaGJjeWphMVpQd2hueS9HVXQ5dEoxVHd1bnRHS1poRVNjWnRiMzYyeG9MRHhrSHQ4aDMrR1A3bWprbEswbGkKSy9MZVU3cGsycm1yRUpCcGdxTGQ5UHBIYVloV0ozakFiZ0xOM2VhRWhpNlpaS1dXVkl6ZFQxVzVtdWt0SVdNWgpDaVgraHU0OVhQak9HR09Zek1ld1lUVVhBZ0VEbzI4d2JUQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01BOEdBMVVkCkVRUUlNQWFIQkt3ZUdBWXdDd1lEVlIwUEJBUURBZ0xrTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGQndNQkJnZ3IKQmdFRkJRY0RBakFkQmdOVkhRNEVGZ1FVbS9jZmkwakFrN3RxRjMvc3lYNG5iYytrUHNRd0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBSzlxVnE0QnllUzN3aXhMbXVQMUE2WjZ4cXgvaXI3SG1TaHRyRE9xTXlNSWRYemEzUkRoCmplcGgyMEZBbUgraVprK0c4VEdUSmFPa1h3a0Uxc1p2ODZkZVVhQ25KWFFPeVBkTENBMWhuSTNmSlFzRkp6ZW0KeHh2WU9MVitZTDFndVBRRHZENVBjMW1tS1ZabjdERDdoY21kZHA2RWxTNzB4Zllac1pIMllhMEFUV0NqZlR5QQptYUNIRVdyT1J4emdqUEZEQnNuK0sxNTJPbjZQZkZoU2NuYklLaXdCZU05c0xRdlJURlVBTVpXRUJnSEZiakE4CmswUmFkYnRMTjBxODlNVi9iNnNNTk9MZ2swUnl2OFJUSlM2SUxUUThqOWFjcEx3bE52Y2diNUR5RXpFeStzT3cKMFF4ei9NQktvWmFxNkxQRCtlYWFpRGwvQlRBTmdac3dkVDA9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+      },
+      {
+        "name": "dns_ip",
+        "value": "172.30.24.253"
+      },
+      {
+        "name": "oam01_tempkey",
+        "value": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURERENDQWZTZ0F3SUJBZ0lFSEIyOURUQU5CZ2txaGtpRzl3MEJBUXNGQURBV01SUXdFZ1lEVlFRREV3c3gKTnpJdU16QXVNalF1TmpBZUZ3MHhPREExTWpBeE1qTXpOREphRncweE9EQTFNakV4TWpNek5ESmFNRHN4RlRBVApCZ05WQkFNVERERTNNaTR6TUM0eU5DNHlNVEVTTUJBR0ExVUVCeE1KUW1GdVoyRnNiM0psTVE0d0RBWURWUVFLCkV3Vk9UMHRKUVRDQ0FTQXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRU5BRENDQVFnQ2dnRUJBTFRVeDJBSkszSXkKTGhMMll0dDVaUXU3NHk1cFVNUEplSDJoNlhBR0R6OFRwREhKWmRsQ21MVEhrc2NTbDJlemdURDBRQnpJUEM4YQpSOHFvK3N0T3l5bGNpeitEWkZ6WGY5VHlEMVBFUmEwb2tQbjZML2hESVR2MnoxQnZKdktjQzNPelkzVTdIeWF2CnlodTI2VVJEQWxkNlhReCtmWGV2RElmRzFSUEJNaW1uZ3dYM1hmaFhLdFBnUDZoOGRWeXo3SU50ZGRIYWtua2gKNEMwTWMrZjdMTlUxbEN5dHM3RG5ZUzdWN3FxRC9lVVplNmxHWnlCMGJYa3JFbkRVMFJTT3dxQm5POXd2K216bgpEMFFmUWtmQnkraDFwNExJK3lTcWVPNjE2TkxkWE1xQmsvUW5oV3dsbGN0bXBwS1NteEM1bDYyRUUzdXAwcHF2Cno0YkhGeDlROG9jQ0FRT2pQekE5TUE4R0ExVWRFUVFJTUFhSEJLd2VHQlV3Q3dZRFZSMFBCQVFEQWdMa01CMEcKQTFVZEpRUVdNQlFHQ0NzR0FRVUZCd01CQmdnckJnRUZCUWNEQWpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQQpkNkNGZi95eFEwd1JpcXVrZFQwUitvVXpuL1RWWVkyMTVHRnZ0VURJT2FTMEk1K0xNNDRhQm1HY0draW9IcUZ4Cloyem1qMFRYV3F0YS84cTZmMGF1RkRYaHB6ZXJqQ1pjdVhtSjgzSHY4amlXR3U1WXpNUzhlNjZjZEtOM1pLZW8KNXdNakl3akRzMUoyU05CVHpYTFhocTdydGUrc0xKMmxYRXRWYU82WXVMcTd6eExsY0d2WnQ0U2pNMUgwRkpsSwp1UGNjbUpDZFAzYkhwRmREUGdTSUxQVWJOdEFxdHB5VlVaQm1SUzB0ZHVRSHFGaXpxbTdBTkxGUGlLdWFKcUpICnduUURVK25jYWkvRnFBZEhjWEdOWVBxQkZhMC82NFpqWGVxWXo1dHhzUk5wV3lpV1dXck9jNGVOQkxEWFk1NEgKQlBiTHREeS9xSmdVckwrL2ovMjNmUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+      },
+      {
+        "name": "cscf_uuids_first_of_pair",
+        "value": [
+          "Hg6lR5U8",
+          "Os3gR9Z0",
+          "Ch5hI7Z2"
+        ]
+      },
+      {
+        "name": "oam_volume_size",
+        "value": 200
+      },
+      {
+        "name": "internal_network_cidr",
+        "value": "192.168.101.0/24"
+      },
+      {
+        "name": "internal_network_ipversion",
+        "value": 4
+      },
+      {
+        "name": "lb_internal_cipa_ip",
+        "value": "192.168.101.32"
+      },
+      {
+        "name": "oam03_privkey",
+        "value": "LS0tLS1CRUdJTiBFTkNSWVBURUQgUFJJVkFURSBLRVktLS0tLQpNSUlGSHpCSkJna3Foa2lHOXcwQkJRMHdQREFiQmdrcWhraUc5dzBCQlF3d0RnUUlvZkZldFpwSDYrd0NBZ2dBCk1CMEdDV0NHU0FGbEF3UUJLZ1FRc1d5ZFpPZEJrV0EwVXBEYldYeHRkUVNDQk5Ca0ZEbGxHQlg5d2w0MDJQK28Kb3Z1SFkzdi8zYi8xZmc2NjMwUzh6d3AxUFllb3FPOXgxY0ErMkk4ZkdCdnhJWTBTQ1NFQ0tDZDlKMGtTd2M1NQpOaXpmUVVaaEFuWHl3MC9odVh1UFN1dytVTHlteXpnN3BvakRLZCs0ZEcvWUZTWDRlRldXTWRxWXhFeUdFbEpOCjJ0eEFadEtkdkdLeGdZai96K081MXFraXdacldORnlYS3N3ME9aaENuejgxMmdHa2lLTFBSZUdYY0pNYWRFV1QKQkVtcnBvbmV2dDhuOUZIaG5udyszT1RGMFc3aXVrR0pJYSt0VlRqYXJGWitOMmZINGpKNzE3UnVZWWlpUTRpNApEV2pQNTBUU0VhQTZhSnNEOW1FUFFpbGNGM25kNHltT3FuWGhma0hhMElyMUFhdHhJVUdyQzJoSkpWcWJHb0o2CjNaaXJWNDIwQUp6YmJVVlZOZlViSGV2aWpkeXhHT3lrUXM4Vmhqd2xqVlk5YmJwS3VyYkp0RmpUY3A2Z3h2VlAKVWhUR25OWm95T01qT2FsRFBkODUrSDVIcmgzaGVjWS9zNEVWMWlQUzc0SmNIZ1NMTW82TzZRbE8yYXFvcjJGRApXY2FBL1RlNlU2TE5ySkhHVDVmUS9BRkQ0dmpoeHJMMThxeEtSazFzNklpQ2FWak5wVEFlSkgrR2JGbnpQMmZFCnVqTC9CUVkxQnVVdkNRaTVxcWpDRXZFWlJua01LZ0ZVSERLdmppeVpEMVNUUnNYVzE5Myt6RDE4OC9Waml1NHAKRkJNYnRXQWdVSVIxMnJmSDIrd1oyeHpIQUZMV3F0cG9rb3VaWWkvQ2pzUDFLRmNKc25pbWVTN1NRNnlremFvNApZemNjWEl5TFdjT3ErQjV6cXhMeWJickN0VFkyemxHRW1tRS9aWGl2L3ZqeUFpalZST3dBNWV3dUNOaUtTbW9rCmppdVNlUU8xN1QyWkFRQlgxVmR0dHprV29MQnBuZVFESklBZU5VNFJLZVRuMHhYNjBIckRLL3Q2T2NuRm1tZ0MKbGpkamQxNUNvYVI1TldsNlVMZGgvTzBuNzdjTVZqQU1IODlWeTdVNG5zTnFZL0cva1Bja0xJa2Y5OFZ0bnFtcgpGYzlBZGMxNFc2TjVhbVFOa3U3RWdGSnF4NEk4bUNiaC9vdm0zbEczWWpUNmZ5dzlGNHkzMi9FN2JVY3k3M1ZCCjFLRkszR0lPemg0L2FMZlBJSnZWVjUreUw1Mm56amhVZUN4OUFQRXhLaU05U2l2Tm9CZ2JnQzhxd3lzcmdGNm0KazVEUVAxSEVjbFN1VDg0ZlNXbTBXSUpLcHZDN1lJVEFET0FaZTN6NVdZZXVGNXdSalRzazNWalhnMTRyWmI2TQpXNG5LTWlFbzIzMkd5K3M0aU5XQmVhMzNhQmJlSmYwMjM4d3JJOG1YYVdPT0d3STZKUkVEV0xwZjJESFNvazBiClZGUDZ6K0Z6cS9NRjhKekxRTUIzY2VVdyt0ZWVsYnhNeWh3V2toNkllbmU2TmZpandrdEdkSUQzWEdRN3ZEZjMKZ09vTGFMbnFybUNoM01WUURhYTBUd3AzNThGTGx2NUhMWE45aFI3NHZ6RU56ZjlsaUZVS3dGd0kzbnBmaU5rZwpuaWh1ZWRGcWZ5UHFwai8wQ2Q3Rk5mb2RQQVFuVVhXVmw2NitxTGUxQVN2aG1hV1dJSjNZOUcrTHBLdzcrQ0o1CjJqSjllTnhhY080Ni9WYk9MRko2ZzF0WlY3SzA4SzhZTEkvNTg1RlM3dEJ5enkwM3RmU3BYU3MzWTB5bXZMOUwKSEQ1dTc3NUNpbHdxZnJvZi9YdG9MalZqbVZXbGl3NGttNElZTU9lb2JwOFJuU1R5cWZBaXBvcmwybzJlelU3YQpuUHNlVFUzbzZlckRaSFg2eWhOZEhDQkxkWno4dGV4aWRuQXNkU2FQcjc5b1NlUmRDMkdCQ25iMnZKNEZwa09iCjdXMTNmeTFwS1BvNkh4aTl0dTdEa1hKSW0xS2s3WVlmRk5LS0xvcG81VWx5QU5MYlpZcWE4ZFd0Q3hhcWlLaXAKbnViQ3JBMVQwbHVSKzlEeE0wMkVUQ0pDZWtxZXpUQkk2RzlWNEQ1Yzg5aENCdklnZmNVR3h4MldrTmQ2cFlJaApXN0wyamx2RGk4Ym9qd0Y5VlVySUdhdE5sQT09Ci0tLS0tRU5EIEVOQ1JZUFRFRCBQUklWQVRFIEtFWS0tLS0tCg=="
+      },
+      {
+        "name": "lb02_name",
+        "value": "lb02"
+      },
+      {
+        "name": "lb02_internal_ip",
+        "value": "192.168.101.2"
+      },
+      {
+        "name": "cscf_internal_ips_first_of_pair",
+        "value": [
+          "192.168.101.4",
+          "192.168.101.6",
+          "192.168.101.8"
+        ]
+      },
+      {
+        "name": "swrepo_ip",
+        "value": "172.30.24.6"
+      },
+      {
+        "name": "internal_netmask",
+        "value": "255.255.255.0"
+      },
+      {
+        "name": "cmrepo_ip",
+        "value": "172.30.24.6,172.30.24.7"
+      },
+      {
+        "name": "oam01_name",
+        "value": "oam01"
+      },
+      {
+        "name": "oam03_uuid",
+        "value": "Zx5cY9U6"
+      },
+      {
+        "name": "oam01_internal_ip",
+        "value": "192.168.101.11"
+      },
+      {
+        "name": "oam02_name",
+        "value": "oam02"
+      },
+      {
+        "name": "oam03_name",
+        "value": "oam03"
+      },
+      {
+        "name": "dn",
+        "value": "XCSCFDN"
+      },
+      {
+        "name": "oam02_tempkey",
+        "value": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURERENDQWZTZ0F3SUJBZ0lFRXRSWmhEQU5CZ2txaGtpRzl3MEJBUXNGQURBV01SUXdFZ1lEVlFRREV3c3gKTnpJdU16QXVNalF1TmpBZUZ3MHhPREExTWpBeE1qTXpNemxhRncweE9EQTFNakV4TWpNek16bGFNRHN4RlRBVApCZ05WQkFNVERERTNNaTR6TUM0eU5DNHlNakVTTUJBR0ExVUVCeE1KUW1GdVoyRnNiM0psTVE0d0RBWURWUVFLCkV3Vk9UMHRKUVRDQ0FTQXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRU5BRENDQVFnQ2dnRUJBTmJBa2lYNXEra3oKR2lMajIzQkFPaEtnakZJQXZNTnRzOEpkSXlzcHZSWFp3UnV2SG1iaVZrZGJZVW1Pd3Q3b0gxS3d4NThtRTg0Ugo3Ukx2elczTEVNeUk0ZVZjd1NseldQNU9sQVZZNUlINVUvWHUvZFR6cmhVdndIcWtLN1Y2U05tQ2orREU0R2p5CmxQVkNIUG5GaWJHU0FaOGVJRG8yRGtyS09STUV3WGpPdng1TFZ1VGQrNUUxOGNzalNvTkx4M3p0MGkxVmQ2dXkKMVdWdmU2R21vQ2lmYjltZS9TN1d3b1BiZE1abEYwRGxMa2lCWEg3ZkpGc3JReDFqTTd4dWp3cWcrVFdYaDJ3VQowNk9jUE5XNDQvM3Z5dmRiVFJ3bDB0RHNWd3VCdkVDMWx2a2FCSlUrSk1nOTVBaGlVMENiRWx0TS92amFjMk1KCk1pdW5EeGxxc29zQ0FRT2pQekE5TUE4R0ExVWRFUVFJTUFhSEJLd2VHQll3Q3dZRFZSMFBCQVFEQWdMa01CMEcKQTFVZEpRUVdNQlFHQ0NzR0FRVUZCd01CQmdnckJnRUZCUWNEQWpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQQpnTkdDT0p2aThxZlNranFOMkEyY2ZlTVlXUDdxMmh2T2c1bXJIOFlBWFZzRFNkRUJobDRISFBNNDBvalBpT1JjCjQ3SkcvUjJzWGJUd3FwOHQyQzFScUNPbi9TQkNvbm1IZ3R1WHI5clNQQzYvbE1IbjJLVENCbkcwL2VXZzJBbEQKOU9PSndpWkJHdnY1MW4ybU9sL3VtR0NLaGNzOHh0aW1QZkF1U1EvekYxMFlEUFhnNXRhNW8rMEl1UmR4NWg2NgpQbVdXUnlUVGN3YVNtd0RLbVhDeUFHZnhwdzBhOXdiL3k2RTlWcG5ibWVuVFJjRGJZU0JVVGFjU0ZUaXJTanFzCmZWSG1kTkViejJWY3NXTzR4Y244dW1PTEh0a04zRkpVcjZTMXlFVlVZelRMWTRNYWtnZDBXQ3ZJRXA3NHpwblcKZG9YRDViYXdDckRQNWVXQ09nVTRSUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+      },
+      {
+        "name": "oam01_privkey",
+        "value": "LS0tLS1CRUdJTiBFTkNSWVBURUQgUFJJVkFURSBLRVktLS0tLQpNSUlGSHpCSkJna3Foa2lHOXcwQkJRMHdQREFiQmdrcWhraUc5dzBCQlF3d0RnUUlTVzNCRklldjRTSUNBZ2dBCk1CMEdDV0NHU0FGbEF3UUJLZ1FRd1lBYXlGTlI1WSszSVVXN1kyMjgrUVNDQk5Cdzl5blVpejBJcjg0NmRseE0KQUVJZDdBVHdDZ1REWGIzTHpMdElJeWIrdzMzL1RueHY4ZkhNd0JQQ3RmU3pYenRyc2NBSGxnVGExdzNLaFVyVQp0aXdLVm94aEZVQW1UTWhUQWZKZkFobi9kL0hoVFR1eWgrZWl2aG5GN3lqWldKY01oYzZVcG04ekJxYjczWXkrCjFNL0s1cTZvUktVWk5ZeEY5ZzQzblRxc3RyNy9saXVOdVFsZGh3NjZHM3VYcGkwZ3hYeW5iR3NiaFo4S3ZBM00KaEJrbmRhcm0rbTFneEsyZmtZYVRLYWFDM29jbmc1eUdHR0N5S1lUR0YxVzB6MFkxN25yTFlELzhXZXlDVmRSeQpTYWRQWTFTVyswZk5adTZpa0xzMTZReUdCL0czWkg2S0M1YWJETllUWE5odlVyZDdzNy85WTFZcXBkSjYwa05iCm90cGRxcmFmRTF4VTZlNTBTc2tqcmJMMU8wYlRsSW85bVNZSEJHdXlqNmYyUlJnc3ZVM081Zk5GQlBvNm90QVUKZE9hQnJRbUlHLzBoNUltUml6cEVoVlpuQ1ljT2ZheTl0S1p1ZWFuVEVDNCs3YjA3NTJNa3luU3Vxdm0xd1h6bgoySmc1cWlvWmpXeldnbGEwaXFodWh0QlJmdDhXVDNOK3UxU1VIQzE3a0tDVzF2Vy95SGJRK2ZPTFhaODFSbkJVCjc4TjN3VUFJd0NpTFRDblR1OVlZZjluOEwxMUc2d1h6TFNZNUI2TnJUNFRGUDhJL1pzdG1Pc0d2NHdmb01CN1gKQVk5QU9VYk4ycUNJaVJPbFhpazhneDlBV254QVd5SnljTDhrZEJlbW5GZW9nbmpHTytwbi9vbzlWSVlVc3hCRwpKTlA2SFhhN2U4bi9VT2V1ZEZVM2xSblBZVTluOWlkMTZkZFU3ZmZBY1V4bjRzRXJXMzc4Nk8wdnNOaFBYOUoyCnlQTXZMeUk3R2JaRjZhTXBSVW1vUlAvNFpPdytQZ3FMdlpPTVl6RHd1T1A2dldwb0M0YzBBQVlPaU9abXJLaSsKQmdqQXQzaWsxd2Jwd2NQODdqRkcyL29pUGpHRzlqYTJRTlJ4eWpOSEdESXhIcVA0R0RJRzYzSE04R284NmNZRwpQQ3hvbU5kQ3ZEam1CUnpJMWJPd0xYalc4QUtMMm05eEs4djZwRkduOE8xZUZiMDgrSG1lN2NLaS9jK294YVlwCmswaDBhQndxWWxPRGV0Ynprck95b3J3UkhoaVk1amE5WEtTdTRCKzQ2c2p1WlNTbkVwdGxHdmZ0bHE5YzVjdW4KMVFYQ2pBdjJyZVJkWDRESmxxSGV4VERPbkhlbkR2T1FaOXpzNkowQ2kxZE4xTGRxNXE4QnN0S3c4cUJxckExNgpFS2dBZTNEclNoVUJCSmNUVlc1dEpsakhnOUtZbFBsSjd5eUhxUGRyd0ptMHB6S25mSlpReVNHMHo4Ujcrd2FFCmU4b1ZVanhxVFRKYk02OXJST00xMGJBZkIzNGt6ZWZZZGhxazJNN1RXYlRoQmwxbytOSER0K2IycGk1YXI3blAKMWQreHVRWVRWdTgyRDNoL1k4K0tDSy9lNW05Y0loUC82ajF3Wm03UHdXN2lDcWtUdEEwSThLcTdHZGFJdWxJRgo5ejVleEx5cjFWWEtXRmx5WWZUUVdNT25wSEN0UG1GYUdYUWxzeU84Rk11SlBIT00yb0pXV25CYlQxcDUyb3hpCkZjaHR5MWg3Y21RemJRSyt3a1ZQWXRmRGN0dUdoQjh1VHFSN3U5ejNjRjJZQUg1bEI1NXNPL3JLbzNQTGxualoKWEw1UUUxWGJNU29RNi9TajBmNkR5MWZ3ZkpyWU4wU01ZeXU0UkJlZXJUYjFqd0ExNmxCeXN0c3FBQ0p0RHVRagpOWGVwUW5SVnRUU2pBWGJIRUNlK3BETWtyYUlQZkExWlZDSlBGdnlZMzVrVkxkUkJuRUtxT3ZLdXZHK0YrQms5CkJRQXJudFFtRlI1YnVJb0Qwa05HSEMydzk3d3BFN2dZQ1FyVzZtMENydUwxQkxmSlVDMFhkMTBXUllvOWJsSmoKMGlZaWZ3U3E1b1dxYkNXVHJ6NjExVFV5SzFnS0lWL3hlUHE3TXN6RkxGWGVaRUhhN0IrMmJaMElKVHRBcTVqaQp2K2E1S2J5MnBzSXptQnZ1ZFVsSTBtMytIUT09Ci0tLS0tRU5EIEVOQ1JZUFRFRCBQUklWQVRFIEtFWS0tLS0tCg=="
+      },
+      {
+        "name": "lb01_name",
+        "value": "lb01"
+      },
+      {
+        "name": "default_gateway",
+        "value": "172.30.24.1"
+      },
+      {
+        "name": "oam02_internal_ip",
+        "value": "192.168.101.12"
+      },
+      {
+        "name": "oam02_privkey",
+        "value": "LS0tLS1CRUdJTiBFTkNSWVBURUQgUFJJVkFURSBLRVktLS0tLQpNSUlGSHpCSkJna3Foa2lHOXcwQkJRMHdQREFiQmdrcWhraUc5dzBCQlF3d0RnUUlkQ1M2VVhtNVk4QUNBZ2dBCk1CMEdDV0NHU0FGbEF3UUJLZ1FRd1hMdXhSRkZZOGV5N2p1THhNSjEvUVNDQk5EL3JoMm1qMzFWSTFnSkJxRnQKUTVrSGFwMXhYRXg3THc5K3A3d3hhN1VlQ29objcrL0pYMlUzbm9jUWdXdlRJU0dHaU1Hb21hazUrMDZaSFVWdQp6TlhkY283ODZFUGZmQWZqdU1QSkRSVXg4VzltaWRWcVE1b25jRGRSRmhVSXJhanoyeFFVQXMzQ0NsNHJuNjhZCnBpa25vNmM5bjJITE02cG5KY0d6MDVYME96c1dwaC9OUE91K3ZLdTJRNmZOOTFjVkNWa3cyTWxOMHdUcHZudmkKc29EZE9qWFhRdlB4bUdXQjFZOFlMNUE1L3VOTE5qVlBvYUlLVDlQWUZEVW5ob3hUOE1IeTVhS3VIQjlZM0NtYgovemxkMkQyNkttazQ1STRhTHQ2cUhPV0VmWEZlbFJPdHRrR2NNTXZ0aG9DREJjdlBRZjgwTHBETjA5L0hBcmdhClRaTlpidUd5cUUzZ0k3RGVnc0NoUFM4YTd4YzNJY0FOZnRLM2ptSGxqR2NlS0o4ajE1NHlJdlhybmpRZFhvNTgKVDNzMTBpc2t5Qk1nTnpWNm5ObXFLZklSZ3p3a3IvcllyeUxrd0YvUEtvd2U1MkxLVzkxQzJta0NYMXZyN0VyNgpiMGEwYUIwVXBwRDlObTV4UnVtM2xQeUFZUkRoV29XU2FiSXJCVTgxQ1N1V2pyR0QwZ0hWZ0dyVU10RkptMFdhCkRMaXRxcVRqK01BSUZqcjRZaVNPNzM4Vi9IMnJDN1pFY0dUcEVVMllBdThoSG1PWHFmSWxCeCs5RERORkZ3dzQKcG5TT1RzUlNYQ0ZXa2pQVG5jQi9WeXdudHdJanZTa2FtdUpwRlh2NXF0ZFhNTWRzOTBpVlVZSXhKTlA0MG5SVApsZ01pRzZJV3lYeW5RWVMvTEVGMnR4SkZSTGs1dkpUT1lMSkxPNllwNjloUTJoVGVZTnNmTWcrUnljUkQrSXBhCllHZVozTmVYcVdlWUgvdGZIdlQyd2JwdjFwUC9CNFJqelptNzZFWnZaZVEwUDN4Qko0VU02WTlSaERmcXI4VEwKUnQySWFiaUMvUFoyUHJlQXBucW5UeHlmT3d0MVlPR3lqRjkxRElGa0UrRS9GdmQ5K1p1VEpLNkJVWnVIbEg1aApoL2Y1R09DZkpPdWo4aW9UdWMzV1JwU0NyQjYzZzR0SFNlK04vTXM1NjhNWTRUaXhycE5neVhIeVFacENaV1RHCmFTNlUwMTRYcTAxdnFzUlFzaFFRZ1gzczBQcHhBNktxaW5yU01zWGRkbnRVMjRrWTN1MmZmd0hsdzh2bzY2MlYKQXI1cWpDUnVaZys1WkFiWVpFN2FTOXpCcnhyV3JodXFPazdVaHJzOHUyalFRVUNXcFF5WjNJKzJiV2NnREZRdgpubmJVTko5aDQ5cDQ5Sll0SS96MG5kTHdoYXJYWDFhOHFmeUJFQ3NORkpSMTkyY1dma0R1NXE3ZE9ZWjZGWVpQCnUxM1ArS3VPNk94emJwYW55R1VsUXlZRHdjY0g3R2hnK21NUG16OGh5MUlJWDNFOUN0QXROd1NHMlNRNlNKdngKN01GUExYY0tZeGczNm5IejJTZEUyejAzSE9XQ0JoMmduSjJrVmxKOTVnUURmSU9PN1A2NkU2YmVxbVluaGdPdAppdjFRUDY5WVJTd1IyQnFDSnBwWmVwYVp5UHR5L2FiN2JvTDNLa2loRDBSTDVUYWNtNlg3T0oybGZBNEo3T3dpClc5SEovTFlKODRia3lQMDBQYXl0Q1ZLM2NTd2ZiZHNjd0Uwa0FzR1pyR1ZlVE00VURRdThpNDRWVG9XT1R1RjUKTjVpU1U0enZFcThDbjZXYm5SNWFWd1ZzTE1YV2ttQXhaeEV5L2xnZ1RVQWZTNmFKTjVpOEpubUQrcFNqZlVyOQp0SFl1bE5jSzR5WUNFSk5PTjdadThKb1JMWk9tSUJidjJEMXRzcndYckkrd2kzR3pPVFc3MENDajFTRE9lTWlSCm5qMjF5RjRyei80ckZ3VHdBc2NEWmdId3M5UWRJbTJvSFg3TUVGdUtwUVgzU05CeHk2SVRCSmZNWFBiWTRNVkYKeHlUaFc2d1dvK2VUTVlQQ2NYSWVzVjdRNjEyOGRFVFR2VW1WY1VwOFc4R2s0ZFRlNHBVSy95VmlKSDRrbmJUZgpURWExblpuTVdSTkxmVFJYYnR2WGNlT2VCUT09Ci0tLS0tRU5EIEVOQ1JZUFRFRCBQUklWQVRFIEtFWS0tLS0tCg=="
+      },
+      {
+        "name": "lb_vnic_count",
+        "value": 5
+      },
+      {
+        "name": "vnf_name",
+        "value": "vCSCF"
+      },
+      {
+        "name": "oam03_internal_ip",
+        "value": "192.168.101.13"
+      },
+      {
+        "name": "oam01_uuid",
+        "value": "Fk6lU6C9"
+      },
+      {
+        "name": "oam_internal_cipa_ip",
+        "value": "192.168.101.3"
+      },
+      {
+        "name": "du",
+        "value": "XCSCFDU_DUSpec"
+      },
+      {
+        "name": "oam_cipa_ip",
+        "value": "172.30.24.20"
+      },
+      {
+        "name": "lb01_uuid",
+        "value": "Ye3eA4Q7"
+      },
+      {
+        "name": "storage_availability_zone1",
+        "value": "nova"
+      },
+      {
+        "name": "lb01_internal_ip",
+        "value": "192.168.101.1"
+      },
+      {
+        "name": "storage_availability_zone2",
+        "value": "nova"
+      },
+      {
+        "name": "volume_type",
+        "value": "nokia_volume"
+      },
+      {
+        "name": "mtu",
+        "value": "1500"
+      },
+      {
+        "name": "cscf_internal_ips_second_of_pair",
+        "value": [
+          "192.168.101.5",
+          "192.168.101.7",
+          "192.168.101.9"
+        ]
+      },
+      {
+        "name": "oam03_tempkey",
+        "value": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURERENDQWZTZ0F3SUJBZ0lFUUNpdlJ6QU5CZ2txaGtpRzl3MEJBUXNGQURBV01SUXdFZ1lEVlFRREV3c3gKTnpJdU16QXVNalF1TmpBZUZ3MHhPREExTWpBeE1qTXpOREJhRncweE9EQTFNakV4TWpNek5EQmFNRHN4RlRBVApCZ05WQkFNVERERTNNaTR6TUM0eU5DNHlNekVTTUJBR0ExVUVCeE1KUW1GdVoyRnNiM0psTVE0d0RBWURWUVFLCkV3Vk9UMHRKUVRDQ0FTQXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRU5BRENDQVFnQ2dnRUJBTlpCVVZsZFlPd2EKTm1PZWJkalptWTliVEdSbms0bnlCS2xtdmVJUEZqS21KVEFkcWxkMTR2V3UwNzdhdWFSbDgvNXR0Um1DUVo4dgplVitubmFscm11ampUZHlUK0JIT1NmNlR5TG0wK1Q4STkvMzBNNW5SeTlpSEpqYUswNGkybVZoVEFYcTVBMkRoCnZwczZNU2ZCbklvMUhPRFYraDNjSkYyeGV2ODVraFdnWTBvMy9rSnhBWUpybFo0dzlIOHdwMkNFeXY3YWNTSWMKNzFXYkhZS2h5OTBzdjJ2dnlpWmppMm1hd2lGQ1MwMXNJNEl5bWRGNlZYNkFERkRYSDdXVDdNQ0ZldUxmUENxMwpMZ1BOWmt6SDBxUmFFeUp4dVpKVUovcWJIb29ITW1VcVdIMDN0N0wyUjU5SGNydTVkcEU1RlNaOUtPTTZIOFJKCk9MUWFpUmxzQVpzQ0FRT2pQekE5TUE4R0ExVWRFUVFJTUFhSEJLd2VHQmN3Q3dZRFZSMFBCQVFEQWdMa01CMEcKQTFVZEpRUVdNQlFHQ0NzR0FRVUZCd01CQmdnckJnRUZCUWNEQWpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQQpTaEZhRGNSakt3YmdDS2p1Vi9KYnBPbXZUdnpwRjhjWmhEdkEwd2d4bXVLTVU3TTNSbzA2N2s4ckxYejVYbm8xClNkaHRPRlJYdm5oUXVjZ3ZJOTh1T3YrYmlEdEtyaEE3SU1OQUpvUVFHaVQ0Uk92dXFadFpPS0ZOK0VXd3REV1MKRjhaajdJN0hVa3M4YUluSUZ5cGhRdkJVLzRWRHBHay85UHNPbXNYMzlTb1BMekpTS2RyMXdOcS9sZE5pbFZZeApBbGRqR1BHY0tsL0t1SlhEK0xjb293VFJZOWtOYUR5V203cW45MXZsenFBOTlvc3VQNGZVZlZMODhUVWVVanJyCmlCS1FwM1hnSGZYY3FzMXZwMFY5TmRheXRYRmpvR0NmRXl1Uis5SSttNXN6MW5yLy96SkRDdFdvRStKLzBHSXgKM0twUDZ1K2U5dW5PajVicWVLU0dhdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+      },
+      {
+        "name": "lb02_uuid",
+        "value": "Xo2rM8A0"
+      },
+      {
+        "name": "oam02_uuid",
+        "value": "Bq4zQ9E9"
+      },
+      {
+        "name": "release",
+        "value": "17.5"
+      },
+      {
+        "name": "cscf_names_first_of_pair",
+        "value": [
+          "cscf01",
+          "cscf03",
+          "cscf05"
+        ]
+      },
+      {
+        "name": "oam_netmask",
+        "value": "255.255.255.0"
+      },
+      {
+        "name": "aif",
+        "value": "no"
+      },
+      {
+        "name": "lb_volume_size",
+        "value": 200
+      }
+    ]
+}
