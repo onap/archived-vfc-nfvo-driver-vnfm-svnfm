@@ -121,16 +121,17 @@ public class VnfResourceRoa {
         JSONArray vmList = dataObject.getJSONArray("vm_list");
         String changeType = "";
         String operation = "";
-        if(1 == dataObject.getInt("event_type")) {
+        int eventType = dataObject.getInt("event_type");
+        if(1 == eventType) {
             changeType = "added";
             operation = "Instantiate";
-        } else if(4 == dataObject.getInt("event_type")) {
+        } else if(4 == eventType) {
             changeType = "removed";
             operation = "Terminal";
-        } else if(3 == dataObject.getInt("event_type")) {
+        } else if(3 == eventType) {
             changeType = "added";
             operation = "Scaleout";
-        } else if(2 == dataObject.getInt("event_type")) {
+        } else if(2 == eventType) {
             changeType = "removed";
             operation = "Scalein";
         }
@@ -138,6 +139,9 @@ public class VnfResourceRoa {
         for(int i = 0; i < vmList.size(); i++) {
             JSONObject vm = vmList.getJSONObject(i);
             LOG.info("function=callLcmNotify, vm: {}", vm);
+            if((2 == eventType) && ("Active".equalsIgnoreCase(vm.getString("status")))) {
+                continue;
+            }
             JSONObject affectedVm = new JSONObject();
             String vimVimId = vm.getString("vim_vm_id");
             affectedVm.put("vnfcInstanceId", vimVimId);
@@ -148,6 +152,10 @@ public class VnfResourceRoa {
             affectedVm.put("vduid", vimVimId);
             LOG.info("function=callLcmNotify, affectedVm: {}", affectedVm);
             affectedVnfc.add(affectedVm);
+        }
+        if(affectedVnfc.isEmpty()) {
+            LOG.warn("function=callLcmNotify, affectedVnfc is empty.");
+            return;
         }
         JSONObject notification = new JSONObject();
         notification.put("status", dataObject.getString("vnf_status"));
