@@ -333,10 +333,26 @@ public class VnfRoa {
         }
 
         restJson.remove(Constant.RETCODE);
-        restJson.put("jobId", vnfInstanceId + "_post");
+        //restJson.put("jobId", vnfInstanceId + "_post");
+        restJson.put("jobId", vnfInstanceId + ":heal");
         return restJson.toString();
     }
 
+    private String getHealJobBody(String jobId) {
+    	LOG.warn("function=getHealJobBody");
+    	JSONObject responseJson = new JSONObject();
+    	JSONObject jobInfoJson = new JSONObject();
+        jobInfoJson.put("jobId", jobId);
+    	responseJson.put("progress", "100");
+        responseJson.put("status", "finished");
+        responseJson.put("errorCode", "null");
+        responseJson.put("responseId", "100");
+        jobInfoJson.put("responsedescriptor", responseJson);
+        
+        LOG.warn("function=getJobBody, jobInfoJson: {}", jobInfoJson);
+        return jobInfoJson.toString();
+    }
+    
     private String getJobBody(JSONObject restJson, String jobId) {
         LOG.warn("function=getJobBody, restJson: {}", restJson);
         JSONObject responseJson = new JSONObject();
@@ -419,6 +435,8 @@ public class VnfRoa {
 
         if(flag.equalsIgnoreCase("no")) {
             return getJobProcess(tmpJobId, vnfmId, resp, jobId);
+        } else if (flag.equalsIgnoreCase("heal")){
+            return getHealJobBody(jobId);
         } else {
             JSONObject restJson = vnfMgr.getJobFromVnfm(tmpJobId, vnfmId);
 
