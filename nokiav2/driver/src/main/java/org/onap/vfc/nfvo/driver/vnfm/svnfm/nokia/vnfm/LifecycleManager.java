@@ -313,7 +313,7 @@ public class LifecycleManager {
         }
         JsonObject inputs = child(root, "inputs");
         if (!inputs.has(csarId)) {
-            throw buildFatalFailure(logger, "The additional parameter section does not contain settings for VNF with " + csarId + " CSAR id");
+            return new Gson().fromJson(catalogManager.getEtsiConfiguration(csarId), AdditionalParameters.class);
         }
         JsonElement additionalParamsForVnf = new JsonParser().parse(inputs.get(csarId).getAsString());
         return new Gson().fromJson(additionalParamsForVnf, AdditionalParameters.class);
