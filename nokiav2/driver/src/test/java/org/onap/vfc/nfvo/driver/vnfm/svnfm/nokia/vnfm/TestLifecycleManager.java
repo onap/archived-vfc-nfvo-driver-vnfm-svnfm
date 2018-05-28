@@ -1198,26 +1198,7 @@ public class TestLifecycleManager extends TestBase {
         notificationIsProcessedBeforeDeletingTheVnf.verify(notificationManager).waitForTerminationToBeProcessed("terminationId");
         notificationIsProcessedBeforeDeletingTheVnf.verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
     }
-
-    /**
-     * instantiation with missing ONAP csarId to instantiation extra param result in failure
-     */
-    @Test
-    public void testMissingVnfParameters() throws Exception {
-        //given
-        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO, false);
-        String src = "{ \"inputs\" : { \"vnfs\" : { \"" + ONAP_CSAR_ID + "invalid" + "\" : {}}}, \"vimId\" : \"" + VIM_ID + "\"}";
-        instantiationRequest.setAdditionalParam(new JsonParser().parse(src));
-        //when
-        try {
-            VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
-            fail();
-        } catch (Exception e) {
-            assertEquals("The additional parameter section does not contain settings for VNF with myOnapCsarId CSAR id", e.getMessage());
-            verify(logger).error("The additional parameter section does not contain settings for VNF with myOnapCsarId CSAR id");
-        }
-    }
-
+    
     /**
      * test explicit forceful termination
      */
@@ -1421,20 +1402,49 @@ public class TestLifecycleManager extends TestBase {
         assertTrue("{\"jobId\":\"myJobId\",\"a\":\"b\"}".equals(new Gson().toJson(sRequest.getAdditionalParams())) || "{\"a\":\"b\",\"jobId\":\"myJobId\"}".equals(new Gson().toJson(sRequest.getAdditionalParams())));
         verify(jobManager).spawnJob(VNF_ID, restResponse);
         verify(logger).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("scale"), eq(VNF_ID), anyString());
+    }
 
+    /**
+     * test scale a non scalable VNF
+     */
+    @Test
+    public void testScaleNonScalableVnf() throws Exception {
+        cbamVnfdContent = new String(readAllBytes(Paths.get(TestVfcGrantManager.class.getResource("/unittests/vnfd.instantiation.yaml").toURI())));
+        when(catalogManager.getCbamVnfdContent(VNFM_ID, CBAM_VNFD_ID)).thenReturn(cbamVnfdContent);
+        VnfScaleRequest scaleRequest = new VnfScaleRequest();
+        scaleRequest.setNumberOfSteps("2");
+        scaleRequest.setAspectId("myAspect");
+        scaleRequest.setType(ScaleDirection.IN);
+        scaleRequest.setAdditionalParam(new JsonParser().parse("{ \"a\" : \"b\", \"c\" : \"d\" }"));
+        scaleOperationExecution.setStatus(OperationStatus.FINISHED);
+        when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
+        VnfProperty prop = new VnfProperty();
+        prop.setValue(ONAP_CSAR_ID);
+        prop.setName(LifecycleManager.ONAP_CSAR_ID);
+        vnfInfo.getExtensions().add(prop);
+        vnfInfo.getOperationExecutions().add(instantiationOperationExecution);
+        String instantiationParams = "{ \"vims\" : [ { \"id\" : \"" + VIM_ID + "\" } ] }";
+        when(operationExecutionApi.operationExecutionsOperationExecutionIdOperationParamsGet(instantiationOperationExecution.getId(), NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(new JsonParser().parse(instantiationParams)));
+        //when
+        JobInfo job = lifecycleManager.scaleVnf(VNFM_ID, VNF_ID, scaleRequest, restResponse);
+        //verify
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(0, actualScaleRequest.getAllValues().size());
+        verify(logger).error("Unable to find operation named scale");
     }
 
     /**
      * the VNFM should tolerate that no additional params were supplied
      */
     @Test
-    public void testScaleWithoutAddtionalParams() throws Exception {
+    public void testScaleWithoutAdditionalParams() throws Exception {
         VnfScaleRequest scaleRequest = new VnfScaleRequest();
         scaleRequest.setNumberOfSteps("2");
         scaleRequest.setAspectId("myAspect");
         scaleRequest.setType(ScaleDirection.IN);
         scaleRequest.setAdditionalParam(null);
         scaleOperationExecution.setStatus(OperationStatus.FINISHED);
+
         when(vnfApi.vnfsVnfInstanceIdGet(VNF_ID, NOKIA_LCM_API_VERSION)).thenReturn(buildObservable(vnfInfo));
         VnfProperty prop = new VnfProperty();
         prop.setValue(ONAP_CSAR_ID);
@@ -1811,6 +1821,47 @@ public class TestLifecycleManager extends TestBase {
         JsonObject root = new JsonObject();
         root.addProperty(LifecycleManager.ETSI_CONFIG, new Gson().toJson(additionalParam));
         x.properties = new Gson().toJson(root);
+        x.vimId = VIM_ID;
+        JsonElement additionalParam = new Gson().toJsonTree(x);
+        instantiationRequest.setAdditionalParam(additionalParam);
+        //when
+        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
+        waitForJobToFinishInJobManager(finished);
+        assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
+        //verify
+        OPENSTACKV3INFO actualVim = (OPENSTACKV3INFO) actualInstantiationRequest.getValue().getVims().get(0);
+        assertEquals(VIM_ID, actualVim.getId());
+        assertEquals(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO, actualVim.getVimInfoType());
+        assertEquals(Boolean.valueOf(parseBoolean(vimInfo.getSslInsecure())), actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertEquals("cloudUrl", actualVim.getInterfaceInfo().getEndpoint());
+        //FIXME assertEquals();actualVim.getInterfaceInfo().getTrustedCertificates());
+        assertEquals("vimPassword", actualVim.getAccessInfo().getPassword());
+        assertEquals("regionId", actualVim.getAccessInfo().getRegion());
+        assertEquals("myTenant", actualVim.getAccessInfo().getProject());
+        assertEquals("myDomain", actualVim.getAccessInfo().getDomain());
+        assertEquals("vimUsername", actualVim.getAccessInfo().getUsername());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
+        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
+    }
+
+
+    /**
+     * additional params of instantiation may be passed as directly attached artifact
+     */
+    @Test
+    public void testVnfConfigurationBasedOnArtifactParameters() throws Exception {
+        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO, false);
+        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
+        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
+        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
+        grantResponse.setVimId(VIM_ID);
+        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
+        accessInfo.setTenant(TENANT);
+        grantResponse.setAccessInfo(accessInfo);
+        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
+        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
+        when(catalogManager.getEtsiConfiguration(ONAP_CSAR_ID)).thenReturn(new Gson().toJson(additionalParam));
+        X x = new X();
         x.vimId = VIM_ID;
         JsonElement additionalParam = new Gson().toJsonTree(x);
         instantiationRequest.setAdditionalParam(additionalParam);

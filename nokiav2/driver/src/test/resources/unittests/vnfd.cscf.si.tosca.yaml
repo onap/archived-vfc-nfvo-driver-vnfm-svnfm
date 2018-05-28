@@ -1,0 +1,836 @@
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0_nokia
+
+
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.nfv.VNF
+    properties:
+      descriptor_id: cscf_si1_onap
+      descriptor_version: '1.0'
+      provider: Nokia
+      product_name: CFX-5000
+      product_info_name: CSCF VNF
+      software_version: '17.5'
+      product_info_description: CSCF VNF SI Roles
+      vnfm_info:
+        - CBAM
+    requirements:
+      - virtual_link: [ oamCpdeth1, external_virtual_link ]
+      - virtual_link: [ lbCpdeth1, external_virtual_link ]
+      - virtual_link: [ lbCpdeth2, external_virtual_link ]
+      - virtual_link: [ lbCpdeth3, external_virtual_link ]
+      - virtual_link: [ lbCpdeth4, external_virtual_link ]
+      - virtual_link: [ lbCpdeth5, external_virtual_link ]
+      - virtual_link: [ lbCpdeth6, external_virtual_link ]
+      - virtual_link: [ lbCpdeth7, external_virtual_link ]
+      - virtual_link: [ lbCpdeth8, external_virtual_link ]
+      - virtual_link: [ lbCpdeth9, external_virtual_link ]
+      - virtual_link: [ lbCpdeth10, external_virtual_link ]
+    capabilities:
+      deployment_flavour:
+        properties:
+          description: ...
+          flavour_id: cscf_si1
+          scaling_aspects:
+            cscfAspect:
+              name: cscf
+              description: CFX worker nodes
+              associated_group: cscfScalingGroup
+              max_scale_level: 14
+          instantiation_levels:
+            basic:
+              description: 2 lb + 3 oam + 2 cscf
+              vdu_levels:
+                lb:
+                  number_of_instances: 2
+                cscf:
+                  number_of_instances: 2
+                oam:
+                  number_of_instances: 3
+              scale_info:
+                cscfAspect:
+                  scale_level: 1
+            medium:
+              description: 2 lb + 3 oam + 14 cscf
+              vdu_levels:
+                lb:
+                  number_of_instances: 2
+                cscf:
+                  number_of_instances: 14
+                oam:
+                  number_of_instances: 3
+              scale_info:
+                cscfAspect:
+                  scale_level: 7
+            large:
+              description: 2 lb + 3 oam + 28 cscf
+              vdu_levels:
+                lb:
+                  number_of_instances: 2
+                cscf:
+                  number_of_instances: 28
+                oam:
+                  number_of_instances: 3
+              scale_info:
+                cscfAspect:
+                  scale_level: 14
+          default_instantiation_level_id: basic
+          vdu_profile:
+            lb:
+              min_number_of_instances: 2
+              max_number_of_instances: 2
+            oam:
+              min_number_of_instances: 3
+              max_number_of_instances: 3
+            cscf:
+              min_number_of_instances: 2
+              max_number_of_instances: 28
+
+      vnf:
+        properties:
+          modifiable_attributes:
+            extensions:
+              netact_address: 
+                default: ""
+              netact_port: 
+                default: "22"
+              netact_user: 
+                default: "omc"
+              netact_password: 
+                default: ""
+              netact_mrname: 
+                default: ""
+              netact_plmn:
+                default: ""
+              netact_ne_type: 
+                default: "CSCF"
+              netact_adaptation_release: 
+                default: "base"
+              RootDN: 
+                default: ""
+              netact:
+                default: ""
+              aif:
+                default: "yes"
+              
+              storage_availability_zone1:
+                default: ""
+              storage_availability_zone2:
+                default: ""
+              dn:
+                default: ""
+              vnf_name:
+                default: ""
+              cmrepo_ip:
+                default: ""
+              dns_ip:
+                default: ""
+              du:
+                default: ""
+              release:
+                default: ""
+              swrepo_ip:
+                default: ""
+              cscf_internal_ips_first_of_pair:
+                default: ""
+              cscf_internal_ips_second_of_pair:
+                default: ""
+              cscf_names_first_of_pair:
+                default: ""
+              cscf_names_second_of_pair:
+                default: ""
+              cscf_uuids_first_of_pair:
+                default: ""
+              cscf_uuids_second_of_pair:
+                default: ""
+              internal_netmask:
+                default: ""
+              internal_network_cidr:
+                default: ""
+              default_gateway:
+                default: ""
+              internal_network_ipversion:
+                default: ""
+              lb01_name:
+                default: ""
+              lb01_uuid:
+                default: ""
+              lb01_internal_ip:
+                default: "10.200.210.1"
+              lb02_name:
+                default: ""
+              lb02_uuid:
+                default: ""
+              lb02_internal_ip:
+                default: "10.200.210.2"
+              lb_internal_cipa_ip:
+                default: "10.200.210.35"
+              oam01_name:
+                default: ""
+              oam01_uuid:
+                default: ""
+              oam01_internal_ip:
+                default: "10.200.210.31"
+              oam02_name:
+                default: ""
+              oam02_uuid:
+                default: ""
+              oam02_internal_ip:
+                default: "10.200.210.32"
+              oam03_name:
+                default: ""
+              oam03_uuid:
+                default: ""
+              oam03_internal_ip:
+                default: "10.200.210.33"
+              oam_internal_cipa_ip:
+                default: "10.200.210.3"
+              oam_cipa_ip:
+                default: ""
+              oam_netmask:
+                default: "255.255.255.0"
+              volume_type:
+                default: ""
+              oam_volume_size:
+                default: "300"
+              lb_volume_size:
+                default: "300"
+              lb_vnic_count:
+                default: "11"
+              mtu:
+                default: "1500"
+                
+              oam01_tempkey:
+                default: ""
+              oam02_tempkey:
+                default: ""
+              oam03_tempkey:
+                default: ""
+              oam01_privkey:
+                default: ""
+              oam02_privkey:
+                default: ""
+              oam03_privkey:
+                default: ""
+              cakey:
+                default: ""
+
+    interfaces:
+      Basic:
+        instantiate:
+          inputs:
+            extensions:
+              pre_actions:
+              - javascript: javascript/assign-zones.js
+                output: stack_parameters
+              - javascript: javascript/convert_moving_ips.js
+                output: stack_parameters
+              post_actions:
+              - ansible: ansible/playbook-netact-wait-rtp.yaml
+              - ansible: ansible/playbook-netact-aif-instantiate.yaml
+            additional_parameters:
+              aif: "yes"
+              # rtpcheck: "yes"
+        terminate:
+          inputs:
+            extensions:
+              pre_actions:
+              - ansible: ansible/playbook-netact-aif-terminate.yaml
+            additional_parameters:
+              aif: "yes"
+      Scalable:
+        scale:
+          inputs:
+            extensions:
+              pre_actions:
+                - javascript: javascript/assign-zones.js
+                  output: stack_parameters
+                - javascript: javascript/convert_moving_ips.js
+                  output: stack_parameters
+                - ansible: ansible/playbook-scale-in.yaml
+                - ansible: ansible/playbook-netact-aif-scale.yaml
+              post_actions:
+                - ansible: ansible/playbook-netact-wait-rtp.yaml
+                - ansible: ansible/playbook-netact-aif-scale.yaml
+            additional_parameters:
+              forceful: "no"
+              # rtpcheck: "yes"
+              aif: "yes"
+  
+  node_templates:
+    lb:
+      type: tosca.nodes.nfv.VDU
+      properties:
+        description: ..
+      requirements:
+        - virtual_compute: lbCompute
+        - sw_image: cscfImage
+        - virtual_storage: lbDataVolume
+
+    cscf:
+      type: tosca.nodes.nfv.VDU
+      properties:
+        description: ..
+      requirements:
+        - virtual_compute: cscfCompute
+        - sw_image: cscfImage
+
+    oam:
+      type: tosca.nodes.nfv.VDU
+      properties:
+        description: ..
+      requirements:
+        - virtual_compute: oamCompute
+        - sw_image: oamImage
+        - virtual_storage: oamDataVolume
+
+    lbDataVolume:
+      type: tosca.nodes.nfv.VirtualStorage
+      properties:
+        type_of_storage: volume
+        size_of_storage: 300 GB
+
+    oamDataVolume:
+      type: tosca.nodes.nfv.VirtualStorage
+      properties:
+        type_of_storage: volume
+        size_of_storage: 300 GB
+
+    lbCompute:
+      type: tosca.nodes.nfv.VirtualCompute
+      properties:
+        virtual_memory:
+            virtual_mem_size: 32768 MB
+        virtual_cpu:
+            cpu_architecture: x86
+            num_virtual_cpu: 12
+            virtual_cpu_clock: 2100 MHz
+
+    cscfCompute:
+      type: tosca.nodes.nfv.VirtualCompute
+      properties:
+        virtual_memory:
+            virtual_mem_size: 24576 MB
+        virtual_cpu:
+            cpu_architecture: x86
+            num_virtual_cpu: 8
+            virtual_cpu_clock: 2100 MHz
+
+    oamCompute:
+      type: tosca.nodes.nfv.VirtualCompute
+      properties:
+        virtual_memory:
+            virtual_mem_size: 32768 MB
+        virtual_cpu:
+            cpu_architecture: x86
+            num_virtual_cpu: 4
+            virtual_cpu_clock: 2100 MHz
+
+    cscfImage:
+      type: tosca.nodes.nfv.SwImage
+      properties:
+        name: CSCF Image
+        version: 1.0
+        container_format: qcow2
+        checksum: 835fd4c0c5f8abadc1593ba185ca18cb
+        disk_format: bare
+        sw_image: cscf.qcow2
+        min_disk: 38 GB
+        min_ram: 16384 MB
+        size: 3 GB
+        operating_system: Linux
+        supported_virtualisation_environments:
+          - KVM
+
+    oamImage:
+      type: tosca.nodes.nfv.SwImage
+      properties:
+        name: OAM Image
+        version: 1.0
+        container_format: qcow2
+        checksum: 835fd4c0c5f8abadc1593ba185ca18cb
+        disk_format: bare
+        sw_image: oam.qcow2
+        min_disk: 42 GB
+        min_ram: 32768 MB
+        size: 3 GB
+        operating_system: Linux
+        supported_virtualisation_environments:
+          - KVM
+
+    cscfCpdeth0:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: connection point
+      requirements:
+        - virtual_binding: cscf
+        - virtual_link: internalNetworkVl
+
+    oamCpdeth0:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: connection point
+      requirements:
+        - virtual_binding: oam
+        - virtual_link: internalNetworkVl
+
+    oamICpdeth1:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: connection point
+      requirements:
+        - virtual_binding: oam
+
+    lbCpdeth0:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: connection point
+      requirements:
+        - virtual_binding: lb
+        - virtual_link: internalNetworkVl
+
+    lbCpdeth1:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    oamICpdeth1:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: oam
+
+    lbICpdeth1:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth2:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth3:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth4:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth5:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth6:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth7:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth8:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth9:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    lbICpdeth10:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - virtual_binding: lb
+
+    oamCpdeth1:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: oamICpdeth1
+
+    lbCpdeth1:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth1
+
+    lbCpdeth2:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth1
+
+    lbCpdeth3:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth3
+
+    lbCpdeth4:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth4
+
+    lbCpdeth5:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth5
+
+    lbCpdeth6:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth6
+
+    lbCpdeth7:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth7
+
+    lbCpdeth8:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth8
+
+    lbCpdeth9:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth9
+
+    lbCpdeth10:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: External connection point
+      requirements:
+        - internal_connection_point: lbICpdeth10
+
+    oamMovingCpdeth0:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    oamMovingCpdeth1:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth0:
+      type: tosca.nodes.nfv.ICP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth1:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth2:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth3:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth4:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth5:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth6:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth7:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth8:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth9:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    lbMovingCpdeth10:
+      type: tosca.nodes.nfv.ECP
+      properties:
+        layer_protocol: ipv4
+        role: leaf
+        description: Moving IP
+      requirements:
+
+    internalNetworkVl:
+      type: tosca.nodes.nfv.VL
+      properties:
+        connectivity_type:
+          layer_protocol: ipv4
+          flow_pattern: mesh
+        test_access: []
+        description: ..
+        vl_flavours: {}
+
+    internalNetworkDpdkVl:
+      type: tosca.nodes.nfv.VL
+      properties:
+        connectivity_type:
+          layer_protocol: ipv4
+          flow_pattern: mesh
+        test_access: []
+        description: ..
+        vl_flavours: {}
+
+  groups:
+    cscfScalingGroup:
+      type: tosca.groups.nfv.ElementGroup
+      description: ..
+      members: [ cscf ]
+
+  policies:
+
+    - commissioning:
+        type: tosca.policies.nfv.Commissioning
+        properties:
+          ssh_key_management: generate_per_vnf
+          connection_points:
+            - oamCpdeth1
+            - lbCpdeth0
+            - cscfCpdeth0
+
+    - node_anti_affinity:
+        type: tosca.policies.nfv.ScalingStepLocalAntiAffinity
+        targets: [ cscf ]
+        properties:
+          scope: nfvi_node
+ 
+    - heat_mapping:
+        type: tosca.policies.nfv.HeatMapping
+        properties:
+          template:
+            hotPath: hot/
+            main: hot.cscf.si.main.yaml
+            nested:
+             - hot.oam.yaml
+             - hot.oam-wo-volume.yaml
+             - hot.cscf.si.yaml
+             - hot.lb.yaml
+             - hot.vip.si.yaml
+             - hot.port-group.yaml
+          static:
+            virtualLinks:
+              internalNetworkVl: internal_network
+            vdus:
+              oam:
+                - heatResource: oam01.server
+                  connectionPoints:
+                    oamCpdeth0: oam01.oam_ports.0.port_group_member
+                    oamCpdeth1: oam01.oam_ports.1.port_group_member
+                  virtualStorages:
+                      dataVolume: oam01.volume
+
+                - heatResource: oam02.server
+                  connectionPoints:
+                    oamCpdeth0: oam02.oam_ports.0.port_group_member
+                    oamCpdeth1: oam02.oam_ports.1.port_group_member
+                  virtualStorages:
+                      dataVolume: oam02.volume
+
+                - heatResource: oam03.server
+                  connectionPoints:
+                    oamCpdeth0: oam03.oam_ports.0.port_group_member
+                    oamCpdeth1: oam03.oam_ports.1.port_group_member
+
+              lb:
+                - heatResource: lb01.server
+                  connectionPoints:
+                    lbCpdeth0: lb01.lb_ports.0.port_group_member
+                    lbCpdeth1: lb01.lb_ports.1.port_group_member
+                    lbCpdeth2: lb01.lb_ports.2.port_group_member
+                    lbCpdeth3: lb01.lb_ports.3.port_group_member
+                    # lbCpdeth4: lb01.lb_ports.4.port_group_member
+                    # lbCpdeth5: lb01.lb_ports.5.port_group_member
+                    # lbCpdeth6: lb01.lb_ports.6.port_group_member
+                    # lbCpdeth7: lb01.lb_ports.7.port_group_member
+                    # lbCpdeth8: lb01.lb_ports.8.port_group_member
+                    # lbCpdeth9: lb01.lb_ports.9.port_group_member
+                    # lbCpdeth10: lb01.lb_ports.10.port_group_member
+
+                - heatResource: lb02.server
+                  connectionPoints:
+                    lbCpdeth0: lb02.lb_ports.0.port_group_member
+                    lbCpdeth1: lb02.lb_ports.1.port_group_member
+                    lbCpdeth2: lb02.lb_ports.2.port_group_member
+                    lbCpdeth3: lb02.lb_ports.3.port_group_member
+                    # lbCpdeth4: lb02.lb_ports.4.port_group_member
+                    # lbCpdeth5: lb02.lb_ports.5.port_group_member
+                    # lbCpdeth6: lb02.lb_ports.6.port_group_member
+                    # lbCpdeth7: lb02.lb_ports.7.port_group_member
+                    # lbCpdeth8: lb02.lb_ports.8.port_group_member
+                    # lbCpdeth9: lb02.lb_ports.9.port_group_member
+                    # lbCpdeth10: lb02.lb_ports.10.port_group_member
+
+          aspects:
+            cscfAspect:
+              heatResource: cscf_group
+              affinity:
+                local:
+                  - type: different
+                    place: host
+                    resources: [cscf01, cscf02]
+              vdus:
+                cscf:
+                  - heatResource: cscf01
+                    connectionPoints:
+                      cscfCpdeth0: cscf01_eth0_port
+
+                  - heatResource: cscf02
+                    connectionPoints:
+                      cscfCpdeth0: cscf02_eth0_port

@@ -18,6 +18,8 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,6 +30,8 @@ import com.nokia.cbam.lcm.v32.model.ScaleDirection;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
@@ -313,7 +317,7 @@ public class LifecycleManager {
         }
         JsonObject inputs = child(root, "inputs");
         if (!inputs.has(csarId)) {
-            throw buildFatalFailure(logger, "The additional parameter section does not contain settings for VNF with " + csarId + " CSAR id");
+            return new Gson().fromJson(catalogManager.getEtsiConfiguration(csarId), AdditionalParameters.class);
         }
         JsonElement additionalParamsForVnf = new JsonParser().parse(inputs.get(csarId).getAsString());
         return new Gson().fromJson(additionalParamsForVnf, AdditionalParameters.class);
@@ -326,11 +330,19 @@ public class LifecycleManager {
         return childElement(deploymentFlavorProperties, "flavour_id").getAsString();
     }
 
-    private Set<Map.Entry<String, JsonElement>> getAcceptableOperationParameters(String vnfdContent, String categoryOfOperation, String operationName) {
+    private Set<Map.Entry<String, JsonElement>> getAcceptableOperationParameters(String vnfdContent, String operationName) {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(vnfdContent)).getAsJsonObject();
         JsonObject interfaces = child(child(child(root, "topology_template"), "substitution_mappings"), "interfaces");
-        JsonObject additionalParameters = child(child(child(child(interfaces, categoryOfOperation), operationName), "inputs"), "additional_parameters");
-        return additionalParameters.entrySet();
+        for (Map.Entry<String, JsonElement> categoryOfOperation : interfaces.entrySet()) {
+            for (Map.Entry<String, JsonElement> operation : categoryOfOperation.getValue().getAsJsonObject().entrySet()) {
+                if(operation.getKey().equals(operationName)){
+                    JsonObject additionalParameters = child(child(operation.getValue().getAsJsonObject(), "inputs"), "additional_parameters");
+                    return additionalParameters.entrySet();
+                }
+            }
+            logger.debug("The {} operation was not found in {} interface", operationName, categoryOfOperation.getKey());
+        }
+        throw buildFatalFailure(logger, "Unable to find operation named " + operationName);
     }
 
     private void addExternalLinksToRequest(List<ExtVirtualLinkInfo> extVirtualLinks, AdditionalParameters additionalParameters, InstantiateVnfRequest instantiationRequest, String vimId) {
@@ -596,7 +608,7 @@ public class LifecycleManager {
             JsonObject root = new Gson().toJsonTree(jobInfo).getAsJsonObject();
             com.nokia.cbam.lcm.v32.model.VnfInfo cbamVnfInfo = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdGet(vnfId, NOKIA_LCM_API_VERSION).blockingFirst();
             String vnfdContent = catalogManager.getCbamVnfdContent(vnfmId, cbamVnfInfo.getVnfdId());
-            Set<Map.Entry<String, JsonElement>> acceptableOperationParameters = getAcceptableOperationParameters(vnfdContent, "Basic", SCALE_OPERATION_NAME);
+            Set<Map.Entry<String, JsonElement>> acceptableOperationParameters = getAcceptableOperationParameters(vnfdContent, SCALE_OPERATION_NAME);
             buildAdditionalParameters(request, root, acceptableOperationParameters);
             cbamRequest.setAdditionalParams(root);
             grantManager.requestGrantForScale(vnfmId, vnfId, getVimIdFromInstantiationRequest(vnfmId, vnf), getVnfdIdFromModifyableAttributes(vnf), request, jobInfo.getJobId());

@@ -166,12 +166,14 @@ public class VfcGrantManager implements IGrantManager {
     }
 
     private Set<ResourceChange> calculateResourceChangeDuringInstantiate(String cbamVnfdContent, String instantiationLevelId) {
+        logger.info("Calculating resource changed {} {}", instantiationLevelId, cbamVnfdContent);
         JsonObject root = new Gson().toJsonTree(new Yaml().load(cbamVnfdContent)).getAsJsonObject();
         JsonObject capabilities = child(child(child(root, "topology_template"), "substitution_mappings"), "capabilities");
         JsonObject deploymentFlavorProperties = child(child(capabilities, "deployment_flavour"), "properties");
         JsonObject instantiationLevels = child(deploymentFlavorProperties, "instantiation_levels");
         Set<ResourceChange> resourceChanges = new HashSet<>();
-        for (Map.Entry<String, JsonElement> vdu_level : child(child(instantiationLevels, instantiationLevelId), ("vdu_levels")).entrySet()) {
+        JsonObject instantiationLevel = child(instantiationLevels, instantiationLevelId);
+        for (Map.Entry<String, JsonElement> vdu_level : child(instantiationLevel, "vdu_levels").entrySet()) {
             JsonElement numberOfInstances = vdu_level.getValue().getAsJsonObject().get("number_of_instances");
             for (int i = 0; i < numberOfInstances.getAsLong(); i++) {
                 ResourceChange resourceChange = new ResourceChange();
