@@ -251,6 +251,39 @@ public class TestCbamCatalogManager extends TestBase {
         }
     }
 
+    /**
+     * ETSI configuration extraction from the package
+     */
+    @Test
+    public void testEtsiConfigurationDownload() throws Exception{
+        //given
+        byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
+        when(packageProvider.getPackage(CSAR_ID)).thenReturn(onapPackageContent);
+        //when
+        String etsiConfiguration = cbamCatalogManager.getEtsiConfiguration(CSAR_ID);
+
+        assertEquals("{ \"a\" : \"b\" }\n", etsiConfiguration);
+    }
+
+    /**
+     * ETSI configuration extraction from the package
+     */
+    @Test
+    public void testEtsiConfigurationMissing() throws Exception{
+        //given
+        byte[] onapPackageContent = TestUtil.loadFile("unittests/missing.vnfd.zip");
+        when(packageProvider.getPackage(CSAR_ID)).thenReturn(onapPackageContent);
+        //when
+        try {
+            cbamCatalogManager.getEtsiConfiguration(CSAR_ID);
+            fail();
+        }
+        catch (Exception e){
+            assertEquals("Unable to download the ETSI configuration file", e.getMessage());
+            verify(logger).error("Unable to download the ETSI configuration file");
+        }
+    }
+
     private ResponseBody buildResponse(byte[] content) throws IOException {
         Headers headers = new Headers.Builder().build();
         Buffer buffer = new Buffer();

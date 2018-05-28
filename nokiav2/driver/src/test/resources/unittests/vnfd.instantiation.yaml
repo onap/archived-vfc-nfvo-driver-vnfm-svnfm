@@ -14,3 +14,6 @@ topology_template:
               vdu_levels:
                 vdu1:
                   number_of_instances: 2
+    interfaces:
+      Basic:
+        unknown:

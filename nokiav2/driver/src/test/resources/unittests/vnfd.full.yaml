@@ -17,8 +17,11 @@ topology_template:
                   number_of_instances: 2
     interfaces:
       Basic:
+        unknown:
+      Scl:
         scale:
           inputs:
             additional_parameters:
               jobId: kuku
               a: valueInVnfd
+        unknown2:

@@ -161,9 +161,27 @@ The following section requires the CSAR and the ETSI configuration of the VNF to
 
     - Specify NokiaSVNFM for the nf_type property
 
+  - Click on Save on the middle
+
+  - Click on Inputs
+
     - Specify the ETSI configuration JSON for the etsi_config property
 
-  - Click on Save on the middle
+    - If the ETSI configuration is larger than the maximal allowed value for a field
+
+      - Instead of specifying it using a property click on Deployment Artifact at left
+
+      - Click on Add other artifact at bottom middle
+
+        - Specify etsiConfig as Artifact Label
+
+        - Choose OTHER for type
+
+        - Specify anything for Description
+
+        - Select the ETSI configuration file using Browse
+
+        - Click on Done
 
 - Click on Check in
 
