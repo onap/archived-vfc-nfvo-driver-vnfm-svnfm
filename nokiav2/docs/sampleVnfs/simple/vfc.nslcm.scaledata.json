@@ -1,0 +1,41 @@
+{
+  "scale_options": [
+    {
+      "nsd_id": "94362600-0219-483e-bf23-e92a705dbc2a",
+      "ns_scale_aspect": "NS_LEVEL_ASPECT",
+      "ns_scale_info": [
+        {
+          "step": 1,
+          "vnf_scale_info": [
+            {
+              "vnfd_id": "b635ce2f-7ca4-49eb-8bd4-fdef54cde950",
+              "vnf_scaleAspectId": "simpleAspect",
+              "numberOfSteps": "1"
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "vnf_scale_info": [
+            {
+              "vnfd_id": "b635ce2f-7ca4-49eb-8bd4-fdef54cde950",
+              "vnf_scaleAspectId": "simpleAspect",
+              "numberOfSteps": "2"
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "vnf_scale_info": [
+            {
+              "vnfd_id": "b635ce2f-7ca4-49eb-8bd4-fdef54cde950",
+              "vnf_scaleAspectId": "simpleAspect",
+              "numberOfSteps": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

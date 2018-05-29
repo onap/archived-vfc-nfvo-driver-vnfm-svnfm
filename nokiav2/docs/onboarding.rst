@@ -1,150 +1,468 @@
-Onboard NS
-==========
+On-board NS
+===========
+
+The following section describes how to create an E2E service.
 
 Create licensing model
 ----------------------
 
+The following section will create a license model. The license model is required for onboarding a VNF.
 
 - Log into ONAP portal with designer role (cs0008)
 
- - Create License model
+- Select SDC from the application
 
-  - ONBOARD / Create new VLM
+- Select ONBOARD
 
-   - name = select a name easy to remember
+- Click on CREATE NEW VLM
 
-  - Entitlement pool / add new Entitlement pool
+- Specify the name of the license <licenseName>
 
-   - name = any
+- Specify the description of the license
 
-  - License key group / add new license key group
+- Select Entitlement pools from left
 
-   - name = any
+- Click on ADD ENTITLEMENT POOL on right
 
-   - type = universal
+  - Specify the name (can be anything)
 
-  - Feature groups / add feature group
+  - Click on SAVE
 
-   - name = any
+- Select License key groups from left
 
-   - part number = 123456
+- Click on ADD LICENSE KEY GROUP
 
-   - manufacturer reference number = 123456
+  - Specify the name (can be anything)
 
-   - entitlement pool (add any with arrow button)
+  - Select universal type
 
-   - license key group (add any with arrow button)
+  - Click on SAVE
 
-   - save
+- Select Feature groups from left
 
-  - License agreements / Add license agreement
+- Click on ADD FEATURE GROUP
 
-   - name = any
+ - Specify the name (can be anything) <featureGroup>
 
-   - license term unlimited
+ - Set 123456 as part number
 
-   - feature groups (add any with arrow button)
+ - Set 123456 as manufacturer reference number
 
-  - Check in (lock icon at top)
+ - Click on entitlement pools in middle
 
-  - Submit (tick icon at top)
+   - Add previously created entitlement pool with arrow button
+
+ - Click on license key groups in middle
+
+   - Add previously created license key group with arrow button
+
+ - Click on SAVE
+
+- Select License agreements from left
+
+- Click on ADD LICENSE AGREEMENT on right
+
+ - Specify the name (can be anything)
+
+ - Select unlimited license term
+
+ - Click on feature groups
+
+   - Add previously created feature group with arrow button
+
+- Click on the submit button on top right
+
+Prepare the ETSI configuration JSON
+-----------------------------------
+
+The ETSI configuration of VF is the information gap that is required to instantiate a VNF, but this information is not
+provided by the VF-C component to the VNFM. The ETSI configuration is a JSON serialized into a string, which is specified
+as a VF property during VF design time.
+
+The JSON has the following root elements:
+
+- vimType: The type of the VIM
+
+- instantiationLevel: The initial instantiation level of the VNF.
+
+- computeResourceFlavours: The collection of compute flavors.
+
+- zones: The collection of availability zones.
+
+- softwareImages: The collection of software images.
+
+- extManagedVirtualLinks: The collection of externally managed virtual links.
+
+- externalConnectionPointAddresses: Addresses of the external connection points.
+
+- extVirtualLinks: The collection of external virtual links.
+
+- extensions: The collection of VNF properties
+
+- additionalParams: Additional parameters passed during instantiation to the VNFM.
+
+- domain: The domain of the OpenStack cloud (only available in Amsterdam)
+
 
 On-board VNF
 ------------
 
- - On-board / Create new VSP (vendor software package)
+The following section requires the CSAR and the ETSI configuration of the VNF to be available as a prerequisite.
 
-  - Create VSP
+- Log into ONAP portal with designer role (cs0008)
 
-   - name = select a name easy to remember
+- Select SDC from the application
 
-   - vendor = name of the license model
+- Select ONBOARD
 
-   - category = Database (IMPORTANT NOT TO CHANGE THIS (linked to the global customer))
+- Click on CREATE NEW VSP
 
-   - onboarding procedure = network package
+  - Specify a the name of the VNF <vnfPackageName> (ex. vnf_simple_20180526_1)
 
-   - description = any
+  - Select the previously created license model as vendor
 
-  - Upload CSAR
+  - Select Database (General) for the category. It is important to select a category that has been linked to the customer.
 
-   - overview / software product attachments / select file
+  - Select network package for onboarding procedure
 
-  - Select licence
+  - Specify description
 
-   - overview / software product details / license agreement
+  - Click on CREATE
 
-   - licenses
+- Click on SELECT FILE from SOFTWARE PRODUCT ATTACHMENTS and upload the CSAR file
 
-   - set license version, license agreement, feature groups
+- Click on General on the left
 
-   - click on save icon at top
+  - Select 1.0 as for licensing version under LICENSES
 
-   - commit & submit using icons at top
+  - Select the previously created license agreement <licenseName>
 
- - Create VF
+  - Select the previously created feature group <featureGroup>
 
-  - home / import / import vsp (select VSP from list)
+  - Click on save icon at top right
 
-   - set General / Vendor model number to CBAM package VNFD ID
+  - Click on Submit icon at top right
 
-  - set sVNFM property assignment / inputs / nf_type  set NokiaSVNFM
+- Select HOME using the small arrow left from ONBOARD at top
 
-  - commit
+- Hoover over the import icon and select Import VSP
 
-  - submit for testing
+- Select the created VSP from the list by name <vnfPackageName>
 
- - Test VF
+- Click on import VSP icon
 
-  - Log in as tester role
+  - Set the CBAM VNF package identifier as the Vendor model number on left bottom
 
-  - Select VF
+  - Click on create on top right
 
-  - Start testing button
+- Click on Properties assignment on left
 
-  - Accept testing
+  - Click on Inputs
 
-Design network service
-----------------------
+    - Specify NokiaSVNFM for the nf_type property
 
- - Create Service
+    - Specify the ETSI configuration JSON for the etsi_config property
 
-  - Log in with designer role (cs0008)
+  - Click on Save on the middle
 
-  - home / add / add service
+- Click on Check in
 
-  - name = select a name easy to remember
+- Search for the created VNF using the search box at top right <vnfPackageName>
 
-  - project code = 123456
+- Click on the VF
 
-  - Check in & check out (required to save a safe point to restore to if something goes wrong)
+- Click on submit for testing at top right
 
- - Add created VF (Composition)
+- Log out using the small person icon at top right
 
-  - drag icon to main picture (be patient only drag once, if multiple icons appear restart procedure )
+- Log in with tester role (jm0007)
 
-  - Check in
+- Select SDC from the application
 
-  - Open service again and verify that the VF is part of the service under composition
+- Search for the created VNF using the search box at top right <vnfPackageName>
 
- - Submit for testing
+- Click on Start testing
 
- - Test Service
+- Click on Accept
 
-  - Log in with tester role (jm0007)
+- Log out using the small person icon at top right
 
-  - start testing & accept
 
- - Approve service
+Design a network service
+------------------------
 
-  - Log in with governance role (gv0001)
+The following section design a network service. The prerequisite is that the tested VF package is available.
 
-  - Select service and press approve
+- Log into ONAP portal with designer role (cs0008)
 
- - Distribute the service
+- Select SDC from the application
 
-  - Log in with operations role (op0001)
+- Select HOME
 
-  - Select service and push distribute
+- Hoover over the Add icon and select add service
 
-  - Click on monitor (verify that the state of the service is distributed)
+  - Specify the name of the network service <nsName> (ex. ns_simple_20180526_1)
+
+  - Specify 123456 ad project code
+
+  - Specify description
+
+  - Select Network Service for the category
+
+    - If the network service is missing from the list
+
+      - Log in as demo user and select SDC
+
+  - Click on Create
+
+  - Click on Composition at left
+
+    - Search for the created VF using the search box at top left <vnfPackageName>
+
+    - Drag the VF icon to middle
+
+    - Wait for the icon to appear at the middle (only drag once)
+
+    - Click on the icon on the middle
+
+      - Click on very small pencil icon at top right
+
+      - Specify the name of the VF
+
+  - Click on check in
+
+  - Search for the created NS using the search box at top right <nsName>
+
+  - Click on the NS icon
+
+  - Click on Submit for testing
+
+- Log out using the small person icon at top right
+
+- Log in with tester role (jm0007)
+
+  - Select SDC from the application
+
+  - Search for the created VNF using the search box at top right <vnfPackageName>
+
+  - Click on Start testing
+
+  - Click on Accept
+
+  - Log out using the small person icon at top right
+
+- Log in with tester role (gv0001)
+
+  - Select SDC from the application
+
+  - Search for the created VNF using the search box at top right <vnfPackageName>
+
+  - Click on Approve on top right
+
+  - Log out using the small person icon at top right
+
+- Log in with operation role (op0001)
+
+  - Select SDC from the application
+
+  - Search for the created VNF using the search box at top right <vnfPackageName>
+
+  - Click on Distribute on top right
+
+  - Click on monitor in an order to verify that the distribution was successful
+
+    - Click on the small arrow next to the Distribution ID
+
+    - The list should contain at least two lines staring with sdc and aai-ml
+
+    - If the list does not contain enough elements it can be refreshed with the small icon at middle right
+
+    - Each of the two lines should contain a green check sign next to Deployed
+
+  - Log out using the small person icon at top right
+
+
+
+Design a VF for the E2E service
+-------------------------------
+
+This step is only required if the UUI is planed to be used to manage the E2E service. The VF of the E2E service is
+a wrapper to be able to treat the created NS as a VF. The prerequisite of this step is that the network service was
+successfully distributed.
+
+- Determine the UUIDs of the created NS in previous step
+
+  - Using a REST client of your choice, send a request to the following URL: https://sdc.api.simpledemo.onap.org:8443/sdc/v1/catalog/services
+
+    - HTTP method: GET
+
+    - Set the following values in the Header of the request:
+
+      - basic auth SDC:SDC
+
+      - X-ECOMP-InstanceID: VFC
+
+      - Accept: application/json
+
+  - Search for the created service by name <nsName> and note the uuid and invariantUUID fields
+
+- Log in with designer role (cs0008)
+
+  - Select SDC from the application
+
+  - Select HOME
+
+  - Hoover over the Add icon and select add VF
+
+    - Specify the name of the VF <vfForNsName> (ex. vf_for_ns_simple_20180526_1_vIMS)
+
+      - the name must contain the vIMS character sequence (even if this is not an IMS)
+
+    - Specify something for the Vendor
+
+    - Specify any numeric value for the Vendor Release
+
+    - Specify something for description
+
+    - Select Network Service for the category
+
+    - Click on Create on top right
+
+  - Click on Composition at left
+
+    - Search for the NSD using the search box at top left
+
+    - Drag the NSD icon to middle
+
+    - Wait for the icon to appear at the middle (only drag once)
+
+    - Click on the icon on the middle
+
+      - Click on very small pencil icon at top right
+
+      - Specify the name of the NSD (ex. firstNsd ) <nsdName>
+
+    - Click on the name of the VF next to HOME at top
+
+    - Select Properties Assignment
+
+      - Select the check box before providing_service_uuid and providing_service_invariant_uuid properties
+
+      - Click on Declare at right
+
+      - Click on Inputs at middle
+
+      - Specify the UUID of the service (that was determined in previous step) for the <nsdName>_providing_service_uuid property
+
+      - Specify the invariant UUID of the service (that was determined in previous step) for the <nsdName>_providing_service_invariant_uuid property
+
+      - Click on Save
+
+  - Click on Check in
+
+  - Search for the created VF using the search box at top right <vfForNsName>
+
+  - Click on the VF icon
+
+  - Click on Submit for testing
+
+- Log out using the small person icon at top right
+
+- Log in with tester role (jm0007)
+
+  - Select SDC from the application
+
+  - Search for the created VNF using the search box at top right <vfForNsName>
+
+  - Click on Start testing
+
+  - Click on Accept
+
+  - Log out using the small person icon at top right
+
+
+Design a E2E service
+--------------------
+
+This step is only required if the UUI is planed to be used to manage the E2E service. The prerequisite of this step is that the VF
+wrapping the network service is tested.
+
+- Log in with designer role (cs0008)
+
+  - Select SDC from the application
+
+  - Select HOME
+
+  - Hoover over the Add icon and select add Service
+
+    - Specify the name of the NS <e2eNsName> (ex. e2e_simple_20180526_1)
+
+    - Specify any numeric value for the Project Code
+
+    - Specify something for description
+
+    - Select E2E Service for the category
+
+    - Click on Create on top right
+
+  - Click on Composition at left
+
+    - Search for the created VF using the search box at top left <vfForNsName>
+
+    - Drag the VF icon to middle
+
+    - Wait for the icon to appear at the middle (only drag once)
+
+    - Click on the name of the NS next to HOME at top
+
+  - Click on Check in
+
+  - Search for the created NS using the search box at top right <e2eNsName>
+
+  - Click on the NS icon
+
+  - Click on Submit for testing
+
+- Log out using the small person icon at top right
+
+- Log in with tester role (jm0007)
+
+  - Select SDC from the application
+
+  - Search for the created NS using the search box at top right <e2eNsName>
+
+  - Click on Start testing
+
+  - Click on Accept
+
+  - Log out using the small person icon at top right
+
+- Log in with tester role (gv0001)
+
+  - Select SDC from the application
+
+  - Search for the created VNF using the search box at top right <e2eNsName>
+
+  - Click on Approve on top right
+
+  - Log out using the small person icon at top right
+
+- Log in with operation role (op0001)
+
+  - Select SDC from the application
+
+  - Search for the created VNF using the search box at top right <e2eNsName>
+
+  - Click on Distribute on top right
+
+  - Click on monitor in an order to verify that the distribution was successful
+
+    - Click on the small arrow next to the Distribution ID
+
+    - The list should contain at least two lines staring with sdc and aai-ml
+
+    - If the list does not contain enough elements it can be refreshed with the small icon at middle right
+
+    - Each of the two lines should contain a green check sign next to Deployed
+
+  - Log out using the small person icon at top right
