@@ -52,7 +52,7 @@ public class CatalogManager {
      * The location of the CBAM package within the ONAP package
      */
     public static final String CBAM_PACKAGE_NAME_IN_ZIP = "Artifacts/Deployment/OTHER/cbam.package.zip";
-    public static final String ETSI_CONFIG_NAME_IN_ZIP = "Artifacts/Deployment/OTHER/" + ETSI_CONFIG +".json";
+    public static final String ETSI_CONFIG_NAME_IN_ZIP = "Artifacts/Deployment/OTHER/" + ETSI_CONFIG + ".json";
 
     private static final String TOSCA_META_PATH = "TOSCA-Metadata/TOSCA.meta";
     private static final String TOSCA_VNFD_KEY = "Entry-Definitions";
@@ -112,7 +112,7 @@ public class CatalogManager {
     public CatalogAdapterVnfpackage preparePackageInCbam(String vnfmId, String csarId) {
         String cbamVnfdId = packageProvider.getCbamVnfdId(csarId);
         DefaultApi cbamCatalogApi = cbamRestApiProvider.getCbamCatalogApi(vnfmId);
-            if (!isPackageReplicated(cbamVnfdId, cbamCatalogApi)) {
+        if (!isPackageReplicated(cbamVnfdId, cbamCatalogApi)) {
             try {
                 ByteArrayOutputStream cbamPackage = getFileInZip(new ByteArrayInputStream(packageProvider.getPackage(csarId)), CBAM_PACKAGE_NAME_IN_ZIP);
                 return cbamCatalogApi.create(create(parse(APPLICATION_OCTET_STREAM.toString()), cbamPackage.toByteArray())).blockingFirst();
@@ -133,15 +133,15 @@ public class CatalogManager {
 
     /**
      * Download the ETSI configuration of the VNF
+     *
      * @param csarId the CSAR identifier of the package in ONAP catalog
      * @return the content of the ETSI configuration
      */
-    public String getEtsiConfiguration(String csarId){
+    public String getEtsiConfiguration(String csarId) {
         try {
             ByteArrayOutputStream etsiConfig = getFileInZip(new ByteArrayInputStream(packageProvider.getPackage(csarId)), ETSI_CONFIG_NAME_IN_ZIP);
             return new String(etsiConfig.toByteArray(), Charsets.UTF_8);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to download the ETSI configuration file");
         }
     }

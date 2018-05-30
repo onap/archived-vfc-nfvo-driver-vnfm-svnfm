@@ -49,7 +49,7 @@ public class TestOnapVnfPackageBuilder extends TestBase {
         String expectedOnapVnfd = new OnapVnfdBuilder().toOnapVnfd(cbamVnfd);
 
         //when
-        OnapVnfPackageBuilder.main(null);
+        OnapR1VnfPackageBuilder.main(null);
         //verify
         assertFileInZip(bos.toByteArray(), "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
         assertFileInZip(bos.toByteArray(), "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
@@ -65,7 +65,7 @@ public class TestOnapVnfPackageBuilder extends TestBase {
      */
     @Test
     public void testPreventMove() {
-        assertEquals("b3JnLm9uYXAudmZjLm5mdm8uZHJpdmVyLnZuZm0uc3ZuZm0ubm9raWEucGFja2FnZXRyYW5zZm9ybWVyLk9uYXBWbmZQYWNrYWdlQnVpbGRlcg==", Base64.getEncoder().encodeToString(OnapVnfPackageBuilder.class.getCanonicalName().getBytes()));
+        assertEquals("b3JnLm9uYXAudmZjLm5mdm8uZHJpdmVyLnZuZm0uc3ZuZm0ubm9raWEucGFja2FnZXRyYW5zZm9ybWVyLk9uYXBWbmZQYWNrYWdlQnVpbGRlcg==", Base64.getEncoder().encodeToString(OnapR1VnfPackageBuilder.class.getCanonicalName().getBytes()));
     }
 
 

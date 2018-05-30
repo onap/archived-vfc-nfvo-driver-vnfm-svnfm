@@ -4,8 +4,14 @@ topology_template:
   substitution_mappings:
     node_type: tosca.nodes.nfv.VNF
     properties:
+      descriptor_id: myId
       descriptor_version: '1.0'
       provider: myProvider
       product_name: 'myName'
       software_version: '2.0'
       product_info_name: product_info_name
+    capabilities:
+      deployment_flavour:
+        properties:
+          flavour_id: myFlavorId
+          description: myFlavorDescription

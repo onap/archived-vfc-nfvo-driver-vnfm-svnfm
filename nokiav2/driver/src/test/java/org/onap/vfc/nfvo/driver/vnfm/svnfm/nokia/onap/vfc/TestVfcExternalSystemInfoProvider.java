@@ -102,7 +102,7 @@ public class TestVfcExternalSystemInfoProvider extends TestBase {
      * The VNFM identifier is loaded from property files
      */
     @Test
-    public void testGetVnfms(){
+    public void testGetVnfms() {
         setFieldWithPropertyAnnotation(vfcExternalSystemInfoProvider, "${vnfmId}", "myVnfmId");
         assertEquals(Sets.newHashSet("myVnfmId"), vfcExternalSystemInfoProvider.getVnfms());
     }

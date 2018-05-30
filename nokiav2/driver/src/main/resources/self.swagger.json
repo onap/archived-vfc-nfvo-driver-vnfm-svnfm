@@ -1046,8 +1046,14 @@
           {
             "description": "The CBAM VNF package",
             "in": "formData",
-            "name": "upfile",
+            "name": "fileToUpload",
             "type": "file"
+          },
+          {
+            "description": "ONAP version of the package",
+            "in": "formData",
+            "name": "version",
+            "type": "string"
           }
         ],
         "summary": "Converts the Nokia CBAM package to ONAP package",

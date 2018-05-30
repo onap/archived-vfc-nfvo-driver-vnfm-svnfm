@@ -908,7 +908,7 @@ public class TestLifecycleManager extends TestBase {
             fail();
         } catch (RuntimeException e) {
             assertEquals(expectedException, e.getCause().getCause());
-            verify(logger).error("Unable to set the externalVnfmId,onapCsarId properties on the VNF with " + VNF_ID +" identifier", expectedException);
+            verify(logger).error("Unable to set the externalVnfmId,onapCsarId properties on the VNF with " + VNF_ID + " identifier", expectedException);
         }
     }
 
@@ -1198,7 +1198,7 @@ public class TestLifecycleManager extends TestBase {
         notificationIsProcessedBeforeDeletingTheVnf.verify(notificationManager).waitForTerminationToBeProcessed("terminationId");
         notificationIsProcessedBeforeDeletingTheVnf.verify(vnfApi).vnfsVnfInstanceIdDelete(VNF_ID, NOKIA_LCM_API_VERSION);
     }
-    
+
     /**
      * test explicit forceful termination
      */
@@ -1683,23 +1683,6 @@ public class TestLifecycleManager extends TestBase {
         }
     }
 
-    public static class X{
-        public Map<String, String> getInputs() {
-            return inputs;
-        }
-
-        public void setInputs(Map<String, String> inputs) {
-            this.inputs = inputs;
-        }
-
-        @SerializedName("inputs")
-        public Map<String,String> inputs = new HashMap<String,String>();
-
-        public String vimId;
-
-        public String properties;
-    }
-
     private VnfInstantiateRequest prepareInstantiationRequest(VimInfo.VimInfoTypeEnum cloudType, boolean addExtension) {
         VnfInstantiateRequest instantiationRequest = new VnfInstantiateRequest();
         instantiationRequest.setVnfPackageId(ONAP_CSAR_ID);
@@ -1775,7 +1758,7 @@ public class TestLifecycleManager extends TestBase {
         image.setVnfdSoftwareImageId("imageId");
         additionalParam.getSoftwareImages().add(image);
         additionalParam.setAdditionalParams(new JsonParser().parse("{ \"a\" : \"b\" }"));
-        if(addExtensions) {
+        if (addExtensions) {
             VnfProperty p1 = new VnfProperty();
             p1.setName("n1");
             p1.setValue(Lists.newArrayList("a", "b"));
@@ -1843,7 +1826,6 @@ public class TestLifecycleManager extends TestBase {
         assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
         assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
     }
-
 
     /**
      * additional params of instantiation may be passed as directly attached artifact
@@ -1928,5 +1910,20 @@ public class TestLifecycleManager extends TestBase {
         assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
         assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
         verify(logger).info("The instantiation input for VNF with {} CSAR id does not have an " + LifecycleManager.ETSI_CONFIG + " section", ONAP_CSAR_ID);
+    }
+
+    public static class X {
+        @SerializedName("inputs")
+        public Map<String, String> inputs = new HashMap<String, String>();
+        public String vimId;
+        public String properties;
+
+        public Map<String, String> getInputs() {
+            return inputs;
+        }
+
+        public void setInputs(Map<String, String> inputs) {
+            this.inputs = inputs;
+        }
     }
 }

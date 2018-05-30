@@ -71,6 +71,7 @@ public class SelfRegistrationManager {
      * Register the driver in micro-service bus and subscribe to LCNs from CBAM
      */
     public void register() {
+        /*
         //the order is important (only publish it's existence after the subscription has been created)
         subscribeToLcns();
         try {
@@ -79,6 +80,7 @@ public class SelfRegistrationManager {
             deleteSubscriptions();
             throw e;
         }
+        */
         ready = true;
     }
 
@@ -86,6 +88,7 @@ public class SelfRegistrationManager {
      * De-register the VNFM driver from the micro-service bus
      */
     public void deRegister() {
+        /*
         try {
             logger.info("Cancelling micro service registration");
             msbApiProvider.getMsbApi().deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null).blockingFirst();
@@ -104,6 +107,7 @@ public class SelfRegistrationManager {
             }
         }
         deleteSubscriptions();
+        */
     }
 
     /**

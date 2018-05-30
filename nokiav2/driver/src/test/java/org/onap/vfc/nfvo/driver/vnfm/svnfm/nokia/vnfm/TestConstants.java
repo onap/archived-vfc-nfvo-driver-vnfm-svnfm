@@ -21,7 +21,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 public class TestConstants {
 
     @Test
-    public void useInStaticWay(){
+    public void useInStaticWay() {
         TestUtil.coveragePrivateConstructorForClassesWithStaticMethodsOnly(Constants.class);
     }
 }

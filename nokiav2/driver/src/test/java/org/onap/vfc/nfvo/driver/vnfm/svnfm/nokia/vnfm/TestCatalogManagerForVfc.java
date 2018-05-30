@@ -17,17 +17,16 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.SdcPackageProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcPackageProvider;
 
 import static junit.framework.TestCase.assertNotNull;
 
-public class TestCatalogManagerForVfc extends TestBase{
+public class TestCatalogManagerForVfc extends TestBase {
     /**
      * Test bean
      */
     @Test
-    public void testPojo(){
+    public void testPojo() {
         VfcPackageProvider vfcPackageProvider = Mockito.mock(VfcPackageProvider.class);
         CatalogManagerForVfc catalogManagerForVfc = new CatalogManagerForVfc(cbamRestApiProviderForVfc, vfcPackageProvider);
         assertNotNull(catalogManagerForVfc);

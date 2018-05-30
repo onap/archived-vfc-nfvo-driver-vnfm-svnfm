@@ -15,7 +15,6 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.GrantlessGrantManager;
@@ -24,13 +23,13 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChan
 import static junit.framework.TestCase.assertNotNull;
 import static org.mockito.Mockito.mock;
 
-public class TestLifecycleManagerForSo extends TestBase{
+public class TestLifecycleManagerForSo extends TestBase {
 
     /**
      * Test bean
      */
     @Test
-    public void testBean(){
+    public void testBean() {
         CatalogManagerForSo catalogManager = mock(CatalogManagerForSo.class);
         GrantlessGrantManager grantManager = mock(GrantlessGrantManager.class);
         AAIExternalSystemInfoProvider aaiExternalSystemInfoProvider = mock(AAIExternalSystemInfoProvider.class);

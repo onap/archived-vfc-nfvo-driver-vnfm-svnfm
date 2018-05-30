@@ -21,12 +21,12 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.SdcPackageProvider;
 
 import static junit.framework.TestCase.assertNotNull;
 
-public class TestCatalogManagerForSo extends TestBase{
+public class TestCatalogManagerForSo extends TestBase {
     /**
      * Test bean
      */
     @Test
-    public void testPojo(){
+    public void testPojo() {
         SdcPackageProvider sdcPackageProvider = Mockito.mock(SdcPackageProvider.class);
         CatalogManagerForSo catalogManagerForSo = new CatalogManagerForSo(cbamRestApiProviderForSo, sdcPackageProvider);
         assertNotNull(catalogManagerForSo);
