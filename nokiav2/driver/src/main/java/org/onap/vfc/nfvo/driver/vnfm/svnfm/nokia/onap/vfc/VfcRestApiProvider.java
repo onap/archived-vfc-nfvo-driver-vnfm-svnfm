@@ -16,6 +16,7 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.concurrent.TimeUnit;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.MsbApiProvider;
 import org.onap.vfccatalog.api.VnfpackageApi;
 import org.onap.vnfmdriver.ApiClient;
@@ -49,6 +50,10 @@ public class VfcRestApiProvider {
     @VisibleForTesting
     ApiClient buildNslcmApiClient() {
         ApiClient apiClient = new ApiClient();
+        //LCN processing in VF-C is very slow
+        apiClient.getOkBuilder().connectTimeout(3, TimeUnit.MINUTES);
+        apiClient.getOkBuilder().readTimeout(3, TimeUnit.MINUTES);
+        apiClient.getOkBuilder().writeTimeout(3, TimeUnit.MINUTES);
         String correctedUrl = fixIncorrectUrl();
         if (!correctedUrl.endsWith("/")) {
             correctedUrl = correctedUrl + "/";

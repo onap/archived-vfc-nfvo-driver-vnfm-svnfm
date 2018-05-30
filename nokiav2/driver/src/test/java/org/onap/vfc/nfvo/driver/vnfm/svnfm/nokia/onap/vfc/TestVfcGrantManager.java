@@ -77,6 +77,7 @@ public class TestVfcGrantManager extends TestBase {
         assertBasicGrantAttributes(request, org.onap.vnfmdriver.model.OperationType.INSTANTIATE);
     }
 
+
     /**
      * test failure logging & propagation during grant request for instantiation
      */
