@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
-
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
+package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
 /**
- * Common constants
+ * The supported ONAP package versions
  */
-public class Constants {
-
-    public static final String BASE_SUFFIX = "/" + SelfRegistrationManager.SERVICE_NAME + "/v1";
-    public static final String BASE_URL = "/api" + BASE_SUFFIX;
-    public static final String LCN_URL = "/lcn";
-
-    private Constants() {
-        //use in static way
-    }
+public enum SupportedOnapPackageVersions {
+    V1,
+    V2
 }

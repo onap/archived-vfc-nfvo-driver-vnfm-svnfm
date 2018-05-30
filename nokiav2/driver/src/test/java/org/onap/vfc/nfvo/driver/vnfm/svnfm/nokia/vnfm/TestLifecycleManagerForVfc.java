@@ -16,22 +16,19 @@
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 import org.junit.Test;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.GrantlessGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcGrantManager;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForSo;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.LifecycleChangeNotificationManagerForVfc;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.mockito.Mockito.mock;
 
-public class TestLifecycleManagerForVfc extends TestBase{
+public class TestLifecycleManagerForVfc extends TestBase {
     /**
      * Test bean
      */
     @Test
-    public void testBean(){
+    public void testBean() {
         CatalogManagerForVfc catalogManager = mock(CatalogManagerForVfc.class);
         VfcGrantManager vfcGrantManager = mock(VfcGrantManager.class);
         VfcExternalSystemInfoProvider vfcExternalSystemInfoProvider = mock(VfcExternalSystemInfoProvider.class);

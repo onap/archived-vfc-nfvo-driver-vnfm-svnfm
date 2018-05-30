@@ -202,7 +202,7 @@ public class TestAAIExternalSystemInfoProvider extends TestBase {
      * the list of VNFMs is retrieved from AAI
      */
     @Test
-    public void testQueryAAIExternaSystemProvider() throws Exception{
+    public void testQueryAAIExternaSystemProvider() throws Exception {
         EsrVnfmList e = new EsrVnfmList();
         EsrVnfm esrVnfmItem = new EsrVnfm();
         esrVnfmItem.setVnfmId(VNFM_ID);

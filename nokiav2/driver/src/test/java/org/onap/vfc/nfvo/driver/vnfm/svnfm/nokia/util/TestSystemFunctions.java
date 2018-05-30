@@ -64,16 +64,16 @@ public class TestSystemFunctions {
         Inter inter = new Inter();
         inter.start();
         //wait for thread to enter waiting
-        while(!entered.get() && inter.getState() != Thread.State.TIMED_WAITING && (System.currentTimeMillis() < start + 60*1000) ){
+        while (!entered.get() && inter.getState() != Thread.State.TIMED_WAITING && (System.currentTimeMillis() < start + 60 * 1000)) {
             Thread.sleep(10);
         }
-        if(!(System.currentTimeMillis() < start + 60*1000)){
+        if (!(System.currentTimeMillis() < start + 60 * 1000)) {
             throw new RuntimeException("Thread did not enter waiting state");
         }
         //when
         inter.interrupt();
         //verify
-        while (exceptions.size() != 1 && (System.currentTimeMillis() < start + 60*1000)) {
+        while (exceptions.size() != 1 && (System.currentTimeMillis() < start + 60 * 1000)) {
             Thread.sleep(10);
         }
         assertEquals(1, exceptions.size());

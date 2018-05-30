@@ -25,7 +25,7 @@ public class TestJobManagerForVfc extends TestBase {
      * Test bean
      */
     @Test
-    public void testPojo(){
+    public void testPojo() {
         JobManagerForVfc jobManagerForVfc = new JobManagerForVfc(cbamRestApiProviderForVfc, selfRegistrationManagerForVfc);
         assertNotNull(jobManagerForVfc);
         assertBean(JobManagerForVfc.class);

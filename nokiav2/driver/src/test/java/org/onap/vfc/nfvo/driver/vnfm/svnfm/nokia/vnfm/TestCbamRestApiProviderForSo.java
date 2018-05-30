@@ -22,9 +22,9 @@ import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
 
 
-public class TestCbamRestApiProviderForSo extends TestBase{
+public class TestCbamRestApiProviderForSo extends TestBase {
     @Test
-    public void testBean(){
+    public void testBean() {
         CbamTokenProviderForSo cbamTokenProvider = Mockito.mock(CbamTokenProviderForSo.class);
         AAIExternalSystemInfoProvider aaiExternalSystemInfoProvider = Mockito.mock(AAIExternalSystemInfoProvider.class);
         CbamSecurityProvider cbamSecurityProvider = Mockito.mock(CbamSecurityProvider.class);

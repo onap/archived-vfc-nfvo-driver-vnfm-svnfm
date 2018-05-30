@@ -218,11 +218,9 @@ public class LifecycleChangeNotificationManager implements ILifecycleChangeNotif
             } else {
                 return handleFailure(operationExecution);
             }
-        }
-        catch(OperationMustBeAborted handledFailuire){
+        } catch (OperationMustBeAborted handledFailuire) {
             throw handledFailuire;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.warn("Unable to build affected connection points", e);
             return toleratedFailure();
         }

@@ -4,11 +4,22 @@ topology_template:
   substitution_mappings:
     node_type: tosca.nodes.nfv.VNF
     properties:
+      descriptor_id: Nokia~Maria DB~1.0~1.0
       descriptor_version: '1.0'
       provider: myProvider
       product_name: 'myName'
       software_version: '2.0'
       product_info_name: product_info_name
+      product_info_description: Relational database, non-scalable
+    capabilities:
+      deployment_flavour:
+        properties:
+          flavour_id: scalableRouted
+          description: flavorDescription
+          vdu_profile:
+            vduNode:
+              min_number_of_instances: 3
+              max_number_of_instances: 11
   node_templates:
     vduNode:
       type: tosca.nodes.nfv.VDU
@@ -35,19 +46,29 @@ topology_template:
       type: tosca.nodes.nfv.VirtualStorage
       properties:
         id: myStorage1
-        size_of_storage: 1G
+        size_of_storage: 1 GB
 
     myStorage2:
       type: tosca.nodes.nfv.VirtualStorage
       properties:
         id: myStorage2
-        size_of_storage: 2G
+        size_of_storage: 2 GB
 
     myNetwork1:
       type: tosca.nodes.nfv.VL
+      properties:
+        connectivity_type:
+          layer_protocol: ipv4
+          flow_pattern: mesh
+        description: myDescription
 
     myNetwork2:
       type: tosca.nodes.nfv.VL
+      properties:
+        connectivity_type:
+          layer_protocol: ipv4
+          flow_pattern: mesh
+        description: myDescription
 
     icpWithOutEcp:
       type: tosca.nodes.nfv.ICP

@@ -15,7 +15,6 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -26,7 +25,7 @@ public class TestJobManagerForSo extends TestBase {
      * Test bean
      */
     @Test
-    public void testPojo(){
+    public void testPojo() {
         JobManagerForSo jobManagerForSo = new JobManagerForSo(cbamRestApiProviderForSo, selfRegistrationManagerForSo);
         assertNotNull(jobManagerForSo);
         assertBean(JobManagerForVfc.class);

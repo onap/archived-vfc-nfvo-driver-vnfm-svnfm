@@ -4,9 +4,12 @@
 
 <form action="/api/NokiaSVNFM/v1/convert" method="post" enctype="multipart/form-data">
     Select CBAM package to upload:
-    <input type="file" name="fileToUpload" id="fileToUpload">
+    <input type="file" name="fileToUpload" id="fileToUpload"> ONAP package version:
+    <select name="version">
+      <option value="V1">V1</option>
+      <option value="V2" selected="selected">V2</option>
+    </select>
     <input type="submit" value="Upload" name="submit">
 </form>
-
 </body>
 </html>

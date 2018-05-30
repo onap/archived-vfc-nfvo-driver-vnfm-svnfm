@@ -15,13 +15,15 @@
  */
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfPackageBuilder;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapR1VnfPackageBuilder;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.SupportedOnapPackageVersions;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +47,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(value = BASE_URL)
 public class ConverterApi {
     private static Logger logger = getLogger(ConverterApi.class);
-    private OnapVnfPackageBuilder vnfPackageConverter = new OnapVnfPackageBuilder();
+    private OnapR1VnfPackageBuilder vnfPackageConverter = new OnapR1VnfPackageBuilder();
 
     /**
      * Return the converted ONAP package
@@ -57,16 +59,23 @@ public class ConverterApi {
     @ResponseBody
     public void convert(HttpServletResponse httpResponse, HttpServletRequest request) throws IOException {
         logger.info("REST: convert package");
+        SupportedOnapPackageVersions version;
+        try {
+            request.getPart("version");
+            version = SupportedOnapPackageVersions.valueOf(new String(ByteStreams.toByteArray(request.getPart("version").getInputStream()), Charsets.UTF_8));
+        } catch (Exception e) {
+            throw buildFatalFailure(logger, "Unable to determine the desired ONAP package version", e);
+        }
         byte[] content;
         try {
-            Part part = request.getPart("fileToUpload");
-            content = ByteStreams.toByteArray(part.getInputStream());
+            Part uploadedFile = request.getPart("fileToUpload");
+            content = ByteStreams.toByteArray(uploadedFile.getInputStream());
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to extract package from REST parameters", e);
         }
         byte[] convertedPackage;
         try {
-            convertedPackage = vnfPackageConverter.covert(new ByteArrayInputStream(content));
+            convertedPackage = vnfPackageConverter.covert(new ByteArrayInputStream(content), version);
         } catch (Exception e) {
             throw buildFatalFailure(logger, "Unable to convert VNF package", e);
         }

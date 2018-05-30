@@ -18,8 +18,6 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,8 +28,6 @@ import com.nokia.cbam.lcm.v32.model.ScaleDirection;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.IGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.api.VimInfoProvider;
@@ -45,6 +41,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import static java.lang.Integer.parseInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.find;
@@ -302,17 +299,15 @@ public class LifecycleManager {
 
     private AdditionalParameters convertInstantiationAdditionalParams(String csarId, Object additionalParams) {
         JsonObject root = new Gson().toJsonTree(additionalParams).getAsJsonObject();
-        if(root.has(PROPERTIES)){
+        if (root.has(PROPERTIES)) {
             JsonObject properties = new JsonParser().parse(root.get(PROPERTIES).getAsString()).getAsJsonObject();
-            if(properties.has(ETSI_CONFIG)){
+            if (properties.has(ETSI_CONFIG)) {
                 JsonElement etsiConfig = properties.get(ETSI_CONFIG);
                 return new Gson().fromJson(etsiConfig.getAsString(), AdditionalParameters.class);
+            } else {
+                logger.info("The instantiation input for VNF with {} CSAR id does not have an " + ETSI_CONFIG + " section", csarId);
             }
-            else{
-                logger.info("The instantiation input for VNF with {} CSAR id does not have an " + ETSI_CONFIG +" section", csarId);
-            }
-        }
-        else{
+        } else {
             logger.info("The instantiation input for VNF with {} CSAR id does not have a properties section", csarId);
         }
         JsonObject inputs = child(root, "inputs");
@@ -333,14 +328,11 @@ public class LifecycleManager {
     private Set<Map.Entry<String, JsonElement>> getAcceptableOperationParameters(String vnfdContent, String operationName) {
         JsonObject root = new Gson().toJsonTree(new Yaml().load(vnfdContent)).getAsJsonObject();
         JsonObject interfaces = child(child(child(root, "topology_template"), "substitution_mappings"), "interfaces");
-        for (Map.Entry<String, JsonElement> categoryOfOperation : interfaces.entrySet()) {
-            for (Map.Entry<String, JsonElement> operation : categoryOfOperation.getValue().getAsJsonObject().entrySet()) {
-                if(operation.getKey().equals(operationName)){
-                    JsonObject additionalParameters = child(child(operation.getValue().getAsJsonObject(), "inputs"), "additional_parameters");
-                    return additionalParameters.entrySet();
-                }
+        List<List<Map.Entry<String, JsonElement>>> operations = interfaces.entrySet().stream().map(m -> m.getValue().getAsJsonObject().entrySet().stream().collect(toList())).collect(toList());
+        for (Map.Entry<String, JsonElement> operation : operations.stream().flatMap(List::stream).collect(toList())) {
+            if (operation.getKey().equals(operationName)) {
+                return child(child(operation.getValue().getAsJsonObject(), "inputs"), "additional_parameters").entrySet();
             }
-            logger.debug("The {} operation was not found in {} interface", operationName, categoryOfOperation.getKey());
         }
         throw buildFatalFailure(logger, "Unable to find operation named " + operationName);
     }
@@ -384,14 +376,13 @@ public class LifecycleManager {
         }
     }
 
-    private void addSpecifiedExtensions(String vnfmId, String vnfId, AdditionalParameters additionalParameters){
-        if(!additionalParameters.getExtensions().isEmpty()){
+    private void addSpecifiedExtensions(String vnfmId, String vnfId, AdditionalParameters additionalParameters) {
+        if (!additionalParameters.getExtensions().isEmpty()) {
             ModifyVnfInfoRequest request = new ModifyVnfInfoRequest();
             request.setExtensions(new ArrayList<>());
             request.getExtensions().addAll(additionalParameters.getExtensions());
             executeModifyVnfInfo(vnfmId, vnfId, request);
-        }
-        else{
+        } else {
             logger.info("No extensions specified for VNF with {} identifier", vnfId);
         }
     }
