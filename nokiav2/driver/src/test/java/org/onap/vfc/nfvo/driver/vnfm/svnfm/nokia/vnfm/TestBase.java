@@ -67,9 +67,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.when;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.SEPARATOR;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager.getFileInZip;
@@ -250,6 +248,13 @@ public class TestBase {
         throw new NoSuchElementException("The " + obj.getClass() + " does not have a filed with " + key + " annotation");
     }
 
+    protected void assertBean(Class<?> clazz) {
+        assertEquals(1, clazz.getDeclaredConstructors().length);
+        Autowired annotation = clazz.getDeclaredConstructors()[0].getAnnotation(Autowired.class);
+        assertNotNull(annotation);
+        assertNotNull(clazz.getAnnotation(Component.class));
+    }
+
     public static class VoidObservable {
         boolean called = false;
         ObservableFromCallable<Void> s = new ObservableFromCallable(new Callable() {
@@ -267,12 +272,5 @@ public class TestBase {
         public Observable<Void> value() {
             return s;
         }
-    }
-
-    protected void assertBean(Class<?> clazz){
-        assertEquals(1, clazz.getDeclaredConstructors().length);
-        Autowired annotation = clazz.getDeclaredConstructors()[0].getAnnotation(Autowired.class);
-        assertNotNull(annotation);
-        assertNotNull(clazz.getAnnotation(Component.class));
     }
 }

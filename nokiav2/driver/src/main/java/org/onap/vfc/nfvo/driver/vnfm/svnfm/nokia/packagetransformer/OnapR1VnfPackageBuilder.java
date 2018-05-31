@@ -33,7 +33,7 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager.getV
  * Transforms a CBAM package into an ONAP package
  */
 
-public class OnapVnfPackageBuilder {
+public class OnapR1VnfPackageBuilder {
 
     /**
      * Entry point for the command line package transformer
@@ -41,20 +41,23 @@ public class OnapVnfPackageBuilder {
      * @param args not used (required due to signature)
      */
     public static void main(String[] args) throws Exception {
-        byte[] covert = new OnapVnfPackageBuilder().covert(systemFunctions().in());
+        byte[] covert = new OnapR1VnfPackageBuilder().covert(systemFunctions().in(), SupportedOnapPackageVersions.V1);
         systemFunctions().out().write(covert);
     }
 
     /**
-     * @param zip the original CBAM package
+     * @param zip     the original CBAM package
+     * @param version
      * @return the converted ONAP package
      */
-    public byte[] covert(InputStream zip) throws IOException {
+    public byte[] covert(InputStream zip, SupportedOnapPackageVersions version) throws IOException {
         byte[] cbamVnfPackage = ByteStreams.toByteArray(zip);
         String vnfdLocation = getVnfdLocation(new ByteArrayInputStream(cbamVnfPackage));
         ByteArrayOutputStream vnfdContent = getFileInZip(new ByteArrayInputStream(cbamVnfPackage), vnfdLocation);
         byte[] cbamVnfdContent = vnfdContent.toByteArray();
-        String onapVnfd = new OnapVnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8));
+        String onapVnfd = SupportedOnapPackageVersions.V2 == version ?
+                new OnapR2VnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8)) :
+                new OnapVnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8));
         byte[] modifiedCbamPackage = new CbamVnfPackageBuilder().toModifiedCbamVnfPackage(cbamVnfPackage, vnfdLocation, new CbamVnfdBuilder().build(new String(cbamVnfdContent)));
         return buildNewOnapPackage(modifiedCbamPackage, onapVnfd);
     }
@@ -78,6 +81,4 @@ public class OnapVnfPackageBuilder {
         out.close();
         return result.toByteArray();
     }
-
-
 }

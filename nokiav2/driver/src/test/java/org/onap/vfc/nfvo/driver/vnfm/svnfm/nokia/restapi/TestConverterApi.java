@@ -73,6 +73,9 @@ public class TestConverterApi extends TestBase {
         Part part = Mockito.mock(Part.class);
         when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
         when(httpRequest.getPart("fileToUpload")).thenReturn(part);
+        Part part2 = Mockito.mock(Part.class);
+        when(httpRequest.getPart("version")).thenReturn(part2);
+        when(part2.getInputStream()).thenReturn(new ByteArrayInputStream("V1".getBytes()));
         //when
         converterApi.convert(httpResponse, httpRequest);
         //verify
@@ -117,6 +120,9 @@ public class TestConverterApi extends TestBase {
     public void testUnableToExtractPackageToBeConverted() throws Exception {
         IOException expectedException = new IOException();
         when(httpRequest.getPart("fileToUpload")).thenThrow(expectedException);
+        Part part = Mockito.mock(Part.class);
+        when(httpRequest.getPart("version")).thenReturn(part);
+        when(part.getInputStream()).thenReturn(new ByteArrayInputStream("V1".getBytes()));
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();
@@ -135,6 +141,10 @@ public class TestConverterApi extends TestBase {
         Part part = Mockito.mock(Part.class);
         when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
         when(httpRequest.getPart("fileToUpload")).thenReturn(part);
+
+        Part part2 = Mockito.mock(Part.class);
+        when(httpRequest.getPart("version")).thenReturn(part2);
+        when(part2.getInputStream()).thenReturn(new ByteArrayInputStream("V1".getBytes()));
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();

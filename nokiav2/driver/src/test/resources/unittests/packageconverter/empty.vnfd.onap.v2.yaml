@@ -1,0 +1,21 @@
+tosca_definitions_version: tosca_simple_profile_yaml_1_1
+
+topology_template:
+  inputs:
+    etsi_config:
+      type: string
+      description: The ETSI configuration
+  node_templates:
+    VNF:
+      type: tosca.nodes.nfv.VNF
+      properties:
+        descriptor_id: myId
+        descriptor_version: 1.0
+        provider: myProvider
+        product_name: myName
+        software_version: 2.0
+        product_info_name: product_info_name
+        vnfm_info: [ NokiaSVNFM ]
+        flavour_id: myFlavorId
+        flavour_description: myFlavorDescription
+      requirements:

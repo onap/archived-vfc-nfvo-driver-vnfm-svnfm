@@ -2,3 +2,5 @@ _build
 .DS_Store
 internal.rst
 ims
+tmp
+cscf

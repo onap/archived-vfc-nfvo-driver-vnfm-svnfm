@@ -167,7 +167,7 @@ public class TestNokiaSvnfmApplication extends TestBase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                if(calls.size() == 0){
+                if (calls.size() == 0) {
                     calls.add(true);
                     throw e2;
                 }
@@ -209,7 +209,7 @@ public class TestNokiaSvnfmApplication extends TestBase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                if(calls.size() == 0){
+                if (calls.size() == 0) {
                     calls.add(true);
                     throw e2;
                 }

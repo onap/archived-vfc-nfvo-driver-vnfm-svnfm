@@ -82,6 +82,10 @@ public class NokiaSvnfmApplication {
             this.selfRegistrationManagerForSo = selfRegistrationManagerForSo;
         }
 
+        private static boolean isDirect(ConfigurableApplicationContext applicationContext) {
+            return newHashSet(applicationContext.getEnvironment().getActiveProfiles()).contains("direct");
+        }
+
         @Override
         public void onApplicationEvent(ApplicationReadyEvent contextRefreshedEvent) {
             Callable<Boolean> singleRegistration = () -> {
@@ -114,10 +118,6 @@ public class NokiaSvnfmApplication {
                 }
                 logger.warn("Component is preparing for shutdown giving up component start");
             });
-        }
-
-        private static boolean isDirect(ConfigurableApplicationContext applicationContext) {
-            return newHashSet(applicationContext.getEnvironment().getActiveProfiles()).contains("direct");
         }
 
     }

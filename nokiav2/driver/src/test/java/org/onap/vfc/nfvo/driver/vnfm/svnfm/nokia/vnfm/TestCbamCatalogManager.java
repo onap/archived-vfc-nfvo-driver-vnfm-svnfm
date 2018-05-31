@@ -255,7 +255,7 @@ public class TestCbamCatalogManager extends TestBase {
      * ETSI configuration extraction from the package
      */
     @Test
-    public void testEtsiConfigurationDownload() throws Exception{
+    public void testEtsiConfigurationDownload() throws Exception {
         //given
         byte[] onapPackageContent = TestUtil.loadFile("unittests/TestCbamCatalogManager.sample.csar");
         when(packageProvider.getPackage(CSAR_ID)).thenReturn(onapPackageContent);
@@ -269,7 +269,7 @@ public class TestCbamCatalogManager extends TestBase {
      * ETSI configuration extraction from the package
      */
     @Test
-    public void testEtsiConfigurationMissing() throws Exception{
+    public void testEtsiConfigurationMissing() throws Exception {
         //given
         byte[] onapPackageContent = TestUtil.loadFile("unittests/missing.vnfd.zip");
         when(packageProvider.getPackage(CSAR_ID)).thenReturn(onapPackageContent);
@@ -277,8 +277,7 @@ public class TestCbamCatalogManager extends TestBase {
         try {
             cbamCatalogManager.getEtsiConfiguration(CSAR_ID);
             fail();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             assertEquals("Unable to download the ETSI configuration file", e.getMessage());
             verify(logger).error("Unable to download the ETSI configuration file");
         }

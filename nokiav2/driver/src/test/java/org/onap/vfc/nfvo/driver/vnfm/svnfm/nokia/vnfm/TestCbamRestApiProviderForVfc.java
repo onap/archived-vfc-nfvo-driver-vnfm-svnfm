@@ -19,13 +19,12 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.AAIExternalSystemInfoProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.VfcExternalSystemInfoProvider;
 
 
-public class TestCbamRestApiProviderForVfc extends TestBase{
+public class TestCbamRestApiProviderForVfc extends TestBase {
     @Test
-    public void testBean(){
+    public void testBean() {
         CbamTokenProviderForVfc cbamTokenProvider = Mockito.mock(CbamTokenProviderForVfc.class);
         VfcExternalSystemInfoProvider c = Mockito.mock(VfcExternalSystemInfoProvider.class);
         CbamSecurityProvider cbamSecurityProvider = Mockito.mock(CbamSecurityProvider.class);
