@@ -27,22 +27,14 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 
-public class TestOnapVnfdBuilder extends TestBase {
-    private OnapVnfdBuilder packageTransformer = new OnapVnfdBuilder();
+public class TestOnapR1VnfdBuilder extends TestBase {
+    private OnapR1VnfdBuilder packageTransformer = new OnapR1VnfdBuilder();
 
 
     @Before
     public void init() {
-        setField(OnapVnfdBuilder.class, "logger", logger);
-    }
-
-    @Test
-    public void indent() {
-        assertEquals("    x", packageTransformer.indent("x", 2));
-        assertEquals("    x\n", packageTransformer.indent("x\n", 2));
-        assertEquals("    x\n    y", packageTransformer.indent("x\ny", 2));
-        assertEquals("    x\n    y\n", packageTransformer.indent("x\ny\n", 2));
-        assertEquals("    \n", packageTransformer.indent("\n", 2));
+        setField(OnapAbstractVnfdBuilder.class, "logger", logger);
+        setField(OnapR1VnfdBuilder.class, "logger", logger);
     }
 
     /**
@@ -73,7 +65,7 @@ public class TestOnapVnfdBuilder extends TestBase {
      * if a node refers to a non existing node it results in a failure
      */
     @Test
-    public void testInconsitentVnfd() {
+    public void testInconsistentVnfd() {
         try {
             packageTransformer.toOnapVnfd(new String(TestUtil.loadFile("unittests/packageconverter/nodes.vnfd.inconsistent.cbam.yaml")));
             fail();

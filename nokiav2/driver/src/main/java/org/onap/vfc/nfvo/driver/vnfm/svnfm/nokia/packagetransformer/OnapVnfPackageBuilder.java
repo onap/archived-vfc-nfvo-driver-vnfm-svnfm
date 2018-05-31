@@ -33,7 +33,7 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.CatalogManager.getV
  * Transforms a CBAM package into an ONAP package
  */
 
-public class OnapR1VnfPackageBuilder {
+public class OnapVnfPackageBuilder {
 
     /**
      * Entry point for the command line package transformer
@@ -41,7 +41,7 @@ public class OnapR1VnfPackageBuilder {
      * @param args not used (required due to signature)
      */
     public static void main(String[] args) throws Exception {
-        byte[] covert = new OnapR1VnfPackageBuilder().covert(systemFunctions().in(), SupportedOnapPackageVersions.V1);
+        byte[] covert = new OnapVnfPackageBuilder().covert(systemFunctions().in(), SupportedOnapPackageVersions.V1);
         systemFunctions().out().write(covert);
     }
 
@@ -57,7 +57,7 @@ public class OnapR1VnfPackageBuilder {
         byte[] cbamVnfdContent = vnfdContent.toByteArray();
         String onapVnfd = SupportedOnapPackageVersions.V2 == version ?
                 new OnapR2VnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8)) :
-                new OnapVnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8));
+                new OnapR1VnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8));
         byte[] modifiedCbamPackage = new CbamVnfPackageBuilder().toModifiedCbamVnfPackage(cbamVnfPackage, vnfdLocation, new CbamVnfdBuilder().build(new String(cbamVnfdContent)));
         return buildNewOnapPackage(modifiedCbamPackage, onapVnfd);
     }

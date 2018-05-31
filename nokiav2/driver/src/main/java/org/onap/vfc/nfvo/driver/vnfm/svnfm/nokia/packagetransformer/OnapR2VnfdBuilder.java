@@ -16,97 +16,39 @@
 
 package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
 import org.slf4j.Logger;
-import org.yaml.snakeyaml.Yaml;
 
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfdBuilder.getRequirement;
-import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfdBuilder.indent;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.child;
 import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.CbamUtils.childElement;
+import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.LifecycleManager.ETSI_CONFIG;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Transforms a CBAM package into an ONAP package
  */
-public class OnapR2VnfdBuilder {
-    public static final String DESCRIPTION = "description";
-    public static final String PROPERTIES = "properties";
-    public static final String REQUIREMENTS = "requirements";
+public class OnapR2VnfdBuilder extends OnapAbstractVnfdBuilder {
     private static Logger logger = getLogger(OnapR2VnfdBuilder.class);
 
-    private static String trimUnit(String data) {
-        //FIXME the unit should not be trimmed VF-C bug
-        return data;
-        //data.trim().replaceAll("[^0-9]", "");
-    }
-
-    /**
-     * @param cbamVnfd the CBAM VNFD
-     * @return the converted ONAP VNFD
-     */
-    public String toOnapVnfd(String cbamVnfd) {
-        JsonObject root = new Gson().toJsonTree(new Yaml().load(cbamVnfd)).getAsJsonObject();
-        JsonObject topologyTemplate = child(root, "topology_template");
-        JsonObject substitution_mappings = child(topologyTemplate, "substitution_mappings");
-        Map<String, JsonElement> virtualLinks = new HashMap<>();
-        if (topologyTemplate.has("node_templates")) {
-            Set<Map.Entry<String, JsonElement>> nodeTemplates = child(topologyTemplate, "node_templates").entrySet();
-
-            StringBuilder body = new StringBuilder();
-            for (Map.Entry<String, JsonElement> node : nodeTemplates) {
-                String type = childElement(node.getValue().getAsJsonObject(), "type").getAsString();
-                if ("tosca.nodes.nfv.VDU".equals(type)) {
-                    body.append(buildVdu(node.getKey(), substitution_mappings, node.getValue().getAsJsonObject(), nodeTemplates));
-                } else if ("tosca.nodes.nfv.VirtualStorage".equals(type)) {
-                    body.append(buildVolume(node.getKey(), node.getValue().getAsJsonObject()));
-                } else if ("tosca.nodes.nfv.VL".equals(type)) {
-                    virtualLinks.put(node.getKey(), node.getValue());
-                    body.append(buildVl(node.getValue().getAsJsonObject().get(PROPERTIES).getAsJsonObject(), node.getKey()));
-                } else if ("tosca.nodes.nfv.ICP".equals(type)) {
-                    body.append(buildIcp(node.getKey(), node.getValue().getAsJsonObject()));
-                } else if ("tosca.nodes.nfv.ECP".equals(type)) {
-                    body.append(buildEcp(node.getKey(), node.getValue(), nodeTemplates));
-                } else {
-                    logger.warn("The {} type is not converted", type);
-                }
-            }
-            return buildHeader(topologyTemplate, virtualLinks) + body.toString();
-        }
-        return buildHeader(topologyTemplate, virtualLinks);
-    }
-
-    private String buildHeader(JsonObject toplogyTemplate, Map<String, JsonElement> virtualLinks) {
+    protected String buildHeader(JsonObject toplogyTemplate, Map<String, JsonElement> virtualLinks) {
         JsonObject substitution_mappings = child(toplogyTemplate, "substitution_mappings");
         String vnfContent = buildVnf(substitution_mappings, virtualLinks);
         return "tosca_definitions_version: tosca_simple_profile_yaml_1_1\n" +
                 "\n" +
                 "topology_template:\n" +
                 "  inputs:\n" +
-                "    etsi_config:\n" +
+                "    " + ETSI_CONFIG + ":\n" +
                 "      type: string\n" +
                 "      description: The ETSI configuration\n" +
                 "  node_templates:\n" + vnfContent;
     }
 
-    private JsonElement get(String name, Set<Map.Entry<String, JsonElement>> nodes) {
-        for (Map.Entry<String, JsonElement> node : nodes) {
-            if (name.equals(node.getKey())) {
-                return node.getValue();
-            }
-        }
-        throw new NoSuchElementException("The VNFD does not have a node called " + name + " but required by an other node");
-    }
-
-    private String buildVdu(String name, JsonObject vnf, JsonObject vdu, Set<Map.Entry<String, JsonElement>> nodes) {
+    protected String buildVdu(String name, JsonObject vnf, JsonObject vdu, Set<Map.Entry<String, JsonElement>> nodes) {
         String memorySize = "";
         String cpuCount = "";
         StringBuilder body = new StringBuilder();
@@ -118,7 +60,7 @@ public class OnapR2VnfdBuilder {
             if ("virtual_compute".equals(s)) {
                 JsonObject virtualCompute = get(next.getValue().getAsString(), nodes).getAsJsonObject();
                 cpuCount = childElement(child(child(virtualCompute, PROPERTIES), "virtual_cpu"), "num_virtual_cpu").getAsString();
-                memorySize = trimUnit(childElement(child(child(virtualCompute, PROPERTIES), "virtual_memory"), "virtual_mem_size").getAsString());
+                memorySize = childElement(child(child(virtualCompute, PROPERTIES), "virtual_memory"), "virtual_mem_size").getAsString();
             } else if ("virtual_storage".equals(s)) {
                 String item = indent(
                         "- virtual_storage:\n" +
@@ -144,25 +86,11 @@ public class OnapR2VnfdBuilder {
                 indent(
                         "properties:\n" +
                                 "  virtual_memory:\n" +
-                                "    virtual_mem_size: " + trimUnit(memorySize) + "\n" +
+                                "    virtual_mem_size: " + memorySize + "\n" +
                                 "  virtual_cpu:\n" +
                                 "    num_virtual_cpu: " + cpuCount + "\n", 3) +
                 "  " + REQUIREMENTS + ":\n", 2);
         return header + body.toString();
-    }
-
-    private String buildEcp(String name, JsonElement ecp, Set<Map.Entry<String, JsonElement>> nodes) {
-        if (ecp.getAsJsonObject().has(REQUIREMENTS)) {
-            String icpName = getRequirement(ecp.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray(), "internal_connection_point");
-            if (icpName != null) {
-                return buildEcpInternal(name, icpName, nodes);
-            } else {
-                logger.warn("The {} ecp does not have an internal connection point", name);
-            }
-        } else {
-            logger.warn("The {} ecp does not have an requirements section", name);
-        }
-        return "";
     }
 
     private String buildVnf(JsonObject vnf, Map<String, JsonElement> virtualLinks) {
@@ -192,23 +120,7 @@ public class OnapR2VnfdBuilder {
                 vlContent.toString();
     }
 
-    private String buildEcpInternal(String ecpName, String icpName, Set<Map.Entry<String, JsonElement>> nodes) {
-        JsonObject icpNode = get(icpName, nodes).getAsJsonObject();
-        if (icpNode.has(REQUIREMENTS)) {
-            String vdu = getRequirement(icpNode.getAsJsonObject().get(REQUIREMENTS).getAsJsonArray(), "virtual_binding");
-            //internal connection point is bound to VDU
-            if (vdu != null) {
-                return buildVduCpd(ecpName, vdu, child(icpNode, PROPERTIES));
-            } else {
-                logger.warn("The {} internal connection point of the {} ecp does not have a VDU", icpName, ecpName);
-            }
-        } else {
-            logger.warn("The {} internal connection point of the {} ecp does not have a requirements section", icpName, ecpName);
-        }
-        return "";
-    }
-
-    private String buildIcp(String name, JsonObject icp) {
+    protected String buildIcp(String name, JsonObject icp) {
         if (icp.has(REQUIREMENTS)) {
             JsonArray requirements = icp.get(REQUIREMENTS).getAsJsonArray();
             String vdu = getRequirement(requirements, "virtual_binding");
@@ -237,7 +149,7 @@ public class OnapR2VnfdBuilder {
         return "";
     }
 
-    private String buildVduCpd(String name, String vdu, JsonObject properties) {
+    protected String buildVduCpd(String name, String vdu, JsonObject properties) {
         return indent(name + ":\n" +
                 "  type: tosca.nodes.nfv.VduCp\n" +
                 "  " + PROPERTIES + ":\n" +
@@ -250,21 +162,22 @@ public class OnapR2VnfdBuilder {
                 "    - virtual_binding: " + vdu + "\n", 2);
     }
 
-    private String buildVolume(String nodeName, JsonObject volume) {
+    protected String buildVolume(String nodeName, JsonObject volume) {
         return indent(nodeName + ":\n" +
                 "  type: tosca.nodes.nfv.Vdu.VirtualStorage\n" +
                 "  properties:\n" +
                 "    type_of_storage: volume\n" +
-                "    size_of_storage: " + trimUnit(childElement(child(volume, PROPERTIES), "size_of_storage").getAsString()) + "\n", 2);
+                "    size_of_storage: " + childElement(child(volume, PROPERTIES), "size_of_storage").getAsString() + "\n", 2);
     }
 
-    private String buildVl(JsonObject vlProperties, String name) {
+    protected String buildVl(JsonObject vlProperties, String name) {
+        JsonObject connectivityType = child(vlProperties, "connectivity_type");
         return indent(name + ":\n" +
                 "  type: tosca.nodes.nfv.VnfVirtualLink\n" +
                 "  properties:\n" +
                 "    connectivity_type:\n" +
-                "      layer_protocol: [ " + childElement(child(vlProperties, "connectivity_type"), "layer_protocol").getAsString() + " ]\n" +
-                "      flow_pattern: " + childElement(child(vlProperties, "connectivity_type"), "flow_pattern").getAsString() + "\n" +
+                "      layer_protocol: [ " + childElement(connectivityType, "layer_protocol").getAsString() + " ]\n" +
+                (connectivityType.has("flow_pattern") ? "      flow_pattern: " + childElement(connectivityType, "flow_pattern").getAsString() + "\n" : "") +
                 "    vl_profile:\n" +
                 "      max_bit_rate_requirements:\n" +
                 "        root: " + Integer.MAX_VALUE + "\n" + //FIXME GAP IN CBAM TEMPLATE

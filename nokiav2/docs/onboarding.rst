@@ -181,6 +181,8 @@ The following section requires the CSAR and the ETSI configuration of the VNF to
 
         - Select the ETSI configuration file using Browse
 
+          - the name of the file on the local file system must be etsi_config.json
+
         - Click on Done
 
 - Click on Check in
