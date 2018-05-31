@@ -15,3 +15,8 @@ topology_template:
       Basic:
         instantiate:
         terminate:
+    capabilities:
+      deployment_flavour:
+        properties:
+          flavour_id: myFlavorId
+          description: myFlavorDescription

@@ -28,10 +28,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.TestSdcPackageProvi
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.so.TestSoLifecycleManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.*;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestCbamVnfPackageBuilder;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestCbamVnfdBuilder;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestOnapVnfPackageBuilder;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.TestOnapVnfdBuilder;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestRealConfig;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.spring.TestServletInitializer;
@@ -70,7 +67,8 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedA
         TestVfcNotificationSender.class,
 
         TestCbamVnfdBuilder.class,
-        TestOnapVnfdBuilder.class,
+        TestOnapR1VnfdBuilder.class,
+        TestOnapR2VnfdBuilder.class,
         TestCbamVnfPackageBuilder.class,
         TestOnapVnfPackageBuilder.class,
 

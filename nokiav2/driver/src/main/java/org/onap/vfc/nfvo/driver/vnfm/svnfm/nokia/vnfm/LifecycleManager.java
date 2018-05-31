@@ -334,6 +334,7 @@ public class LifecycleManager {
                 return child(child(operation.getValue().getAsJsonObject(), "inputs"), "additional_parameters").entrySet();
             }
         }
+
         throw buildFatalFailure(logger, "Unable to find operation named " + operationName);
     }
 

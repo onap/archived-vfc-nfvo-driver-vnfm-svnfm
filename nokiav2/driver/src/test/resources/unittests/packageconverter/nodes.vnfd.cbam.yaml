@@ -67,7 +67,6 @@ topology_template:
       properties:
         connectivity_type:
           layer_protocol: ipv4
-          flow_pattern: mesh
         description: myDescription
 
     icpWithOutEcp:

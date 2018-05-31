@@ -22,7 +22,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapR1VnfPackageBuilder;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfPackageBuilder;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.SupportedOnapPackageVersions;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -47,7 +47,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(value = BASE_URL)
 public class ConverterApi {
     private static Logger logger = getLogger(ConverterApi.class);
-    private OnapR1VnfPackageBuilder vnfPackageConverter = new OnapR1VnfPackageBuilder();
+    private OnapVnfPackageBuilder vnfPackageConverter = new OnapVnfPackageBuilder();
 
     /**
      * Return the converted ONAP package
