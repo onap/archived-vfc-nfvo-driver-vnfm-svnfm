@@ -46,10 +46,10 @@ public class TestOnapVnfPackageBuilder extends TestBase {
         when(systemFunctions.loadFile("MainServiceTemplate.mf")).thenCallRealMethod();
 
         String cbamVnfd = new String(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip.vnfd"));
-        String expectedOnapVnfd = new OnapVnfdBuilder().toOnapVnfd(cbamVnfd);
+        String expectedOnapVnfd = new OnapR1VnfdBuilder().toOnapVnfd(cbamVnfd);
 
         //when
-        OnapR1VnfPackageBuilder.main(null);
+        OnapVnfPackageBuilder.main(null);
         //verify
         assertFileInZip(bos.toByteArray(), "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
         assertFileInZip(bos.toByteArray(), "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
@@ -59,13 +59,60 @@ public class TestOnapVnfPackageBuilder extends TestBase {
         assertItenticalZips(expectedModifiedCbamPackage, actualModifiedCbamVnfPackage.toByteArray());
     }
 
+    /**
+     * Test conversion for V1 package
+     */
+    @Test
+    public void testConversionViaV1() throws Exception {
+        when(systemFunctions.loadFile("cbam.pre.collectConnectionPoints.js")).thenCallRealMethod();
+        when(systemFunctions.loadFile("cbam.collectConnectionPoints.js")).thenCallRealMethod();
+        when(systemFunctions.loadFile("cbam.post.collectConnectionPoints.js")).thenCallRealMethod();
+        when(systemFunctions.loadFile("TOSCA.meta")).thenCallRealMethod();
+        when(systemFunctions.loadFile("MainServiceTemplate.mf")).thenCallRealMethod();
+
+        String cbamVnfd = new String(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip.vnfd"));
+        String expectedOnapVnfd = new OnapR1VnfdBuilder().toOnapVnfd(cbamVnfd);
+        //when
+        byte[] convertedPackage = new OnapVnfPackageBuilder().covert(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")), SupportedOnapPackageVersions.V1);
+        //verify
+        assertFileInZip(convertedPackage, "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
+        assertFileInZip(convertedPackage, "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
+        assertFileInZip(convertedPackage, "MainServiceTemplate.mf", TestUtil.loadFile("MainServiceTemplate.mf"));
+        ByteArrayOutputStream actualModifiedCbamVnfPackage = getFileInZip(new ByteArrayInputStream(convertedPackage), "Artifacts/Deployment/OTHER/cbam.package.zip");
+        byte[] expectedModifiedCbamPackage = new CbamVnfPackageBuilder().toModifiedCbamVnfPackage(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip"), "vnfdloc/a.yaml", new CbamVnfdBuilder().build(cbamVnfd));
+        assertItenticalZips(expectedModifiedCbamPackage, actualModifiedCbamVnfPackage.toByteArray());
+    }
+
+    /**
+     * Test conversion for V2 package
+     */
+    @Test
+    public void testConversionViaV2() throws Exception {
+        when(systemFunctions.loadFile("cbam.pre.collectConnectionPoints.js")).thenCallRealMethod();
+        when(systemFunctions.loadFile("cbam.collectConnectionPoints.js")).thenCallRealMethod();
+        when(systemFunctions.loadFile("cbam.post.collectConnectionPoints.js")).thenCallRealMethod();
+        when(systemFunctions.loadFile("TOSCA.meta")).thenCallRealMethod();
+        when(systemFunctions.loadFile("MainServiceTemplate.mf")).thenCallRealMethod();
+
+        String cbamVnfd = new String(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip.vnfd"));
+        String expectedOnapVnfd = new OnapR2VnfdBuilder().toOnapVnfd(cbamVnfd);
+        //when
+        byte[] convertedPackage = new OnapVnfPackageBuilder().covert(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")), SupportedOnapPackageVersions.V2);
+        //verify
+        assertFileInZip(convertedPackage, "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
+        assertFileInZip(convertedPackage, "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
+        assertFileInZip(convertedPackage, "MainServiceTemplate.mf", TestUtil.loadFile("MainServiceTemplate.mf"));
+        ByteArrayOutputStream actualModifiedCbamVnfPackage = getFileInZip(new ByteArrayInputStream(convertedPackage), "Artifacts/Deployment/OTHER/cbam.package.zip");
+        byte[] expectedModifiedCbamPackage = new CbamVnfPackageBuilder().toModifiedCbamVnfPackage(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip"), "vnfdloc/a.yaml", new CbamVnfdBuilder().build(cbamVnfd));
+        assertItenticalZips(expectedModifiedCbamPackage, actualModifiedCbamVnfPackage.toByteArray());
+    }
 
     /**
      * Prevents moving the class (customer documentation) must be updated
      */
     @Test
     public void testPreventMove() {
-        assertEquals("b3JnLm9uYXAudmZjLm5mdm8uZHJpdmVyLnZuZm0uc3ZuZm0ubm9raWEucGFja2FnZXRyYW5zZm9ybWVyLk9uYXBSMVZuZlBhY2thZ2VCdWlsZGVy", Base64.getEncoder().encodeToString(OnapR1VnfPackageBuilder.class.getCanonicalName().getBytes()));
+        assertEquals("b3JnLm9uYXAudmZjLm5mdm8uZHJpdmVyLnZuZm0uc3ZuZm0ubm9raWEucGFja2FnZXRyYW5zZm9ybWVyLk9uYXBWbmZQYWNrYWdlQnVpbGRlcg==", Base64.getEncoder().encodeToString(OnapVnfPackageBuilder.class.getCanonicalName().getBytes()));
     }
 
 

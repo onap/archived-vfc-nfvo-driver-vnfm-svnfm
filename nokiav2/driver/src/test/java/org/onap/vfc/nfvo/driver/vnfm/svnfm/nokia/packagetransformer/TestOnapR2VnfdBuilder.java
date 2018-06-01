@@ -23,6 +23,7 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.fail;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 
@@ -32,7 +33,8 @@ public class TestOnapR2VnfdBuilder extends TestBase {
 
     @Before
     public void init() {
-        setField(OnapVnfdBuilder.class, "logger", logger);
+        setField(OnapAbstractVnfdBuilder.class, "logger", logger);
+        setField(OnapR2VnfdBuilder.class, "logger", logger);
     }
 
 
@@ -50,14 +52,14 @@ public class TestOnapR2VnfdBuilder extends TestBase {
     @Test
     public void testNodes() {
         assertEquals(new String(TestUtil.loadFile("unittests/packageconverter/nodes.vnfd.onap.v2.yaml")), packageTransformer.toOnapVnfd(new String(TestUtil.loadFile("unittests/packageconverter/nodes.vnfd.cbam.yaml"))));
-       /* verify(logger).warn("The {} ecp does not have an internal connection point", "myEcpWithoutIcp");
+        verify(logger).warn("The {} ecp does not have an internal connection point", "myEcpWithoutIcp");
         verify(logger).warn("The {} ecp does not have an requirements section", "ecpWithIcpWithOutRequirements");
         verify(logger).warn("The {} internal connection point of the {} ecp does not have a VDU", "icpWithoutVdu", "myEcpWithoutIcpWithoutVdu");
         verify(logger).warn("The {} internal connection point of the {} ecp does not have a requirements section", "icpWithOutRequiements", "myEcpWithoutIcpWithoutIcpReq");
         verify(logger).warn("The {} internal connection point does not have a VDU", "icpWithOutVdu");
         verify(logger).warn("The {} internal connection point does not have a requirements section", "icpWithOutRequiements");
         verify(logger).warn("The {} internal connection point does not have a VL", "icpWithOutVl");
-        verify(logger).warn("The {} type is not converted", "tosca.nodes.nfv.Unknown")*/
+        verify(logger).warn("The {} type is not converted", "tosca.nodes.nfv.Unknown");
     }
 
     /**

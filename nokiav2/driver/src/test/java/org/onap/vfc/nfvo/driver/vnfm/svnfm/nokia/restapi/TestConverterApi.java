@@ -31,7 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.CbamVnfPackageBuilder;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.CbamVnfdBuilder;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapVnfdBuilder;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.OnapR1VnfdBuilder;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.TestBase;
 import org.springframework.http.HttpHeaders;
@@ -88,7 +88,7 @@ public class TestConverterApi extends TestBase {
 
     private void verifyVnfPackageWritterToOutputStream(ByteArrayOutputStream bos) throws Exception {
         String cbamVnfd = new String(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip.vnfd"));
-        String expectedOnapVnfd = new OnapVnfdBuilder().toOnapVnfd(cbamVnfd);
+        String expectedOnapVnfd = new OnapR1VnfdBuilder().toOnapVnfd(cbamVnfd);
         assertFileInZip(bos.toByteArray(), "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
         assertFileInZip(bos.toByteArray(), "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
         assertFileInZip(bos.toByteArray(), "MainServiceTemplate.mf", TestUtil.loadFile("MainServiceTemplate.mf"));
@@ -129,6 +129,27 @@ public class TestConverterApi extends TestBase {
         } catch (Exception e) {
             verify(logger).error("Unable to extract package from REST parameters", expectedException);
             assertEquals("Unable to extract package from REST parameters", e.getMessage());
+            assertEquals(expectedException, e.getCause());
+        }
+    }
+
+    /**
+     * error is propagated if unable to extract version from HTTP request
+     */
+    @Test
+    public void testUnableToExtractVersion() throws Exception {
+        IOException expectedException = new IOException();
+        Part part = Mockito.mock(Part.class);
+        when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
+        when(httpRequest.getPart("fileToUpload")).thenReturn(part);
+        when(httpRequest.getPart("version")).thenThrow(expectedException);
+        when(part.getInputStream()).thenReturn(new ByteArrayInputStream("V1".getBytes()));
+        try {
+            converterApi.convert(httpResponse, httpRequest);
+            fail();
+        } catch (Exception e) {
+            verify(logger).error("Unable to determine the desired ONAP package version", expectedException);
+            assertEquals("Unable to determine the desired ONAP package version", e.getMessage());
             assertEquals(expectedException, e.getCause());
         }
     }
