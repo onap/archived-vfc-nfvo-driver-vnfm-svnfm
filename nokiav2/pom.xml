@@ -28,7 +28,7 @@
   <name>vfc-nfvo-driver-vnfm-svnfm-nokiav2</name>
   <properties>
     <jacoco.version>0.8.0</jacoco.version>
-    <spring.boot.version>2.0.1.RELEASE</spring.boot.version>
+    <spring.boot.version>2.0.2.RELEASE</spring.boot.version>
   </properties>
   <!-- used to test dependency convergence locally
   <build>
