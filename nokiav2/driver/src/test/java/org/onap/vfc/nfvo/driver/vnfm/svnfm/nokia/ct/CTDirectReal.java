@@ -52,50 +52,6 @@ public class CTDirectReal {
     public void testBasicWorkflow() throws Exception {
         SystemFunctions.systemFunctions().sleep(10000000 * 1000L);
 
-        VimInfo nokia_regionOne = externalSystemInfoProvider.getVimInfo("Nokia_RegionOne");
-
-        VnfLifecycleChangeNotification recievedNot = new VnfLifecycleChangeNotification();
-        recievedNot.setVnfInstanceId("CBAM-d8deb02a7a51449dba576ac9eabb55b8");
-        ReportedAffectedConnectionPoints affectedConnectionPoints = new ReportedAffectedConnectionPoints();
-        recievedNot.setAffectedVirtualLinks(new ArrayList<>());
-        AffectedVirtualLink link = new AffectedVirtualLink();
-        recievedNot.getAffectedVirtualLinks().add(link);
-        link.setId("vlid1");
-        link.setChangeType(ChangeType.REMOVED);
-        link.setVirtualLinkDescId("vldId1");
-        link.setResource(new ResourceHandle());
-        link.getResource().setResourceId("netProviderId1");
-        link.getResource().setAdditionalData(additionalData("name", "networkName"));
-        recievedNot.setAffectedVnfcs(new ArrayList<>());
-        AffectedVnfc vnfc = new AffectedVnfc();
-        vnfc.setId("myVnfcId1");
-        vnfc.setChangeType(ChangeType.ADDED);
-        vnfc.setVduId("myVduId");
-        vnfc.setStorageResourceIds(new ArrayList<>());
-        vnfc.setComputeResource(new ResourceHandle());
-        vnfc.getComputeResource().setResourceId("serverProvId1");
-        JsonObject additionalData = additionalData("name", "serverName");
-        additionalData.addProperty("tenantId", "de8fd0d1d5874503a47b920c10f4322a");
-        vnfc.getComputeResource().setAdditionalData(additionalData);
-        recievedNot.getAffectedVnfcs().add(vnfc);
-        ReportedAffectedCp addedCp = new ReportedAffectedCp();
-        addedCp.setCpId("cpId");
-        addedCp.setIpAddress("1.2.3.4");
-        addedCp.setMacAddress("a:b:c:d:e:f");
-        addedCp.setNetworkProviderId("netProviderId1");
-        addedCp.setServerProviderId("serverProvId1");
-        addedCp.setProviderId("portId");
-        addedCp.setTenantId("de8fd0d1d5874503a47b920c10f4322a");
-        addedCp.setCpdId("cpdId");
-        affectedConnectionPoints.getPost().add(addedCp);
-        notificationProcessor.processNotification(recievedNot, null, of(affectedConnectionPoints), "Nokia_RegionOne", "vnfmId");
     }
-
-    JsonObject additionalData(String key, String value) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty(key, value);
-        return jsonObject;
-    }
-
 
 }

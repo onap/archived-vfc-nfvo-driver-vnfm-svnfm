@@ -26,7 +26,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.TestAAIRestApiProvi
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.TestGrantlessGrantManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.TestSdcPackageProvider;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.direct.notification.*;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.so.TestSoLifecycleManager;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.vfc.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.restapi.*;
@@ -57,8 +56,6 @@ import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.vnfm.notification.TestReportedA
         TestAAIRestApiProvider.class,
         TestGrantlessGrantManager.class,
         TestSdcPackageProvider.class,
-
-        TestSoLifecycleManager.class,
 
         TestVfcExternalSystemInfoProvider.class,
         TestVfcGrantManager.class,

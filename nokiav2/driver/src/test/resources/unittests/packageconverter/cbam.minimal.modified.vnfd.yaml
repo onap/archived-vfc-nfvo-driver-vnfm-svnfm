@@ -2,6 +2,15 @@ tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0_nokia
 topology_template:
   substitution_mappings:
     node_type: tosca.nodes.nfv.VNF
+    capabilities:
+      deployment_flavour: {}
+      vnf:
+        properties:
+          modifiable_attributes:
+            extensions:
+              onapCsarId: {default: kuku}
+              externalVnfmId: {default: kuku}
+              vimId: {default: kuku}
     interfaces:
       Basic:
         instantiate:
@@ -28,11 +37,3 @@ topology_template:
                 include: [javascript/cbam.collectConnectionPoints.js]
                 output: operation_result
             additional_parameters: {jobId: kuku}
-    capabilities:
-      vnf:
-        properties:
-          modifiable_attributes:
-            extensions:
-              onapCsarId: {default: kuku}
-              externalVnfmId: {default: kuku}
-              vimId: {default: kuku}
