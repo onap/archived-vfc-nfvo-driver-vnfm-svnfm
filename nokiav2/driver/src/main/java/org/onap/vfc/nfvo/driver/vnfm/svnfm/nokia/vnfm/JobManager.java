@@ -27,10 +27,7 @@ import com.nokia.cbam.lcm.v32.model.VnfInfo;
 import java.util.*;
 import javax.servlet.http.HttpServletResponse;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.onap.core.SelfRegistrationManager;
-import org.onap.vnfmdriver.model.JobDetailInfo;
-import org.onap.vnfmdriver.model.JobDetailInfoResponseDescriptor;
-import org.onap.vnfmdriver.model.JobResponseInfo;
-import org.onap.vnfmdriver.model.JobStatus;
+import org.onap.vnfmdriver.model.*;
 import org.slf4j.Logger;
 
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
@@ -180,6 +177,15 @@ public class JobManager {
             return getJobDetailInfoForMissingVnf(jobId);
         } else {
             return getJobInfoForExistingVnf(vnfmId, jobId, vnfId, vnf.get());
+        }
+    }
+
+    public void waitForJobToFinish(JobInfo jobInfo) {
+        while(true){
+            if(ongoingJobs.contains(jobInfo.getJobId())){
+                return;
+            }
+            systemFunctions().sleep(500L);
         }
     }
 

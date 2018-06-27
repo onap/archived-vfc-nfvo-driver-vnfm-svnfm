@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -41,7 +42,7 @@ public class OnapVnfPackageBuilder {
      * @param args not used (required due to signature)
      */
     public static void main(String[] args) throws Exception {
-        byte[] covert = new OnapVnfPackageBuilder().covert(systemFunctions().in(), SupportedOnapPackageVersions.V1);
+        byte[] covert = new OnapVnfPackageBuilder().covert(systemFunctions().in(), SupportedOnapPackageVersions.V1TOSCA);
         systemFunctions().out().write(covert);
     }
 
@@ -55,11 +56,35 @@ public class OnapVnfPackageBuilder {
         String vnfdLocation = getVnfdLocation(new ByteArrayInputStream(cbamVnfPackage));
         ByteArrayOutputStream vnfdContent = getFileInZip(new ByteArrayInputStream(cbamVnfPackage), vnfdLocation);
         byte[] cbamVnfdContent = vnfdContent.toByteArray();
-        String onapVnfd = SupportedOnapPackageVersions.V2 == version ?
-                new OnapR2VnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8)) :
-                new OnapR1VnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8));
         byte[] modifiedCbamPackage = new CbamVnfPackageBuilder().toModifiedCbamVnfPackage(cbamVnfPackage, vnfdLocation, new CbamVnfdBuilder().build(new String(cbamVnfdContent)));
-        return buildNewOnapPackage(modifiedCbamPackage, onapVnfd);
+        switch (version){
+            case V1TOSCA:
+            case V2TOSCA:
+                String onapVnfd = SupportedOnapPackageVersions.V2TOSCA == version ?
+                        new OnapR2VnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8)) :
+                        new OnapR1VnfdBuilder().toOnapVnfd(new String(cbamVnfdContent, StandardCharsets.UTF_8));
+                return buildNewOnapPackage(modifiedCbamPackage, onapVnfd);
+            case V2HEAT:
+            default:
+                Map<String, String> files = new OnapR2HeatPackageBuilder().processVnfd(new String(cbamVnfdContent));
+                return buildHeatOnapPackage(modifiedCbamPackage, files);
+        }
+
+    }
+
+    private byte [] buildHeatOnapPackage(byte [] modifiedCbamPackage, Map<String, String> heatFiles) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        ZipOutputStream out = new ZipOutputStream(result);
+        out.putNextEntry(new ZipEntry("Artifacts/Deployment/OTHER/cbam.package.zip"));
+        out.write(modifiedCbamPackage);
+        out.closeEntry();
+        for (Map.Entry<String, String> file : heatFiles.entrySet()) {
+            out.putNextEntry(new ZipEntry(file.getKey()));
+            out.write(file.getValue().getBytes());
+            out.closeEntry();
+        }
+        out.close();
+        return result.toByteArray();
     }
 
     private byte[] buildNewOnapPackage(byte[] modifiedCbamPackage, String onapVnfd) throws IOException {
