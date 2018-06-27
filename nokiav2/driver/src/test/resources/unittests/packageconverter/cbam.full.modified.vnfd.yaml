@@ -11,6 +11,11 @@ topology_template:
               onapCsarId: {default: kuku}
               externalVnfmId: {default: kuku}
               vimId: {default: kuku}
+      deployment_flavour:
+        properties:
+          scaling_aspects:
+            aspect1: {max_scale_level: 2}
+            aspect2: {max_scale_level: 3}
     interfaces:
       Basic:
         instantiate:
@@ -67,3 +72,37 @@ topology_template:
                 include: [javascript/cbam.collectConnectionPoints.js]
                 output: operation_result
             additional_parameters: {jobId: kuku}
+  policies:
+  - b: {type: x}
+  - heat_mapping:
+      type: tosca.policies.nfv.HeatMapping
+      properties:
+        static:
+          virtualLinks: {net1: path, net2: path}
+          vdus:
+            vdu1:
+            - {heatResource: path}
+            vdu2:
+            - {heatResource: path}
+          externalConnectionPoints:
+            ecp1: [path]
+            ecp2: [path]
+        aspects:
+          aspect1:
+            vdus:
+              vdu1:
+              - heatResource: any
+                connectionPoints: {cp1: nic_0, cp2: nic_1}
+                virtualStorages: {disk1: disk_0, disk2: disk_1}
+              vdu2:
+              - {heatResource: any}
+              - {heatResource: any}
+            externalConnectionPoints:
+              ecp1: [path]
+              ecp2: [path]
+          aspect2:
+            vdus:
+              vdu2:
+              - {heatResource: any}
+            externalConnectionPoints:
+              ecp2: [path]
