@@ -75,7 +75,7 @@ public class TestConverterApi extends TestBase {
         when(httpRequest.getPart("fileToUpload")).thenReturn(part);
         Part part2 = Mockito.mock(Part.class);
         when(httpRequest.getPart("version")).thenReturn(part2);
-        when(part2.getInputStream()).thenReturn(new ByteArrayInputStream("V1".getBytes()));
+        when(part2.getInputStream()).thenReturn(new ByteArrayInputStream("V1TOSCA".getBytes()));
         //when
         converterApi.convert(httpResponse, httpRequest);
         //verify
@@ -122,7 +122,7 @@ public class TestConverterApi extends TestBase {
         when(httpRequest.getPart("fileToUpload")).thenThrow(expectedException);
         Part part = Mockito.mock(Part.class);
         when(httpRequest.getPart("version")).thenReturn(part);
-        when(part.getInputStream()).thenReturn(new ByteArrayInputStream("V1".getBytes()));
+        when(part.getInputStream()).thenReturn(new ByteArrayInputStream("V1TOSCA".getBytes()));
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();
@@ -143,7 +143,7 @@ public class TestConverterApi extends TestBase {
         when(part.getInputStream()).thenReturn(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")));
         when(httpRequest.getPart("fileToUpload")).thenReturn(part);
         when(httpRequest.getPart("version")).thenThrow(expectedException);
-        when(part.getInputStream()).thenReturn(new ByteArrayInputStream("V1".getBytes()));
+        when(part.getInputStream()).thenReturn(new ByteArrayInputStream("V1TOSCA".getBytes()));
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();
@@ -165,7 +165,7 @@ public class TestConverterApi extends TestBase {
 
         Part part2 = Mockito.mock(Part.class);
         when(httpRequest.getPart("version")).thenReturn(part2);
-        when(part2.getInputStream()).thenReturn(new ByteArrayInputStream("V1".getBytes()));
+        when(part2.getInputStream()).thenReturn(new ByteArrayInputStream("V1TOSCA".getBytes()));
         try {
             converterApi.convert(httpResponse, httpRequest);
             fail();

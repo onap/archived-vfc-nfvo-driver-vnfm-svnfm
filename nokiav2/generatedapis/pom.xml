@@ -18,12 +18,12 @@
   <parent>
     <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2</groupId>
     <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokiav2</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2</groupId>
   <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokiav2-clients</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>${driver.version}</version>
   <packaging>jar</packaging>
   <name>vfc/nfvo/driver/vnfm/svnfm/nokiav2/generatedapis</name>
   <properties>
@@ -93,6 +93,27 @@ Release AAI
             </configuration>
           </execution>
           <execution>
+            <id>sov2</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${basedir}/src/main/resources/so.vnfm.v2.json</inputSpec>
+              <language>java</language>
+              <library>retrofit2</library>
+              <output>${project.build.directory}/generated-sources/sov2</output>
+              <apiPackage>org.onap.vnfmadapter.so.v2.api</apiPackage>
+              <modelPackage>org.onap.vnfmadapter.so.v2.model</modelPackage>
+              <configOptions>
+                <jackson>true</jackson>
+                <sourceFolder>src/gen/java/main</sourceFolder>
+                <withXml>true</withXml>
+                <useRxJava2>true</useRxJava2>
+              </configOptions>
+            </configuration>
+          </execution>
+<!--
+          <execution>
             <id>so</id>
             <goals>
               <goal>generate</goal>
@@ -112,6 +133,7 @@ Release AAI
               </configOptions>
             </configuration>
           </execution>
+-->
           <execution>
             <id>msb</id>
             <goals>

@@ -37,6 +37,7 @@ import org.onap.vnfmdriver.model.*;
 import org.onap.vnfmdriver.model.VimInfo;
 import org.onap.vnfmdriver.model.VnfInfo;
 import org.slf4j.Logger;
+import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import static java.lang.Integer.parseInt;
@@ -176,7 +177,6 @@ public class LifecycleManager {
     @SuppressWarnings("squid:S00107") //wrapping them into an object makes the code less readable
     public VnfInstantiateResponse instantiate(String vnfmId, List<ExtVirtualLinkInfo> externalVirtualLinks, HttpServletResponse httpResponse, Object operationAdditionalParameters, AdditionalParameters additionalParameters, String vnfId, String onapVnfdId, String vnfmVnfdId) {
         logOperationInput(vnfId, "instantiation", additionalParameters);
-        validateVimType(additionalParameters.getVimType());
         VnfInstantiateResponse response = new VnfInstantiateResponse();
         response.setVnfInstanceId(vnfId);
         String vimId = getVimId(operationAdditionalParameters);
@@ -212,7 +212,6 @@ public class LifecycleManager {
      */
     public VnfInstantiateResponse createAndInstantiate(String vnfmId, VnfInstantiateRequest request, HttpServletResponse httpResponse) {
         AdditionalParameters additionalParameters = convertInstantiationAdditionalParams(request.getVnfPackageId(), request.getAdditionalParam());
-        validateVimType(additionalParameters.getVimType());
         VnfCreationResult creationResult = create(vnfmId, request.getVnfDescriptorId(), request.getVnfInstanceName(), request.getVnfInstanceDescription());
         return instantiate(vnfmId, request.getExtVirtualLink(), httpResponse, request.getAdditionalParam(), additionalParameters, creationResult.vnfInfo.getId(), request.getVnfPackageId(), creationResult.vnfdId);
     }
@@ -268,28 +267,15 @@ public class LifecycleManager {
     }
 
     private com.nokia.cbam.lcm.v32.model.VimInfo addVim(AdditionalParameters additionalParameters, String vimId, GrantVNFResponseVim vim, VimInfo vimInfo) {
-        if (additionalParameters.getVimType() == OPENSTACK_V2_INFO) {
-            return buildOpenStackV2INFO(vimId, vim, vimInfo);
-
-        } else if (additionalParameters.getVimType() == OPENSTACK_V3_INFO) {
-            if (isEmpty(vimInfo.getDomain())) {
-                if (isEmpty(additionalParameters.getDomain())) {
-                    throw buildFatalFailure(logger, "The cloud did not supply the cloud domain (Amsterdam release) and was not supplied as additional data");
-                } else {
-                    logger.warn("Setting domain from additional parameters");
-                    vimInfo.setDomain(additionalParameters.getDomain());
-                }
+        if (vimInfo.getType().equals("openstack")) {
+            if (StringUtils.isEmpty(vimInfo.getDomain())) {
+                return buildOpenStackV2INFO(vimId, vim, vimInfo);
+            } else {
+                return buildOpenStackV3INFO(vimId, vim, vimInfo);
             }
-            return buildOpenStackV3INFO(vimId, vim, vimInfo);
         } else {
             //OTHER VIM TYPE is not possible
             return buildVcloudInfo(vimId, vimInfo);
-        }
-    }
-
-    private void validateVimType(com.nokia.cbam.lcm.v32.model.VimInfo.VimInfoTypeEnum vimType) {
-        if (com.nokia.cbam.lcm.v32.model.VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO.equals(vimType)) {
-            throw buildFatalFailure(logger, "Only " + OPENSTACK_V2_INFO + ", " + OPENSTACK_V3_INFO + " and " + VMWARE_VCLOUD_INFO + " is the supported VIM types");
         }
     }
 
@@ -367,7 +353,7 @@ public class LifecycleManager {
         executeModifyVnfInfo(vnfmId, vnfId, request);
     }
 
-    private void executeModifyVnfInfo(String vnfmId, String vnfId, ModifyVnfInfoRequest request) {
+    public void executeModifyVnfInfo(String vnfmId, String vnfId, ModifyVnfInfoRequest request) {
         try {
             OperationExecution operationExecution = cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdPatch(vnfId, request, NOKIA_LCM_API_VERSION).blockingFirst();
             waitForOperationToFinish(vnfmId, vnfId, operationExecution.getId());
@@ -459,16 +445,16 @@ public class LifecycleManager {
      * </ul>
      *
      * @param vnfmId       the identifier of the VNFM
-     * @param vnfId        the identifier of the VNF
+     * @param vnfIdInVnfm  the identifier of the VNF in VNFM
      * @param request      the termination request
      * @param httpResponse the HTTP response
      * @return the job for polling the progress of the termination
      */
-    public JobInfo terminateAndDelete(String vnfmId, String vnfId, VnfTerminateRequest request, HttpServletResponse httpResponse) {
-        logOperationInput(vnfId, "termination", request);
-        return scheduleExecution(vnfId, httpResponse, "terminateVnf", jobInfo -> {
-            terminateVnf(vnfmId, vnfId, request, jobInfo);
-            deleteVnf(vnfmId, vnfId);
+    public JobInfo terminateAndDelete(String vnfmId, String vnfIdInVnfm, VnfTerminateRequest request, HttpServletResponse httpResponse) {
+        logOperationInput(vnfIdInVnfm, "termination", request);
+        return scheduleExecution(vnfIdInVnfm, httpResponse, "terminateVnf", jobInfo -> {
+            terminateVnf(vnfmId, vnfIdInVnfm, request, jobInfo);
+            deleteVnf(vnfmId, vnfIdInVnfm);
         });
     }
 
@@ -528,12 +514,12 @@ public class LifecycleManager {
      * Delete the VNF
      *
      * @param vnfmId the identifier of the VNFM
-     * @param vnfId  the identifier fo the VNF
+     * @param vnfIdInVnfm  the identifier fo the VNF
      */
-    public void deleteVnf(String vnfmId, String vnfId) {
-        logger.info("Deleting VNF with {} identifier", vnfId);
-        cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfId, NOKIA_LCM_API_VERSION).blockingFirst(null);
-        logger.info("The VNF with {} identifier has been deleted", vnfId);
+    public void deleteVnf(String vnfmId, String vnfIdInVnfm) {
+        logger.info("Deleting VNF with {} identifier", vnfIdInVnfm);
+        cbamRestApiProvider.getCbamLcmApi(vnfmId).vnfsVnfInstanceIdDelete(vnfIdInVnfm, NOKIA_LCM_API_VERSION).blockingFirst(null);
+        logger.info("The VNF with {} identifier has been deleted", vnfIdInVnfm);
     }
 
     private String getVimIdFromInstantiationRequest(String vnfmId, com.nokia.cbam.lcm.v32.model.VnfInfo vnf) {
