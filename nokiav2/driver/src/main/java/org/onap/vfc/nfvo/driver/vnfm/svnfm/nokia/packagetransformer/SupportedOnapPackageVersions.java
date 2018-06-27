@@ -20,6 +20,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.packagetransformer;
  * The supported ONAP package versions
  */
 public enum SupportedOnapPackageVersions {
-    V1,
-    V2
+    V1TOSCA,
+    V2TOSCA,
+    V2HEAT
 }

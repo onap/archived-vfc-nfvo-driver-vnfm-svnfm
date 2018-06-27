@@ -37,7 +37,7 @@ import static org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia.util.TestUtil.loadFile;
 
 public class TestSwaggerDefinitionConsistency extends TestBase {
 
-    public static final HashSet<Class<?>> CLASSES = Sets.newHashSet(LcmApi.class, LcnApi.class, SwaggerApi.class, ConverterApi.class, SoApi.class);
+    public static final HashSet<Class<?>> CLASSES = Sets.newHashSet(LcmApi.class, LcnApi.class, SwaggerApi.class, ConverterApi.class, SoV2Api.class);
 
     @Test
     public void test() throws Exception {

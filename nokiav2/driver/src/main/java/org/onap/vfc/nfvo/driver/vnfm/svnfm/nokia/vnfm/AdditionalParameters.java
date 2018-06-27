@@ -23,7 +23,6 @@ import java.util.*;
  * Represents the additional parameters to be sent during instantiation from VF-C to the driver
  */
 public class AdditionalParameters {
-    private VimInfoTypeEnum vimType;
     private String instantiationLevel;
     private List<VimComputeResourceFlavour> computeResourceFlavours = new ArrayList<>();
     private List<ZoneInfo> zones = new ArrayList<>();
@@ -33,7 +32,6 @@ public class AdditionalParameters {
     private List<ExtVirtualLinkData> extVirtualLinks = new ArrayList<>();
     private List<VnfProperty> extensions = new ArrayList<>();
     private Object additionalParams;
-    private String domain;
 
     public AdditionalParameters() {
         //only used through reflection (gson)
@@ -51,20 +49,6 @@ public class AdditionalParameters {
      */
     public void setAdditionalParams(Object additionalParams) {
         this.additionalParams = additionalParams;
-    }
-
-    /**
-     * @return the type of the VIM
-     */
-    public VimInfoTypeEnum getVimType() {
-        return vimType;
-    }
-
-    /**
-     * @param vimType the type of the VIM
-     */
-    public void setVimType(VimInfoTypeEnum vimType) {
-        this.vimType = vimType;
     }
 
     /**
@@ -159,14 +143,6 @@ public class AdditionalParameters {
         this.extVirtualLinks = extVirtualLinks;
     }
 
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
     /**
      * @return the extensions of the VNF modifiable attributes
      */
@@ -188,8 +164,7 @@ public class AdditionalParameters {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AdditionalParameters that = (AdditionalParameters) o;
-        return vimType == that.vimType &&
-                Objects.equals(domain, that.domain) &&
+        return
                 Objects.equals(instantiationLevel, that.instantiationLevel) &&
                 Objects.equals(computeResourceFlavours, that.computeResourceFlavours) &&
                 Objects.equals(zones, that.zones) &&
@@ -203,13 +178,12 @@ public class AdditionalParameters {
 
     @Override
     public int hashCode() {
-        return Objects.hash(vimType, domain, instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, extensions, additionalParams);
+        return Objects.hash(instantiationLevel, computeResourceFlavours, zones, softwareImages, extManagedVirtualLinks, externalConnectionPointAddresses, extVirtualLinks, extensions, additionalParams);
     }
 
     @Override
     public String toString() {
         return "AdditionalParameters{" +
-                "vimType=" + vimType +
                 ", instantiationLevel='" + instantiationLevel + '\'' +
                 ", computeResourceFlavours=" + computeResourceFlavours +
                 ", zones=" + zones +
@@ -219,7 +193,6 @@ public class AdditionalParameters {
                 ", extVirtualLinks=" + extVirtualLinks +
                 ", extensions=" + extensions +
                 ", additionalParams=" + additionalParams +
-                ", domain='" + domain + '\'' +
                 '}';
     }
 }
