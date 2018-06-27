@@ -16,3 +16,11 @@ Limitations of the current release
 ----------------------------------
 
 - at least one server instance mapping for each VDU must be supplied in the VNF activation request
+
+
+Open questions
+--------------
+
+- What is the vnfVersion in Mso
+- What is the requestType in vnfCreate
+- What is the meaning of the tenantCreated field in rollback

@@ -26,7 +26,7 @@ public class TestCbamVnfdBuilder extends TestBase {
     private CbamVnfdBuilder packageTransformer = new CbamVnfdBuilder();
 
     /**
-     * test package conversion on the most mininal VNFD possible
+     * test package conversion on the most minimal VNFD possible
      */
     @Test
     public void testEmpty() throws Exception {
