@@ -12,7 +12,7 @@ RUN yum -y update && \
     yum -y install mc vim tcpdump net-tools nc strace telnet unzip && \
     yum clean all
 COPY pom.xml pom.xml
-RUN VERSION=`echo -e "setns x=http://maven.apache.org/POM/4.0.0 \n  xpath /x:project/x:version/text() "| xmllint --shell pom.xml | grep content | sed 's/.*content=//'| sed 's/-SNAPSHOT//'` ; wget -q -O driver.war "https://nexus.onap.org/service/local/artifact/maven/redirect?r=${REPO}&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2&a=driverwar&v=${VERSION}${MODE}&e=war"
+RUN VERSION=`echo -e "setns x=http://maven.apache.org/POM/4.0.0 \n  xpath /x:project/x:version/text() "| xmllint --shell pom.xml | grep content | sed 's/.*content=//'| sed 's/-SNAPSHOT//'` ; echo "Version $VERSION mode=$MODE"; wget -q -O driver.war "https://nexus.onap.org/service/local/artifact/maven/redirect?r=${REPO}&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2&a=driverwar&v=${VERSION}${MODE}&e=war"
 #Can be used for local builds instead of the previous line
 #COPY driver.war .
 ENV JAVA_HOME /usr/lib/jvm/jre
