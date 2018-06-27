@@ -120,14 +120,13 @@ public class TestSoLifecycleManager extends TestBase {
         assertEquals(0, actualAdditionalParameters.getExtVirtualLinks().size());
         assertEquals("default", actualAdditionalParameters.getInstantiationLevel());
         assertEquals(0, actualAdditionalParameters.getSoftwareImages().size());
-        assertEquals(OPENSTACK_V3_INFO, actualAdditionalParameters.getVimType());
         assertEquals(0, actualAdditionalParameters.getZones().size());
         assertEquals(0, extLinks.getValue().size());
     }
 
 
     /**
-     * test VNF activation without parameters for V2 based API
+     * test VNF activation without parameters for V2TOSCA based API
      */
     @Test
     public void testVnfActivationForV2() throws Exception {
@@ -159,7 +158,6 @@ public class TestSoLifecycleManager extends TestBase {
         //verify
         assertEquals(JOB_ID, jobHandler.getJobId());
         AdditionalParameters actualAdditionalParameters = additionalParameters.getValue();
-        assertEquals(OPENSTACK_V2_INFO, actualAdditionalParameters.getVimType());
     }
 
     /**
@@ -196,7 +194,6 @@ public class TestSoLifecycleManager extends TestBase {
         //verify
         assertEquals(JOB_ID, jobHandler.getJobId());
         AdditionalParameters actualAdditionalParameters = additionalParameters.getValue();
-        assertEquals(VMWARE_VCLOUD_INFO, actualAdditionalParameters.getVimType());
     }
 
     /**
@@ -247,7 +244,6 @@ public class TestSoLifecycleManager extends TestBase {
         assertEquals(VIM_ID, actualAdditionalParameters.getComputeResourceFlavours().get(0).getVimId());
         assertEquals("flavorId", actualAdditionalParameters.getComputeResourceFlavours().get(0).getResourceId());
         assertEquals("vduId", actualAdditionalParameters.getComputeResourceFlavours().get(0).getVnfdVirtualComputeDescId());
-        assertEquals(OPENSTACK_V3_INFO, actualAdditionalParameters.getVimType());
     }
 
     /**

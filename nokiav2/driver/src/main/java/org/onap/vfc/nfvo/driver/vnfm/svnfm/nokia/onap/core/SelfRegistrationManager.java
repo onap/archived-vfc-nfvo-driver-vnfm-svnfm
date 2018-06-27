@@ -59,6 +59,10 @@ public class SelfRegistrationManager {
     private String driverVnfmExternalIp;
     @Value("${server.port}")
     private String driverPort;
+    @Value("${skipLcnSubscription}")
+    private boolean skipLcnSubscription;
+    @Value("${skipSelfRegistration}")
+    private boolean skipSelfRegistration;
     private volatile boolean ready = false;
 
     SelfRegistrationManager(VnfmInfoProvider vnfmInfoProvider, MsbApiProvider msbApiProvider, CbamRestApiProvider cbamRestApiProvider) {
@@ -72,11 +76,17 @@ public class SelfRegistrationManager {
      */
     public void register() {
         //the order is important (only publish it's existence after the subscription has been created)
-        subscribeToLcns();
+        if(!skipLcnSubscription) {
+            subscribeToLcns();
+        }
         try {
-            registerMicroService();
+            if(!skipSelfRegistration) {
+                registerMicroService();
+            }
         } catch (RuntimeException e) {
-            deleteSubscriptions();
+            if(!skipLcnSubscription) {
+                deleteSubscriptions();
+            }
             throw e;
         }
         ready = true;
@@ -86,24 +96,28 @@ public class SelfRegistrationManager {
      * De-register the VNFM driver from the micro-service bus
      */
     public void deRegister() {
-        try {
-            logger.info("Cancelling micro service registration");
-            msbApiProvider.getMsbApi().deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null).blockingFirst();
-        } catch (Exception e) {
-            //ONAP throws 500 internal server error, but deletes the micro service
-            boolean serviceFoundAfterDelete = false;
+        if(!skipSelfRegistration) {
             try {
-                msbApiProvider.getMsbApi().getMicroService_0(SERVICE_NAME, DRIVER_VERSION, null, null, null, null, null);
-                serviceFoundAfterDelete = true;
-            } catch (Exception e1) {
-                logger.info("Unable to query " + SERVICE_NAME + " from MSB (so the service was successfully deleted)", e1);
-                // the micro service was deleted (even though 500 HTTP code was reported)
-            }
-            if (serviceFoundAfterDelete) {
-                throw buildFatalFailure(logger, "Unable to deRegister Nokia VNFM driver", e);
+                logger.info("Cancelling micro service registration");
+                msbApiProvider.getMsbApi().deleteMicroService(SERVICE_NAME, DRIVER_VERSION, null, null).blockingFirst();
+            } catch (Exception e) {
+                //ONAP throws 500 internal server error, but deletes the micro service
+                boolean serviceFoundAfterDelete = false;
+                try {
+                    msbApiProvider.getMsbApi().getMicroService_0(SERVICE_NAME, DRIVER_VERSION, null, null, null, null, null);
+                    serviceFoundAfterDelete = true;
+                } catch (Exception e1) {
+                    logger.info("Unable to query " + SERVICE_NAME + " from MSB (so the service was successfully deleted)", e1);
+                    // the micro service was deleted (even though 500 HTTP code was reported)
+                }
+                if (serviceFoundAfterDelete) {
+                    throw buildFatalFailure(logger, "Unable to deRegister Nokia VNFM driver", e);
+                }
             }
         }
-        deleteSubscriptions();
+        if(!skipLcnSubscription) {
+            deleteSubscriptions();
+        }
     }
 
     /**
@@ -113,7 +127,7 @@ public class SelfRegistrationManager {
      */
     @VisibleForTesting
     public void assureSubscription(String vnfmId) {
-        if (!vnfmIdToSubscriptionId.containsKey(vnfmId)) {
+        if (!vnfmIdToSubscriptionId.containsKey(vnfmId) && !skipLcnSubscription) {
             subscribeToLcn(vnfmId);
         }
     }

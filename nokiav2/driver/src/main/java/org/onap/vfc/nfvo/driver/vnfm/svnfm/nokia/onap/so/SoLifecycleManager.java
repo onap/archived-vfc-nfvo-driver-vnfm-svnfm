@@ -55,7 +55,6 @@ public class SoLifecycleManager {
     private final JobManager jobManager;
     private final GenericVnfManager genericVnfManager;
 
-
     @Autowired
     SoLifecycleManager(LifecycleManagerForSo lifecycleManager, AAIExternalSystemInfoProvider vimInfoProvider, CbamRestApiProviderForSo cbamRestApiProvider, JobManagerForSo jobManager, GenericVnfManager genericVnfManager) {
         this.lifecycleManager = lifecycleManager;
@@ -94,7 +93,6 @@ public class SoLifecycleManager {
         additionalParameters.setAdditionalParams(buildAdditionalParameters(soRequest.getAdditionalParams()));
         String vimId = soRequest.getVimId();
         org.onap.vnfmdriver.model.VimInfo vimInfo = vimInfoProvider.getVimInfo(vimId);
-        additionalParameters.setVimType(vimTypeHeuristic(vimInfo.getUrl()));
         processVdus(soRequest, additionalParameters, vimId);
         additionalParameters.setInstantiationLevel("default");
         processNetworks(soRequest, additionalParameters, vimId);
