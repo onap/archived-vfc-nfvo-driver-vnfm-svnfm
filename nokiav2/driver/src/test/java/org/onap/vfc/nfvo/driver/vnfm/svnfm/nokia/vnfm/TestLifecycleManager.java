@@ -288,30 +288,7 @@ public class TestLifecycleManager extends TestBase {
     }
 
     /**
-     * invalid VIM type results in failure
-     */
-    @Test
-    public void testInstantiationWithInvalidVimType() throws Exception {
-        //given
-        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO, false);
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
-        when(logger.isInfoEnabled()).thenReturn(false);
-        //when
-        try {
-            lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
-            //verify
-            fail();
-        } catch (Exception e) {
-            assertEquals("Only OPENSTACK_V2_INFO, OPENSTACK_V3_INFO and VMWARE_VCLOUD_INFO is the supported VIM types", e.getMessage());
-        }
-        verify(vnfApi, never()).vnfsPost(Mockito.any(), Mockito.any());
-        verify(logger, never()).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("creation"), eq("not yet specified"), anyString());
-        verify(logger, never()).info(eq("Starting {} operation on VNF with {} identifier with {} parameter"), eq("instantiation"), eq(VNF_ID), anyString());
-        verify(logger).error("Only OPENSTACK_V2_INFO, OPENSTACK_V3_INFO and VMWARE_VCLOUD_INFO is the supported VIM types");
-    }
-
-    /**
-     * test instantiation with KeyStone V2 based with SSL
+     * test instantiation with KeyStone V2TOSCA based with SSL
      */
     @Test
     public void testInstantiationV2WithSsl() throws Exception {
@@ -576,70 +553,6 @@ public class TestLifecycleManager extends TestBase {
         assertEquals("vimUsername", actualVim.getAccessInfo().getUsername());
         assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
         assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
-    }
-
-    /**
-     * verify backward compatibility with Amsterdam release
-     */
-    @Test
-    public void testInstantiationV3WithNoDomain() throws Exception {
-        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        additionalParam.setDomain("myDomain");
-        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO, false);
-        vimInfo.setDomain(null);
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
-        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
-        grantResponse.setVimId(VIM_ID);
-        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
-        accessInfo.setTenant(TENANT);
-        vimInfo.setSslInsecure(null);
-        grantResponse.setAccessInfo(accessInfo);
-        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
-        //when
-        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
-        waitForJobToFinishInJobManager(finished);
-        assertEquals(1, actualInstantiationRequest.getValue().getVims().size());
-        //verify
-        OPENSTACKV3INFO actualVim = (OPENSTACKV3INFO) actualInstantiationRequest.getValue().getVims().get(0);
-        assertEquals(VIM_ID, actualVim.getId());
-        assertEquals(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO, actualVim.getVimInfoType());
-        assertEquals("cloudUrl", actualVim.getInterfaceInfo().getEndpoint());
-        //FIXME assertEquals();actualVim.getInterfaceInfo().getTrustedCertificates());
-        assertEquals("vimPassword", actualVim.getAccessInfo().getPassword());
-        assertEquals("regionId", actualVim.getAccessInfo().getRegion());
-        assertEquals("myTenant", actualVim.getAccessInfo().getProject());
-        assertEquals("myDomain", actualVim.getAccessInfo().getDomain());
-        assertEquals("vimUsername", actualVim.getAccessInfo().getUsername());
-        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateVerification());
-        assertTrue(actualVim.getInterfaceInfo().isSkipCertificateHostnameCheck());
-        verify(logger).warn("Setting domain from additional parameters");
-    }
-
-    /**
-     * verify backward compatibility with Amsterdam release
-     * if no domain is specified error is propagated
-     */
-    @Test
-    public void testInstantiationV3WithNoDomainFail() throws Exception {
-        VnfInstantiateRequest instantiationRequest = prepareInstantiationRequest(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO, false);
-        vimInfo.setDomain(null);
-        when(vnfApi.vnfsPost(createRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(vnfInfo));
-        additionalParam.setInstantiationLevel(INSTANTIATION_LEVEL);
-        when(vfcGrantManager.requestGrantForInstantiate(VNFM_ID, VNF_ID, VIM_ID, ONAP_CSAR_ID, INSTANTIATION_LEVEL, cbamVnfdContent, JOB_ID)).thenReturn(grantResponse);
-        grantResponse.setVimId(VIM_ID);
-        GrantVNFResponseVimAccessInfo accessInfo = new GrantVNFResponseVimAccessInfo();
-        accessInfo.setTenant(TENANT);
-        vimInfo.setSslInsecure(null);
-        grantResponse.setAccessInfo(accessInfo);
-        ArgumentCaptor<InstantiateVnfRequest> actualInstantiationRequest = ArgumentCaptor.forClass(InstantiateVnfRequest.class);
-        when(vnfApi.vnfsVnfInstanceIdInstantiatePost(eq(VNF_ID), actualInstantiationRequest.capture(), eq(NOKIA_LCM_API_VERSION))).thenReturn(buildObservable(instantiationOperationExecution));
-        //when
-        VnfInstantiateResponse response = lifecycleManager.createAndInstantiate(VNFM_ID, instantiationRequest, restResponse);
-        waitForJobToFinishInJobManager(finished);
-        assertEquals(0, actualInstantiationRequest.getAllValues().size());
-        //verify
-        verify(logger).error("The cloud did not supply the cloud domain (Amsterdam release) and was not supplied as additional data");
     }
 
     /**
@@ -1709,17 +1622,15 @@ public class TestLifecycleManager extends TestBase {
         additionalParam.setInstantiationLevel("level1");
         switch (cloudType) {
             case OPENSTACK_V2_INFO:
-                additionalParam.setVimType(VimInfo.VimInfoTypeEnum.OPENSTACK_V2_INFO);
+                vimInfo.setType("openstack");
                 break;
             case OPENSTACK_V3_INFO:
-                additionalParam.setVimType(VimInfo.VimInfoTypeEnum.OPENSTACK_V3_INFO);
+                vimInfo.setType("openstack");
                 vimInfo.setDomain("myDomain");
                 break;
             case VMWARE_VCLOUD_INFO:
-                additionalParam.setVimType(VimInfo.VimInfoTypeEnum.VMWARE_VCLOUD_INFO);
+                vimInfo.setType("vmware");
                 break;
-            default:
-                additionalParam.setVimType(VimInfo.VimInfoTypeEnum.OTHER_VIM_INFO);
         }
 
         Map<String, List<NetworkAddress>> exteranalConnectionPointAddresses = new HashMap<>();
