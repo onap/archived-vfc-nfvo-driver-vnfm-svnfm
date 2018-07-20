@@ -99,7 +99,6 @@ public abstract class ScaleManager {
 
     private static void writeVmIdsToFile(String vnfId, JSONArray vms) {
         String filePath = getVmIdsFilePath(vnfId);
-        FileOutputStream outStream = null;
         try {
             File destFile = FileUtils.getFile(filePath);
 
@@ -112,27 +111,22 @@ public abstract class ScaleManager {
             if(!destFile.exists()) {
                 destFile.createNewFile();
             }
-            outStream = new FileOutputStream(destFile);
-            outStream.write(vms.toString().getBytes());
+            try(FileOutputStream outStream = new FileOutputStream(destFile)) {
+                outStream.write(vms.toString().getBytes());
+            }
         } catch(IOException e) {
             LOG.error("function=writeVmIdsToFile, msg=write vms to file ioexception, e : {}", e);
-        } finally {
-            IOUtils.closeQuietly(outStream);
         }
     }
 
     private static JSONArray readVmIdsFile(String vnfId) {
         String filePath = getVmIdsFilePath(vnfId);
-        InputStream ins = null;
-        BufferedInputStream bins = null;
-        String fileContent = "";
-        try {
-            ins = FileUtils.openInputStream(FileUtils.getFile(filePath));
-            bins = new BufferedInputStream(ins);
 
+        String fileContent = "";
+        try(InputStream ins = FileUtils.openInputStream(FileUtils.getFile(filePath));
+            BufferedInputStream bins = new BufferedInputStream(ins);) {
             byte[] contentByte = new byte[ins.available()];
             int num = bins.read(contentByte);
-
 
             if(num > 0) {
                 fileContent = new String(contentByte);
@@ -145,9 +139,6 @@ public abstract class ScaleManager {
             LOG.error("function=readVmIdsFile, msg=read vms from file IOException, filePath : {}", filePath);
         } catch(JSONException e) {
             LOG.error("function=readVmIdsFile, msg=read vms from file JSONException, fileContent : {}", fileContent);
-        } finally {
-            IOUtils.closeQuietly(bins);
-            IOUtils.closeQuietly(ins);
         }
         return new JSONArray();
     }

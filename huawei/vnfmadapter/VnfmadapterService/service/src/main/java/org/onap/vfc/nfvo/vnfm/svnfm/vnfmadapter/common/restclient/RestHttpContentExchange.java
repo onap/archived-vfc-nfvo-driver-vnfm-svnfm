@@ -81,39 +81,13 @@ public class RestHttpContentExchange extends ContentExchange {
         if(data == null) {
             return "";
         }
-        ByteArrayInputStream input = null;
-        GZIPInputStream gzis = null;
-        InputStreamReader reader = null;
         final StringBuilder out = new StringBuilder();
-        try {
-            input = new ByteArrayInputStream(data);
-            gzis = new GZIPInputStream(input);
-            reader = new InputStreamReader(gzis, Charset.forName(RestfulClientConst.ENCODING));
+        try (ByteArrayInputStream input = new ByteArrayInputStream(data);
+             GZIPInputStream gzis = new GZIPInputStream(input);
+             InputStreamReader reader = new InputStreamReader(gzis, Charset.forName(RestfulClientConst.ENCODING));) {
             final char[] buff = new char[1024];
             for(int n; (n = reader.read(buff)) != -1;) {
                 out.append(new String(buff, 0, n));
-            }
-        } finally {
-            if(reader != null) {
-                try {
-                    reader.close();
-                } catch(final IOException e) {
-                    LOGGER.error("decompress Gzip reader exception:", e);
-                }
-            }
-            if(gzis != null) {
-                try {
-                    gzis.close();
-                } catch(final IOException e) {
-                    LOGGER.error("decompress Gzip exception:", e);
-                }
-            }
-            if(input != null) {
-                try {
-                    input.close();
-                } catch(final IOException e) {
-                    LOGGER.error("decompress Gzip input exception:", e);
-                }
             }
         }
         return out.toString();

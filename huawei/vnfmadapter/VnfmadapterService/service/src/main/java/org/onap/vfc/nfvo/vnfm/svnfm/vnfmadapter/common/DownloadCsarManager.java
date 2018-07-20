@@ -172,10 +172,9 @@ public class DownloadCsarManager {
      */
     public static int unzipCSAR(String fileName, String filePath) {
         final int BUFFER = 2048;
-        int status = 0;
-        ZipFile zipFile = null;
-        try {
-            zipFile = new ZipFile(fileName);
+        int status = Constant.UNZIP_SUCCESS;
+
+        try(ZipFile zipFile = new ZipFile(fileName);) {
             Enumeration emu = zipFile.entries();
             while(emu.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry)emu.nextElement();
@@ -192,33 +191,19 @@ public class DownloadCsarManager {
                 if(parent != null && (!parent.exists())) {
                     parent.mkdirs();
                 }
-                try(FileOutputStream fos = new FileOutputStream(file)){
-                    try(BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER)){
-
+                try(FileOutputStream fos = new FileOutputStream(file);
+                    BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER);){
                     int count;
                     byte data[] = new byte[BUFFER];
                     while((count = bis.read(data, 0, BUFFER)) != -1) {
                         bos.write(data, 0, count);
                     }
                     bos.flush();
-                    }
                 }
             }
-
-            status = Constant.UNZIP_SUCCESS;
-
         } catch(Exception e) {
             status = Constant.UNZIP_FAIL;
             LOG.error("Exception: " + e);
-        } finally {
-            if(zipFile != null) {
-                try {
-                    zipFile.close();
-                } catch(IOException e) {
-                    LOG.error("IOException: " + e);
-                    ;
-                }
-            }
         }
         return status;
     }

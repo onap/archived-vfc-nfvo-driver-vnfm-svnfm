@@ -134,11 +134,10 @@ public class RestfulConfigure {
             LOG.error(filePath + "isn't exist.");
             return null;
         }
-        BufferedReader reader = null;
+
         final StringBuilder jsonstr = new StringBuilder();
         JSONObject jo = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
+        try (BufferedReader reader = new BufferedReader(new FileReader(file));) {
             final ReaderHelper rHelpper = new ReaderHelper(reader);
             String tempString = null;
             while((tempString = rHelpper.getLine()) != null) {
@@ -147,14 +146,6 @@ public class RestfulConfigure {
             jo = JSONObject.fromObject(jsonstr.toString());
         } catch(final IOException e) {
             LOG.error("load file exception:" + e);
-        } finally {
-            if(reader != null) {
-                try {
-                    reader.close();
-                } catch(final IOException e) {
-                    LOG.error("close error.", e);
-                }
-            }
         }
         return jo;
     }
