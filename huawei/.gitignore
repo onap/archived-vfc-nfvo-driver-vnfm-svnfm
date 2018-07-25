@@ -1,0 +1,5 @@
+.settings
+.project
+.checkstyle
+.classpath
+coverage-report/

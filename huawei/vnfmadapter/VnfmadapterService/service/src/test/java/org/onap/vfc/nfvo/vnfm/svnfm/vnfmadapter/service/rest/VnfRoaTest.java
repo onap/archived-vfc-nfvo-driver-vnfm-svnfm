@@ -16,10 +16,14 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest;
 
-import mockit.Mock;
-import mockit.MockUp;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,12 +33,10 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceExcepti
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfMgr;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import mockit.Mock;
+import mockit.MockUp;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class VnfRoaTest {
 
@@ -471,6 +473,40 @@ public class VnfRoaTest {
 
         String result = vnfRoa.getJob("123", "1234", null, "1111");
         assertNotNull(result);
+    }
+
+    @Test
+    public void testHealVnf() throws ServiceException {
+        final JSONObject restJson = new JSONObject();
+        restJson.put("retCode", Constant.REST_SUCCESS);
+        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
+        HttpServletRequest mockInstance = proxyStub.getMockInstance();
+
+        MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
+        HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
+
+        new MockUp<VnfMgr>() {
+
+            @Mock
+            public JSONObject healVnf(JSONObject jsonObject, String vnfInstanceId, String vnfmId)  {
+                JSONObject retJson = new JSONObject();
+                retJson.put("id", "123");
+                restJson.put("data", retJson);
+                return restJson;
+            }
+        };
+        new MockUp<VnfmJsonUtil>() {
+
+            @SuppressWarnings("unchecked")
+            @Mock
+            public <T> T getJsonFromContexts(HttpServletRequest VNFreq) {
+                return (T)restJson;
+            }
+        };
+
+        String result = vnfRoa.healVnf(mockInstance, mockResInstance, "id", "id");
+        assertNotNull(result);
+
     }
 
     @Test
