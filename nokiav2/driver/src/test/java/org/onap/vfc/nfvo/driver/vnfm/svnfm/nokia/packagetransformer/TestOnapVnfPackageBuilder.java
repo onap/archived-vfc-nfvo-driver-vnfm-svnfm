@@ -60,7 +60,7 @@ public class TestOnapVnfPackageBuilder extends TestBase {
     }
 
     /**
-     * Test conversion for V1 package
+     * Test conversion for V1TOSCA package
      */
     @Test
     public void testConversionViaV1() throws Exception {
@@ -73,7 +73,7 @@ public class TestOnapVnfPackageBuilder extends TestBase {
         String cbamVnfd = new String(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip.vnfd"));
         String expectedOnapVnfd = new OnapR1VnfdBuilder().toOnapVnfd(cbamVnfd);
         //when
-        byte[] convertedPackage = new OnapVnfPackageBuilder().covert(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")), SupportedOnapPackageVersions.V1);
+        byte[] convertedPackage = new OnapVnfPackageBuilder().covert(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")), SupportedOnapPackageVersions.V1TOSCA);
         //verify
         assertFileInZip(convertedPackage, "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
         assertFileInZip(convertedPackage, "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
@@ -84,7 +84,7 @@ public class TestOnapVnfPackageBuilder extends TestBase {
     }
 
     /**
-     * Test conversion for V2 package
+     * Test conversion for V2TOSCA package
      */
     @Test
     public void testConversionViaV2() throws Exception {
@@ -97,7 +97,7 @@ public class TestOnapVnfPackageBuilder extends TestBase {
         String cbamVnfd = new String(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip.vnfd"));
         String expectedOnapVnfd = new OnapR2VnfdBuilder().toOnapVnfd(cbamVnfd);
         //when
-        byte[] convertedPackage = new OnapVnfPackageBuilder().covert(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")), SupportedOnapPackageVersions.V2);
+        byte[] convertedPackage = new OnapVnfPackageBuilder().covert(new ByteArrayInputStream(TestUtil.loadFile("unittests/packageconverter/cbam.package.zip")), SupportedOnapPackageVersions.V2TOSCA);
         //verify
         assertFileInZip(convertedPackage, "TOSCA-Metadata/TOSCA.meta", TestUtil.loadFile("TOSCA.meta"));
         assertFileInZip(convertedPackage, "MainServiceTemplate.yaml", expectedOnapVnfd.getBytes());
