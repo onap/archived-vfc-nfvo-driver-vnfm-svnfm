@@ -16,12 +16,12 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.vnf;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.vnf.VnfMgrVnfm;
 
 import mockit.Mock;
 import mockit.MockUp;
@@ -43,7 +43,7 @@ public class VnfMgrVnfmTest {
         new MockUp<ResultRequestUtil>() {
 
             @Mock
-            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject resultJson = new JSONObject();
                 resultJson.put("retCode", Constant.HTTP_CREATED);
                 JSONObject appInfo = new JSONObject();
@@ -55,6 +55,8 @@ public class VnfMgrVnfmTest {
                 return resultJson;
             }
         };
+
+
         String data = "{\"vnfmInfo\":{\"url\":\"url\"}}";
         JSONObject subJsonObject = JSONObject.fromObject(data);
         JSONObject vnfmObjcet = new JSONObject();
@@ -69,7 +71,7 @@ public class VnfMgrVnfmTest {
         new MockUp<ResultRequestUtil>() {
 
             @Mock
-            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject resultJson = new JSONObject();
                 resultJson.put("retCode", Constant.HTTP_BAD_REQUEST);
                 return resultJson;
@@ -91,7 +93,7 @@ public class VnfMgrVnfmTest {
         new MockUp<ResultRequestUtil>() {
 
             @Mock
-            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject resultJson = new JSONObject();
                 resultJson.put("retCode", Constant.HTTP_NOTFOUND);
                 return resultJson;
@@ -113,7 +115,7 @@ public class VnfMgrVnfmTest {
         new MockUp<ResultRequestUtil>() {
 
             @Mock
-            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject resultJson = new JSONObject();
                 return resultJson;
             }
@@ -134,7 +136,7 @@ public class VnfMgrVnfmTest {
         new MockUp<ResultRequestUtil>() {
 
             @Mock
-            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject resultJson = new JSONObject();
                 resultJson.put("retCode", Constant.HTTP_NOCONTENT);
                 return resultJson;
@@ -151,7 +153,7 @@ public class VnfMgrVnfmTest {
         JSONObject retJson = new JSONObject();
         retJson.put("jobId", "vnfId" + "_" + Constant.DELETE);
         resultJson.put("data", retJson);
-        assertEquals(resultJson, result);
+        assertEquals(Constant.REST_SUCCESS, result.get("retCode"));
     }
 
     @Test
@@ -159,7 +161,7 @@ public class VnfMgrVnfmTest {
         new MockUp<ResultRequestUtil>() {
 
             @Mock
-            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject resultJson = new JSONObject();
                 resultJson.put("retCode", Constant.HTTP_INNERERROR);
                 return resultJson;
@@ -179,7 +181,7 @@ public class VnfMgrVnfmTest {
     public void getJobTestNormal(){
         new MockUp<ResultRequestUtil>(){
             @Mock
-            public JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject obj = new JSONObject();
                 JSONObject dataobj = new JSONObject();
                 dataobj.put("id", "2839");
@@ -187,7 +189,7 @@ public class VnfMgrVnfmTest {
                 JSONArray basics = new JSONArray();
                 basics.add("test123");
                 JSONObject basicsData = new JSONObject();
-                basicsData.put("basic", basics);
+                basicsData.put("vnf_list", basics);
                 obj.put("data", basicsData);
                 return obj;
             }
@@ -205,7 +207,7 @@ public class VnfMgrVnfmTest {
     public void getJobTestCreatedNormal(){
         new MockUp<ResultRequestUtil>(){
             @Mock
-            public JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject obj = new JSONObject();
                 JSONObject dataobj = new JSONObject();
                 dataobj.put("id", "2839");
@@ -213,7 +215,7 @@ public class VnfMgrVnfmTest {
                 JSONArray basics = new JSONArray();
                 basics.add("test123");
                 JSONObject basicsData = new JSONObject();
-                basicsData.put("basic", basics);
+                basicsData.put("vnf_list", basics);
                 obj.put("data", basicsData);
                 return obj;
             }
@@ -231,7 +233,7 @@ public class VnfMgrVnfmTest {
     public void getJobTestNullData(){
         new MockUp<ResultRequestUtil>(){
             @Mock
-            public JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject obj = new JSONObject();
                 JSONObject dataobj = new JSONObject();
                 dataobj.put("id", "2839");
@@ -257,7 +259,7 @@ public class VnfMgrVnfmTest {
     public void getJobTestInternalError(){
         new MockUp<ResultRequestUtil>(){
             @Mock
-            public JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObject, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject obj = new JSONObject();
                 JSONObject dataobj = new JSONObject();
                 dataobj.put("id", "2839");
@@ -281,11 +283,11 @@ public class VnfMgrVnfmTest {
 
 
     @Test
-    public void testScaleVnf() {
+    public void testScaleVnfOut() {
         new MockUp<ResultRequestUtil>() {
 
             @Mock
-            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson) {
+            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson, String authModel) {
                 JSONObject resultJson = new JSONObject();
                 resultJson.put("retCode", Constant.HTTP_CREATED);
                 JSONObject appInfo = new JSONObject();
@@ -297,7 +299,44 @@ public class VnfMgrVnfmTest {
                 return resultJson;
             }
         };
-        String data = "{\"vnfmInfo\":{\"url\":\"url\"}}";
+        String data = "{\"type\":\"SCALE_OUT\"}}";
+        JSONObject subJsonObject = JSONObject.fromObject(data);
+        JSONObject vnfmObjcet = new JSONObject();
+        VnfMgrVnfm vnfMgrVnfm = new VnfMgrVnfm();
+        JSONObject result = vnfMgrVnfm.scaleVnf(subJsonObject,vnfmObjcet,"test123","test123");
+
+        assertEquals(Constant.REST_SUCCESS, result.get("retCode"));
+    }
+
+    @Test
+    public void testScaleVnfIn() {
+        new MockUp<ResultRequestUtil>() {
+
+            @Mock
+            public JSONObject call(JSONObject vnfmObjcet, String path, String methodName, String paramsJson, String authModel) {
+                JSONObject resultJson = new JSONObject();
+                resultJson.put("retCode", Constant.HTTP_CREATED);
+                JSONObject appInfo = new JSONObject();
+                appInfo.put("vnfinstanceid", "id");
+                appInfo.put("project_id", "project_id");
+                JSONObject data = new JSONObject();
+                data.put("app_info", appInfo);
+                resultJson.put("data", data);
+                return resultJson;
+            }
+        };
+
+        new MockUp<AdapterResourceManager>() {
+
+            @Mock
+            public JSONObject readScaleInVmIdFromJson() {
+                JSONObject resultJson = new JSONObject();
+                JSONArray vm_list = new JSONArray();
+                resultJson.put("vm_list", vm_list);
+                return resultJson;
+            }
+        };
+        String data = "{\"type\":\"SCALE_IN\"}}";
         JSONObject subJsonObject = JSONObject.fromObject(data);
         JSONObject vnfmObjcet = new JSONObject();
         VnfMgrVnfm vnfMgrVnfm = new VnfMgrVnfm();
