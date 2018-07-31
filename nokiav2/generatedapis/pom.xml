@@ -23,7 +23,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2</groupId>
   <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokiav2-clients</artifactId>
-  <version>${driver.version}</version>
+  <version>1.1.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>vfc/nfvo/driver/vnfm/svnfm/nokiav2/generatedapis</name>
   <properties>
