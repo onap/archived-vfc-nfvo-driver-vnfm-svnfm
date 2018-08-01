@@ -29,7 +29,6 @@
   <properties>
     <jacoco.version>0.8.0</jacoco.version>
     <spring.boot.version>2.0.2.RELEASE</spring.boot.version>
-    <driver.version>1.1.1-SNAPSHOT</driver.version>
   </properties>
   <!-- used to test dependency convergence locally
   <build>
