@@ -6,6 +6,9 @@ ARG HTTPS_PROXY=${HTTPS_PROXY}
 ENV http_proxy $HTTP_PROXY
 ENV https_proxy $HTTPS_PROXY
 
+RUN sed -i "s|set compatible|set nocompatible|" /etc/vim/vimrc.tiny \ &
+    echo "set backspace=2" >> /etc/vim/vimrc.tiny
+
 RUN apt-get update && \
     apt-get install -y python-virtualenv && \
     apt-get install -y python-setuptools && \
