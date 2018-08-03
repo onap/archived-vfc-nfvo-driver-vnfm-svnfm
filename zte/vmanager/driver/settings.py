@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'driver.pub.database',
     'driver.interfaces',
+    'driver.swagger',
     'drf_yasg',
 ]
 
