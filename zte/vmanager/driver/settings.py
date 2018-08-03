@@ -147,10 +147,14 @@ STATIC_URL = '/static/'
 LOGGING_CONFIG = None
 # yaml configuration of logging
 LOGGING_FILE = os.path.join(BASE_DIR, 'driver/log.yml')
+if 'test' in sys.argv:
+    os.system('sed -i "s|/var/log/onap/vfc/ztevnfmdriver|/tmp|" %s' % LOGGING_FILE)
 config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
 
 
 if 'test' in sys.argv:
+    os.system('sed -i "s|/tmp|/var/log/onap/vfc/ztevnfmdriver|" %s' % LOGGING_FILE)
+
     from driver.pub.config import config
     config.REG_TO_MSB_WHEN_START = False
     REST_FRAMEWORK = {}
