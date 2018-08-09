@@ -35,7 +35,6 @@ SchemaView = get_schema_view(
 )
 
 urlpatterns = [
-    # url(r'^api/ztevnfmdriver/v1/swagger.json$', views.SwaggerView.as_view()),
     url(r'^api/ztevnfmdriver/v1/swagger(?P<format>.json|.yaml)$', SchemaView.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^api/ztevnfmdriver/v1/swagger$', SchemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'^api/ztevnfmdriver/v1/redoc$', SchemaView.with_ui('redoc', cache_timeout=0), name='schema-redoc')
