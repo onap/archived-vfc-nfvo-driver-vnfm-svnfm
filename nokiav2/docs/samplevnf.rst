@@ -72,3 +72,4 @@ Simple Dual
 - NS heal request on VF-C API: :download:`heal.json <sampleVnfs/simpleDual/vfc.ns.heal.request.json>` (several fields must be changed to fit actual environment)
 
 - VNF scale request on VF-C API: :download:`scale.json <sampleVnfs/simpleDual/vfc.vnf.scale.request.json>` (several fields must be changed to fit actual environment)
+

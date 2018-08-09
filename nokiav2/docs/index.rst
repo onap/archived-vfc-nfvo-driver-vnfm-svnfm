@@ -9,11 +9,15 @@ Welcome to Nokia SVNFM documentation!
    :maxdepth: 1
    :caption: Contents:
 
+   intro.rst
    integration.rst
    fix.rst
    samplevnf.rst
    vnfintegration.rst
    onboarding.rst
+   development.rst
+   so.rst
+   vnflcm.rst
 
 Indices and tables
 ==================
