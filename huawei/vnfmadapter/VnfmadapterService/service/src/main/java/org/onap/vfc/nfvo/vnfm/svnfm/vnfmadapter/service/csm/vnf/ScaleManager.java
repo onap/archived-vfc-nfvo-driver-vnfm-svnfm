@@ -56,7 +56,7 @@ public abstract class ScaleManager {
             JSONArray vms = queryVms.getJSONObject("data").getJSONArray("vms");
             writeVmIdsToFile(vnfId, vms);
         } catch(JSONException e) {
-            LOG.error("function=beforeScaleOut, msg=recode current vms JSONException");
+            LOG.error("function=beforeScaleOut, msg=recode current vms JSONException", e);
         }
     }
 
