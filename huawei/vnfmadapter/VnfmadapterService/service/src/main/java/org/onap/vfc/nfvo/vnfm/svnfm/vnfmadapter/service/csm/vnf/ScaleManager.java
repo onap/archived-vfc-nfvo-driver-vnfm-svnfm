@@ -138,7 +138,7 @@ public abstract class ScaleManager {
         } catch(IOException e) {
             LOG.error("function=readVmIdsFile, msg=read vms from file IOException, filePath : {}" + filePath, " Load File Exception : " + e);
         } catch(JSONException e) {
-            LOG.error("function=readVmIdsFile, msg=read vms from file JSONException, fileContent : {}", fileContent);
+            LOG.error("function=readVmIdsFile, msg=read vms from file JSONException, fileContent : {}", fileContent, " JSON Exception : " + e);
         }
         return new JSONArray();
     }
