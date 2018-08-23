@@ -1,0 +1,12 @@
+{
+    "defaultServer":
+    {
+        "host":"",
+        "port":"80"
+    },
+"ConnectTimeout":"300000",
+"thread":"10",
+"idletimeout":"500000",
+"timeout":"300000"
+}
+		
