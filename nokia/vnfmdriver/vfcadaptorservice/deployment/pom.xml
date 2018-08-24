@@ -24,7 +24,7 @@
 
     <artifactId>vfcadaptor-deployment</artifactId>
     <packaging>pom</packaging>
-    
+
     <name>vfc/nfvo/driver/vnfm/svnfm/nokia/vnfmdriver/vfcadaptorservice/deployment</name>
     <description>svnfm vnfm driver deployment</description>
 
@@ -67,7 +67,7 @@
                                 ant.mkdir(dir: "${deployUnzip}/webapps/ROOT")
                                 ant.mkdir(dir:
                                 "${deployUnzip}/logs")
-                                
+
                                 System.out.println("******** start copying from ${basedir}/src/main/release to ${deployUnzip}. ************")
 
                                 ant.copy(todir: "${deployUnzip}") {
@@ -80,7 +80,7 @@
                                 exclude(name: "**/.gitignore")
                                 }
                                 }
-                                
+
                                 System.out.println("******** start copying from ${project.build.directory}/../../vfcadaptor/target/${package.name}-${project.version} to ${deployUnzip}/webapps/ROOT. ************")
                                 ant.copy(todir:
                                 "${deployUnzip}/webapps/ROOT") {
