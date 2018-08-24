@@ -77,7 +77,7 @@ public abstract class ScaleManager {
                 }
             }
         } catch(JSONException e) {
-            LOG.error("function=beforeScaleIn, msg=recode current vms JSONException");
+            LOG.error("function=beforeScaleIn, msg=recode current vms JSONException", e);
         }
         return vmList;
     }
