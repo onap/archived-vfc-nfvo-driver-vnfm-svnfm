@@ -50,6 +50,7 @@ function configure(){
   if [ ! -z "$CONFIGURE" ] ; then
      switchLine driverMsbExternalIp $EXTERNAL_IP
      switchLine driverVnfmExternalIp $EXTERNAL_IP
+     switchLine externalPort $EXTERNAL_PORT
      switchLine messageBusIp $MSB_IP
      switchLine vnfmId $VNFM_ID
      switchLine ipMap $IP_MAP

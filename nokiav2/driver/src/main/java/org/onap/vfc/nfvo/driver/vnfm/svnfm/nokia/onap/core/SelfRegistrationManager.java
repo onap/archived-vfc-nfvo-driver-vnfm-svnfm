@@ -57,7 +57,7 @@ public class SelfRegistrationManager {
     private String driverMsbExternalIp;
     @Value("${driverVnfmExternalIp}")
     private String driverVnfmExternalIp;
-    @Value("${server.port}")
+    @Value("${externalPort}")
     private String driverPort;
     @Value("${skipLcnSubscription}")
     private boolean skipLcnSubscription;
