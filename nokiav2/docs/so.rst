@@ -10,7 +10,7 @@ Requirements on the VNF package
 - each VDU must have a corresponding software image named <vduname>_image
 
 - the VNF integrator must use the availability zones to specify the location of the VNFCs. One availability zone
-will be defined for each VDU
+  will be defined for each VDU
 
 Limitations of the current release
 ----------------------------------
