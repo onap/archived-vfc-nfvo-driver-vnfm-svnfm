@@ -73,7 +73,7 @@ public class SoV2Api {
      * @param httpResponse the HTTP response
      * @return the descriptor of the created VNF
      */
-    @RequestMapping(value = "/vnfs/{vnfIdInAai}", method = POST, consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/vnfs/{vnfIdInAai}", method = GET, consumes = APPLICATION_JSON_VALUE)
     @ResponseBody
     public SoV2VnfQueryResponse queryVnf(@RequestBody SoV2VnfQueryRequest request, @PathVariable("vnfIdInAai") String vnfIdInAai, HttpServletResponse httpResponse) {
         logger.info("REST: Create the VNF");
