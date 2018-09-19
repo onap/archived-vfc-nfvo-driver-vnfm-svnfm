@@ -1,0 +1,9 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Kanagaraj Manickam <kanagaraj.manickam@huawei.com>
+Code-Review+2: Dénes Németh <denes.nemeth@nokia.com>
+Verified+1: Dénes Németh <denes.nemeth@nokia.com>
+Submitted-by: Dénes Németh <denes.nemeth@nokia.com>
+Submitted-at: Wed, 19 Sep 2018 20:23:36 +0000
+Reviewed-on: https://gerrit.onap.org/r/59911
+Project: vfc/nfvo/driver/vnfm/svnfm
+Branch: refs/heads/master
