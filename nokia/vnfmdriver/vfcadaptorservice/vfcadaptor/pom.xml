@@ -107,11 +107,11 @@
           <artifactId>commons-net</artifactId>
           <version>3.6</version>
         </dependency>
-        <dependency>
+        <!--dependency>
           <groupId>org.zeroturnaround</groupId>
           <artifactId>zt-zip</artifactId>
           <version>1.12</version>
-        </dependency>
+        </dependency-->
         
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
