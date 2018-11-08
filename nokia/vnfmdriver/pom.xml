@@ -19,12 +19,12 @@
     <parent>
         <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokia</groupId>
         <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokia</artifactId>
-        <version>1.3.1-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm</groupId>
     <artifactId>vnfmdriver</artifactId>
-    <version>1.3.1-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>vfc-nfvo-driver-vnfm-svnfm-nokia-vnfmdriver</name>
     <description>nfvo vnfmdriver</description>
