@@ -8,6 +8,7 @@
 
 FROM centos:7
 
+ARG PKG_VERSION
 
 RUN sed -i 's/enabled=1/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf
 RUN sed -i 's|#baseurl=http://mirror.centos.org/centos|baseurl=http://mirrors.ocf.berkeley.edu/centos|' /etc/yum.repos.d/*.repo
@@ -42,7 +43,7 @@ ENV CATALINA_HOME /service
 
 # Set up microservice
 
-RUN wget -q -O nfvo-driver-vnfm-nokia.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=LATEST&e=zip" && unzip -q -o -B nfvo-driver-vnfm-nokia.zip && rm -f nfvo-driver-vnfm-nokia.zip
+RUN wget -q -O nfvo-driver-vnfm-nokia.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm&a=vfcadaptor-deployment&v=${PKG_VERSION}-SNAPSHOT&e=zip" && unzip -q -o -B nfvo-driver-vnfm-nokia.zip && rm -f nfvo-driver-vnfm-nokia.zip
 # Set permissions
 RUN find . -type d -exec chmod o-w {} \;
 RUN find . -name "*.sh" -exec chmod +x {} \;
