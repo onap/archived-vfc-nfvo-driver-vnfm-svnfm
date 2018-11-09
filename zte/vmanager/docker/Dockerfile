@@ -2,6 +2,7 @@ FROM ubuntu:14.04
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
+ARG PKG_VERSION
 
 ENV http_proxy $HTTP_PROXY
 ENV https_proxy $HTTPS_PROXY
@@ -26,7 +27,7 @@ ADD . /service
 WORKDIR /service
 
 # get binary zip from nexus - vfc-nfvo-driver-vnfm-svnfm-zte-vmanager
-RUN wget -q -O vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.zte.vmanager&a=vfc-nfvo-driver-vnfm-svnfm-zte-vmanager&v=LATEST&e=zip' && \
+RUN wget -q -O vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.zte.vmanager&a=vfc-nfvo-driver-vnfm-svnfm-zte-vmanager&v=${PKG_VERSION}-SNAPSHOT&e=zip' && \
     unzip vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip && \
     rm -rf vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip
 
