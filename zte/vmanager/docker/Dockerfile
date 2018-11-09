@@ -27,7 +27,7 @@ ADD . /service
 WORKDIR /service
 
 # get binary zip from nexus - vfc-nfvo-driver-vnfm-svnfm-zte-vmanager
-RUN wget -q -O vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.zte.vmanager&a=vfc-nfvo-driver-vnfm-svnfm-zte-vmanager&v=${PKG_VERSION}-SNAPSHOT&e=zip' && \
+RUN wget -q -O vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.zte.vmanager&a=vfc-nfvo-driver-vnfm-svnfm-zte-vmanager&v=${PKG_VERSION}-SNAPSHOT&e=zip" && \
     unzip vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip && \
     rm -rf vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip
 
