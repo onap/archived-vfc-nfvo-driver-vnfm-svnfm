@@ -35,7 +35,7 @@
     http://cxf.apache.org/transports/http/configuration
     http://cxf.apache.org/schemas/configuration/http-conf.xsd
     http://www.springframework.org/schema/aop
-    http://www.springframework.org/schema/aop/spring-aop-3.0.xsd ">
+    http://www.springframework.org/schema/aop/spring-aop.xsd ">
 
     <!-- these are included in the dependency jar -->
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
