@@ -77,7 +77,7 @@ def vnfpackage_get(csarid):
     return ret
 
 
-class InstamtiateVnf(APIView):
+class InstantiateVnf(APIView):
     @swagger_auto_schema(
         request_body=InstantiateVnfRequestSerializer(),
         responses={

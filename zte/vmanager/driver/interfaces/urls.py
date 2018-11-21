@@ -17,7 +17,7 @@ from django.conf.urls import url
 from driver.interfaces import views
 
 urlpatterns = [
-    url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs$', views.InstamtiateVnf.as_view(), name='instantiate_vnf'),
+    url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs$', views.InstantiateVnf.as_view(), name='instantiate_vnf'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/terminate$',
         views.TerminateVnf.as_view(), name='terminate_vnf'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)$',
