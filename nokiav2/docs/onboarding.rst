@@ -231,7 +231,7 @@ The following section design a network service. The prerequisite is that the tes
 
     - If the network service is missing from the list
 
-      - Log in as demo user and select SDC
+      - Log in as demo user and select SDC and create the Network Service category
 
   - Click on Create
 
