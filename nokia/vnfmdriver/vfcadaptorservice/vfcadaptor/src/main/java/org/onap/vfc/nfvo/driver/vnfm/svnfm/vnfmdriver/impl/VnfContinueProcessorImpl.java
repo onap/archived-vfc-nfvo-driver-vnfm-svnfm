@@ -18,11 +18,7 @@ package org.onap.vfc.nfvo.driver.vnfm.svnfm.vnfmdriver.impl;
 
 import java.util.concurrent.Executors;
 
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.Driver2CbamRequestConverter;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.HealVnfContinueRunnable;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.InstantiateVnfContinueRunnable;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.ScaleVnfContinueRunnable;
-import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.TerminateVnfContinueRunnable;
+import org.onap.vfc.nfvo.driver.vnfm.svnfm.adaptor.*;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.catalog.inf.CatalogMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.cbam.inf.CbamMgmrInf;
 import org.onap.vfc.nfvo.driver.vnfm.svnfm.db.mapper.VnfcResourceInfoMapper;
@@ -39,20 +35,28 @@ import org.springframework.stereotype.Component;
 public class VnfContinueProcessorImpl implements VnfContinueProcessorInf{
 
 	@Override
-	public void continueInstantiateVnf(String vnfmId, InstantiateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper jobDbManager, VnfcResourceInfoMapper vnfcDbMgmr) {
-		InstantiateVnfContinueRunnable task = new InstantiateVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
-				nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager, vnfcDbMgmr);
-		
-		Executors.newSingleThreadExecutor().submit(task);
-	}
+    public void continueInstantiateVnf(String vnfmId, InstantiateVnfRequest driverRequest, String vnfInstanceId,
+            String jobId, NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr,
+            Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper jobDbManager,
+            VnfcResourceInfoMapper vnfcDbMgmr) {
+        InstantiateVnfContinueRunnable task = new InstantiateVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId,
+                jobId, nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager, vnfcDbMgmr);
+
+        Executors.newSingleThreadExecutor().submit(task);
+    }
 
 	@Override
-	public void continueTerminateVnf(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId, NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper jobDbManager, VnfcResourceInfoMapper vnfcDbMgmr) {
-		TerminateVnfContinueRunnable task = new TerminateVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
-				nslcmMgmr, cbamMgmr, requestConverter, jobDbManager, vnfcDbMgmr);
-		
-		Executors.newSingleThreadExecutor().submit(task);
-	}
+    public void continueTerminateVnf(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId,
+            String jobId, NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter,
+            VnfmJobExecutionMapper jobDbManager, VnfcResourceInfoMapper vnfcDbMgmr) {
+	    
+        TerminateVnfContinueRunnable task = new TerminateVnfContinueRunnable.TerminateVnfContinueRunnableBuilder()
+                .setVnfmId(vnfmId).setDriverRequest(driverRequest).setVnfInstanceId(vnfInstanceId).setJobId(jobId)
+                .setNslcmMgmr(nslcmMgmr).setCbamMgmr(cbamMgmr).setRequestConverter(requestConverter)
+                .setDbManager(jobDbManager).setVnfcDbMgmr(vnfcDbMgmr).build();
+
+        Executors.newSingleThreadExecutor().submit(task);
+    }
 
 	@Override
 	public void continueScaleVnf(String vnfmId, ScaleVnfRequest driverRequest, String vnfInstanceId, String jobId,

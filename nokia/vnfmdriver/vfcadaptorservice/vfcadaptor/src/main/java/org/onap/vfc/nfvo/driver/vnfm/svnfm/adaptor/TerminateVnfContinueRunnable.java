@@ -59,21 +59,88 @@ public class TerminateVnfContinueRunnable implements Runnable {
 	private VnfcResourceInfoMapper vnfcDbMgmr;
 	
 	private Driver2CbamRequestConverter requestConverter;
-	
-	public TerminateVnfContinueRunnable(String vnfmId, TerminateVnfRequest driverRequest, String vnfInstanceId, String jobId,
-			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper dbManager, VnfcResourceInfoMapper vnfcDbMgmr)
-	{
-		this.driverRequest = driverRequest;
-		this.vnfInstanceId = vnfInstanceId;
-		this.nslcmMgmr = nslcmMgmr; 
-		this.cbamMgmr = cbamMgmr;
-		this.requestConverter = requestConverter;
-		this.jobId = jobId;
-		this.jobDbMgmr = dbManager;
-		this.vnfmId = vnfmId;
-		this.vnfcDbMgmr = vnfcDbMgmr;
+
+
+	////////////////////////// Builder class
+
+	public static class TerminateVnfContinueRunnableBuilder {
+		private String vnfmId;
+		private TerminateVnfRequest driverRequest;
+		private String vnfInstanceId;
+		private String jobId;
+		private NslcmMgmrInf nslcmMgmr;
+		private CbamMgmrInf cbamMgmr;
+		private Driver2CbamRequestConverter requestConverter;
+		private VnfmJobExecutionMapper dbManager;
+		private VnfcResourceInfoMapper vnfcDbMgmr;
+
+		public TerminateVnfContinueRunnableBuilder setVnfmId(String vnfmId) {
+			this.vnfmId = vnfmId;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnableBuilder setDriverRequest(TerminateVnfRequest driverRequest) {
+			this.driverRequest = driverRequest;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnableBuilder setVnfInstanceId(String vnfInstanceId) {
+			this.vnfInstanceId = vnfInstanceId;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnableBuilder setJobId(String jobId) {
+			this.jobId = jobId;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnableBuilder setNslcmMgmr(NslcmMgmrInf nslcmMgmr) {
+			this.nslcmMgmr = nslcmMgmr;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnableBuilder setCbamMgmr(CbamMgmrInf cbamMgmr) {
+			this.cbamMgmr = cbamMgmr;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnableBuilder setRequestConverter(Driver2CbamRequestConverter requestConverter) {
+			this.requestConverter = requestConverter;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnableBuilder setDbManager(VnfmJobExecutionMapper dbManager) {
+			this.dbManager = dbManager;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnableBuilder setVnfcDbMgmr(VnfcResourceInfoMapper vnfcDbMgmr) {
+			this.vnfcDbMgmr = vnfcDbMgmr;
+			return this;
+		}
+
+		public TerminateVnfContinueRunnable build(){
+			return new TerminateVnfContinueRunnable(this);
+		}
+
+
 	}
-	
+
+
+	public TerminateVnfContinueRunnable(TerminateVnfContinueRunnableBuilder builder)
+	{
+		this.driverRequest = builder.driverRequest;
+		this.vnfInstanceId =  builder.vnfInstanceId;
+		this.nslcmMgmr =  builder.nslcmMgmr;
+		this.cbamMgmr =  builder.cbamMgmr;
+		this.requestConverter =  builder.requestConverter;
+		this.jobId =  builder.jobId;
+		this.jobDbMgmr =  builder.dbManager;
+		this.vnfmId =  builder.vnfmId;
+		this.vnfcDbMgmr =  builder.vnfcDbMgmr;
+	}
+
+
 	private void handleGrant(){
 		try {
 			NslcmGrantVnfRequest grantRequest = buildNslcmGrantVnfRequest();
@@ -89,27 +156,27 @@ public class TerminateVnfContinueRunnable implements Runnable {
 		handleDelete();
 	}
 	
-	private void handleDelete() {
-		try {
-			boolean vnfAllowDelete = false;
-			int i = 0;
-			while(!vnfAllowDelete) {
-				CBAMQueryVnfResponse queryResponse = cbamMgmr.queryVnf(vnfInstanceId);
-				if(CommonEnum.InstantiationState.NOT_INSTANTIATED == queryResponse.getInstantiationState())
-				{
-					vnfAllowDelete = true;
-					break;
-				}
-				i++;
-				logger.info(i + ": The vnf's current status is " + queryResponse.getInstantiationState().name() + " is not ready for deleting, please wait ... ");
-				Thread.sleep(30000);
-			}
-			prepareDelete(jobId);
-			cbamMgmr.deleteVnf(vnfInstanceId);
-		} catch (Exception e) {
-			logger.error("TerminateVnfContinueRunnable --> handleDelete error.", e);
-		}
-	}
+    private void handleDelete() {
+        try {
+            boolean vnfAllowDelete = false;
+            int i = 0;
+            while (!vnfAllowDelete) {
+                CBAMQueryVnfResponse queryResponse = cbamMgmr.queryVnf(vnfInstanceId);
+                if (CommonEnum.InstantiationState.NOT_INSTANTIATED == queryResponse.getInstantiationState()) {
+                    vnfAllowDelete = true;
+                    break;
+                }
+                i++;
+                logger.info(i + ": The vnf's current status is " + queryResponse.getInstantiationState().name()
+                        + " is not ready for deleting, please wait ... ");
+                Thread.sleep(30000);
+            }
+            prepareDelete(jobId);
+            cbamMgmr.deleteVnf(vnfInstanceId);
+        } catch (Exception e) {
+            logger.error("TerminateVnfContinueRunnable --> handleDelete error.", e);
+        }
+    }
 	
 	private void prepareDelete(String jobId) {
 		long nowTime = System.currentTimeMillis();
