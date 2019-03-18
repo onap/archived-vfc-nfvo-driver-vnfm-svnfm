@@ -1,6 +1,7 @@
 /**
  * Copyright 2016-2017, Nokia Corporation.
- *
+ * Modifications Copyright (C) 2019 Samsung Electronics Co., Ltd.
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -76,22 +77,92 @@ public class InstantiateVnfContinueRunnable implements Runnable {
 	
 	private Gson gson = new Gson();
 	
-	public InstantiateVnfContinueRunnable(String vnfmId, InstantiateVnfRequest driverRequest, String vnfInstanceId, String jobId,
-			NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper dbManager, VnfcResourceInfoMapper vnfcDbMgmr)
-	{
-		this.driverRequest = driverRequest;
-		this.vnfInstanceId = vnfInstanceId;
-		this.jobId = jobId;
-		this.nslcmMgmr = nslcmMgmr; 
-		this.catalogMgmr = catalogMgmr;
-		this.cbamMgmr = cbamMgmr;
-		this.requestConverter = requestConverter;
-		this.jobDbMgmr = dbManager;
-		this.vnfmId = vnfmId;
-		this.vnfcDbMgmr = vnfcDbMgmr;
+	// Builder class
+	
+	public static class InstantiateVnfContinueRunnableBuilder {
+	    private String vnfmId;
+	    private InstantiateVnfRequest driverRequest;
+	    private String vnfInstanceId;
+	    private String jobId;
+	    private NslcmMgmrInf nslcmMgmr;
+	    private CatalogMgmrInf catalogMgmr;
+	    private CbamMgmrInf cbamMgmr;
+	    private Driver2CbamRequestConverter requestConverter;
+	    private VnfmJobExecutionMapper dbManager;
+	    private VnfcResourceInfoMapper vnfcDbMgmr;
+
+	    public InstantiateVnfContinueRunnableBuilder setVnfmId(String vnfmId) {
+	        this.vnfmId = vnfmId;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setDriverRequest(InstantiateVnfRequest driverRequest) {
+	        this.driverRequest = driverRequest;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setVnfInstanceId(String vnfInstanceId) {
+	        this.vnfInstanceId = vnfInstanceId;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setJobId(String jobId) {
+	        this.jobId = jobId;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setNslcmMgmr(NslcmMgmrInf nslcmMgmr) {
+	        this.nslcmMgmr = nslcmMgmr;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setCatalogMgmr(CatalogMgmrInf catalogMgmr) {
+	        this.catalogMgmr = catalogMgmr;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setCbamMgmr(CbamMgmrInf cbamMgmr) {
+	        this.cbamMgmr = cbamMgmr;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setRequestConverter(Driver2CbamRequestConverter requestConverter) {
+	        this.requestConverter = requestConverter;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setDbManager(VnfmJobExecutionMapper dbManager) {
+	        this.dbManager = dbManager;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnableBuilder setVnfcDbMgmr(VnfcResourceInfoMapper vnfcDbMgmr) {
+	        this.vnfcDbMgmr = vnfcDbMgmr;
+	        return this;
+	    }
+
+	    public InstantiateVnfContinueRunnable build() {
+	        return new InstantiateVnfContinueRunnable(this);
+	    }
 	}
 	
-	public void run() {
+		
+	private InstantiateVnfContinueRunnable(InstantiateVnfContinueRunnableBuilder builder) {
+	    
+	    this.driverRequest = builder.driverRequest;
+        this.vnfInstanceId = builder.vnfInstanceId;
+        this.jobId = builder.jobId;
+        this.nslcmMgmr = builder.nslcmMgmr; 
+        this.catalogMgmr = builder.catalogMgmr;
+        this.cbamMgmr = builder.cbamMgmr;
+        this.requestConverter = builder.requestConverter;
+        this.jobDbMgmr = builder.dbManager;
+        this.vnfmId = builder.vnfmId;
+        this.vnfcDbMgmr = builder.vnfcDbMgmr;
+	    
+    }
+
+    public void run() {
 		//step 1 handle vnf package
 		handleVnfPackage();
 		

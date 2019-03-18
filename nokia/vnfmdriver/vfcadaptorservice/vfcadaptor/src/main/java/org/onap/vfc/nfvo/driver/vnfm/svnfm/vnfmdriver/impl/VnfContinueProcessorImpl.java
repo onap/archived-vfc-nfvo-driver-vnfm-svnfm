@@ -39,8 +39,10 @@ public class VnfContinueProcessorImpl implements VnfContinueProcessorInf{
             String jobId, NslcmMgmrInf nslcmMgmr, CatalogMgmrInf catalogMgmr, CbamMgmrInf cbamMgmr,
             Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper jobDbManager,
             VnfcResourceInfoMapper vnfcDbMgmr) {
-        InstantiateVnfContinueRunnable task = new InstantiateVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId,
-                jobId, nslcmMgmr, catalogMgmr, cbamMgmr, requestConverter, jobDbManager, vnfcDbMgmr);
+        InstantiateVnfContinueRunnable task = new InstantiateVnfContinueRunnable.InstantiateVnfContinueRunnableBuilder()
+                .setVnfmId(vnfmId).setDriverRequest(driverRequest).setVnfInstanceId(vnfInstanceId).setJobId(jobId)
+                .setNslcmMgmr(nslcmMgmr).setCatalogMgmr(catalogMgmr).setCbamMgmr(cbamMgmr)
+                .setRequestConverter(requestConverter).setDbManager(jobDbManager).setVnfcDbMgmr(vnfcDbMgmr).build();
 
         Executors.newSingleThreadExecutor().submit(task);
     }
