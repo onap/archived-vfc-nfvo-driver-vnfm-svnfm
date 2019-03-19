@@ -1,5 +1,6 @@
 /**
  * Copyright 2016-2017, Nokia Corporation.
+ * Modifications Copyright (C) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,22 +53,79 @@ public class HealVnfContinueRunnable implements Runnable {
 	private VnfmJobExecutionMapper jobDbMgmr;
 	
 	private Driver2CbamRequestConverter requestConverter;
-	
-	
-	public HealVnfContinueRunnable(String inVnfmId, HealVnfRequest driverRequest, String vnfInstanceId, String jobId,
-			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter, VnfmJobExecutionMapper dbManager)
-	{
-		this.driverRequest = driverRequest;
-		this.vnfInstanceId = vnfInstanceId;
-		this.nslcmMgmr = nslcmMgmr; 
-		this.cbamMgmr = cbamMgmr;
-		this.requestConverter = requestConverter;
-		this.jobId = jobId;
-		this.jobDbMgmr = dbManager;
-		this.vnfmId = inVnfmId;
+
+	///
+
+	public static class HealVnfContinueRunnableBuilder {
+		private String inVnfmId;
+		private HealVnfRequest driverRequest;
+		private String vnfInstanceId;
+		private String jobId;
+		private NslcmMgmrInf nslcmMgmr;
+		private CbamMgmrInf cbamMgmr;
+		private Driver2CbamRequestConverter requestConverter;
+		private VnfmJobExecutionMapper dbManager;
+
+		public HealVnfContinueRunnableBuilder setInVnfmId(String inVnfmId) {
+			this.inVnfmId = inVnfmId;
+			return this;
+		}
+
+		public HealVnfContinueRunnableBuilder setDriverRequest(HealVnfRequest driverRequest) {
+			this.driverRequest = driverRequest;
+			return this;
+		}
+
+		public HealVnfContinueRunnableBuilder setVnfInstanceId(String vnfInstanceId) {
+			this.vnfInstanceId = vnfInstanceId;
+			return this;
+		}
+
+		public HealVnfContinueRunnableBuilder setJobId(String jobId) {
+			this.jobId = jobId;
+			return this;
+		}
+
+		public HealVnfContinueRunnableBuilder setNslcmMgmr(NslcmMgmrInf nslcmMgmr) {
+			this.nslcmMgmr = nslcmMgmr;
+			return this;
+		}
+
+		public HealVnfContinueRunnableBuilder setCbamMgmr(CbamMgmrInf cbamMgmr) {
+			this.cbamMgmr = cbamMgmr;
+			return this;
+		}
+
+		public HealVnfContinueRunnableBuilder setRequestConverter(Driver2CbamRequestConverter requestConverter) {
+			this.requestConverter = requestConverter;
+			return this;
+		}
+
+		public HealVnfContinueRunnableBuilder setDbManager(VnfmJobExecutionMapper dbManager) {
+			this.dbManager = dbManager;
+			return this;
+		}
+
+		public HealVnfContinueRunnable build() {
+			return new HealVnfContinueRunnable(this);
+		}
 	}
+
+	///
 	
-	private void handleGrant(){
+	
+	public HealVnfContinueRunnable(HealVnfContinueRunnableBuilder builder) {
+	    this.driverRequest = builder.driverRequest;
+        this.vnfInstanceId = builder.vnfInstanceId;
+        this.nslcmMgmr = builder.nslcmMgmr; 
+        this.cbamMgmr = builder.cbamMgmr;
+        this.requestConverter = builder.requestConverter;
+        this.jobId = builder.jobId;
+        this.jobDbMgmr = builder.dbManager;
+        this.vnfmId = builder.inVnfmId;
+	}
+
+    private void handleGrant(){
 		try {
 			NslcmGrantVnfRequest grantRequest = buildNslcmGrantVnfRequest();
 			nslcmMgmr.grantVnf(grantRequest);

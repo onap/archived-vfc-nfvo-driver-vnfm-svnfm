@@ -73,11 +73,12 @@ public class VnfContinueProcessorImpl implements VnfContinueProcessorInf{
 	@Override
 	public void continueHealVnf(String vnfmId, HealVnfRequest driverRequest, String vnfInstanceId, String jobId,
 			NslcmMgmrInf nslcmMgmr, CbamMgmrInf cbamMgmr, Driver2CbamRequestConverter requestConverter,
-			VnfmJobExecutionMapper jobDbManager) {
-		HealVnfContinueRunnable task = new HealVnfContinueRunnable(vnfmId, driverRequest, vnfInstanceId, jobId,
-				nslcmMgmr, cbamMgmr, requestConverter, jobDbManager);
-		Executors.newSingleThreadExecutor().submit(task);
-		
-	}
+            VnfmJobExecutionMapper jobDbManager) {
+        HealVnfContinueRunnable task = new HealVnfContinueRunnable.HealVnfContinueRunnableBuilder().setInVnfmId(vnfmId)
+                .setDriverRequest(driverRequest).setVnfInstanceId(vnfInstanceId).setJobId(jobId).setNslcmMgmr(nslcmMgmr)
+                .setCbamMgmr(cbamMgmr).setRequestConverter(requestConverter).setDbManager(jobDbManager).build();
+        Executors.newSingleThreadExecutor().submit(task);
+
+    }
 
 }
