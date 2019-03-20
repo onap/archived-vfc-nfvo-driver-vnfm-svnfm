@@ -23,6 +23,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.http import StreamingHttpResponse
 
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
     NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer, \
@@ -30,6 +31,8 @@ from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSe
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
+
+CHUNK_SIZE = 1024 * 8
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +43,25 @@ def load_json_file(file_name):
     json_data = json.JSONDecoder().decode(f.read())
     f.close()
     return json_data
+
+
+def read(file_path, start, end):
+    fp = open(file_path, 'rb')
+    fp.seek(start)
+    pos = start
+    while pos + CHUNK_SIZE < end:
+        yield fp.read(CHUNK_SIZE)
+        pos = fp.tell()
+    yield fp.read(end - pos)
+
+
+def parse_file_range(file_path, file_range):
+    start, end = 0, os.path.getsize(file_path)
+    if file_range:
+        [start, end] = file_range.split('-')
+        start, end = start.strip(), end.strip()
+        start, end = int(start), int(end)
+    return start, end
 
 
 def fun_name():
@@ -662,3 +684,15 @@ class VnfPkgs(APIView):
             }]
         }
         return Response(data=resp_data, status=status.HTTP_200_OK)
+
+
+class VnfPkg(APIView):
+    def get(self, request, packageId, fileName):
+        logger.debug("====VnfPkg get====%s, %s", packageId, fileName)
+        file_range = request.META.get('RANGE')
+        logger.debug('file_range: %s' % file_range)
+        # TODO: get filepath
+        local_file_path = fileName
+        start, end = parse_file_range(local_file_path, file_range)
+        file_iterator = read(local_file_path, start, end)
+        return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
