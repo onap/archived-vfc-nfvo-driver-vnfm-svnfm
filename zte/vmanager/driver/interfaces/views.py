@@ -193,6 +193,7 @@ class TerminateVnf(APIView):
     def post(self, request, vnfmid, vnfInstanceId):
         try:
             logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            logger.debug("vnfmid=%s, vnfInstanceId=%s", vnfmid, vnfInstanceId)
             terminate_vnf_request_serializer = TerminateVnfRequestSerializer(data=request.data)
             if not terminate_vnf_request_serializer.is_valid():
                 raise Exception(terminate_vnf_request_serializer.errors)
@@ -208,15 +209,15 @@ class TerminateVnf(APIView):
                 user=ignorcase_get(vnfm_info, "userName"),
                 passwd=ignorcase_get(vnfm_info, "password"),
                 auth_type=restcall.rest_no_auth,
-                resource="v1/vnfs/%s" % vnfInstanceId,
+                resource="v1/vnfs/%s?NFVOID=1&VNFMID=%s" % (vnfInstanceId, vnfmid),
                 method='delete',
-                content=json.JSONEncoder().encode(terminate_vnf_request_serializer.data))
+                content='{}')
             if ret[0] != 0:
                 raise Exception(ret[1])
 
             resp = json.JSONDecoder().decode(ret[1])
             resp_data = {
-                "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
+                "vnfInstanceId": vnfInstanceId,
                 "jobId": ignorcase_get(resp, "JobId")
             }
             logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
