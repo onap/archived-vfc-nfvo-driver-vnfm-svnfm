@@ -618,3 +618,47 @@ class SampleList(APIView):
     def get(self, request):
         logger.debug("get")
         return Response({"status": "active"})
+
+
+class Subscribe(APIView):
+    def get(self, request):
+        logger.debug("====Subscribe get====")
+        resp_data = {
+            "subscriptions": [{
+                "subscribeid": "cdbddb00-452c-11e9-91e8-acc860114657",
+                "filter": [{
+                    "vendor": "ZTE",
+                    "type": "vCPE",
+                }],
+                "notificationuri": " https://127.0.0.1:80/v2/vnfm/vnfds/notification",
+            }]
+        }
+        return Response(data=resp_data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        logger.debug("====Subscribe post====")
+        resp_data = {"subscribeid": "cdbddb00-452c-11e9-91e8-acc860114657"}
+        return Response(data=resp_data, status=status.HTTP_201_CREATED)
+
+
+class SubscribeDetail(APIView):
+    def delete(self, request, subscribeId):
+        logger.debug("====SubscribeDetail delete %s====", subscribeId)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class VnfPkgs(APIView):
+    def get(self, request):
+        logger.debug("====VnfPkgs get====")
+        resp_data = {
+            "data": [{
+                "packageid": "924fc980-4530-11e9-ae68-acc860114657",
+                "vendor": "ZTE",
+                "type": "vCPE",
+                "vnfdfile": "MRP6600_FS_SRIOV_4NIC_200W.zip",
+                "imagefiles": ["MRP6600_FS_SRIOV_MRPISU_IMGV500R008C20SPC030T.tar"],
+                "swfiles": ["MRP6600_SRV_V500R008C20SPC030T.tar"],
+                "description": "This is a service for vCPE.",
+            }]
+        }
+        return Response(data=resp_data, status=status.HTTP_200_OK)
