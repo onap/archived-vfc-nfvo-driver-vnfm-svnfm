@@ -181,7 +181,7 @@ class InterfacesTest(TestCase):
             "gracefulTerminationTimeout": 120
         }
         response = self.client.post(
-            "/api/ztevnfmdriver/v1/ztevnfmid/vnfs/vbras_innstance_id/terminate", data=req_data)
+            "/api/ztevnfmdriver/v1/ztevnfmid/vnfs/1/terminate", data=req_data)
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         expect_resp_data = {"jobId": "1", "vnfInstanceId": "1"}
