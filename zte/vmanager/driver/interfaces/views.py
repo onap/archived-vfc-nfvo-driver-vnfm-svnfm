@@ -138,33 +138,15 @@ class InstantiateVnf(APIView):
             data = {
                 "NFVOID": 1,
                 "VNFMID": vnfmid,
+                "vnfd_id": packageInfo.get("vnfdId"),
+                "deployflavorid": "TODO",
                 "extension": {},
             }
-            vnfdModel = json.loads(ignorcase_get(packageInfo, "vnfdModel"))
-            metadata = ignorcase_get(vnfdModel, "metadata")
-            vnfd_name = ignorcase_get(metadata, "name")
-            # TODO  convert sdc vnf package to vnf vender package
-            inputs = []
-            if "SPGW" in vnfd_name.upper():
-                data["VNFD"] = VNF_FTP + "SPGW"
-                inputs = load_json_file("SPGW" + "_inputs.json")
-            elif "MME" in vnfd_name.upper():
-                data["VNFD"] = VNF_FTP + "MME"
-                inputs = load_json_file("MME" + "_inputs.json")
-            else:
-                data["VNFD"] = ignorcase_get(packageInfo, "downloadUri")
-
-            data["VNFURL"] = data["VNFD"]
-
+ 
             additionalParam = ignorcase_get(instantiateVnfRequestSerializer.data, "additionalParam")
             for name, value in ignorcase_get(additionalParam, "inputs").items():
-                inputs.append({"name": name, "value": value})
+                inputs.append({"key_name": name, "value": value, "type": "TODO"})
 
-            data["extension"]["inputs"] = json.dumps(inputs)
-            data["extension"]["extVirtualLinks"] = ignorcase_get(additionalParam, "extVirtualLinks")
-            data["extension"]["vnfinstancename"] = ignorcase_get(instantiateVnfRequestSerializer.data, "vnfInstanceName")
-            data["extension"]["vnfid"] = data["VNFD"]
-            data["extension"]["multivim"] = 0
             logger.debug("[%s] call_req data=%s", fun_name(), data)
 
             ret = restcall.call_req(
