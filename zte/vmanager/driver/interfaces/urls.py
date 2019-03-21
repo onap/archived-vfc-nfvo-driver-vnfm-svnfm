@@ -36,5 +36,6 @@ urlpatterns = [
     url(r'^api/ztevnfmdriver/v1/subscribe$', views.Subscribe.as_view(), name='subscribe'),
     url(r'^api/ztevnfmdriver/v1/vnfpkgs$', views.VnfPkgs.as_view(), name='VnfPkgs'),
     url(r'^api/ztevnfmdriver/v1/vnfpkgs/(?P<packageId>[0-9a-zA-Z\-\_]+)/(?P<fileName>[0-9a-zA-Z\.\-\_]+)$', views.VnfPkg.as_view(), name='VnfPkg'),
+    url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/nfvo/info$', views.NfvoInfo.as_view(), name='NfvoInfo'),
     url(r'^samples/$', views.SampleList.as_view(), name='samples')
 ]

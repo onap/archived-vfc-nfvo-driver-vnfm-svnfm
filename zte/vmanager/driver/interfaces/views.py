@@ -681,3 +681,30 @@ class VnfPkg(APIView):
         start, end = parse_file_range(local_file_path, file_range)
         file_iterator = read(local_file_path, start, end)
         return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
+
+
+class NfvoInfo(APIView):
+    def put(self, request, vnfmid):
+        logger.debug("====NfvoInfo put====%s", vnfmid)
+        req_data = {
+            "nfvoid": request.data.get("nfvoid", "1")
+            "vnfmid": vnfmid,
+            "nfvourl": request.data.get("nfvourl", "http://127.0.0.1:80")
+        }
+        ret = get_vnfminfo_from_nslcm(vnfmid)
+            if ret[0] != 0:
+                raise Exception(ret[1])
+
+        vnfm_info = json.JSONDecoder().decode(ret[1])
+        logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+        ret = restcall.call_req(
+            base_url=ignorcase_get(vnfm_info, "url"),
+            user=ignorcase_get(vnfm_info, "userName"),
+            passwd=ignorcase_get(vnfm_info, "password"),
+            auth_type=restcall.rest_no_auth,
+            resource="v1/nfvo/info",
+            method='put',
+            content=json.dumps(req_data))
+        if ret[0] != 0:
+            raise Exception(ret[1])
+        logger.debug("update nfvo info successfully.")       
