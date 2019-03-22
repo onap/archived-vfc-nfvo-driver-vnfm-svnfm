@@ -260,7 +260,7 @@ class QueryVnf(APIView):
 
             resp = json.JSONDecoder().decode(ret[1])
             vnf_status = ignorcase_get(resp, "vnfinstancestatus")
-            resp_data = {"vnfInfo": {"vnfStatus": vnf_status}}
+            resp_data = {"vnfinstancestatus": vnf_status, "IsAutoScalable": False}
             logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
             queryVnfResponseSerializer = QueryVnfResponseSerializer(data=resp_data)
             if not queryVnfResponseSerializer.is_valid():

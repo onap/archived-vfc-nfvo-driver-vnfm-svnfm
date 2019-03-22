@@ -211,7 +211,7 @@ class InterfacesTest(TestCase):
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-        expect_resp_data = {"vnfInfo": {"vnfStatus": "1"}}
+        expect_resp_data = {"vnfinstancestatus": "1", "IsAutoScalable": False}
         self.assertEqual(expect_resp_data, response.data)
 
     @mock.patch.object(restcall, 'call_req')
