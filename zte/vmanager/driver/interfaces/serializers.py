@@ -106,8 +106,12 @@ class VnfInfoSerializer(serializers.Serializer):
 
 
 class QueryVnfResponseSerializer(serializers.Serializer):
-    vnfInfo = VnfInfoSerializer(
-        help_text="vnfInfo",
+    vnfinstancestatus = serializers.CharField(
+        help_text="Status of vnf instance",
+        required=True,
+        allow_null=False)
+    IsAutoScalable = serializers.BooleanField(
+        help_text="Is auto scalable",
         required=True)
 
 
