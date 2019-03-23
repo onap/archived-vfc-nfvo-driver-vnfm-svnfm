@@ -663,6 +663,12 @@ class Subscribe(APIView):
 
 
 class SubscribeDetail(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_204_NO_CONTENT: "None",
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
     def delete(self, request, subscribeId):
         logger.debug("====SubscribeDetail delete %s====", subscribeId)
         return Response(status=status.HTTP_204_NO_CONTENT)
