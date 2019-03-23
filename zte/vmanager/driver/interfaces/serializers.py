@@ -468,3 +468,34 @@ class SubscribeSerializer(serializers.Serializer):
 
 class SubscribesRespSerializer(serializers.Serializer):
     child = SubscribeSerializer()
+
+
+class SubscribeReqSerializer(serializers.Serializer):
+    nfvoid = serializers.CharField(
+        help_text="nfvoid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    vnfmid = serializers.CharField(
+        help_text="vnfmid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    notificationuri = serializers.CharField(
+        help_text="notificationuri",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    filter = SubscribeFilterSerializer(
+        help_text="filter",
+        many=True,
+        required=False,
+        allow_null=True)
+
+
+class SubscribeRespSerializer(serializers.Serializer):
+    subscribeid = serializers.CharField(
+        help_text="subscribeid",
+        max_length=255,
+        required=True,
+        allow_null=True)

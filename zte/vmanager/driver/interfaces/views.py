@@ -27,7 +27,8 @@ from django.http import StreamingHttpResponse
 
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
     NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer, \
-    InstantiateVnfRequestSerializer, QueryVnfResponseSerializer, SubscribesRespSerializer
+    InstantiateVnfRequestSerializer, QueryVnfResponseSerializer, SubscribesRespSerializer, \
+    SubscribeReqSerializer, SubscribeRespSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -648,6 +649,13 @@ class Subscribe(APIView):
         }
         return Response(data=resp_data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        request_body=SubscribeReqSerializer(),
+        responses={
+            status.HTTP_201_CREATED: SubscribeRespSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
     def post(self, request):
         logger.debug("====Subscribe post====")
         resp_data = {"subscribeid": "cdbddb00-452c-11e9-91e8-acc860114657"}
