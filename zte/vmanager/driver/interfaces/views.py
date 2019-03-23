@@ -628,6 +628,12 @@ class SampleList(APIView):
 
 
 class Subscribe(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: SubscribesRespSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
     def get(self, request):
         logger.debug("====Subscribe get====")
         resp_data = {
