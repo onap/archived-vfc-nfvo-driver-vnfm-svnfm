@@ -433,3 +433,38 @@ class InstScaleHealRespSerializer(serializers.Serializer):
         max_length=255,
         required=True,
         allow_null=True)
+
+
+class SubscribeFilterSerializer(serializers.Serializer):
+    vendor = serializers.CharField(
+        help_text="vendor",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    type = serializers.CharField(
+        help_text="type",
+        max_length=255,
+        required=True,
+        allow_null=True)
+
+
+class SubscribeSerializer(serializers.Serializer):
+    subscribeid = serializers.CharField(
+        help_text="subscribeid",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    notificationuri = serializers.CharField(
+        help_text="notificationuri",
+        max_length=255,
+        required=True,
+        allow_null=True)
+    filter = SubscribeFilterSerializer(
+        help_text="filter",
+        many=True,
+        required=False,
+        allow_null=True)
+
+
+class SubscribesRespSerializer(serializers.Serializer):
+    child = SubscribeSerializer()
