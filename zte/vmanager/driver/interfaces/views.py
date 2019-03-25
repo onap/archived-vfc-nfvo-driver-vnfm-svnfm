@@ -698,6 +698,12 @@ class VnfPkgs(APIView):
 
 
 class VnfPkg(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: "File stream for vnf pkg file",
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
     def get(self, request, packageId, fileName):
         logger.debug("====VnfPkg get====%s, %s", packageId, fileName)
         file_range = request.META.get('RANGE')
