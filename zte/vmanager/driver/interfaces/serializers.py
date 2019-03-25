@@ -499,3 +499,49 @@ class SubscribeRespSerializer(serializers.Serializer):
         max_length=255,
         required=True,
         allow_null=True)
+
+
+class VnfPkgSerializer(serializers.Serializer):
+    packageid = serializers.CharField(
+        help_text="packageid",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    vendor = serializers.CharField(
+        help_text="vendor",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    type = serializers.CharField(
+        help_text="type",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    vnfdfile = serializers.CharField(
+        help_text="vnfdfile",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    imagefiles = serializers.ListSerializer(
+        help_text='imagefiles',
+        child=serializers.CharField(help_text='imagefile', required=True),
+        required=False,
+        allow_null=True)
+    swfiles = serializers.ListSerializer(
+        help_text='swfiles',
+        child=serializers.CharField(help_text='swfile', required=True),
+        required=False,
+        allow_null=True)
+    description = serializers.CharField(
+        help_text="description",
+        max_length=255,
+        required=False,
+        allow_null=True)
+
+
+class VnfPkgsSerializer(serializers.Serializer):
+    data = VnfPkgSerializer(
+        help_text="Vnf package",
+        many=True,
+        required=False,
+        allow_null=True)

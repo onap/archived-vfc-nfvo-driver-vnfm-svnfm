@@ -28,7 +28,7 @@ from django.http import StreamingHttpResponse
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
     NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer, \
     InstantiateVnfRequestSerializer, QueryVnfResponseSerializer, SubscribesRespSerializer, \
-    SubscribeReqSerializer, SubscribeRespSerializer
+    SubscribeReqSerializer, SubscribeRespSerializer, VnfPkgsSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -675,6 +675,12 @@ class SubscribeDetail(APIView):
 
 
 class VnfPkgs(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: VnfPkgsSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
     def get(self, request):
         logger.debug("====VnfPkgs get====")
         resp_data = {
