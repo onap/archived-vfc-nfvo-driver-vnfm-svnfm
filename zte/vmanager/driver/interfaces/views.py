@@ -28,7 +28,7 @@ from django.http import StreamingHttpResponse
 from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSerializer, ScaleReqSerializer, \
     NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer, \
     InstantiateVnfRequestSerializer, QueryVnfResponseSerializer, SubscribesRespSerializer, \
-    SubscribeReqSerializer, SubscribeRespSerializer, VnfPkgsSerializer
+    SubscribeReqSerializer, SubscribeRespSerializer, VnfPkgsSerializer, NfvoInfoReqSerializer
 from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
@@ -716,6 +716,13 @@ class VnfPkg(APIView):
 
 
 class NfvoInfo(APIView):
+    @swagger_auto_schema(
+        request_body=NfvoInfoReqSerializer(),
+        responses={
+            status.HTTP_200_OK: "Update successfully",
+            status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+        }
+    )
     def put(self, request, vnfmid):
         logger.debug("====NfvoInfo put====%s", vnfmid)
         req_data = {
@@ -725,7 +732,7 @@ class NfvoInfo(APIView):
         }
         ret = get_vnfminfo_from_nslcm(vnfmid)
         if ret[0] != 0:
-            raise Exception(ret[1])
+            return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         vnfm_info = json.JSONDecoder().decode(ret[1])
         logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
@@ -738,5 +745,6 @@ class NfvoInfo(APIView):
             method='put',
             content=json.dumps(req_data))
         if ret[0] != 0:
-            raise Exception(ret[1])
+            return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         logger.debug("update nfvo info successfully.")
+        return Response(data={}, status=status.HTTP_200_OK)

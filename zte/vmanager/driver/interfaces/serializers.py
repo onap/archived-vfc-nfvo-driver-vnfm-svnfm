@@ -545,3 +545,21 @@ class VnfPkgsSerializer(serializers.Serializer):
         many=True,
         required=False,
         allow_null=True)
+
+
+class NfvoInfoReqSerializer(serializers.Serializer):
+    nfvoid = serializers.CharField(
+        help_text="nfvoid",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    vnfmid = serializers.CharField(
+        help_text="nfvoid",
+        max_length=255,
+        required=False,
+        allow_null=True)
+    nfvourl = serializers.CharField(
+        help_text="nfvoid",
+        max_length=255,
+        required=False,
+        allow_null=True)
