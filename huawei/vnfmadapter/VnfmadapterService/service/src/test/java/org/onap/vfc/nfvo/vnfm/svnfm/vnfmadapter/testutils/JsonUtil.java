@@ -18,34 +18,39 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.testutils;
 
 
 import java.io.IOException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
-import org.codehaus.jackson.map.DeserializationConfig.Feature;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import java.lang.reflect.Type;
+import java.util.Map;
+
+
 
 import net.sf.json.JSON;
 
 public final class JsonUtil {
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static final GsonBuilder builder = new GsonBuilder();
+    private static final Gson gson = builder.create();
 
     public static <T> T unMarshal(String jsonstr, Class<T> type) throws IOException {
-        return MAPPER.readValue(jsonstr, type);
+        return gson.fromJson(jsonstr, type);
     }
 
-    public static <T> T unMarshal(String jsonstr, TypeReference<T> type) throws IOException {
-        return MAPPER.readValue(jsonstr, type);
+
+    public static <T> T unMarshal(String jsonstr, Type type) throws IOException {
+
+        return gson.fromJson(jsonstr, type);
     }
 
     public static String marshal(Object srcObj) throws IOException {
-        return srcObj instanceof JSON ? srcObj.toString() : MAPPER.writeValueAsString(srcObj);
+        return srcObj instanceof JSON ? srcObj.toString() : gson.toJson(srcObj);
     }
 
-    public static ObjectMapper getMapper() {
-        return MAPPER;
+    public static Gson getgson() {
+        return gson;
     }
 
-    static {
-        MAPPER.setDeserializationConfig(
-                MAPPER.getDeserializationConfig().without(new Feature[] { Feature.FAIL_ON_UNKNOWN_PROPERTIES }));
-    }
+
 }
