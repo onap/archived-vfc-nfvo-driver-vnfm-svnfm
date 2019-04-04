@@ -26,7 +26,7 @@ meetings:
       server: 'n/a'
       channel: 'n/a'
       repeats: 'weekly'
-      time: '09:00 UTC'
+      time: '09:00 UTC/China 17:00'
 repositories:
     - 'vfc-gvnfm-vnflcm'
     - 'vfc-gvnfm-vnfmgr'
