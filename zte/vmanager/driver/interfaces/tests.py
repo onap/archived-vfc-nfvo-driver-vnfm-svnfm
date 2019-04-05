@@ -486,6 +486,12 @@ class InterfacesTest(TestCase):
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
         self.assertDictEqual(job_info, response.data)
 
+    def test_health_check(self):
+        response = self.client.get("/api/ztevnfmdriver/v1/health_check")
+        self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
+        resp_data = json.loads(response.content)
+        self.assertEqual({"status": "active"}, resp_data)
+
 
 notify_req_data = {"vnfinstanceid": "1",
                    "nfvoid": "3",

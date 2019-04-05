@@ -748,3 +748,12 @@ class NfvoInfo(APIView):
             return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         logger.debug("update nfvo info successfully.")
         return Response(data={}, status=status.HTTP_200_OK)
+
+
+class HealthCheckView(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: 'Active'})
+    def get(self, request, format=None):
+        logger.debug("HealthCheck")
+        return Response({"status": "active"})
