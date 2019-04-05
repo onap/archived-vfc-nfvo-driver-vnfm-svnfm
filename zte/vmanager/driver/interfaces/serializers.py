@@ -288,7 +288,10 @@ class NotifyVmlistSerializer(serializers.Serializer):
         allow_null=True)
     VMIDlist = serializers.ListSerializer(
         help_text='VMIDlist',
-        child=VMIDlistSerializer(help_text='VMIDlist', required=True, allow_null=True),
+        child=VMIDlistSerializer(
+            help_text='VMIDlist',
+            required=True,
+            allow_null=True),
         required=False,
         allow_null=True)
 
@@ -330,16 +333,19 @@ class NotifyReqSerializer(serializers.Serializer):
         many=True)
     extension = serializers.DictField(
         help_text="extension",
-        child=serializers.DictField(allow_null=True),
+        child=serializers.DictField(
+            allow_null=True),
         required=False,
         allow_null=True)
     affectedcp = serializers.ListSerializer(
         help_text='affectedcp',
-        child=serializers.DictField(allow_null=True),
+        child=serializers.DictField(
+            allow_null=True),
         required=False)
     affectedvirtuallink = serializers.ListSerializer(
         help_text='affectedvirtuallink',
-        child=serializers.DictField(allow_null=True),
+        child=serializers.DictField(
+            allow_null=True),
         required=False)
 
 
@@ -361,7 +367,8 @@ class ScaleReqSerializer(serializers.Serializer):
         allow_null=True)
     additionalParam = serializers.DictField(
         help_text="additionalParam",
-        child=serializers.DictField(allow_null=True),
+        child=serializers.DictField(
+            allow_null=True),
         required=False,
         allow_null=True)
 
@@ -394,7 +401,8 @@ class AffectedvmSerializer(serializers.Serializer):
         allow_null=True)
     flavour = serializers.DictField(
         help_text="flavour",
-        child=serializers.CharField(allow_blank=True),
+        child=serializers.CharField(
+            allow_blank=True),
         required=False,
         allow_null=True)
 
@@ -417,7 +425,10 @@ class HealReqSerializer(serializers.Serializer):
         allow_null=True)
     affectedvm = serializers.ListSerializer(
         help_text='affectedvm',
-        child=AffectedvmSerializer(help_text='affectedvm', required=True, allow_null=True),
+        child=AffectedvmSerializer(
+            help_text='affectedvm',
+            required=True,
+            allow_null=True),
         required=True,
         allow_null=True)
 
@@ -524,12 +535,16 @@ class VnfPkgSerializer(serializers.Serializer):
         allow_null=True)
     imagefiles = serializers.ListSerializer(
         help_text='imagefiles',
-        child=serializers.CharField(help_text='imagefile', required=True),
+        child=serializers.CharField(
+            help_text='imagefile',
+            required=True),
         required=False,
         allow_null=True)
     swfiles = serializers.ListSerializer(
         help_text='swfiles',
-        child=serializers.CharField(help_text='swfile', required=True),
+        child=serializers.CharField(
+            help_text='swfile',
+            required=True),
         required=False,
         allow_null=True)
     description = serializers.CharField(
