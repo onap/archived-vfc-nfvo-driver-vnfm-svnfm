@@ -21,6 +21,8 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
+import org.apache.http.client.methods.HttpPost;
+
 import org.apache.commons.httpclient.HttpMethod;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
@@ -125,7 +127,11 @@ public final class ResultRequestUtil {
 
         return resultJson;
     }
-
+/*
+    private static JSONObject doPost(JSONObject vnfmObj, String path, String paramsJson, String authModel){
+        return "aa";
+    }
+*/
     /**
      * common method
      * <br/>

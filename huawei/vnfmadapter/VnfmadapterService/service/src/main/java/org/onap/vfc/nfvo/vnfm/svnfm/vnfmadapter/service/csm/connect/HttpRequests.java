@@ -35,6 +35,9 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.methods.*;
+
+
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.slf4j.Logger;

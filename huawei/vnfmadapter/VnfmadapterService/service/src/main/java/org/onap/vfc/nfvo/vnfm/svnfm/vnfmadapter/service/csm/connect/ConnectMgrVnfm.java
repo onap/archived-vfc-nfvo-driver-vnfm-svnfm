@@ -21,6 +21,9 @@ import java.io.IOException;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.ParamConstants;
@@ -68,6 +71,22 @@ public class ConnectMgrVnfm {
 
     public void setRoaRand(String roaRand) {
         this.roaRand = roaRand;
+    }
+
+    public int connectVnfm(JSONObject vnfmObj, String authModel) {
+        LOG.info("function=connectVnfm, msg=enter connect function.");
+
+        ConnectInfo info = new ConnectInfo(vnfmObj.getString("url"), vnfmObj.getString(Constant.USERNAME),
+                vnfmObj.getString(Constant.PASSWORD), authModel);
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+
+        try {
+            HttpPost httpPost = new HttpPost(info.getUrl());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 1;
     }
 
     /**

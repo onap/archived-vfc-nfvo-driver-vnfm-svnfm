@@ -24,6 +24,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Swagger API Doc.<br/>
@@ -35,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 @Produces({MediaType.APPLICATION_JSON})
 public class SwaggerRoa {
 
+	private static final Logger LOG = LoggerFactory.getLogger(SwaggerRoa.class);
     /**
      * API doc.
      * 
@@ -44,6 +47,7 @@ public class SwaggerRoa {
     @GET
     @Path("/swagger.json")
     public String apidoc() throws IOException {
+    	LOG.warn("function=apidoc, msg=enter to get a swagger: {}");
         ClassLoader classLoader = getClass().getClassLoader();
         return IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
     }

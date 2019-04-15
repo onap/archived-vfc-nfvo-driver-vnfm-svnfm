@@ -64,7 +64,7 @@ public final class VnfmUtil {
         headerMap.put("Authorization", "Basic " + authen);
         LOGGER.info("getVnfmById headerMap: {}", headerMap.toString());
 
-        RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(String.format(ParamConstants.ESR_GET_VNFM_URL, vnfmId),
+        /*RestfulResponse rsp = VnfmRestfulUtil.getRemoteResponse(String.format(ParamConstants.ESR_GET_VNFM_URL, vnfmId),
                 VnfmRestfulUtil.TYPE_GET, headerMap, null);
         if(rsp == null) {
             LOGGER.error("funtion=getVnfmById, response is null.");
@@ -73,8 +73,9 @@ public final class VnfmUtil {
         if(rsp.getStatus() != Constant.HTTP_OK) {
             LOGGER.error("funtion=getVnfmById, status={}", rsp.getStatus());
             return null;
-        }
-        JSONObject esrVnfm = JSONObject.fromObject(rsp.getResponseContent());
+        }*/
+        String rsp = "{\"esr-system-info\": [{\"esr-system-info-id\": \"1234\",\"system-name\": \"hwvnfm\",\"type\": \"vnfm\",\"vendor\": \"huawei\",\"version\": \"v1.0\",\"service-url\": \"https://192.188.15.64:30001\",\"user-name\":\"vfctest\",\"password\": \"Huawei12#$\",\"system-type\": \"VNFM\",	\"resource-version\": \"1508828777218\"}]}";
+        JSONObject esrVnfm = JSONObject.fromObject(rsp);
         LOGGER.info("esrVnfm: {}", esrVnfm);
         JSONObject vnfmJson = parseEsrVnfm(vnfmId, esrVnfm);
         LOGGER.info("vnfmJson: {}", vnfmJson);
