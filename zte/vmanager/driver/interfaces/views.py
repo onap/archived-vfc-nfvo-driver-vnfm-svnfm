@@ -138,10 +138,11 @@ class InstantiateVnf(APIView):
             logger.debug("[%s] packageInfo=%s", fun_name(), packageInfo)
             logger.debug("VNF_FTP=%s", VNF_FTP)
             data = {
+                "vnfinstancename": "default",
                 "NFVOID": 1,
                 "VNFMID": vnfmid,
                 "vnfd_id": packageInfo.get("vnfdId"),
-                "deployflavorid": "TODO",
+                "deployflavorid": "default",
                 "extension": {},
                 "inputs": []
             }
@@ -149,6 +150,9 @@ class InstantiateVnf(APIView):
             additionalParam = ignorcase_get(instantiateVnfRequestSerializer.data, "additionalParam")
             for name, value in ignorcase_get(additionalParam, "inputs").items():
                 data["inputs"].append({"key_name": name, "value": value, "type": "TODO"})
+
+            inputs_json = load_json_file("inputs.json")
+            [data["inputs"].append(item) for item in inputs_json["inputs"]]
 
             logger.debug("[%s] call_req data=%s", fun_name(), data)
 
