@@ -18,7 +18,9 @@ if [ ! -x  $logDir  ]; then
        mkdir -p $logDir
 fi
 
-nohup python manage.py runserver 0.0.0.0:8410 > /dev/null &
+# nohup python manage.py runserver 0.0.0.0:8410 > /dev/null &
+
+nohup uwsgi --http :8410 -t 120 --module driver.wsgi --master --processes 4 &
 
 while [ ! -f $logDir/runtime_ztevnfmdriver.log ]; do
     sleep 1
