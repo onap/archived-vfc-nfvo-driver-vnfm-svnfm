@@ -7,7 +7,7 @@ install_sf(){
     apk --no-cache add python-dev libffi-dev musl-dev py2-virtualenv
 
     # get binary zip from nexus - vfc-nfvo-driver-vnfm-svnfm-zte-vmanager
-    RUN wget -q -O vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.zte.vmanager&a=vfc-nfvo-driver-vnfm-svnfm-zte-vmanager&v=${pkg_verison}-SNAPSHOT&e=zip" && \
+    wget -q -O vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.zte.vmanager&a=vfc-nfvo-driver-vnfm-svnfm-zte-vmanager&v=${pkg_verison}-SNAPSHOT&e=zip" && \
     unzip vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip && \
     rm -rf vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip
     wait
