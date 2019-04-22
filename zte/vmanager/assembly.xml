@@ -28,6 +28,8 @@
                 <include>**/*.py</include>
                 <include>**/*.json</include>
                 <include>**/*.yml</include>
+                <include>**/*.crt</include>
+                <include>**/*.key</include>
             </includes>
         </fileSet>
         <fileSet>
