@@ -15,4 +15,4 @@
 
 # ps auxww | grep "manage.py runserver 0.0.0.0:8410" | awk '{print $2}' | xargs kill -9
 
-ps auxww |grep 'uwsgi --http :8410 --module driver.wsgi --master' |awk '{print $2}' |xargs kill -9
+ps auxww |grep 'uwsgi --http' |awk '{print $1}' |xargs kill -9
