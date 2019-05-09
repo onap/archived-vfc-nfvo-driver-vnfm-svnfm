@@ -88,15 +88,15 @@ def get_vnfminfo_from_nslcm(vnfmid):
     return ret
 
 
-# Query vnfd_info from nslcm
+# Query vnfd_info from catalog
 def vnfd_get(vnfpackageid):
-    ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % vnfpackageid, "GET")
+    ret = req_by_msb("api/catalog/v1/vnfpackages/%s" % vnfpackageid, "GET")
     return ret
 
 
-# Query vnfpackage_info from nslcm
+# Query vnfpackage_info from catalog
 def vnfpackage_get(csarid):
-    ret = req_by_msb("api/nslcm/v1/vnfpackage/%s" % csarid, "GET")
+    ret = req_by_msb("api/catalog/v1/vnfpackages/%s" % csarid, "GET")
     return ret
 
 
@@ -110,24 +110,25 @@ class InstantiateVnf(APIView):
     )
     def post(self, request, vnfmid):
         try:
-            logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            funname = "InstantiateVnf post"
+            logger.debug("[%s] request.data=%s", funname, request.data)
             instantiateVnfRequestSerializer = InstantiateVnfRequestSerializer(data=request.data)
             if not instantiateVnfRequestSerializer.is_valid():
-                raise Exception(instantiateVnfRequestSerializer.errors)
+                logger.warn("request data is not valid")
 
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
                 raise Exception(ret[1])
 
             vnfm_info = json.JSONDecoder().decode(ret[1])
-            logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+            logger.debug("[%s] vnfm_info=%s", funname, vnfm_info)
             vnf_package_id = ignorcase_get(instantiateVnfRequestSerializer.data, "vnfPackageId")
             ret = vnfd_get(vnf_package_id)
             if ret[0] != 0:
                 raise Exception(ret[1])
 
             vnfd_info = json.JSONDecoder().decode(ret[1])
-            logger.debug("[%s] vnfd_info=%s", fun_name(), vnfd_info)
+            logger.debug("[%s] vnfd_info=%s", funname, vnfd_info)
             csar_id = ignorcase_get(vnfd_info, "csarId")
             ret = vnfpackage_get(csar_id)
             if ret[0] != 0:
@@ -135,7 +136,7 @@ class InstantiateVnf(APIView):
 
             vnf_package_info = json.JSONDecoder().decode(ret[1])
             packageInfo = ignorcase_get(vnf_package_info, "packageInfo")
-            logger.debug("[%s] packageInfo=%s", fun_name(), packageInfo)
+            logger.debug("[%s] packageInfo=%s", funname, packageInfo)
             logger.debug("VNF_FTP=%s", VNF_FTP)
             data = {
                 "vnfinstancename": "default",
@@ -154,7 +155,7 @@ class InstantiateVnf(APIView):
             inputs_json = load_json_file("inputs.json")
             [data["inputs"].append(item) for item in inputs_json["inputs"]]
 
-            logger.debug("[%s] call_req data=%s", fun_name(), data)
+            logger.debug("[%s] call_req data=%s", funname, data)
 
             ret = restcall.call_req(
                 base_url=ignorcase_get(vnfm_info, "url"),
@@ -165,7 +166,7 @@ class InstantiateVnf(APIView):
                 method='post',
                 content=json.JSONEncoder().encode(data))
 
-            logger.debug("[%s] call_req ret=%s", fun_name(), ret)
+            logger.debug("[%s] call_req ret=%s", funname, ret)
             if ret[0] != 0:
                 raise Exception(ret[1])
 
@@ -174,12 +175,12 @@ class InstantiateVnf(APIView):
                 "vnfInstanceId": ignorcase_get(resp, "VNFInstanceID"),
                 "jobId": ignorcase_get(resp, "JobId")
             }
-            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
+            logger.debug("[%s]resp_data=%s", funname, resp_data)
             instRespSerializer = InstScaleHealRespSerializer(data=resp_data)
             if not instRespSerializer.is_valid():
                 raise Exception(instRespSerializer.errors)
 
-            logger.debug("[%s] instRespSerializer.data=%s", fun_name(), instRespSerializer.data)
+            logger.debug("[%s] instRespSerializer.data=%s", funname, instRespSerializer.data)
             return Response(data=instRespSerializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when instantiating VNF,error:%s", e.message)
