@@ -15,7 +15,7 @@
 
 logDir="/var/log/onap/vfc/ztevnfmdriver/"
 if [ ! -x  $logDir  ]; then
-       mkdir -p $logDir
+    mkdir -p $logDir
 fi
 
 # nohup python manage.py runserver 0.0.0.0:8410 > /dev/null &
@@ -25,9 +25,3 @@ if [ "${SSL_ENABLED}" = "true" ]; then
 else
     nohup uwsgi --http :8410 -t 120 --module driver.wsgi --master --processes 4 &
 fi
-
-while [ ! -f $logDir/runtime_ztevnfmdriver.log ]; do
-    sleep 1
-done
-
-tail -F  $logDir/runtime_ztevnfmdriver.log
