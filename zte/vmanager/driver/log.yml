@@ -2,7 +2,7 @@ version: 1
 disable_existing_loggers: False
 
 loggers:
-    ztevnfmdriver:
+    driver:
         handlers: [ztevnfmdriverlocal_handler, ztevnfmdriver_handler]
         level: "DEBUG"
         propagate: False
