@@ -148,7 +148,7 @@ if platform.system() == 'Windows' or 'test' in sys.argv:
         }}
 else:
     LOGGING_CONFIG = None
-# yaml configuration of logging
+    # yaml configuration of logging
     LOGGING_FILE = os.path.join(BASE_DIR, 'driver/log.yml')
     config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
 
