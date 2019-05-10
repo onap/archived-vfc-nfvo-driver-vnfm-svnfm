@@ -29,7 +29,6 @@ from driver.interfaces.serializers import HealReqSerializer, InstScaleHealRespSe
     NotifyReqSerializer, GrantRespSerializer, GrantReqSerializer, JobQueryRespSerializer, TerminateVnfRequestSerializer, \
     InstantiateVnfRequestSerializer, QueryVnfResponseSerializer, SubscribesRespSerializer, \
     SubscribeReqSerializer, SubscribeRespSerializer, VnfPkgsSerializer, NfvoInfoReqSerializer
-from driver.pub.config.config import VNF_FTP
 from driver.pub.utils import restcall
 from driver.pub.utils.restcall import req_by_msb
 
@@ -122,35 +121,15 @@ class InstantiateVnf(APIView):
 
             vnfm_info = json.JSONDecoder().decode(ret[1])
             logger.debug("[%s] vnfm_info=%s", funname, vnfm_info)
-            vnf_package_id = ignorcase_get(request.data, "vnfPackageId")
-            ret = vnfd_get(vnf_package_id)
-            if ret[0] != 0:
-                raise Exception(ret[1])
-
-            vnfd_info = json.JSONDecoder().decode(ret[1])
-            logger.debug("[%s] vnfd_info=%s", funname, vnfd_info)
-            csar_id = ignorcase_get(vnfd_info, "csarId")
-            ret = vnfpackage_get(csar_id)
-            if ret[0] != 0:
-                raise Exception(ret[1])
-
-            vnf_package_info = json.JSONDecoder().decode(ret[1])
-            packageInfo = ignorcase_get(vnf_package_info, "packageInfo")
-            logger.debug("[%s] packageInfo=%s", funname, packageInfo)
-            logger.debug("VNF_FTP=%s", VNF_FTP)
             data = {
                 "vnfinstancename": "V6000_VROUTER",
                 "NFVOID": "1",
                 "VNFMID": "1",
-                "vnfd_id": packageInfo.get("vnfdId"),
+                "vnfd_id": "888552dbb6d502d8dd1e68a0fad212d8",
                 "deployflavorid": "default",
                 "extension": {},
                 "inputs": []
             }
-
-            additionalParam = ignorcase_get(instantiateVnfRequestSerializer.data, "additionalParam")
-            for name, value in ignorcase_get(additionalParam, "inputs").items():
-                data["inputs"].append({"key_name": name, "value": value, "type": "TODO"})
 
             inputs_json = load_json_file("inputs.json")
             [data["inputs"].append(item) for item in inputs_json["inputs"]]
@@ -178,14 +157,16 @@ class InstantiateVnf(APIView):
             logger.debug("[%s]resp_data=%s", funname, resp_data)
             instRespSerializer = InstScaleHealRespSerializer(data=resp_data)
             if not instRespSerializer.is_valid():
-                raise Exception(instRespSerializer.errors)
+                logger.warn("inst resp data is invalid")
 
-            logger.debug("[%s] instRespSerializer.data=%s", funname, instRespSerializer.data)
-            return Response(data=instRespSerializer.data, status=status.HTTP_200_OK)
+            return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when instantiating VNF,error:%s", e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'InstantiateVnf expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': 'InstantiateVnf expection'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class TerminateVnf(APIView):

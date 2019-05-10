@@ -130,6 +130,7 @@ class InterfacesTest(TestCase):
         r2 = [0, json.JSONEncoder().encode(vnfd_info), "200"]
         r3 = [0, json.JSONEncoder().encode(packageInfo), "200"]
         mock_call_req.side_effect = [r1, r2, r3, ret]
+        mock_call_req.side_effect = [r1, ret]
 
         req_data = {
             'vnfInstanceName': 'VFW_f88c0cb7-512a-44c4-bd09-891663f19367',
