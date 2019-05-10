@@ -263,9 +263,9 @@ class InterfacesTest(TestCase):
         grant_data = {
             "vim": {
                 "accessinfo": {
-                    "tenant": "admin"
+                    "tenant": "mano"
                 },
-                "vimid": "516cee95-e8ca-4d26-9268-38e343c2e31e"
+                "vimid": "1"
             }
         }
         ret = [0, json.JSONEncoder().encode(grant_data), '201']
@@ -297,15 +297,15 @@ class InterfacesTest(TestCase):
 
         mock_call_req.return_value = ret
         response = self.client.put(
-            "/api/ztevnfmdriver/v1/resource/grant",
+            "/v1/resource/grant",
             data=json.dumps(req_data),
             content_type='application/json')
 
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
 
         expect_resp_data = {
-            "vimid": "516cee95-e8ca-4d26-9268-38e343c2e31e",
-            "tenant": "admin"}
+            "vimid": "1",
+            "tenant": "mano"}
         self.assertDictEqual(expect_resp_data, response.data)
 
     @mock.patch.object(restcall, 'call_req')
@@ -344,7 +344,7 @@ class InterfacesTest(TestCase):
 
         mock_call_req.side_effect = [r1]
         response = self.client.post(
-            "/api/ztevnfmdriver/v1/vnfs/lifecyclechangesnotification",
+            "/v1/vnfs/lifecyclechangesnotification",
             data=json.dumps(notify_req_data),
             content_type='application/json')
 

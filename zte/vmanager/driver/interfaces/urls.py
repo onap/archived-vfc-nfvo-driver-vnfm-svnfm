@@ -24,8 +24,8 @@ urlpatterns = [
         views.QueryVnf.as_view(), name='query_vnf'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/jobs/(?P<jobid>[0-9a-zA-Z\-\_]+)$',
         views.JobView.as_view(), name='operation_status'),
-    url(r'^api/ztevnfmdriver/v1/resource/grant$', views.GrantVnf.as_view(), name='grantvnf'),
-    url(r'^api/ztevnfmdriver/v1/vnfs/lifecyclechangesnotification$', views.Notify.as_view(), name='notify'),
+    url(r'^v1/resource/grant$', views.GrantVnf.as_view(), name='grantvnf'),
+    url(r'^v1/vnfs/lifecyclechangesnotification$', views.Notify.as_view(), name='notify'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/scale$',
         views.Scale.as_view(), name='scale'),
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/vnfs/(?P<vnfInstanceId>[0-9a-zA-Z\-\_]+)/heal$',
@@ -39,4 +39,5 @@ urlpatterns = [
     url(r'^api/ztevnfmdriver/v1/(?P<vnfmid>[0-9a-zA-Z\-\_]+)/nfvo/info$', views.NfvoInfo.as_view(), name='NfvoInfo'),
     url(r'^samples/$', views.SampleList.as_view(), name='samples'),
     url(r'^api/ztevnfmdriver/v1/health_check$', views.HealthCheckView.as_view()),
+    url(r'^v1/nfvo/authentication/token$', views.TokenView.as_view()),
 ]

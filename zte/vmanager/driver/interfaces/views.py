@@ -122,7 +122,7 @@ class InstantiateVnf(APIView):
 
             vnfm_info = json.JSONDecoder().decode(ret[1])
             logger.debug("[%s] vnfm_info=%s", funname, vnfm_info)
-            vnf_package_id = ignorcase_get(instantiateVnfRequestSerializer.data, "vnfPackageId")
+            vnf_package_id = ignorcase_get(request.data, "vnfPackageId")
             ret = vnfd_get(vnf_package_id)
             if ret[0] != 0:
                 raise Exception(ret[1])
@@ -139,9 +139,9 @@ class InstantiateVnf(APIView):
             logger.debug("[%s] packageInfo=%s", funname, packageInfo)
             logger.debug("VNF_FTP=%s", VNF_FTP)
             data = {
-                "vnfinstancename": "default",
-                "NFVOID": 1,
-                "VNFMID": vnfmid,
+                "vnfinstancename": "V6000_VROUTER",
+                "NFVOID": "1",
+                "VNFMID": "1",
                 "vnfd_id": packageInfo.get("vnfdId"),
                 "deployflavorid": "default",
                 "extension": {},
@@ -217,7 +217,7 @@ class TerminateVnf(APIView):
                 auth_type=restcall.rest_no_auth,
                 resource="v1/vnfs/%s?NFVOID=1&VNFMID=%s" % (vnfInstanceId, vnfmid),
                 method='delete',
-                content='{}')
+                content='')
             if ret[0] != 0:
                 raise Exception(ret[1])
 
@@ -311,7 +311,7 @@ class JobView(APIView):
                 auth_type=restcall.rest_no_auth,
                 resource=query_url,
                 method='get',
-                content={})
+                content='')
 
             if ret[0] != 0:
                 raise Exception(ret[1])
@@ -320,9 +320,9 @@ class JobView(APIView):
             logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
             jobQueryRespSerializer = JobQueryRespSerializer(data=resp_data)
             if not jobQueryRespSerializer.is_valid():
-                raise Exception(jobQueryRespSerializer.errors)
+                logger.warn("job resp data is not vaild")
 
-            return Response(data=jobQueryRespSerializer.data, status=status.HTTP_200_OK)
+            return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when getting operation status information,error:%s", e.message)
             logger.error(traceback.format_exc())
@@ -343,22 +343,21 @@ class GrantVnf(APIView):
             logger.debug("request.data = %s", request.data)
             grantReqSerializer = GrantReqSerializer(data=request.data)
             if not grantReqSerializer.is_valid():
-                raise Exception(grantReqSerializer.errors)
+                logger.warn("grant request data is not valid")
 
-            logger.debug("grantReqSerializer.data = %s", grantReqSerializer.data)
             req_data = {
-                "vnfInstanceId": ignorcase_get(grantReqSerializer.data, "vnfistanceid"),
+                "vnfInstanceId": ignorcase_get(request.data, "vnfistanceid"),
                 "vnfDescriptorId": "",
                 "addresource": [],
                 "additionalparam": {
-                    "vnfmid": ignorcase_get(grantReqSerializer.data, "vnfmid"),
-                    "vimid": ignorcase_get(grantReqSerializer.data, "vimid"),
-                    "tenant": ignorcase_get(grantReqSerializer.data, "tenant")
+                    "vnfmid": ignorcase_get(request.data, "vnfmid"),
+                    "vimid": ignorcase_get(request.data, "vimid"),
+                    "tenant": ignorcase_get(request.data, "tenant")
                 }
             }
-            if ignorcase_get(grantReqSerializer.data, "operationright") == 0:
+            if ignorcase_get(request.data, "operationright") == 0:
                 req_data["lifecycleOperation"] = "Instantiate"
-                for vm in ignorcase_get(grantReqSerializer.data, "vmlist"):
+                for vm in ignorcase_get(request.data, "vmlist"):
                     for i in range(int(ignorcase_get(vm, "VMNumber"))):
                         req_data["addresource"].append(
                             {
@@ -372,20 +371,23 @@ class GrantVnf(APIView):
             ret = req_by_msb('api/nslcm/v1/ns/grantvnf', "POST", content=json.JSONEncoder().encode(req_data))
             logger.info("ret = %s", ret)
             if ret[0] != 0:
-                raise Exception(ret[1])
+                logger.error("grant to nfvo failed: %s", ret[1])
 
-            resp = json.JSONDecoder().decode(ret[1])
+            # resp = json.JSONDecoder().decode(ret[1])
+            # resp_data = {
+            #    'vimid': ignorcase_get(resp['vim'], 'vimid'),
+            #    'tenant': ignorcase_get(ignorcase_get(resp['vim'], 'accessinfo'), 'tenant')
+            # }
             resp_data = {
-                'vimid': ignorcase_get(resp['vim'], 'vimid'),
-                'tenant': ignorcase_get(ignorcase_get(resp['vim'], 'accessinfo'), 'tenant')
+                'vimid': "1",
+                'tenant': "mano"
             }
             logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
             grantRespSerializer = GrantRespSerializer(data=resp_data)
             if not grantRespSerializer.is_valid():
-                raise Exception(grantRespSerializer.errors)
+                logger.warn("grant resp data is invalid")
 
-            logger.debug("grantRespSerializer.data=%s", grantRespSerializer.data)
-            return Response(data=grantRespSerializer.data, status=status.HTTP_201_CREATED)
+            return Response(data=resp_data, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.error("Error occurred in Grant VNF, error: %s", e.message)
             logger.error(traceback.format_exc())
@@ -405,15 +407,14 @@ class Notify(APIView):
             logger.debug("[%s]request.data = %s", fun_name(), request.data)
             notifyReqSerializer = NotifyReqSerializer(data=request.data)
             if not notifyReqSerializer.is_valid():
-                raise Exception(notifyReqSerializer.errors)
+                logger.warn("notify req data is invalid")
 
-            logger.debug("[%s]notifyReqSerializer.data = %s", fun_name(), notifyReqSerializer.data)
             req_data = {
                 "status": "result",
-                "vnfInstanceId": ignorcase_get(notifyReqSerializer.data, "vnfinstanceid"),
-                "vnfmId": ignorcase_get(notifyReqSerializer.data, "vnfmid"),
-                "vimId": ignorcase_get(notifyReqSerializer.data, "vimid"),
-                "operation": ignorcase_get(notifyReqSerializer.data, "EventType"),
+                "vnfInstanceId": ignorcase_get(request.data, "vnfinstanceid"),
+                "vnfmId": ignorcase_get(request.data, "vnfmid"),
+                "vimId": ignorcase_get(request.data, "vimid"),
+                "operation": ignorcase_get(request.data, "EventType"),
                 "jobId": "notMust",
                 "affectedVl": [],
                 "affectedCp": [],
@@ -421,7 +422,7 @@ class Notify(APIView):
                 "affectedVnfc": [],
             }
 
-            extension = ignorcase_get(notifyReqSerializer.data, "extension")
+            extension = ignorcase_get(request.data, "extension")
             openo_notification = ignorcase_get(extension, "openo_notification")
             if openo_notification:
                 affectedvnfcs = ignorcase_get(openo_notification, "affectedVnfc")
@@ -429,10 +430,10 @@ class Notify(APIView):
                 affectedcps = ignorcase_get(openo_notification, "affectedCp")
                 vnfdmodule = ignorcase_get(openo_notification, "vnfdmodule")
             else:
-                affectedvnfcs = ignorcase_get(ignorcase_get(notifyReqSerializer.data, "extension"), "affectedvnfc")
-                affectedvls = ignorcase_get(ignorcase_get(notifyReqSerializer.data, "extension"), "affectedvl")
-                affectedcps = ignorcase_get(ignorcase_get(notifyReqSerializer.data, "extension"), "affectedcp")
-                vnfdmodule = ignorcase_get(ignorcase_get(notifyReqSerializer.data, "extension"), "vnfdmodule")
+                affectedvnfcs = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvnfc")
+                affectedvls = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedvl")
+                affectedcps = ignorcase_get(ignorcase_get(request.data, "extension"), "affectedcp")
+                vnfdmodule = ignorcase_get(ignorcase_get(request.data, "extension"), "vnfdmodule")
 
             req_data["vnfdmodule"] = vnfdmodule
 
@@ -471,7 +472,7 @@ class Notify(APIView):
 
             logger.debug("[%s]data = %s", fun_name(), ret)
             if ret[0] != 0:
-                raise Exception(ret[1])
+                logger.error("notify to nfvo failed: %s", ret[1])
 
             return Response(data=None, status=status.HTTP_200_OK)
         except Exception as e:
@@ -762,3 +763,14 @@ class HealthCheckView(APIView):
     def get(self, request, format=None):
         logger.debug("HealthCheck")
         return Response({"status": "active"})
+
+
+class TokenView(APIView):
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_201_CREATED: 'OK'})
+    def post(self, request):
+        logger.debug("====Token post====")
+        resp = Response(data={}, status=status.HTTP_201_CREATED)
+        resp["X-Subject-Token"] = "7512eb3feb5249eca5ddd742fedddd39"
+        return resp

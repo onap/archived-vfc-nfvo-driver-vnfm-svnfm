@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import copy
 
 from driver.pub.config.config import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL, REG_TO_MSB_REG_PARAM
 from django.conf.urls import include, url
@@ -24,3 +25,14 @@ if REG_TO_MSB_WHEN_START:
     import json
     from driver.pub.utils.restcall import req_by_msb
     req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(REG_TO_MSB_REG_PARAM))
+    for ms_name in ["nfvo", "vnfs", "resource"]:
+        param = copy.copy(REG_TO_MSB_REG_PARAM)
+        param.pop("visualRange")
+        param["serviceName"] = "zte-%s" % ms_name
+        param["url"] = "/v1/%s" % ms_name
+        param["enable_ssl"] = "false"
+        param["lb_policy"] = "ip_hash"
+        req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(param))
+        param["serviceName"] = "_%s" % param["serviceName"]
+        param["path"] = param["url"]
+        req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(param))
