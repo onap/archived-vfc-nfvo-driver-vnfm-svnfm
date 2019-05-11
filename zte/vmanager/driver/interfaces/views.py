@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import inspect
 import json
 import logging
 import os
@@ -64,10 +63,6 @@ def parse_file_range(file_path, file_range):
     return start, end
 
 
-def fun_name():
-    return "=================%s==================" % inspect.stack()[1][3]
-
-
 def ignorcase_get(args, key):
     if not key:
         return ""
@@ -87,18 +82,6 @@ def get_vnfminfo_from_nslcm(vnfmid):
     return ret
 
 
-# Query vnfd_info from catalog
-def vnfd_get(vnfpackageid):
-    ret = req_by_msb("api/catalog/v1/vnfpackages/%s" % vnfpackageid, "GET")
-    return ret
-
-
-# Query vnfpackage_info from catalog
-def vnfpackage_get(csarid):
-    ret = req_by_msb("api/catalog/v1/vnfpackages/%s" % csarid, "GET")
-    return ret
-
-
 class InstantiateVnf(APIView):
     @swagger_auto_schema(
         request_body=InstantiateVnfRequestSerializer(),
@@ -111,9 +94,6 @@ class InstantiateVnf(APIView):
         try:
             funname = "InstantiateVnf post"
             logger.debug("[%s] request.data=%s", funname, request.data)
-            instantiateVnfRequestSerializer = InstantiateVnfRequestSerializer(data=request.data)
-            if not instantiateVnfRequestSerializer.is_valid():
-                logger.warn("request data is not valid")
 
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
@@ -143,7 +123,8 @@ class InstantiateVnf(APIView):
                 auth_type=restcall.rest_no_auth,
                 resource="v1/vnfs",
                 method='post',
-                content=json.JSONEncoder().encode(data))
+                content=json.JSONEncoder().encode(data)
+            )
 
             logger.debug("[%s] call_req ret=%s", funname, ret)
             if ret[0] != 0:
@@ -155,16 +136,15 @@ class InstantiateVnf(APIView):
                 "jobId": ignorcase_get(resp, "JobId")
             }
             logger.debug("[%s]resp_data=%s", funname, resp_data)
-            instRespSerializer = InstScaleHealRespSerializer(data=resp_data)
-            if not instRespSerializer.is_valid():
-                logger.warn("inst resp data is invalid")
 
             return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when instantiating VNF,error:%s", e.message)
             logger.error(traceback.format_exc())
             return Response(
-                data={'error': 'InstantiateVnf expection'},
+                data={
+                    'error': 'InstantiateVnf expection'
+                },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -179,18 +159,16 @@ class TerminateVnf(APIView):
     )
     def post(self, request, vnfmid, vnfInstanceId):
         try:
-            logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            funname = "terminate_vnf_post"
+            logger.debug("[%s] request.data=%s", funname, request.data)
             logger.debug("vnfmid=%s, vnfInstanceId=%s", vnfmid, vnfInstanceId)
-            terminate_vnf_request_serializer = TerminateVnfRequestSerializer(data=request.data)
-            if not terminate_vnf_request_serializer.is_valid():
-                raise Exception(terminate_vnf_request_serializer.errors)
 
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
                 raise Exception(ret[1])
 
             vnfm_info = json.JSONDecoder().decode(ret[1])
-            logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+            logger.debug("[%s] vnfm_info=%s", funname, vnfm_info)
             ret = restcall.call_req(
                 base_url=ignorcase_get(vnfm_info, "url"),
                 user=ignorcase_get(vnfm_info, "userName"),
@@ -207,15 +185,17 @@ class TerminateVnf(APIView):
                 "vnfInstanceId": vnfInstanceId,
                 "jobId": ignorcase_get(resp, "JobId")
             }
-            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-            terminateRespSerializer = InstScaleHealRespSerializer(data=resp_data)
-            if not terminateRespSerializer.is_valid():
-                raise Exception(terminateRespSerializer.errors)
-            return Response(data=terminateRespSerializer.data, status=status.HTTP_200_OK)
+            logger.debug("[%s]resp_data=%s", funname, resp_data)
+            return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when terminating VNF,error: %s", e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'TerminateVnf expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'error': 'TerminateVnf expection'
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class QueryVnf(APIView):
@@ -227,13 +207,14 @@ class QueryVnf(APIView):
     )
     def get(self, request, vnfmid, vnfInstanceId):
         try:
-            logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            funname = "query_vnf_get"
+            logger.debug("[%s] request.data=%s", funname, request.data)
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
                 raise Exception(ret[1])
 
             vnfm_info = json.JSONDecoder().decode(ret[1])
-            logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+            logger.debug("[%s] vnfm_info=%s", funname, vnfm_info)
             ret = restcall.call_req(
                 base_url=ignorcase_get(vnfm_info, "url"),
                 user=ignorcase_get(vnfm_info, "userName"),
@@ -247,16 +228,22 @@ class QueryVnf(APIView):
 
             resp = json.JSONDecoder().decode(ret[1])
             vnf_status = ignorcase_get(resp, "vnfinstancestatus")
-            resp_data = {"vnfInfo": {"vnfStatus": vnf_status}}
-            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-            queryVnfResponseSerializer = QueryVnfResponseSerializer(data=resp_data)
-            if not queryVnfResponseSerializer.is_valid():
-                raise Exception(queryVnfResponseSerializer.errors)
-            return Response(data=queryVnfResponseSerializer.data, status=status.HTTP_200_OK)
+            resp_data = {
+                "vnfInfo": {
+                    "vnfStatus": vnf_status
+                }
+            }
+            logger.debug("[%s]resp_data=%s", funname, resp_data)
+            return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when querying VNF information,error:%s", e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'QueryVnf expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'error': 'QueryVnf expection'
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class JobView(APIView):
@@ -275,16 +262,22 @@ class JobView(APIView):
     )
     def get(self, request, vnfmid, jobid):
         try:
-            logger.debug("[%s] request.data=%s", fun_name(), request.data)
+            funname = "job_get"
+            logger.debug("[%s] request.data=%s", funname, request.data)
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
                 raise Exception(ret[1])
 
             vnfm_info = json.JSONDecoder().decode(ret[1])
-            logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+            logger.debug("[%s] vnfm_info=%s", funname, vnfm_info)
             operation_status_url = '/v1/jobs/{jobId}?NFVOID={nfvoId}&VNFMID={vnfmId}&ResponseID={responseId}'
             responseId = ignorcase_get(request.GET, 'responseId')
-            query_url = operation_status_url.format(jobId=jobid, nfvoId=1, vnfmId=vnfmid, responseId=responseId)
+            query_url = operation_status_url.format(
+                jobId=jobid,
+                nfvoId=1,
+                vnfmId=vnfmid,
+                responseId=responseId
+            )
             ret = restcall.call_req(
                 base_url=ignorcase_get(vnfm_info, 'url'),
                 user=ignorcase_get(vnfm_info, 'userName'),
@@ -298,16 +291,18 @@ class JobView(APIView):
                 raise Exception(ret[1])
 
             resp_data = json.JSONDecoder().decode(ret[1])
-            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-            jobQueryRespSerializer = JobQueryRespSerializer(data=resp_data)
-            if not jobQueryRespSerializer.is_valid():
-                logger.warn("job resp data is not vaild")
+            logger.debug("[%s]resp_data=%s", funname, resp_data)
 
             return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error("Error occurred when getting operation status information,error:%s", e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'QueryJob expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'error': 'QueryJob expection'
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class GrantVnf(APIView):
@@ -319,12 +314,9 @@ class GrantVnf(APIView):
         }
     )
     def put(self, request):
-        logger.debug("=====GrantVnf=====")
+        logger.debug("=====GrantVnf post=====")
         try:
             logger.debug("request.data = %s", request.data)
-            grantReqSerializer = GrantReqSerializer(data=request.data)
-            if not grantReqSerializer.is_valid():
-                logger.warn("grant request data is not valid")
 
             req_data = {
                 "vnfInstanceId": ignorcase_get(request.data, "vnfistanceid"),
@@ -346,10 +338,16 @@ class GrantVnf(APIView):
                                 "resourceDefinitionId": i,
                                 "vdu": ignorcase_get(vm, "VMFlavor"),
                                 "vimid": ignorcase_get(vm, "vimid"),
-                                "tenant": ignorcase_get(vm, "tenant")})
+                                "tenant": ignorcase_get(vm, "tenant")
+                            }
+                        )
 
             logger.debug("req_data=%s", req_data)
-            ret = req_by_msb('api/nslcm/v1/ns/grantvnf', "POST", content=json.JSONEncoder().encode(req_data))
+            ret = req_by_msb(
+                'api/nslcm/v1/ns/grantvnf',
+                "POST",
+                content=json.JSONEncoder().encode(req_data)
+            )
             logger.info("ret = %s", ret)
             if ret[0] != 0:
                 logger.error("grant to nfvo failed: %s", ret[1])
@@ -363,16 +361,18 @@ class GrantVnf(APIView):
                 'vimid': "1",
                 'tenant': "mano"
             }
-            logger.debug("[%s]resp_data=%s", fun_name(), resp_data)
-            grantRespSerializer = GrantRespSerializer(data=resp_data)
-            if not grantRespSerializer.is_valid():
-                logger.warn("grant resp data is invalid")
+            logger.debug("[grant_vnf_put]resp_data=%s", resp_data)
 
             return Response(data=resp_data, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.error("Error occurred in Grant VNF, error: %s", e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'Grant expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'error': 'Grant expection'
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class Notify(APIView):
@@ -385,10 +385,8 @@ class Notify(APIView):
     )
     def post(self, request):
         try:
-            logger.debug("[%s]request.data = %s", fun_name(), request.data)
-            notifyReqSerializer = NotifyReqSerializer(data=request.data)
-            if not notifyReqSerializer.is_valid():
-                logger.warn("notify req data is invalid")
+            funname = "notify_post"
+            logger.debug("[%s]request.data = %s", funname, request.data)
 
             req_data = {
                 "status": "result",
@@ -451,7 +449,7 @@ class Notify(APIView):
             logger.debug("req_data = %s", req_data)
             ret = req_by_msb(notify_url, "POST", content=json.JSONEncoder().encode(req_data))
 
-            logger.debug("[%s]data = %s", fun_name(), ret)
+            logger.debug("[%s]data = %s", funname, ret)
             if ret[0] != 0:
                 logger.error("notify to nfvo failed: %s", ret[1])
 
@@ -459,7 +457,12 @@ class Notify(APIView):
         except Exception as e:
             logger.error("Error occurred in LCM notification,error: %s", e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'Notify expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'error': 'Notify expection'
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class Scale(APIView):
@@ -475,18 +478,15 @@ class Scale(APIView):
         try:
             logger.debug("request.data = %s", request.data)
             logger.debug("requested_url = %s", request.get_full_path())
-            scaleReqSerializer = ScaleReqSerializer(data=request.data)
-            if not scaleReqSerializer.is_valid():
-                raise Exception(scaleReqSerializer.errors)
 
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
                 raise Exception(ret[1])
 
             vnfm_info = json.JSONDecoder().decode(ret[1])
-            scale_type = ignorcase_get(scaleReqSerializer.data, "type")
-            aspect_id = ignorcase_get(scaleReqSerializer.data, "aspectId")
-            number_of_steps = ignorcase_get(scaleReqSerializer.data, "numberOfSteps")
+            scale_type = ignorcase_get(request.data, "type")
+            aspect_id = ignorcase_get(request.data, "aspectId")
+            number_of_steps = ignorcase_get(request.data, "numberOfSteps")
             data = {
                 'vnfmid': vnfmid,
                 'nfvoid': 1,
@@ -511,16 +511,18 @@ class Scale(APIView):
             if ret[0] != 0:
                 raise Exception('scale error')
 
-            scaleRespSerializer = InstScaleHealRespSerializer(data=json.JSONDecoder().decode(ret[1]))
-            if not scaleRespSerializer.is_valid():
-                raise Exception(scaleRespSerializer.errors)
+            resp_data = json.JSONDecoder().decode(ret[1])
 
-            logger.debug("scaleRespSerializer.data=%s", scaleRespSerializer.data)
-            return Response(data=scaleRespSerializer.data, status=status.HTTP_202_ACCEPTED)
+            return Response(data=resp_data, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             logger.error("Error occurred when scaling VNF,error:%s", e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'Scale expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'error': 'Scale expection'
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class Heal(APIView):
@@ -536,11 +538,7 @@ class Heal(APIView):
         try:
             logger.debug("request.data = %s", request.data)
             logger.debug("requested_url = %s", request.get_full_path())
-            healReqSerializer = HealReqSerializer(data=request.data)
-            if not healReqSerializer.is_valid():
-                raise Exception(healReqSerializer.errors)
 
-            logger.debug("healReqSerializer.data = %s", healReqSerializer.data)
             logger.debug("vnfmid = %s", vnfmid)
             ret = get_vnfminfo_from_nslcm(vnfmid)
             if ret[0] != 0:
@@ -548,12 +546,12 @@ class Heal(APIView):
 
             vnfm_info = json.JSONDecoder().decode(ret[1])
             req_data = {
-                "action": ignorcase_get(healReqSerializer.data, 'action'),
+                "action": ignorcase_get(request.data, 'action'),
                 "lifecycleoperation": "operate",
                 "isgrace": "force",
                 "affectedvm": [],
             }
-            affectedvm = ignorcase_get(healReqSerializer.data, 'affectedvm')
+            affectedvm = ignorcase_get(request.data, 'affectedvm')
             if isinstance(affectedvm, list):
                 req_data['affectedvm'] = affectedvm
             else:
@@ -565,23 +563,27 @@ class Heal(APIView):
                 user=ignorcase_get(vnfm_info, "userName"),
                 passwd=ignorcase_get(vnfm_info, "password"),
                 auth_type=restcall.rest_no_auth,
-                resource='/api/v1/nf_m_i/nfs/{vnfInstanceID}/vms/operation'.format(vnfInstanceID=vnfInstanceId),
+                resource='/api/v1/nf_m_i/nfs/{vnfInstanceID}/vms/operation'.format(
+                    vnfInstanceID=vnfInstanceId
+                ),
                 method='post',
                 content=json.JSONEncoder().encode(req_data))
             logger.debug("ret=%s", ret)
             if ret[0] != 0:
                 raise Exception('heal error')
 
-            healRespSerializer = InstScaleHealRespSerializer(data=json.JSONDecoder().decode(ret[1]))
-            if not healRespSerializer.is_valid():
-                raise Exception(healRespSerializer.errors)
+            resp_data = json.JSONDecoder().decode(ret[1])
 
-            logger.debug("healRespSerializer.data=%s", healRespSerializer.data)
-            return Response(data=healRespSerializer.data, status=status.HTTP_202_ACCEPTED)
+            return Response(data=resp_data, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             logger.error("Error occurred when healing VNF,error:%s", e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'Heal expection'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'error': 'Heal expection'
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 def get_vdus(nf_model, aspect_id):
@@ -719,10 +721,13 @@ class NfvoInfo(APIView):
         }
         ret = get_vnfminfo_from_nslcm(vnfmid)
         if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': ret[1]},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         vnfm_info = json.JSONDecoder().decode(ret[1])
-        logger.debug("[%s] vnfm_info=%s", fun_name(), vnfm_info)
+        logger.debug("[nfvo_info_put] vnfm_info=%s", vnfm_info)
         ret = restcall.call_req(
             base_url=ignorcase_get(vnfm_info, "url"),
             user=ignorcase_get(vnfm_info, "userName"),
@@ -732,7 +737,10 @@ class NfvoInfo(APIView):
             method='put',
             content=json.dumps(req_data))
         if ret[0] != 0:
-            return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': ret[1]},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         logger.debug("update nfvo info successfully.")
         return Response(data={}, status=status.HTTP_200_OK)
 
