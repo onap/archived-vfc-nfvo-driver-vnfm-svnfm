@@ -78,12 +78,10 @@ public class ConnectMgrVnfm {
 
         ConnectInfo info = new ConnectInfo(vnfmObj.getString("url"), vnfmObj.getString(Constant.USERNAME),
                 vnfmObj.getString(Constant.PASSWORD), authModel);
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(info.getUrl());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Exception while creating connection: {}", e.getMessage());
         }
 
         return 1;
