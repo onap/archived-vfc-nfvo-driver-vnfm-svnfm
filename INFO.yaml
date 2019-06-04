@@ -22,7 +22,7 @@ realtime_discussion: ''
 meetings:
     - type: 'zoom'
       agenda: 'https://wiki.onap.org/pages/viewpage.action?pageId=6590138'
-      url: 'https://wiki.onap.org/display/DW/Virtual+Function+Controller+Project'
+      url: https://wiki.onap.org/display/DW/Virtual+Function+Controller+Project
       server: 'n/a'
       channel: 'n/a'
       repeats: 'weekly'
@@ -150,5 +150,7 @@ tsc:
     changes:
         - type: 'Addition'
           name: 'Denes Nemeth'
+          link: 'https://lists.onap.org/g/ONAP-TSC/message/3269'
+        - type: 'Addition'
           name: 'Haibin Huang'
           link: 'https://lists.onap.org/g/ONAP-TSC/message/3269'
