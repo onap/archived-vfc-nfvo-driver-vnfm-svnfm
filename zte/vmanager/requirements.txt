@@ -1,13 +1,13 @@
 # rest framework
-Django==1.11.9
-djangorestframework==3.7.7
+Django==2.1.4
+djangorestframework==3.9.4
 
 # for call rest api
 httplib2==0.12.3
 
 # for unit test
 coverage==4.2
-mock==2.0.0
+mock==3.0.5
 unittest_xml_reporting==1.12.0
 
 # for auto swagger
@@ -16,7 +16,7 @@ flex>=6.11.1
 swagger-spec-validator>=2.1.0
 
 # for onap logging
-onappylog>=1.0.6
+onappylog>=1.0.9
 
 # uwsgi for parallel processing
-uwsgi
+# uwsgi

@@ -139,7 +139,7 @@ class InstantiateVnf(APIView):
 
             return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error("Error occurred when instantiating VNF,error:%s", e.message)
+            logger.error("Error occurred when instantiating VNF,error:%s", e.args[0])
             logger.error(traceback.format_exc())
             return Response(
                 data={
@@ -188,7 +188,7 @@ class TerminateVnf(APIView):
             logger.debug("[%s]resp_data=%s", funname, resp_data)
             return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error("Error occurred when terminating VNF,error: %s", e.message)
+            logger.error("Error occurred when terminating VNF,error: %s", e.args[0])
             logger.error(traceback.format_exc())
             return Response(
                 data={
@@ -236,7 +236,7 @@ class QueryVnf(APIView):
             logger.debug("[%s]resp_data=%s", funname, resp_data)
             return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error("Error occurred when querying VNF information,error:%s", e.message)
+            logger.error("Error occurred when querying VNF information,error:%s", e.args[0])
             logger.error(traceback.format_exc())
             return Response(
                 data={
@@ -295,7 +295,7 @@ class JobView(APIView):
 
             return Response(data=resp_data, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error("Error occurred when getting operation status information,error:%s", e.message)
+            logger.error("Error occurred when getting operation status information,error:%s", e.args[0])
             logger.error(traceback.format_exc())
             return Response(
                 data={
@@ -365,7 +365,7 @@ class GrantVnf(APIView):
 
             return Response(data=resp_data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            logger.error("Error occurred in Grant VNF, error: %s", e.message)
+            logger.error("Error occurred in Grant VNF, error: %s", e.args[0])
             logger.error(traceback.format_exc())
             return Response(
                 data={
@@ -455,7 +455,7 @@ class Notify(APIView):
 
             return Response(data=None, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error("Error occurred in LCM notification,error: %s", e.message)
+            logger.error("Error occurred in LCM notification,error: %s", e.args[0])
             logger.error(traceback.format_exc())
             return Response(
                 data={
@@ -515,7 +515,7 @@ class Scale(APIView):
 
             return Response(data=resp_data, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
-            logger.error("Error occurred when scaling VNF,error:%s", e.message)
+            logger.error("Error occurred when scaling VNF,error:%s", e.args[0])
             logger.error(traceback.format_exc())
             return Response(
                 data={
@@ -576,7 +576,7 @@ class Heal(APIView):
 
             return Response(data=resp_data, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
-            logger.error("Error occurred when healing VNF,error:%s", e.message)
+            logger.error("Error occurred when healing VNF,error:%s", e.args[0])
             logger.error(traceback.format_exc())
             return Response(
                 data={
