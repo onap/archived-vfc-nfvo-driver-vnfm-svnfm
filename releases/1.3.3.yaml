@@ -1,0 +1,5 @@
+---
+distribution_type: 'maven'
+version: '1.3.3'
+project: 'vfc-nfvo-driver-vnfm-svnfm-zte'
+log_dir: 'vfc-nfvo-driver-vnfm-svnfm-zte-maven-stage-master/58/'
