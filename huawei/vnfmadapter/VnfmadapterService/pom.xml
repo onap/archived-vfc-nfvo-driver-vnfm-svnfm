@@ -19,10 +19,10 @@
     <parent>
         <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.huawei.vnfmadapter</groupId>
         <artifactId>vnfmadapter</artifactId>
-        <version>1.3.3-SNAPSHOT</version>
+        <version>1.3.4-SNAPSHOT</version>
     </parent>    
     <artifactId>vnfmadapter-service-root</artifactId>
-    <version>1.3.3-SNAPSHOT</version>
+    <version>1.3.4-SNAPSHOT</version>
     <name>vfc/nfvo/drivers/vnfm/svnfm/huawei/vnfmadapter/VnfmadapterService</name>
     <packaging>pom</packaging>
 
