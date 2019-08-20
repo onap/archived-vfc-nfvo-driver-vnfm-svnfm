@@ -18,12 +18,12 @@
     <parent>
         <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.zte</groupId>
         <artifactId>vfc-nfvo-driver-vnfm-svnfm-zte</artifactId>
-        <version>1.3.3-SNAPSHOT</version>
+        <version>1.3.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.zte.vmanager</groupId>
     <artifactId>vfc-nfvo-driver-vnfm-svnfm-zte-vmanager</artifactId>
-    <version>1.3.3-SNAPSHOT</version>
+    <version>1.3.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>vfc-nfvo-driver-vnfm-svnfm-zte</name>
     <properties>
