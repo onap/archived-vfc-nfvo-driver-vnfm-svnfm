@@ -22,7 +22,7 @@ cd ${DOCKER_BUILD_DIR}
 
 BUILD_ARGS="--no-cache"
 ORG="onap"
-VERSION="1.3.4"
+VERSION="1.3.5"
 PROJECT="vfc"
 IMAGE="nfvo/svnfm/nokia"
 DOCKER_REPOSITORY="nexus3.onap.org:10003"
