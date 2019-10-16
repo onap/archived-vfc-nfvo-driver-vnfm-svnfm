@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm</groupId>
         <artifactId>vfcadaptor-service</artifactId>
-        <version>1.3.4-SNAPSHOT</version>
+        <version>1.3.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>vfcadaptor-deployment</artifactId>
