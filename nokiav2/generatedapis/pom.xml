@@ -335,7 +335,8 @@ Release AAI
              </configuration>
           </execution>
        </executions>
-    </plugin>
+      </plugin>
+
     </plugins>
   </build>
   <dependencies>
