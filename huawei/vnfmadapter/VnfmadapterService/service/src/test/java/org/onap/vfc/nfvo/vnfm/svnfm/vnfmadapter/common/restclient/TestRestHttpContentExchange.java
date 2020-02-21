@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.eclipse.jetty.client.Address;
 import org.eclipse.jetty.client.CachedExchange;
 import org.eclipse.jetty.client.HttpDestination;
@@ -111,7 +111,7 @@ public class TestRestHttpContentExchange {
      */
     @After
     public void tearDown() throws Exception {
-        LogManager.getLogger(RestHttpContentExchange.class).setLevel(Level.ERROR);
+        LogManager.getLogger(RestHttpContentExchange.class).atLevel(Level.ERROR);
     }
 
     /**
@@ -128,7 +128,7 @@ public class TestRestHttpContentExchange {
         exchange.setRequestURI("/the/request/uri");
         exchange.onRequestCommitted();
 
-        LogManager.getLogger(RestHttpContentExchange.class).setLevel(Level.DEBUG);
+        LogManager.getLogger(RestHttpContentExchange.class).atLevel(Level.DEBUG);
         exchange.onRequestCommitted();
     }
 
@@ -146,7 +146,7 @@ public class TestRestHttpContentExchange {
         exchange.setRequestURI("/the/request/uri");
         exchange.onRequestComplete();
 
-        LogManager.getLogger(RestHttpContentExchange.class).setLevel(Level.DEBUG);
+        LogManager.getLogger(RestHttpContentExchange.class).atLevel(Level.DEBUG);
         exchange.onRequestComplete();
     }
 
@@ -164,7 +164,7 @@ public class TestRestHttpContentExchange {
         exchange.setRequestURI("/the/request/uri");
         exchange.onResponseComplete();
 
-        LogManager.getLogger(RestHttpContentExchange.class).setLevel(Level.DEBUG);
+        LogManager.getLogger(RestHttpContentExchange.class).atLevel(Level.DEBUG);
         exchange.onResponseComplete();
 
         final AtomicInteger isCallback = new AtomicInteger(0);
