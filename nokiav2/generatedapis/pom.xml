@@ -18,19 +18,19 @@
   <parent>
     <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2</groupId>
     <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokiav2</artifactId>
-    <version>1.3.5-SNAPSHOT</version>
+    <version>1.3.6-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2</groupId>
   <artifactId>vfc-nfvo-driver-vnfm-svnfm-nokiav2-clients</artifactId>
-  <version>1.3.5-SNAPSHOT</version>
+  <version>1.3.6-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>vfc/nfvo/driver/vnfm/svnfm/nokiav2/generatedapis</name>
   <properties>
     <gson-fire-version>1.8.2</gson-fire-version>
     <retrofit-version>2.3.0</retrofit-version>
     <rxjava-version>2.0.0</rxjava-version>
-    <threetenbp-version>1.3.5</threetenbp-version>
+    <threetenbp-version>1.3.6</threetenbp-version>
     <oltu-version>1.0.1</oltu-version>
     <swagger-core-version>1.5.15</swagger-core-version>
     <sonar.surefire.reportsPath>${project.build.directory}/surefire-reports</sonar.surefire.reportsPath>
