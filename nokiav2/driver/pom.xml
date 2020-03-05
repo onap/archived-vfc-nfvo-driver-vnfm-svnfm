@@ -113,6 +113,11 @@
       <version>9.4.12.v20180830</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-util</artifactId>
+      <version>9.4.20.v20190813</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
