@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24633478_15e31e8d",
+        "filename": "\treleases/ZTE\u0026HuaWei-1.3.6-container.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 481
+      },
+      "writtenOn": "2020-03-06T17:46:22Z",
+      "side": 1,
+      "message": "03:05:04 ERROR: The version 1.3.4-ZTE\u0026HuaWei is not valid\n03:05:04 ERROR: Valid versions are \"#.#.#\" (SemVer) or \"v#.#.#\"",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 41
+      },
+      "revId": "f4f07aa13849ee84b4e551977ed91ae346119e3f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
