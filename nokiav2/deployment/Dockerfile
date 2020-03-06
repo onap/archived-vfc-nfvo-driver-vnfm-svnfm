@@ -15,6 +15,8 @@ COPY pom.xml pom.xml
 RUN VERSION=`echo -e "setns x=http://maven.apache.org/POM/4.0.0 \n  xpath /x:project/x:version/text() "| xmllint --shell pom.xml | grep content | sed 's/.*content=//'| sed 's/-SNAPSHOT//'` ; echo "Version $VERSION mode=$MODE"; wget -q -O driver.war "https://nexus.onap.org/service/local/artifact/maven/redirect?r=${REPO}&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.nokiav2&a=driverwar&v=${VERSION}${MODE}&e=war"
 #Can be used for local builds instead of the previous line
 #COPY driver.war .
+RUN useradd  onap && chown onap:onap -R /service && chmod g+s /service && setfacl -d --set u:onap:rwx /service
+USER onap
 ENV JAVA_HOME /usr/lib/jvm/jre
 EXPOSE 8089
 ENTRYPOINT /service/docker-entrypoint.sh
