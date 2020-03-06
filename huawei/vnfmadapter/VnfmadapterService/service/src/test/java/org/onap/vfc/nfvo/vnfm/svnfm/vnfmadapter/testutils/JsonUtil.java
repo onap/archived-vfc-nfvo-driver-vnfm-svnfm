@@ -19,9 +19,9 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.testutils;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.map.DeserializationConfig.Feature;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.sf.json.JSON;
 
@@ -45,7 +45,6 @@ public final class JsonUtil {
     }
 
     static {
-        MAPPER.setDeserializationConfig(
-                MAPPER.getDeserializationConfig().without(new Feature[] { Feature.FAIL_ON_UNKNOWN_PROPERTIES }));
+        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
     }
 }
