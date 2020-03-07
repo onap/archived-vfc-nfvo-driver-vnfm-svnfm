@@ -16,22 +16,14 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
-
-import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.client.ContentExchange;
-import org.eclipse.jetty.client.HttpDestination;
+import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.http.HttpHeaders;
-import org.eclipse.jetty.io.Buffer;
-import org.eclipse.jetty.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,45 +32,51 @@ import org.slf4j.LoggerFactory;
  * <br/>
  * <p>
  * </p>
- * 
+ *
  * @author
  * @version 28-May-2016
  */
-public class RestHttpContentExchange extends ContentExchange {
+public class RestHttpContentExchange  {
 
+    private static final int STATUS_PARSING_HEADERS = 500;
+    private static final int STATUS_PARSING_CONTENT = 500;
+    private String _encoding = "utf-8";
+    private byte[] _responseContent;
     private static final Logger LOGGER = LoggerFactory.getLogger(RestHttpContentExchange.class);
-
     private static final String PATH = "path:";
-
     private boolean gzip = false;
+    private HttpFields _responseFields;
+    private byte[] _responseContentByte;
 
-    private RestfulAsyncCallback callback = null;
+    String _responseContentString;
+    int _responseStatus;
+    Request request;
+    boolean _rsponseAbort;
+
+//    private HttpFields setCacheFields(boolean cacheHeaders) {
+//        _responseFields = cacheHeaders ? new HttpFields() : null;
+//        return _responseFields;
+//    }
 
     /**
-     * Constructor<br/>
-     * <p>
-     * </p>
-     * 
-     * @since
-     * @param cacheFields whether to cache response header.
-     * @param asyncCallback callback method.
+     * @return the scheme of the URL
      */
-    RestHttpContentExchange(final boolean cacheFields, final RestfulAsyncCallback asyncCallback) {
-        super(cacheFields);
-        this.callback = asyncCallback;
-    }
+//    public Buffer getScheme()
+//    {
+//        return _scheme;
+//    }
 
     /**
      * Extract message.
      * <br/>
-     * 
+     *
      * @param data GZipped data.
      * @return Uncompressed data.
      * @throws IOException
      * @since
      */
     public String decompressGzipToStr(final byte[] data) throws IOException {
-        if(data == null) {
+        if (data == null) {
             return "";
         }
         final StringBuilder out = new StringBuilder();
@@ -86,7 +84,7 @@ public class RestHttpContentExchange extends ContentExchange {
              GZIPInputStream gzis = new GZIPInputStream(input);
              InputStreamReader reader = new InputStreamReader(gzis, Charset.forName(RestfulClientConst.ENCODING));) {
             final char[] buff = new char[1024];
-            for(int n; (n = reader.read(buff)) != -1;) {
+            for (int n; (n = reader.read(buff)) != -1; ) {
                 out.append(new String(buff, 0, n));
             }
         }
@@ -94,108 +92,74 @@ public class RestHttpContentExchange extends ContentExchange {
 
     }
 
-    /**
-     * View response headers Content-Encoding values if you need to extract data.<br/>
-     * 
-     * @param name buffer
-     * @param value value
-     * @throws IOException
-     * @since
-     */
-    @Override
-    protected synchronized void onResponseHeader(final Buffer name, final Buffer value) throws IOException {
-        super.onResponseHeader(name, value);
-        final int header = HttpHeaders.CACHE.getOrdinal(name);
-        if(header == HttpHeaders.CONTENT_ENCODING_ORDINAL) {
-            final String encoding = StringUtil.asciiToLowerCase(value.toString());
-            gzip = encoding != null && StringUtils.contains(encoding, "gzip");
-        }
-
-    }
-
-    @Override
-    protected void onResponseComplete() throws IOException {
-        if(LOGGER.isInfoEnabled()) {
-            LOGGER.info("Response has Complete:" + PATH + this.getRequestURI().replace("\n", "0x0A"));
-        }
-        super.onResponseComplete();
-        if(callback != null) {
-            final RestfulResponse rsp = getResponse();
-            callback.callback(rsp);
-        }
-    }
-
-    @Override
-    protected void onRequestCommitted() throws IOException {
-        if(LOGGER.isInfoEnabled()) {
-            LOGGER.info("Request Header has been send:" + PATH + this.getRequestURI().replace("\n", "0x0A"));
-        }
-        super.onRequestCommitted();
-    }
-
-    @Override
-    protected void onRequestComplete() throws IOException {
-        if(LOGGER.isInfoEnabled()) {
-            LOGGER.info("Request has bend send complete:" + PATH + this.getRequestURI().replace("\n", "0x0A"));
-        }
-        super.onRequestComplete();
-    }
-
-    @Override
-    protected void onException(final Throwable x) {
-        LOGGER.warn("onException:", x);
-        super.onException(x);
-        if(callback != null) {
-            callback.handleExcepion(x);
-        }
-    }
-
-    @Override
-    protected void onConnectionFailed(final Throwable x) {
-        LOGGER.warn("onConnectionFailed:", x);
-        super.onConnectionFailed(x);
-        if(callback != null) {
-            callback.handleExcepion(x);
-        }
-
-    }
-
-    @Override
-    protected void expire(final HttpDestination destination) {
-        super.expire(destination);
-        if(callback != null) {
-            callback.handleExcepion(new ServiceException("request is expired, status:" + toState(getStatus())));
-        }
-    }
-
-    public boolean isGzip() {
+    private boolean isGzip() {
         return gzip;
+    }
+
+    public void setResponseContentString(String responseContentString){
+        this._responseContentString=responseContentString;
+    }
+    public void setResponseContentBytes (byte[] responseContentBytes){
+        this._responseContentByte=responseContentBytes ;
+    }
+     public void setResponseStatus  ( int responseStatus ){
+        this._responseStatus = responseStatus ;
+    }
+     public void setResponseFields  ( HttpFields responseFields  ){
+        this._responseFields= responseFields ;
+    }
+    public synchronized String getResponseContentString() throws UnsupportedEncodingException {
+        if (_responseContentString != null)
+            return _responseContentString;
+        return null;
+    }
+
+
+      synchronized byte[] getResponseContentBytes() {
+        if (_responseContentByte != null)
+            return _responseContentByte;
+        return null;
+    }
+
+
+      synchronized int getResponseStatus() {
+//        if (_responseStatus >= 500)
+//            throw new IllegalStateException("internal server error");
+        return _responseStatus;
+    }
+
+
+      synchronized HttpFields getResponseFields() {
+//        if (_responseStatus >= STATUS_PARSING_CONTENT)
+//            throw new IllegalStateException("Headers not completely received yet");
+        return _responseFields;
     }
 
     /**
      * Get the response as RestfulResponse.
      * <br/>
-     * 
+     *
      * @return response object.
      * @throws IOException
      * @since
      */
     public RestfulResponse getResponse() throws IOException {
         final RestfulResponse rsp = new RestfulResponse();
-        rsp.setStatus(this.getResponseStatus());
-        if(isGzip()) {
+
+        rsp.setStatus(getResponseStatus());
+        if (isGzip()) {
             final String responseString = decompressGzipToStr(getResponseContentBytes());
             rsp.setResponseJson(responseString);
         } else {
-            rsp.setResponseJson(this.getResponseContent());
+            rsp.setResponseJson(this.getResponseContentString());
         }
 
         final HttpFields field = this.getResponseFields();
-        if(field != null) {
+        if (field != null) {
             final Map<String, String> header = new HashMap<>();
 
             final Enumeration<String> names = field.getFieldNames();
-            for(final Enumeration<String> e = names; e.hasMoreElements();) {
+            for (final Enumeration<String> e = names; e.hasMoreElements(); ) {
                 final String fieldName = e.nextElement();
                 final String fieldValue = field.getStringField(fieldName);
                 header.put(fieldName, fieldValue);
@@ -205,5 +169,51 @@ public class RestHttpContentExchange extends ContentExchange {
         }
         return rsp;
     }
+
+
+//    @Override
+//    public void onContent(Response response, ByteBuffer content, Callback callback) {
+//        System.out.println("ContentExchange inside " + response.getStatus());
+//        super.onContent(response, content, callback);
+//        this._responseContentString = StandardCharsets.UTF_8.decode(content).toString();
+//        this._responseContent = content.array();
+//    }
+//
+//    @Override
+//    public void onBegin(Response response) {
+//
+//    }
+//
+//    @Override
+//    public void onComplete(Result result) {
+//
+//    }
+//
+//    @Override
+//    public void onContent(Response response, ByteBuffer content) {
+//
+//    }
+//
+//    @Override
+//    public void onFailure(Response response, Throwable failure) {
+//        this._responseStatus = response.getStatus();
+//        this._rsponseAbort = response.abort(failure);
+//    }
+//
+//    @Override
+//    public boolean onHeader(Response response, HttpField field) {
+//        this._responseFields = response.getHeaders();
+//        return false;
+//    }
+//
+//    @Override
+//    public void onHeaders(Response response) {
+//
+//    }
+//
+//    @Override
+//    public void onSuccess(Response response) {
+//        this._responseStatus = response.getStatus();
+//    }
 
 }

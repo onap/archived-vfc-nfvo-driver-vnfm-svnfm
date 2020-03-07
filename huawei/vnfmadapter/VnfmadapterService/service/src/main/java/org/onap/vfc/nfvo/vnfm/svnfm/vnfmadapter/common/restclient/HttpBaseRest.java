@@ -16,34 +16,37 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.jetty.client.Address;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.HttpExchange;
-import org.eclipse.jetty.http.HttpMethods;
+import org.eclipse.jetty.client.*;
+import org.eclipse.jetty.client.api.*;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpVersion;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * <br/>
  * <p>
  * </p>
- * 
+ *
  * @author
  * @version Aug 9, 2016
  */
 public abstract class HttpBaseRest implements Restful {
-
+    private Response responseGlobal;
+    private ContentResponse contentResponse;
+    private Request request;
     private static final Logger LOG = LoggerFactory.getLogger(HttpRest.class);
 
     final AtomicInteger requestId = new AtomicInteger(0);
@@ -53,32 +56,28 @@ public abstract class HttpBaseRest implements Restful {
     static final String HTTP_PATCH = "PATCH";
 
     String defaultIP = Constant.LOCAL_HOST;
-
     int defaultPort = -10000;
-
     int defaultTimeout = 30000;
-
     final String procenameRouteID = "RouteID-" + System.currentTimeMillis() + "-";
+
 
     /**
      * Constructor<br/>
      * <p>
      * </p>
-     * 
+     *
      * @since
      */
     public HttpBaseRest() {
         super();
     }
 
-    protected void createHttpClient() {
-        client = new HttpClient();
+    public HttpBaseRest(final Response response) {
+        this.responseGlobal = response;
     }
 
-    protected RestHttpContentExchange createRestHttpContentExchange(final RestfulAsyncCallback callback) {
-        final RestHttpContentExchange exchange = new RestHttpContentExchange(true, callback);
-        exchange.setScheme("http");
-        return exchange;
+    protected void createHttpClient() {
+        client = new HttpClient();
     }
 
     private String encodeParams(final RestfulParametes restParametes) throws ServiceException {
@@ -87,13 +86,13 @@ public abstract class HttpBaseRest implements Restful {
         boolean bHasParma = false;
         final StringBuilder builder = new StringBuilder();
         try {
-            for(final String key : parm.keySet()) {
+            for (final String key : parm.keySet()) {
                 value = parm.get(key);
-                if(value == null) {
+                if (value == null) {
                     value = "";
                 }
                 String str;
-                if(bHasParma) {
+                if (bHasParma) {
                     str = String.format("&%s=%s", URLEncoder.encode(key, RestfulClientConst.ENCODING),
                             URLEncoder.encode(value, RestfulClientConst.ENCODING));
                 } else {
@@ -103,39 +102,49 @@ public abstract class HttpBaseRest implements Restful {
                 }
                 builder.append(str);
             }
-        } catch(final UnsupportedEncodingException ex) {
+        } catch (final UnsupportedEncodingException ex) {
             LOG.error("unsupported encoding: ", ex);
             throw new ServiceException("Broken VM does not support UTF-8");
         }
         return builder.toString();
     }
 
-    private void processHeader(final RestHttpContentExchange contentExchange, final Map<String, String> headerMap) {
-        for(final String key : headerMap.keySet()) {
+    private void processHeader(final Request request, final Map<String, String> headerMap) {
+        for (final String key : headerMap.keySet()) {
             final String value = headerMap.get(key);
-            contentExchange.addRequestHeader(key, value);
+            HttpHeader headers[] = HttpHeader.values();
+            if (Arrays.asList(headers).contains('"' + key + '"')) ;
+            {
+                request.header(key, value);
+
+            }
+
         }
 
     }
 
-    private void setContentExchangeParams(final RestHttpContentExchange contentExchange) {
-        final String contentType = contentExchange.getRequestFields().getStringField("Content-Type");
-        if(null == contentType || contentType.isEmpty()) {
+    private void setRequestParams(final Request request, String httpMethod) {
+        final String contentType = request.getHeaders().get("Content-Type");
+        if (null == contentType || contentType.isEmpty()) {
             // application/json;charset=utf-8
-            contentExchange.setRequestContentType(RestfulClientConst.APPLICATION_FORM_URLENCODED);
+            request.header(HttpHeader.CONTENT_TYPE, RestfulClientConst.APPLICATION_FORM_URLENCODED);
         }
-        final String encoding = contentExchange.getRequestFields().getStringField("Accept-Encoding");
-        if(null == encoding || encoding.isEmpty()) {
+        //final String encoding = contentExchange.getRequestFields().getStringField("Accept-Encoding");
+        final String encoding = request.getHeaders().get("Accept-Encoding");
+        if (null == encoding || encoding.isEmpty()) {
             // compress,gzip
-            contentExchange.setRequestHeader("Accept-Encoding", "*/*");
+            request.header(HttpHeader.ACCEPT_ENCODING, "*/*");
         }
-        contentExchange.setVersion(11);
+        request.version(HttpVersion.HTTP_1_1);
+        request.scheme("http");
+        request.method(httpMethod);
     }
+
 
     /**
      * <br/>
-     * 
-     * @param method
+     *
+     * @param httpMethod
      * @param servicePath
      * @param restParametes
      * @param options
@@ -144,70 +153,120 @@ public abstract class HttpBaseRest implements Restful {
      * @throws ServiceException
      * @since
      */
-    protected RestfulResponse sendHttpRequest(final String method, final String servicePath,
-            final RestfulParametes restParametes, final RestfulOptions options, final RestfulAsyncCallback callback)
+
+    protected RestfulResponse sendHttpRequest(final String httpMethod, final String servicePath,
+                                              final RestfulParametes restParametes, final RestfulOptions options, RestfulAsyncCallback callback)
             throws ServiceException {
-        final RestHttpContentExchange contentExchange = createRestHttpContentExchange(callback);
-        if(null == restParametes) {
+
+
+        if (null == restParametes) {
             return new RestfulResponse();
         }
-        final String requestTrace = this.getReuqestIdString();
+        final String requestTrace = this.getRequestIdString();
         restParametes.putHttpContextHeader(RestfulClientConst.REQUEST_ID, requestTrace);
 
         RestfulResponse rsp = null;
         try {
-            contentExchange.setMethod(method);
             final String str = encodeParams(restParametes);
             final StringBuilder builder = new StringBuilder();
             builder.append(servicePath);
-            if(str.length() > 0 && (method.equals(HttpMethods.GET) || method.equals(HttpMethods.DELETE)
-                    || method.equals(HttpMethods.HEAD))) {
+            if (str.length() > 0 && (httpMethod.equals(HttpMethod.GET.asString()) || httpMethod.equals(HttpMethod.DELETE.asString())
+                    || httpMethod.equals(HttpMethod.HEAD.asString()))) {
                 builder.append('?');
                 builder.append(str);
             }
-            setDefaultUrl(contentExchange, options, builder);
-            processHeader(contentExchange, restParametes.getHeaderMap());
-            setContentExchangeParams(contentExchange);
+            String url = setDefaultUrl(options, builder);
+            System.out.println(url);
+            request = client.newRequest(url);
+            setRequestParams(request, httpMethod);
+            processHeader(request, restParametes.getHeaderMap());
+            setPostPutParam(httpMethod, restParametes, request, str);
+            setTimeout(options, request);
+            ContentResponse contentResponse = getResponse();
+//            HttpRequestListeners httpRequestListeners = new HttpRequestListeners();
+//            RestHttpContentExchange contentExchange = new RestHttpContentExchange();
+//            Response.CompleteListener responseListener = contentExchange;
+//            // Response.CompleteListener responseListener =f;
+//            request.method(httpMethod)
+//                    .onRequestSuccess(httpRequestListeners)
+//                    .onRequestBegin(httpRequestListeners)
+//                    .scheme("http")
+//                    .send(responseListener);
+//            Thread.sleep(2000);
+//            System.out.println("content:- " + contentExchange._responseContentString);
+//            System.out.println("code :-" + contentExchange._responseStatus);
 
-            setPostPutParam(method, restParametes, contentExchange, str);
-            setTimeout(options, contentExchange);
 
-            client.send(contentExchange);
+//            Origin origin=new Origin("http","localhost",8980);
+//            HttpDestination httpDestination=new HttpDestination(client,origin) {
+//                @Override
+//                protected SendFailure send(Connection connection, HttpExchange exchange) {
+//                    return null;
+//                }
+//            };
+//            List<Response.ResponseListener> listenersList=new ArrayList<>();
+//            listenersList.add(responseListener);
+//
+//            HttpExchange httpExchange=new HttpExchange(httpDestination,(HttpRequest)request,listenersList);
+//            System.out.println("httpExchange : "+httpExchange.getResponse().getStatus());
+            //System.out.println("request :- " + httpRequestListeners.method);
+            RestHttpContentExchange contentExchange = new RestHttpContentExchange();
+            contentExchange.setResponseStatus(contentResponse.getStatus());
+            contentExchange.setResponseContentBytes(contentResponse.getContent());
+            contentExchange.setResponseFields(contentResponse.getHeaders());
+            contentExchange.setResponseContentString(contentResponse.getContentAsString());
             rsp = callbackExecute(callback, contentExchange);
-        } catch(final Exception e) {
-            LOG.error("request reply message have exception:status is "
-                    + RestHttpContentExchange.toState(contentExchange.getStatus()));
+//            List<Response.Listener> list = contentResponse.getListeners(Response.Listener.class);
+//            for (Response.Listener listener : list) {
+//                System.out.println(listener.getClass());
+//            }
+            System.out.println("Testing :: " + contentResponse.getContentAsString());
+            System.out.println("rsp::::::: " + rsp);
+        } catch (final Exception e) {
+            System.out.println("ex : " + e.getMessage());
+            if(request!=null){
+                LOG.error("request reply message have exception:status is "
+                        + request.getAbortCause());
+            }
+
             throw new ServiceException(e);
         }
         return rsp;
     }
 
-    private void setDefaultUrl(final RestHttpContentExchange contentExchange, final RestfulOptions options,
-            final StringBuilder url) {
+    private ContentResponse getResponse() throws InterruptedException, ExecutionException, TimeoutException {
+        return request.send();
+    }
+
+
+    private String setDefaultUrl(final RestfulOptions options, final StringBuilder url) {
         // server
-        if(url.toString().startsWith("http")) {
-            contentExchange.setURL(url.toString());
+
+        if (url.toString().startsWith("http")) {
+            return url.toString();
         } else {
-            String host = defaultIP;
+            String host = Constant.LOCAL_HOST;
             int iPort = defaultPort;
-            if(options != null) {
+            if (options != null) {
                 host = options.getHost();
-                if(host.isEmpty()) {
+                if (host.isEmpty()) {
                     host = defaultIP;
                 }
                 iPort = options.getPort();
-                if(iPort == 0) {
+                if (iPort == 0) {
                     iPort = defaultPort;
                 }
             }
             // Integer.getInteger(".http.client.maxThread",30)
-            contentExchange.setAddress(new Address(host, iPort));
-            contentExchange.setRequestURI(url.toString());
+            return "http://" + host + ":" + iPort + "/" + url;
+            //return "http://reqres.in/api/users/4";
+            //return "https://jsonplaceholder.typicode.com/users"; //for 404 bad request
+
         }
     }
 
-    private String getReuqestIdString() {
-        if(this.requestId.get() == 0x7FFFFFFF) {
+    private String getRequestIdString() {
+        if (this.requestId.get() == 0x7FFFFFFF) {
             this.requestId.set(1);
         }
         final int reqId = this.requestId.getAndIncrement();
@@ -223,49 +282,45 @@ public abstract class HttpBaseRest implements Restful {
     }
 
     private void setPostPutParam(final String method, final RestfulParametes restParametes,
-            final RestHttpContentExchange contentExchange, final String str) throws UnsupportedEncodingException {
-        if(HttpMethods.POST.equals(method) || HttpMethods.PUT.equals(method) || HTTP_PATCH.equals(method)) {
+                                 final Request request, final String str) throws UnsupportedEncodingException {
+        if (HttpMethod.POST.equals(method) || HttpMethod.PUT.equals(method) || HTTP_PATCH.equals(method)) {
             ByteArrayInputStream buff;
             final String tmpRaw = restParametes.getRawData();
-            if(tmpRaw == null) {
+            if (tmpRaw == null) {
                 buff = new ByteArrayInputStream(str.getBytes(RestfulClientConst.ENCODING));
             } else {
                 buff = new ByteArrayInputStream(tmpRaw.getBytes(RestfulClientConst.ENCODING));
             }
             final int len = buff.available();
-            contentExchange.setRequestContentSource(buff);
-            contentExchange.setRequestHeader("content-length", String.valueOf(len));
+            //contentExchange.setRequestContentSource(buff);
+            request.header("content-length", String.valueOf(len));
         }
     }
 
-    private void setTimeout(final RestfulOptions options, final RestHttpContentExchange contentExchange) {
-        if(options != null) {
+    private void setTimeout(final RestfulOptions options, final Request request) {
+        if (options != null) {
             final long timeout = options.getRestTimeout();
-            if(timeout != 0) {
-                contentExchange.setTimeout(timeout);
+            if (timeout != 0) {
+                request.idleTimeout(timeout, TimeUnit.MILLISECONDS);
             } else {
-                contentExchange.setTimeout(defaultTimeout);
+                request.idleTimeout(defaultTimeout, TimeUnit.MILLISECONDS);
             }
         } else {
-            contentExchange.setTimeout(defaultTimeout);
+            request.idleTimeout(defaultTimeout, TimeUnit.MILLISECONDS);
         }
     }
 
     private RestfulResponse callbackExecute(final RestfulAsyncCallback callback,
-            final RestHttpContentExchange contentExchange) throws InterruptedException, IOException, ServiceException {
-        if(callback == null) {
-            final int exchangeState = contentExchange.waitForDone();
-            if(exchangeState == HttpExchange.STATUS_COMPLETED) {
+                                            final RestHttpContentExchange contentExchange) throws ServiceException, IOException {
+        if (callback == null) {
+            int exchangeState = contentExchange.getResponse().getStatus();
+            if (exchangeState == 200) {
+                System.out.println("Restful Response " + contentExchange.getResponse().getResponseContent());
                 return contentExchange.getResponse();
-            } else if(exchangeState == HttpExchange.STATUS_EXCEPTED) {
-                throw new ServiceException(
-                        "request is exception: " + RestHttpContentExchange.toState(HttpExchange.STATUS_EXCEPTED));
-            } else if(exchangeState == HttpExchange.STATUS_EXPIRED) {
-                throw new ServiceException(
-                        "request is expierd: " + RestHttpContentExchange.toState(HttpExchange.STATUS_EXPIRED));
+            } else {
+                throw new ServiceException("status code : "+exchangeState);
             }
         }
         return null;
     }
-
 }
