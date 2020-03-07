@@ -21,9 +21,16 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.List;
 
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.HttpContentResponse;
 import org.eclipse.jetty.client.HttpExchange;
+import org.eclipse.jetty.client.HttpRequest;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpVersion;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -42,9 +49,8 @@ import mockit.integration.junit4.JMockit;
  * <br/>
  * <p>
  * </p>
- * 
+ *
  * @author
- * @version
  */
 @RunWith(JMockit.class)
 public class TestHttpRest {
@@ -54,27 +60,47 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws java.lang.Exception
      * @since
      */
+    static HttpClient httpClient;
+    static RestfulOptions options;
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+        options = new RestfulOptions();
+        options.setOption("thread", new Integer(5));
+        options.setOption("maxConnectionPerAddr", new Integer(200));
+        options.setOption("ConnectTimeout", new Integer(500));
+        options.setHost("localhost");
+
+        httpClient = new HttpClient();
+        httpClient.start();
+        Request request = httpClient.newRequest("http://reqres.in/api/users/2");
+        ContentResponse contentResponse = request.send();
+        new MockUp<HttpBaseRest>() {
+            @Mock
+            public ContentResponse getResponse() {
+                return contentResponse;
+            }
+        };
     }
 
     /**
      * <br/>
-     * 
+     *
      * @throws java.lang.Exception
      * @since
      */
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
+        httpClient.stop();
     }
 
     /**
      * <br/>
-     * 
+     *
      * @throws java.lang.Exception
      * @since
      */
@@ -84,7 +110,7 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws java.lang.Exception
      * @since
      */
@@ -94,7 +120,7 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws Exception
      * @since
      */
@@ -113,62 +139,45 @@ public class TestHttpRest {
         httpClient.setAccessible(true);
         Assert.assertNotNull(httpClient.get(httpRest));
     }
+//
+//    /**
+//     * <br/>
+//     *
+//     * @throws NoSuchFieldException
+//     * @throws Exception
+//     * @since
+//     */
+//    @Test
+//    public void testCreateRestHttpContentExchange() throws NoSuchFieldException, Exception {
+//        final HttpBaseRest httpRest = new HttpRest();
+//        final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
+//
+//            @Override
+//            public void callback(final RestfulResponse response) {
+//
+//            }
+//
+//            @Override
+//            public void handleExcepion(final Throwable e) {
+//
+//            }
+//
+//        };
+//         final RestHttpContentExchange exchange = httpRest.createRestHttpContentExchange(callback);
+//          assertNotNull(exchange);
+//        final Field callbackField = RestHttpContentExchange.class.getDeclaredField("callback");
+//        assertNotNull(callbackField);
+//    }
 
     /**
      * <br/>
-     * 
-     * @throws NoSuchFieldException
-     * @throws Exception
-     * @since
-     */
-    @Test
-    public void testCreateRestHttpContentExchange() throws NoSuchFieldException, Exception {
-        final HttpBaseRest httpRest = new HttpRest();
-        final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
-
-            @Override
-            public void callback(final RestfulResponse response) {
-
-            }
-
-            @Override
-            public void handleExcepion(final Throwable e) {
-
-            }
-
-        };
-        final RestHttpContentExchange exchange = httpRest.createRestHttpContentExchange(callback);
-        assertNotNull(exchange);
-        final Field callbackField = RestHttpContentExchange.class.getDeclaredField("callback");
-        assertNotNull(callbackField);
-    }
-
-    /**
-     * <br/>
-     * 
+     *
      * @throws Exception
      * @since
      */
     @Test
     public void testGetStringRestfulParametes() throws Exception {
-        final RestfulOptions options = new RestfulOptions();
-
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulParametes parametes = new RestfulParametes();
         parametes.put("id", "1234");
         parametes.put("name", "some-name");
@@ -176,66 +185,35 @@ public class TestHttpRest {
         parametes.putHttpContextHeader("Content-Type", "application/json");
         parametes.putHttpContextHeader("Accept-Encoding", "*/*");
         final RestfulResponse response = httpRest.get("path/to/service", parametes);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
 
     }
 
+
     /**
      * <br/>
-     * 
+     *
      * @throws Exception
      * @since
      */
     @Test
     public void testGetStringRestfulParametesRestfulOptions() throws Exception {
-        final RestfulOptions options = new RestfulOptions();
-
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulResponse response = httpRest.get("path/to/service", new RestfulParametes(), options);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
+
 
     /**
      * <br/>
-     * 
+     *
      * @throws Exception
      * @since
      */
     @Test
     public void testHeadStringRestfulParametes() throws Exception {
-        final RestfulOptions options = new RestfulOptions();
 
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulParametes parametes = new RestfulParametes();
         parametes.put("id", "1234");
         parametes.put("name", "some-name");
@@ -243,35 +221,19 @@ public class TestHttpRest {
         parametes.putHttpContextHeader("Content-Type", "");
         parametes.putHttpContextHeader("Accept-Encoding", "");
         final RestfulResponse response = httpRest.head("path/to/service", parametes);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
      * <br/>
-     * 
+     *
      * @throws Exception
      * @since
      */
     @Test
     public void testHeadStringRestfulParametesRestfulOptions() throws Exception {
-        final RestfulOptions options = new RestfulOptions();
 
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulParametes parametes = new RestfulParametes();
         parametes.put("id", "1234");
         parametes.put("name", "some-name");
@@ -279,12 +241,12 @@ public class TestHttpRest {
         parametes.putHttpContextHeader("Content-Type", "");
         parametes.putHttpContextHeader("Accept-Encoding", "");
         final RestfulResponse response = httpRest.head("path/to/service", parametes, options);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
      * <br/>
-     * 
+     *
      * @param options
      * @return
      * @throws ServiceException
@@ -293,16 +255,16 @@ public class TestHttpRest {
     private HttpRest getHttpRest(final RestfulOptions options) throws ServiceException {
         final HttpRest httpRest = new HttpRest();
         {
-            new MockUp<HttpClient>() {
-
-                @Mock
-                public void doStart() {
-                }
-
-                @Mock
-                public void send(final HttpExchange exchange) throws IOException {
-                }
-            };
+//            new MockUp<HttpClient>() {
+//
+//                @Mock
+//                public void doStart() {
+//                }
+//
+//                @Mock
+//                public void send(final HttpExchange exchange) throws IOException {
+//                }
+//            };
             httpRest.initHttpRest(options);
 
         }
@@ -311,31 +273,15 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws Exception
      * @since
      */
     @Test
     public void testAsyncGetStringRestfulParametesRestfulAsyncCallback() throws Exception {
-        final RestfulOptions options = new RestfulOptions();
+
 
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
-
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
             @Override
@@ -355,31 +301,15 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testAsyncGetStringRestfulParametesRestfulOptionsRestfulAsyncCallback() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
+
 
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
-
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
             @Override
@@ -399,30 +329,14 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testPutStringRestfulParametes() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
 
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulParametes parametes = new RestfulParametes();
         parametes.put("id", "1234");
         parametes.put("name", "some-name");
@@ -430,36 +344,19 @@ public class TestHttpRest {
         parametes.putHttpContextHeader("Content-Type", "");
         parametes.putHttpContextHeader("Accept-Encoding", "");
         final RestfulResponse response = httpRest.put("path/to/service", parametes);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testPutStringRestfulParametesRestfulOptions() throws ServiceException {
 
-        final RestfulOptions options = new RestfulOptions();
-
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulParametes parametes = new RestfulParametes();
         parametes.put("id", "1234");
         parametes.put("name", "some-name");
@@ -467,35 +364,20 @@ public class TestHttpRest {
         parametes.putHttpContextHeader("Content-Type", "");
         parametes.putHttpContextHeader("Accept-Encoding", "");
         final RestfulResponse response = httpRest.put("path/to/service", parametes, null);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testAsyncPutStringRestfulParametesRestfulAsyncCallback() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
+
 
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
 
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
@@ -516,30 +398,14 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws Exception
      * @since
      */
     @Test
     public void testAsyncPutStringRestfulParametesRestfulOptionsRestfulAsyncCallback() throws Exception {
-        final RestfulOptions options = new RestfulOptions();
 
         final HttpRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
 
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
@@ -560,32 +426,16 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws Exception
      * @since
      */
     @Test
     public void testAsyncPostStringRestfulParametesRestfulAsyncCallback() throws Exception {
-        final RestfulOptions options = new RestfulOptions();
+
         options.setRestTimeout(10);
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return 99;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_EXCEPTED);
-                return response;
-            }
-
-        };
-
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
             @Override
@@ -605,31 +455,16 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testAsyncPostStringRestfulParametesRestfulOptionsRestfulAsyncCallback() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
+
         options.setRestTimeout(10);
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
 
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
@@ -650,13 +485,12 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testDeleteStringRestfulParametes() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
 
         final HttpBaseRest httpRest = getHttpRest(options);
 
@@ -666,30 +500,15 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testDeleteStringRestfulParametesRestfulOptions() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
+
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulParametes parameters = new RestfulParametes();
         parameters.put("id", "1234");
         parameters.put("name", "some-name");
@@ -698,37 +517,21 @@ public class TestHttpRest {
         parameters.putHttpContextHeader("Content-Type", "");
         parameters.putHttpContextHeader("Accept-Encoding", "");
         final RestfulResponse response = httpRest.delete("path/to/service", parameters, options);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testAsyncDeleteStringRestfulParametesRestfulAsyncCallback() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
+
         options.setRestTimeout(10);
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
-
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
             @Override
@@ -748,31 +551,16 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testAsyncDeleteStringRestfulParametesRestfulOptionsRestfulAsyncCallback() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
+
         options.setRestTimeout(10);
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
 
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
@@ -793,30 +581,14 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testPatchStringRestfulParametes() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulParametes parameters = new RestfulParametes();
         parameters.put("id", "1234");
         parameters.put("name", "some-name");
@@ -825,35 +597,19 @@ public class TestHttpRest {
         parameters.putHttpContextHeader("Content-Type", "");
         parameters.putHttpContextHeader("Accept-Encoding", "");
         final RestfulResponse response = httpRest.patch("path/to/service", parameters);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testPatchStringRestfulParametesRestfulOptions() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
         final RestfulParametes parameters = new RestfulParametes();
         parameters.put("id", "1234");
         parameters.put("name", "some-name");
@@ -862,36 +618,21 @@ public class TestHttpRest {
         parameters.putHttpContextHeader("Content-Type", "");
         parameters.putHttpContextHeader("Accept-Encoding", "");
         final RestfulResponse response = httpRest.patch("path/to/service", parameters, options);
-        assertEquals(HttpExchange.STATUS_COMPLETED, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testAsyncPatchStringRestfulParametesRestfulAsyncCallback() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
+
         options.setRestTimeout(10);
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
 
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 
@@ -912,31 +653,16 @@ public class TestHttpRest {
 
     /**
      * <br/>
-     * 
+     *
      * @throws ServiceException
      * @since
      */
     @Test
     public void testAsyncPatchStringRestfulParametesRestfulOptionsRestfulAsyncCallback() throws ServiceException {
-        final RestfulOptions options = new RestfulOptions();
+
         options.setRestTimeout(10);
 
         final HttpBaseRest httpRest = getHttpRest(options);
-        new MockUp<RestHttpContentExchange>() {
-
-            @Mock
-            public int waitForDone() {
-                return HttpExchange.STATUS_COMPLETED;
-            }
-
-            @Mock
-            public RestfulResponse getResponse() throws IOException {
-                final RestfulResponse response = new RestfulResponse();
-                response.setStatus(HttpExchange.STATUS_COMPLETED);
-                return response;
-            }
-
-        };
 
         final RestfulAsyncCallback callback = new RestfulAsyncCallback() {
 

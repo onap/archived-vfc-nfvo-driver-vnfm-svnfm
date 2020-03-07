@@ -74,7 +74,9 @@ public final class VnfmUtil {
             LOGGER.error("funtion=getVnfmById, status={}", rsp.getStatus());
             return null;
         }*/
-        String rsp = "{\"esr-system-info\": [{\"esr-system-info-id\": \"1234\",\"system-name\": \"hwvnfm\",\"type\": \"vnfm\",\"vendor\": \"huawei\",\"version\": \"v1.0\",\"service-url\": \"https://192.188.15.64:30001\",\"user-name\":\"vfctest\",\"password\": \"Huawei12#$\",\"system-type\": \"VNFM\",	\"resource-version\": \"1508828777218\"}]}";
+        //String rsp = "{\"esr-system-info\": [{\"esr-system-info-id\": \"1234\",\"system-name\": \"hwvnfm\",\"type\": \"vnfm\",\"vendor\": \"huawei\",\"version\": \"v1.0\",\"service-url\": \"https://192.188.15.64:30001\",\"user-name\":\"vfctest\",\"password\": \"Huawei12#$\",\"system-type\": \"VNFM\",	\"resource-version\": \"1508828777218\"}]}";
+        String rsp = "{\"esr-system-info\": [{\"esr-system-info-id\": \"1234\",\"system-name\": \"hwvnfm\",\"type\": \"vnfm\",\"vendor\": \"huawei\",\"version\": \"v1.0\",\"service-url\": \"http://localhost:8981\",\"user-name\":\"vfctest\",\"password\": \"Huawei12#$\",\"system-type\": \"VNFM\",	\"resource-version\": \"1508828777218\"}]}";
+
         JSONObject esrVnfm = JSONObject.fromObject(rsp);
         LOGGER.info("esrVnfm: {}", esrVnfm);
         JSONObject vnfmJson = parseEsrVnfm(vnfmId, esrVnfm);

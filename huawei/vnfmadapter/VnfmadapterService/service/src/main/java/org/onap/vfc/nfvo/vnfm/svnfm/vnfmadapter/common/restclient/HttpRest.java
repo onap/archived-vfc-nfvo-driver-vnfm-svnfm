@@ -16,17 +16,17 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient;
 
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.http.HttpMethods;
+import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * <br/>
  * <p>
  * </p>
- * 
+ *
  * @author
  * @version Aug 9, 2016
  */
@@ -34,15 +34,15 @@ public class HttpRest extends HttpBaseRest {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpRest.class);
 
+
     /**
      * Initializing Rest options.<br/>
-     * 
-     * @param options: rest options.
+     *
      * @throws ServiceException
      * @since
      */
     public void initHttpRest(final RestfulOptions option) throws ServiceException {
-        if(option == null) {
+        if (option == null) {
             client = null;
             throw new ServiceException("option is null.");
         }
@@ -50,30 +50,23 @@ public class HttpRest extends HttpBaseRest {
         try {
             int iValue;
             iValue = option.getIntOption(RestfulClientConst.MAX_CONN_PER_ADDR_KEY_NAME);
-            // max 200 concurrent,connections to every address
-            client.setMaxConnectionsPerAddress(iValue);
-
+//            // max 200 concurrent,connections to every address
+            client.setMaxConnectionsPerDestination(iValue);
             iValue = option.getIntOption(RestfulClientConst.THREAD_KEY_NAME);
-            // max threads
-            client.setThreadPool(new QueuedThreadPool(iValue));
+//            // max threads
+            client.setExecutor(new QueuedThreadPool(iValue));
             iValue = option.getIntOption(RestfulClientConst.CONN_TIMEOUT_KEY_NAME);
             client.setConnectTimeout(iValue);
+
             iValue = option.getRestTimeout();
             defaultTimeout = iValue;
-            client.setTimeout(iValue);
-
+            client.setIdleTimeout(iValue);
             iValue = option.getIntOption(RestfulClientConst.IDLE_TIMEOUT_KEY_NAME);
             client.setIdleTimeout(iValue);
-            iValue = option.getIntOption(RestfulClientConst.MAX_RESPONSE_HEADER_SIZE);
-            client.setResponseHeaderSize(iValue);
-            iValue = option.getIntOption(RestfulClientConst.MAX_REQUEST_HEADER_SIZE);
-            client.setRequestHeaderSize(iValue);
-            // HttpClient.CONNECTOR_SOCKET
-            client.setConnectorType(HttpClient.CONNECTOR_SELECT_CHANNEL);
             client.start();
             defaultIP = option.getStringOption(RestfulClientConst.HOST_KEY_NAME);
             defaultPort = option.getIntOption(RestfulClientConst.PORT_KEY_NAME);
-        } catch(final Exception e) {
+        } catch (final Exception e) {
             LOG.error("start httpclient error", e);
             client = null;
             throw new ServiceException("http client init failed.");
@@ -82,139 +75,139 @@ public class HttpRest extends HttpBaseRest {
 
     @Override
     public RestfulResponse get(final String servicePath, final RestfulParametes restParametes) throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.GET, servicePath, restParametes, null, null);
+        return this.sendHttpRequest(HttpMethod.GET.asString(), servicePath, restParametes, null, null);
     }
 
     @Override
     public RestfulResponse get(final String servicePath, final RestfulParametes restParametes,
-            final RestfulOptions option) throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.GET, servicePath, restParametes, option, null);
+                               final RestfulOptions option) throws ServiceException {
+        return this.sendHttpRequest(HttpMethod.GET.asString(), servicePath, restParametes, option, null);
     }
 
     @Override
     public RestfulResponse head(final String servicePath, final RestfulParametes restParametes)
             throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.HEAD, servicePath, restParametes, null, null);
+        return this.sendHttpRequest(HttpMethod.HEAD.asString(), servicePath, restParametes, null, null);
     }
 
     @Override
     public RestfulResponse head(final String servicePath, final RestfulParametes restParametes,
-            final RestfulOptions option) throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.HEAD, servicePath, restParametes, option, null);
+                                final RestfulOptions option) throws ServiceException {
+        return this.sendHttpRequest(HttpMethod.HEAD.asString(), servicePath, restParametes, option, null);
     }
 
     @Override
     public void asyncGet(final String servicePath, final RestfulParametes restParametes,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
-            this.sendHttpRequest(HttpMethods.GET, servicePath, restParametes, null, new DefaultAsyncCallback());
+                         final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
+            this.sendHttpRequest(HttpMethod.GET.asString(), servicePath, restParametes, null, new DefaultAsyncCallback());
         } else {
-            this.sendHttpRequest(HttpMethods.GET, servicePath, restParametes, null, callback);
+            this.sendHttpRequest(HttpMethod.GET.asString(), servicePath, restParametes, null, callback);
         }
     }
 
     @Override
     public void asyncGet(final String servicePath, final RestfulParametes restParametes, final RestfulOptions option,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
-            this.sendHttpRequest(HttpMethods.GET, servicePath, restParametes, option, new DefaultAsyncCallback());
+                         final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
+            this.sendHttpRequest(HttpMethod.GET.asString(), servicePath, restParametes, option, new DefaultAsyncCallback());
         } else {
-            this.sendHttpRequest(HttpMethods.GET, servicePath, restParametes, option, callback);
+            this.sendHttpRequest(HttpMethod.GET.asString(), servicePath, restParametes, option, callback);
         }
     }
 
     @Override
     public RestfulResponse put(final String servicePath, final RestfulParametes restParametes) throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.PUT, servicePath, restParametes, null, null);
+        return this.sendHttpRequest(HttpMethod.PUT.asString(), servicePath, restParametes, null, null);
     }
 
     @Override
     public RestfulResponse put(final String servicePath, final RestfulParametes restParametes,
-            final RestfulOptions option) throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.PUT, servicePath, restParametes, option, null);
+                               final RestfulOptions option) throws ServiceException {
+        return this.sendHttpRequest(HttpMethod.PUT.asString(), servicePath, restParametes, option, null);
     }
 
     @Override
     public void asyncPut(final String servicePath, final RestfulParametes restParametes,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
-            this.sendHttpRequest(HttpMethods.PUT, servicePath, restParametes, null, new DefaultAsyncCallback());
+                         final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
+            this.sendHttpRequest(HttpMethod.PUT.asString(), servicePath, restParametes, null, new DefaultAsyncCallback());
         } else {
-            this.sendHttpRequest(HttpMethods.PUT, servicePath, restParametes, null, callback);
+            this.sendHttpRequest(HttpMethod.PUT.asString(), servicePath, restParametes, null, callback);
         }
     }
 
     @Override
     public void asyncPut(final String servicePath, final RestfulParametes restParametes, final RestfulOptions option,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
-            this.sendHttpRequest(HttpMethods.PUT, servicePath, restParametes, option, new DefaultAsyncCallback());
+                         final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
+            this.sendHttpRequest(HttpMethod.PUT.asString(), servicePath, restParametes, option, new DefaultAsyncCallback());
         } else {
-            this.sendHttpRequest(HttpMethods.PUT, servicePath, restParametes, option, callback);
+            this.sendHttpRequest(HttpMethod.PUT.asString(), servicePath, restParametes, option, callback);
         }
     }
 
     @Override
     public RestfulResponse post(final String servicePath, final RestfulParametes restParametes)
             throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.POST, servicePath, restParametes, null, null);
+        return this.sendHttpRequest(HttpMethod.POST.asString(), servicePath, restParametes, null, null);
     }
 
     @Override
     public RestfulResponse post(final String servicePath, final RestfulParametes restParametes,
-            final RestfulOptions option) throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.POST, servicePath, restParametes, option, null);
+                                final RestfulOptions option) throws ServiceException {
+        return this.sendHttpRequest(HttpMethod.POST.asString(), servicePath, restParametes, option, null);
     }
 
     @Override
     public void asyncPost(final String servicePath, final RestfulParametes restParametes,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
-            this.sendHttpRequest(HttpMethods.POST, servicePath, restParametes, null, new DefaultAsyncCallback());
+                          final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
+            this.sendHttpRequest(HttpMethod.POST.asString(), servicePath, restParametes, null, new DefaultAsyncCallback());
         } else {
-            this.sendHttpRequest(HttpMethods.POST, servicePath, restParametes, null, callback);
+            this.sendHttpRequest(HttpMethod.POST.asString(), servicePath, restParametes, null, callback);
         }
     }
 
     @Override
     public void asyncPost(final String servicePath, final RestfulParametes restParametes, final RestfulOptions option,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
-            this.sendHttpRequest(HttpMethods.POST, servicePath, restParametes, option, new DefaultAsyncCallback());
+                          final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
+            this.sendHttpRequest(HttpMethod.POST.asString(), servicePath, restParametes, option, new DefaultAsyncCallback());
         } else {
-            this.sendHttpRequest(HttpMethods.POST, servicePath, restParametes, option, callback);
+            this.sendHttpRequest(HttpMethod.POST.asString(), servicePath, restParametes, option, callback);
         }
     }
 
     @Override
     public RestfulResponse delete(final String servicePath, final RestfulParametes restParametes)
             throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.DELETE, servicePath, restParametes, null, null);
+        return this.sendHttpRequest(HttpMethod.DELETE.asString(), servicePath, restParametes, null, null);
     }
 
     @Override
     public RestfulResponse delete(final String servicePath, final RestfulParametes restParametes,
-            final RestfulOptions option) throws ServiceException {
-        return this.sendHttpRequest(HttpMethods.DELETE, servicePath, restParametes, option, null);
+                                  final RestfulOptions option) throws ServiceException {
+        return this.sendHttpRequest(HttpMethod.DELETE.asString(), servicePath, restParametes, option, null);
     }
 
     @Override
     public void asyncDelete(final String servicePath, final RestfulParametes restParametes,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
-            this.sendHttpRequest(HttpMethods.DELETE, servicePath, restParametes, null, new DefaultAsyncCallback());
+                            final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
+            this.sendHttpRequest(HttpMethod.DELETE.asString(), servicePath, restParametes, null, new DefaultAsyncCallback());
         } else {
-            this.sendHttpRequest(HttpMethods.DELETE, servicePath, restParametes, null, callback);
+            this.sendHttpRequest(HttpMethod.DELETE.asString(), servicePath, restParametes, null, callback);
         }
     }
 
     @Override
     public void asyncDelete(final String servicePath, final RestfulParametes restParametes, final RestfulOptions option,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
-            this.sendHttpRequest(HttpMethods.DELETE, servicePath, restParametes, option, new DefaultAsyncCallback());
+                            final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
+            this.sendHttpRequest(HttpMethod.DELETE.asString(), servicePath, restParametes, option, new DefaultAsyncCallback());
         } else {
-            this.sendHttpRequest(HttpMethods.DELETE, servicePath, restParametes, option, callback);
+            this.sendHttpRequest(HttpMethod.DELETE.asString(), servicePath, restParametes, option, callback);
         }
     }
 
@@ -226,14 +219,14 @@ public class HttpRest extends HttpBaseRest {
 
     @Override
     public RestfulResponse patch(final String servicePath, final RestfulParametes restParametes,
-            final RestfulOptions option) throws ServiceException {
+                                 final RestfulOptions option) throws ServiceException {
         return this.sendHttpRequest(HTTP_PATCH, servicePath, restParametes, option, null);
     }
 
     @Override
     public void asyncPatch(final String servicePath, final RestfulParametes restParametes,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
+                           final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
             this.sendHttpRequest(HTTP_PATCH, servicePath, restParametes, null, new DefaultAsyncCallback());
         } else {
             this.sendHttpRequest(HTTP_PATCH, servicePath, restParametes, null, callback);
@@ -242,8 +235,8 @@ public class HttpRest extends HttpBaseRest {
 
     @Override
     public void asyncPatch(final String servicePath, final RestfulParametes restParametes, final RestfulOptions option,
-            final RestfulAsyncCallback callback) throws ServiceException {
-        if(callback == null) {
+                           final RestfulAsyncCallback callback) throws ServiceException {
+        if (callback == null) {
             this.sendHttpRequest(HTTP_PATCH, servicePath, restParametes, option, new DefaultAsyncCallback());
         } else {
             this.sendHttpRequest(HTTP_PATCH, servicePath, restParametes, option, callback);
