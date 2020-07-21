@@ -27,6 +27,9 @@
     <packaging>pom</packaging>
     <name>vfc-nfvo-driver-vnfm-svnfm-huawei</name>
     <description>vfc-nfvo-driver-vnfm-svnfm-huawei</description>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
     <modules>
         <module>vnfmadapter</module>
     </modules>

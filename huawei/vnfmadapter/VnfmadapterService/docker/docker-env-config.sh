@@ -10,7 +10,7 @@ set_up_mysql_jdk(){
 	sed -i 's|#baseurl=http://mirror.centos.org/centos|baseurl=http://mirrors.ocf.berkeley.edu/centos|' /etc/yum.repos.d/*.repo
 	yum -y update
 
-	yum -y install wget unzip socat java-1.8.0-openjdk-headless
+	yum -y install wget unzip socat java-11-openjdk-headless
 	sed -i 's|#networkaddress.cache.ttl=-1|networkaddress.cache.ttl=10|' /usr/lib/jvm/jre/lib/security/java.security
 
 	# Set up mysql
