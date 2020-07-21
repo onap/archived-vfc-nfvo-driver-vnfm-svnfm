@@ -36,8 +36,11 @@
       </activation>
       <modules>
         <module>huawei</module>
+		<!-- nokia driver remove from Guilin Release -->
+		<!--
         <module>nokia</module>
         <module>nokiav2</module>
+		-->
         <module>zte</module>
       </modules>
     </profile>
