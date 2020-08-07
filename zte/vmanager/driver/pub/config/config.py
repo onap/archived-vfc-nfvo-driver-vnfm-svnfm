@@ -11,15 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 
 # [VNFFTP]
 VNF_FTP = "ftp://VMVNFM:Vnfm_1g3T@127.0.0.1:21/"
 
 # [MSB]
-MSB_SERVICE_PROTOCOL = 'http'
-MSB_SERVICE_IP = '127.0.0.1'
-MSB_SERVICE_PORT = '443'
-MSB_BASE_URL = "%s://%s:%s" % (MSB_SERVICE_PROTOCOL, MSB_SERVICE_IP, MSB_SERVICE_PORT)
+MSB_BASE_URL = os.getenv("MSB_HOST", "http://127.0.0.1:80")
+MSB_ENABLED = os.getenv("MSB_ENABLED", True)
 
 # [MDC]
 SERVICE_NAME = "ztevnfmdriver"
@@ -27,7 +26,7 @@ FORWARDED_FOR_FIELDS = ["HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED_HOST",
                         "HTTP_X_FORWARDED_SERVER"]
 
 # [register]
-REG_TO_MSB_WHEN_START = True
+REG_TO_MSB_WHEN_START = os.getenv("REG_TO_MSB_WHEN_START", "false")
 REG_TO_MSB_REG_URL = "/api/microservices/v1/services"
 REG_TO_MSB_REG_PARAM = {
     "serviceName": "ztevnfmdriver",
