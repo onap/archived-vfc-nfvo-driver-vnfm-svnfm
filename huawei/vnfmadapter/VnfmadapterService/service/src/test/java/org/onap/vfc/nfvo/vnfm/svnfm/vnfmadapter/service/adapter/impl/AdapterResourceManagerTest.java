@@ -33,7 +33,6 @@ import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulParametes;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.RestfulResponse;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VNFRestfulUtil;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.servicetoken.VnfmRestfulUtil;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect.ConnectMgrVnfm;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.testutils.JsonUtil;
 
@@ -3597,7 +3596,270 @@ public class AdapterResourceManagerTest {
         paramsMap.put("csarid", "csarid123");
         paramsMap.put("vnfmid", "vnfmid1234");
         JSONObject res = manager.uploadVNFPackage(vnfpkg1, paramsMap);
-        assertTrue(res.get("reason").equals("get allcloud failed and IOException.Connection refused: connect"));
+        assertTrue(res.get("reason").equals("get allcloud failed and IOException.Connection refused (Connection refused)"));
     }
-    
+
+	@Test
+	public void uploadVNFPackageTestVnfdPlanInfo() throws IOException {
+
+		new MockUp<VNFRestfulUtil>() {
+			@Mock
+			public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+				RestfulResponse rr = new RestfulResponse();
+				Map<String, String> header = new HashMap<>();
+				header.put("Content-Type", "Application/Json");
+				header.put("X-FormId", "jhfdl");
+				rr.setRespHeaderMap(header);
+				rr.setStatus(200);
+				rr.setResponseJson("shdfhj");
+
+				return rr;
+
+			}
+		};
+
+		new MockUp<VnfmUtil>() {
+			@Mock
+			public JSONObject getVnfmById(String vnfmId) {
+
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("url", "https://localhost:80");
+				jsonObject.put("userName", "ubuntu");
+				jsonObject.put("password", "******");
+				return jsonObject;
+
+			}
+		};
+
+		new MockUp<DownloadCsarManager>() {
+			@Mock
+			public String download(String url, String filepath) {
+				String response = "Success";
+				return response;
+			}
+
+			@Mock
+			public int unzipCSAR(String fileName, String filePath) {
+
+				return 0;
+			}
+		};
+
+		new MockUp<ConnectMgrVnfm>() {
+			@Mock
+			public int connect(JSONObject vnfmObj, String authModel) {
+
+				return 200;
+
+			}
+
+			@Mock
+			public String getAccessSession() {
+
+				return "conn";
+			}
+		};
+
+		new MockUp<JSONObject>() {
+			@Mock
+			public JSONObject fromObject(Object object) {
+				JSONObject js = new JSONObject();
+				js.put("id", "upload-id-123");
+				js.put("Result", "Success");
+				js.put("Check", "Ok");
+				js.put("url", "http://localhost:80");
+				js.put("userName", "User");
+				js.put("password", "pass");
+				js.put("downloadUri", "http://127.0.0.1:80");
+				js.put("keyStore", "C:/Users/Huawei/Desktop/etc/conf/server.p12");
+				js.put("keyStorePass", "Changeme_123");
+				js.put("keyStoreType", "PKCS12");
+				JSONArray ja = new JSONArray();
+				String str = "{\n  \"vim_id\": \"vim-0-1\",\n\t\"vim-info\": {\n\t\t\"vim-name\": \"vim-name-123\",\n\t\t\"vim-id\": \"vim-0-1\",\n\t\t\"ip\": \"127.0.0.1\",\n\t\t\"port\": \"8482\",\n\t\t\"protocol\": \"http\",\n\t\t\n\t}\n}";
+				ja.add(str);
+				JSONArray ja1 = new JSONArray();
+				String str1 = "{\n  \"vnfdVersion\": \"1.0version\",\n\t\"vnfd-info\": {\n\t\t\"vnfd-name\": \"vnfd-name-123\",\n\t\t\"vnfd-id\": \"vim-0-1\",\n\t\t\"ip\": \"127.0.0.1\",\n\t\t\"port\": \"8482\",\n\t\t\"protocol\": \"http\",\n\t\t\n\t}\n}";
+				;
+				ja1.add(str1);
+				JSONArray ja2 = new JSONArray();
+				String str2 = "{\n  \"template_name\": \"vnfd-name-123\",\n  \"topology_template\": [{\n\t\t\t\"service_url\": \"/api/hwvnfm/v1\",\n\t\t\t\n\t\t}]\n\t\n\t\n}";
+				ja2.add(str2);
+				JSONObject jsObject = new JSONObject();
+				jsObject.put("downloadUrl", "http://localhost:80");
+				jsObject.put("csarName", "CSCF");
+				JSONObject jsEms = new JSONObject();
+				jsEms.put("emsUuid", "123erbhi-hjdek123");
+				JSONObject jsCsar = new JSONObject();
+				jsCsar.put("csar_file_path", "/home/ubuntu/check/");
+				jsCsar.put("csar_file_name", "Csar_File");
+				jsCsar.put("emsUuid", jsEms);
+				JSONObject jsTemp = new JSONObject();
+				jsTemp.put("template", jsCsar);
+				js.put("vCSCF", jsTemp);
+				js.put("vim_info", ja);
+				js.put("template", ja2);
+				js.put("templates", ja1);
+				js.put("packageInfo", jsObject);
+				return js;
+			}
+		};
+
+		System.setProperty("catalina.base",
+				"D:/VFC/23-08-2018/svnfm/huawei/vnfmadapter/VnfmadapterService/deployment/src/main/release");
+
+		JSONObject vnfpkg = new JSONObject();
+		JSONObject vnfpkg1 = new JSONObject();
+		vnfpkg.put("name", "test");
+		JSONObject obj = new JSONObject();
+		obj.put("csar_file_path", "src/test/resources/Check10.txt");
+		obj.put("csar_file_name", "casrFile");
+		vnfpkg.put("template", obj);
+		Map<String, String> paramsMap = new HashMap<>();
+		paramsMap.put("csarid", "csarid123");
+		paramsMap.put("vnfmid", "vnfmid1234");
+		String testString = "test\nstring";
+		JSONObject res = manager.uploadVNFPackage(vnfpkg1, paramsMap);
+		assertTrue(res.get("reason")
+				.equals("get allcloud failed and IOException.Connection refused (Connection refused)"));
+	}
+
+	@Test
+	public void uploadVNFPackageSuccessTest() {
+
+		new MockUp<VNFRestfulUtil>() {
+			@Mock
+			public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+				RestfulResponse rr = new RestfulResponse();
+				Map<String, String> header = new HashMap<>();
+				header.put("Content-Type", "Application/Json");
+				header.put("X-FormId", "jhfdl");
+				rr.setRespHeaderMap(header);
+				rr.setStatus(200);
+				rr.setResponseJson("shdfhj");
+
+				return rr;
+
+			}
+		};
+
+		new MockUp<VnfmUtil>() {
+			@Mock
+			public JSONObject getVnfmById(String vnfmId) {
+
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("url", "https://localhost:80");
+				jsonObject.put("userName", "ubuntu");
+				jsonObject.put("password", "******");
+				return jsonObject;
+
+			}
+		};
+
+		new MockUp<DownloadCsarManager>() {
+			@Mock
+			public String download(String url, String filepath) {
+				String response = "Success";
+				return response;
+			}
+
+			@Mock
+			public int unzipCSAR(String fileName, String filePath) {
+
+				return 0;
+			}
+		};
+
+		new MockUp<HttpClient>() {
+			@Mock
+			public int executeMethod(HttpMethod method) {
+				return 200;
+			}
+		};
+
+		new MockUp<HttpMethodBase>() {
+
+			@Mock
+			public int getStatusCode() {
+
+				return 200;
+			}
+
+		};
+
+		new MockUp<ConnectMgrVnfm>() {
+			@Mock
+			public int connect(JSONObject vnfmObj, String authModel) {
+
+				return 200;
+
+			}
+
+			@Mock
+			public String getAccessSession() {
+
+				return "conn";
+			}
+		};
+
+		new MockUp<JSONObject>() {
+			@Mock
+			public JSONObject fromObject(Object object) {
+				JSONObject js = new JSONObject();
+				js.put("id", "upload-id-123");
+				js.put("Result", "Success");
+				js.put("Check", "Ok");
+				js.put("url", "http://localhost:80");
+				js.put("userName", "User");
+				js.put("password", "pass");
+				js.put("downloadUri", "http://127.0.0.1:80");
+				js.put("keyStore", "C:/Users/Huawei/Desktop/etc/conf/server.p12");
+				js.put("keyStorePass", "Changeme_123");
+				js.put("keyStoreType", "PKCS12");
+				JSONArray ja = new JSONArray();
+				String str = "{\n  \"vim_id\": \"vim-0-1\",\n\t\"vim-info\": {\n\t\t\"vim-name\": \"vim-name-123\",\n\t\t\"vim-id\": \"vim-0-1\",\n\t\t\"ip\": \"127.0.0.1\",\n\t\t\"port\": \"8482\",\n\t\t\"protocol\": \"http\",\n\t\t\n\t}\n}";
+				ja.add(str);
+				JSONArray ja1 = new JSONArray();
+				String str1 = "{\n  \"vnfdVersion\": \"1.0version\",\n\t\"vnfd-info\": {\n\t\t\"vnfd-name\": \"vnfd-name-123\",\n\t\t\"vnfd-id\": \"vim-0-1\",\n\t\t\"ip\": \"127.0.0.1\",\n\t\t\"port\": \"8482\",\n\t\t\"protocol\": \"http\",\n\t\t\n\t}\n}";
+				;
+				ja1.add(str1);
+				JSONArray ja2 = new JSONArray();
+				String str2 = "{\"template_name\": \"VNFD_vUGW\",\"topology_template\":[{\"plan_name\": \"Normal_E9K\",\"plan_id\": \"Normal_E9K\"}]}";
+				ja2.add(str2);
+				JSONObject verTmpObj = ja2.getJSONObject(0);
+				JSONObject jsObject = new JSONObject();
+				jsObject.put("downloadUrl", "http://localhost:80");
+				jsObject.put("csarName", "CSCF");
+				JSONObject jsEms = new JSONObject();
+				jsEms.put("emsUuid", "123erbhi-hjdek123");
+				JSONObject jsCsar = new JSONObject();
+				jsCsar.put("csar_file_path", "/home/ubuntu/check/");
+				jsCsar.put("csar_file_name", "Csar_File");
+				jsCsar.put("emsUuid", jsEms);
+				JSONObject jsTemp = new JSONObject();
+				jsTemp.put("template", jsCsar);
+				js.put("vCSCF", jsTemp);
+				js.put("vim_info", ja);
+				js.put("template", verTmpObj);
+				js.put("templates", ja1);
+				js.put("packageInfo", jsObject);
+				return js;
+			}
+		};
+
+		System.setProperty("catalina.base",
+				"D:/VFC/23-08-2018/svnfm/huawei/vnfmadapter/VnfmadapterService/deployment/src/main/release");
+
+		JSONObject vnfpkg = new JSONObject();
+		JSONObject vnfpkg1 = new JSONObject();
+		vnfpkg.put("name", "test");
+		JSONObject obj = new JSONObject();
+		obj.put("csar_file_path", "src/test/resources/Check10.txt");
+		obj.put("csar_file_name", "casrFile");
+		vnfpkg.put("template", obj);
+		Map<String, String> paramsMap = new HashMap<>();
+		paramsMap.put("csarid", "csarid123");
+		paramsMap.put("vnfmid", "vnfmid1234");
+		JSONObject res = manager.uploadVNFPackage(vnfpkg1, paramsMap);
+		assertEquals(res.get("retCode"), 200);
+	}
 }
