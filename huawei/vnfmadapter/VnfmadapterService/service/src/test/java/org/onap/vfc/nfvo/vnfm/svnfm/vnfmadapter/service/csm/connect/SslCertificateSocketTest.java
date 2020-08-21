@@ -58,4 +58,17 @@ public class SslCertificateSocketTest {
             e.printStackTrace();
         }
     }
+
+
+    @Test
+    public void createSocketTest6() {
+        SslCertificateSocket socket = new SslCertificateSocket();
+        try {
+            HttpConnectionParams params = new HttpConnectionParams();
+            params.setConnectionTimeout(3000);
+            socket.createSocket("http://127.0.0.1", 1234);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
