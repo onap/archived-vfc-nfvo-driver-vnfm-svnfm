@@ -22,11 +22,18 @@ import java.net.Socket;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
+import org.junit.Before;
 import org.junit.Test;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect.SslAnonymousSocket;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
 
 public class SslAnonymousSocketTest {
+	
+	@Before
+	public void init() throws VnfmException {
+		SslAnonymousSocket sslsocket = new SslAnonymousSocket();
+		sslsocket.init();
 
+	}
     @Test(expected = IOException.class)
     public void createSocketTestException() throws IOException, ConnectTimeoutException {
         String host= "localhost";
@@ -48,5 +55,5 @@ public class SslAnonymousSocketTest {
         SslAnonymousSocket sslsocket = new SslAnonymousSocket();
         Socket socket  = sslsocket.createSocket(host, port, localAddress, localPort, params);
     }
-
+    
 }
