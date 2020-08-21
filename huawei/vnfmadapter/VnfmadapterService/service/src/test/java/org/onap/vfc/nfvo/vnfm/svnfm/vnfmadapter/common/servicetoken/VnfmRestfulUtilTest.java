@@ -53,51 +53,51 @@ public class VnfmRestfulUtilTest {
 
     @Test
     public void testSendReqToApp() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
-                RestfulResponse restfulResponse = new RestfulResponse();
-                restfulResponse.setStatus(Constant.HTTP_OK);
-                String responseString = "{\"retCode\":1,\"data\":\"success\"}";
-                restfulResponse.setResponseJson(responseString);
-                return restfulResponse;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
+//                RestfulResponse restfulResponse = new RestfulResponse();
+//                restfulResponse.setStatus(Constant.HTTP_OK);
+//                String responseString = "{\"retCode\":1,\"data\":\"success\"}";
+//                restfulResponse.setResponseJson(responseString);
+//                return restfulResponse;
+//            }
+//        };
         JSONObject result = VnfmRestfulUtil.sendReqToApp("path", "put", new JSONObject());
         assertEquals(Constant.REST_SUCCESS, result.get("retCode"));
     }
 
     @Test
     public void testSendReqToAppByErrorMsg() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
-                RestfulResponse restfulResponse = new RestfulResponse();
-                restfulResponse.setStatus(Constant.HTTP_OK);
-                String responseString = "{\"retCode\":-1,\"data\":\"fail\",\"msg\":\"fail\"}";
-                restfulResponse.setResponseJson(responseString);
-                return restfulResponse;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
+//                RestfulResponse restfulResponse = new RestfulResponse();
+//                restfulResponse.setStatus(Constant.HTTP_OK);
+//                String responseString = "{\"retCode\":-1,\"data\":\"fail\",\"msg\":\"fail\"}";
+//                restfulResponse.setResponseJson(responseString);
+//                return restfulResponse;
+//            }
+//        };
         JSONObject result = VnfmRestfulUtil.sendReqToApp("path", "put", new JSONObject());
         assertEquals(Constant.REST_FAIL, result.get("retCode"));
     }
 
     @Test
     public void testSendReqToAppByError() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
-                RestfulResponse restfulResponse = new RestfulResponse();
-                restfulResponse.setStatus(Constant.HTTP_OK);
-                String responseString = "{\"retCode\":-1,\"data\":\"fail\"}";
-                restfulResponse.setResponseJson(responseString);
-                return restfulResponse;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
+//                RestfulResponse restfulResponse = new RestfulResponse();
+//                restfulResponse.setStatus(Constant.HTTP_OK);
+//                String responseString = "{\"retCode\":-1,\"data\":\"fail\"}";
+//                restfulResponse.setResponseJson(responseString);
+//                return restfulResponse;
+//            }
+//        };
         JSONObject result = VnfmRestfulUtil.sendReqToApp("path", "put", new JSONObject());
         assertEquals(Constant.REST_FAIL, result.get("retCode"));
     }
@@ -237,5 +237,18 @@ public class VnfmRestfulUtilTest {
         paramsMap.put("authMode", "post");
         RestfulResponse resp = VnfmRestfulUtil.getRemoteResponse("/test/123", "", "test123");
         assertNull(resp);
+    }
+    
+    @Test
+    public void getRemoteResponse() {
+    	Map <String, String > headerMap = new HashMap<String, String>();
+    	
+    	VnfmRestfulUtil.getRemoteResponse( "url",  "get",  headerMap,"params");
+    	VnfmRestfulUtil.getRemoteResponse( "url",  "post",  headerMap,"params");
+    	VnfmRestfulUtil.getRemoteResponse( "url",  "put",  headerMap,"params");
+    	assertNull(VnfmRestfulUtil.getRemoteResponse( "url",  "delete",  headerMap,"params"));
+
+
+
     }
 }
