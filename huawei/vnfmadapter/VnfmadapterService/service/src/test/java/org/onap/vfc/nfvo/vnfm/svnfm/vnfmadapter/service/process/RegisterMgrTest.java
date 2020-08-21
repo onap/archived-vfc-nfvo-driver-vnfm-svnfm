@@ -36,30 +36,33 @@ public class RegisterMgrTest {
 
     @Test
     public void testRegister() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse rsp = new RestfulResponse();
-                rsp.setStatus(200);
-                return rsp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse rsp = new RestfulResponse();
+//                rsp.setStatus(200);
+//                return rsp;
+//            }
+//        };
         RegisterMgr register = new RegisterMgr();
         register.register();
+
+
+
     }
 
     @Test
     public void testUnRegister() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse rsp = new RestfulResponse();
-                rsp.setStatus(200);
-                return rsp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse rsp = new RestfulResponse();
+//                rsp.setStatus(200);
+//                return rsp;
+//            }
+//        };
         RegisterMgr register = new RegisterMgr();
         register.unRegister();
     }

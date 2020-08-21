@@ -55,6 +55,22 @@ public class VnfmTest {
     }
 
     @Test
+    public void testProps(){
+        Vnfm tempVnfm = new Vnfm();
+        tempVnfm.getId();
+        tempVnfm.setId("123");
+        tempVnfm.getVersion();
+        tempVnfm.setVersion("1234");
+        tempVnfm.getVnfdId();
+        tempVnfm.setVnfdId("123");
+        tempVnfm.getVnfPackageId();
+        tempVnfm.setVnfPackageId("123");
+        tempVnfm.toString();
+        assertTrue(true);
+    }
+
+
+    @Test
     public void equalsTest2(){
         assertTrue(vnfm.equals(vnfm));
     }

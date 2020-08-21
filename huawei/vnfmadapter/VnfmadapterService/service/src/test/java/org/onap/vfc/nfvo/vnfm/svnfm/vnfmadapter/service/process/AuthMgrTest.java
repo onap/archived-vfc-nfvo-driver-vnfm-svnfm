@@ -45,14 +45,14 @@ public class AuthMgrTest {
 
     @Test
     public void testAuthToken() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRestResByDefault(String auth, String method, JSONObject authParams) {
-                RestfulResponse response = null;
-                return response;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRestResByDefault(String auth, String method, JSONObject authParams) {
+//                RestfulResponse response = null;
+//                return response;
+//            }
+//        };
 
         AuthMgr authMgr = new AuthMgr();
         String data = "{\"auth\":{\"identity\":{\"password\":{\"user\":{\"name\":\"om_team\",\"password\":\"123\"}}}}}";

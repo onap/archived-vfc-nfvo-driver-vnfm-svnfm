@@ -55,16 +55,16 @@ public class VnfResourceMgrTest {
 
     @Test
     public void testgrantVnfResourceSuccess() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse rsp = new RestfulResponse();
-                rsp.setStatus(200);
-                rsp.setResponseJson(new JSONObject().toString());
-                return rsp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse rsp = new RestfulResponse();
+//                rsp.setStatus(200);
+//                rsp.setResponseJson(new JSONObject().toString());
+//                return rsp;
+//            }
+//        };
 
         JSONObject vnfObj = new JSONObject();
         String data =
@@ -79,16 +79,16 @@ public class VnfResourceMgrTest {
 
     @Test
     public void testgrantVnfResourceSuccess1() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse rsp = new RestfulResponse();
-                rsp.setStatus(200);
-                rsp.setResponseJson(new JSONObject().toString());
-                return rsp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse rsp = new RestfulResponse();
+//                rsp.setStatus(200);
+//                rsp.setResponseJson(new JSONObject().toString());
+//                return rsp;
+//            }
+//        };
 
         JSONObject vnfObj = new JSONObject();
         String data =
@@ -103,16 +103,16 @@ public class VnfResourceMgrTest {
 
     @Test
     public void testgrantVnfResourceSuccess2() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse rsp = new RestfulResponse();
-                rsp.setStatus(200);
-                rsp.setResponseJson(new JSONObject().toString());
-                return rsp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse rsp = new RestfulResponse();
+//                rsp.setStatus(200);
+//                rsp.setResponseJson(new JSONObject().toString());
+//                return rsp;
+//            }
+//        };
 
         JSONObject vnfObj = new JSONObject();
         String data =
@@ -127,16 +127,16 @@ public class VnfResourceMgrTest {
 
     @Test
     public void testgrantVnfResourceSuccess3() {
-        new MockUp<VnfmRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse rsp = new RestfulResponse();
-                rsp.setStatus(200);
-                rsp.setResponseJson(new JSONObject().toString());
-                return rsp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse rsp = new RestfulResponse();
+//                rsp.setStatus(200);
+//                rsp.setResponseJson(new JSONObject().toString());
+//                return rsp;
+//            }
+//        };
 
         JSONObject vnfObj = new JSONObject();
         String data =
