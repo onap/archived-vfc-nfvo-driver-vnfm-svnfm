@@ -16,12 +16,12 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.junit.Test;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmException;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect.SslProtocolSocketFactory;
 
 public class SslProtocolSocketFactoryTest {
 
@@ -43,6 +43,18 @@ public class SslProtocolSocketFactoryTest {
     @Test
     public void refreshTest() throws VnfmException{
         SslProtocolSocketFactory.getInstance().refresh("Anonymous");
+        assertTrue(true);
+    }
+    @Test
+    public void getAnonymousTest() throws VnfmException{
+    	String authenticateMode="Anonymous";
+        SslProtocolSocketFactory.getInstance().get(authenticateMode);
+        assertTrue(true);
+    }
+    @Test
+    public void getCertificateTest() throws VnfmException{
+    	String authenticateMode="Certificate";
+        SslProtocolSocketFactory.getInstance().get(authenticateMode);
         assertTrue(true);
     }
 }
