@@ -16,10 +16,10 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.api;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.api.ConnectInfo;
+import junit.framework.Assert;
 
 public class ConnectInfoTest {
 
@@ -85,6 +85,34 @@ public class ConnectInfoTest {
         ConnectInfo info2 = new ConnectInfo("localhost","user","password","auth");
         assertTrue(!info1.equals(info2));
     }
-
-
+	@Test
+	public void setUrlTest() throws NoSuchFieldException, IllegalAccessException {
+		ConnectInfo connectInfo = new ConnectInfo("localhost");
+		connectInfo.setUrl("localhost");
+		assertTrue(connectInfo.getUrl().equals("localhost"));
+	}
+	@Test
+	public void setUserNameTest() throws NoSuchFieldException, IllegalAccessException {
+		ConnectInfo connectInfo = new ConnectInfo("localhost");
+		connectInfo.setUserName("user");
+		assertTrue(connectInfo.getUserName().equals("user"));
+	}
+	@Test
+	public void setUserPwdTest() throws NoSuchFieldException, IllegalAccessException {
+		ConnectInfo connectInfo = new ConnectInfo("localhost");
+		connectInfo.setUserPwd("password");
+		assertTrue(connectInfo.getUserPwd().equals("password"));
+	}
+	@Test
+	public void setAuthenticateModeTest() throws NoSuchFieldException, IllegalAccessException {
+		ConnectInfo connectInfo = new ConnectInfo("localhost");
+		connectInfo.setAuthenticateMode("auth");
+		assertTrue(connectInfo.getAuthenticateMode().equals("auth"));
+	}
+	@Test
+	public void testToString() {
+        ConnectInfo connectInfo = new ConnectInfo("localhost","user","password","auth");
+		String expected = connectInfo.toString(); 
+		Assert.assertEquals(expected, connectInfo.toString());
+	}
 }
