@@ -16,9 +16,11 @@
 
 package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.connect.ConnectMgrVnfm;
 
 import mockit.Mock;
@@ -36,10 +38,15 @@ public class ResultRequestUtilTest {
                 return 500;
             }
         };
+    	
+    	
         JSONObject vnfmObject = new JSONObject();
         String path = "http://localhost:8080";
         String methodName = "get";
         String paramsJson = "";
+        vnfmObject.put("url", path);
+        vnfmObject.put(Constant.USERNAME, Constant.USERNAME);
+        vnfmObject.put(Constant.PASSWORD, Constant.PASSWORD);
         JSONObject resp = ResultRequestUtil.call(vnfmObject, path, methodName, paramsJson);
         assertTrue(resp.get("data").equals("connect fail."));
     }
@@ -91,5 +98,33 @@ public class ResultRequestUtilTest {
         JSONObject resp = ResultRequestUtil.call(vnfmObject, path, methodName, paramsJson);
         assertTrue(resp.get("data").equals("get connection error"));
     }
+    
+    
+    @Test
+    public void call() {
+    
+    	JSONObject vnfmObject = new JSONObject();
+    	vnfmObject.put("url","https://localhost:8080/%s" );
+    	vnfmObject.put(Constant.USERNAME, Constant.USERNAME);
+    	vnfmObject.put(Constant.PASSWORD, Constant.PASSWORD);
+    	 String path = "https://localhost:8080/%s";
+    	 String methodName = "get";
+    	 String paramsJson = "";
+    	  assertNotNull(ResultRequestUtil.call( vnfmObject, path,  methodName,  paramsJson,
+            "authModel"));
+    	
+    }
+    
+	@Test
+	public void callSouth() {
+		JSONObject vnfmObject = new JSONObject();
+		vnfmObject.put("url", "https://localhost:8080/%s");
+		vnfmObject.put(Constant.USERNAME, Constant.USERNAME);
+		vnfmObject.put(Constant.PASSWORD, Constant.PASSWORD);
+		String path = "https://localhost:8080/%s";
+		String methodName = "get";
+		String paramsJson = "";
+		assertNotNull(ResultRequestUtil.callSouth(vnfmObject, path, methodName, paramsJson, "authModel"));
+	}
 
 }

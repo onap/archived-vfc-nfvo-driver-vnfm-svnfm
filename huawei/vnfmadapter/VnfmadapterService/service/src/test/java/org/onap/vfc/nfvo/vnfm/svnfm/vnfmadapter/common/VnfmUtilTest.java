@@ -38,14 +38,14 @@ public class VnfmUtilTest {
 
     @Test
     public void getVnfmByIdTestSuccess(){
-        new MockUp<VnfmRestfulUtil>(){
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse resp = new RestfulResponse();
-                resp.setStatus(200);
-                return resp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>(){
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse resp = new RestfulResponse();
+//                resp.setStatus(200);
+//                return resp;
+//            }
+//        };
         JSONObject resp = VnfmUtil.getVnfmById("1234");
         assertNotNull(resp);
     }
@@ -58,55 +58,56 @@ public class VnfmUtilTest {
 
     @Test
     public void getVnfmIdByIpTestSuccess(){
-        new MockUp<VnfmRestfulUtil>(){
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse resp = new RestfulResponse();
-                resp.setStatus(200);
-                JSONArray respArray = new JSONArray();
-                JSONObject obj = new JSONObject();
-                obj.put("url", "localhost");
-                obj.put("vnfmId", "1234");
-                respArray.add(obj);
-                resp.setResponseJson(respArray.toString());
-                return resp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>(){
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse resp = new RestfulResponse();
+//                resp.setStatus(200);
+//                JSONArray respArray = new JSONArray();
+//                JSONObject obj = new JSONObject();
+//                obj.put("url", "localhost");
+//                obj.put("vnfmId", "1234");
+//                respArray.add(obj);
+//                resp.setResponseJson(respArray.toString());
+//                return resp;
+//            }
+//        };
         String resp = VnfmUtil.getVnfmIdByIp("localhost");
         assertTrue("1234".equals(resp));
     }
 
     @Test
     public void getVnfmIdByIpTestSuccessInvalidIP(){
-        new MockUp<VnfmRestfulUtil>(){
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse resp = new RestfulResponse();
-                resp.setStatus(200);
-                JSONArray respArray = new JSONArray();
-                JSONObject obj = new JSONObject();
-                obj.put("url", "127.0.0.1");
-                obj.put("vnfmId", "1234");
-                respArray.add(obj);
-                resp.setResponseJson(respArray.toString());
-                return resp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>(){
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse resp = new RestfulResponse();
+//                resp.setStatus(200);
+//                JSONArray respArray = new JSONArray();
+//                JSONObject obj = new JSONObject();
+//                obj.put("url", "127.0.0.1");
+//                obj.put("vnfmId", "1234");
+//                respArray.add(obj);
+//                resp.setResponseJson(respArray.toString());
+//                return resp;
+//            }
+//        };
         String resp = VnfmUtil.getVnfmIdByIp("localhost");
         assertTrue("".equals(resp));
     }
     @Test
     public void getVnfmIdByIpTestSuccessEmptyResp(){
-        new MockUp<VnfmRestfulUtil>(){
-            @Mock
-            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
-                RestfulResponse resp = new RestfulResponse();
-                resp.setStatus(200);
-                JSONArray respArray = new JSONArray();
-                resp.setResponseJson(respArray.toString());
-                return resp;
-            }
-        };
+//        new MockUp<VnfmRestfulUtil>(){
+//            @Mock
+//            public RestfulResponse getRemoteResponse(String url, String methodType, String params) {
+//                RestfulResponse resp = new RestfulResponse();
+//                resp.setStatus(200);
+//                JSONArray respArray = new JSONArray();
+//                resp.setResponseJson(respArray.toString());
+//                return resp;
+//            }
+//        };
+    	VnfmUtil.mockForTest("Vfnid");
         String resp = VnfmUtil.getVnfmIdByIp("localhost");
         assertTrue("".equals(resp));
     }
