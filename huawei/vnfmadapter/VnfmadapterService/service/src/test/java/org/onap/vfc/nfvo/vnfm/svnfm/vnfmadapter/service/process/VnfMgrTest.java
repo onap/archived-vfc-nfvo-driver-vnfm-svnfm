@@ -20,24 +20,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.util.Map;
+import java.lang.reflect.Method;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.ResultRequestUtil;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.restclient.ServiceException;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.adapter.impl.AdapterResourceManager;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.csm.vnf.VnfMgrVnfm;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.impl.VnfmDaoImpl;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.dao.inf.VnfmDao;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.entity.Vnfm;
 
-import mockit.Mock;
-import mockit.MockUp;
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 public class VnfMgrTest {
@@ -158,8 +149,11 @@ public class VnfMgrTest {
 
         String data =
                 "{\"vnfPackageId\": \"vnfPackageId\",\"vnfId\": \"vnfId\",\"additionalParam\":{\"parameters\":{\"input\":\"input\"}}}";
-        JSONObject subJsonObject = JSONObject.fromObject(data);
+        //JSONObject subJsonObject = JSONObject.fromObject(data);
         VnfMgr vnfMgr = new VnfMgr();
+        JSONObject subJsonObject = new JSONObject();
+        subJsonObject.put("vnfDescriptorId", "vnfDescriptorId");
+        subJsonObject.put("vnfPackageId", "vnfPackageId");
         JSONObject result = vnfMgr.addVnf(subJsonObject, "vnfmId");
 
         JSONObject restJson = new JSONObject();
@@ -344,14 +338,16 @@ public class VnfMgrTest {
         vnfMgr.setVnfmDao(dao);
         JSONObject vnfObject = new JSONObject();
         vnfObject.put("retCode", Constant.REST_SUCCESS);
-        vnfObject.put("vnfInstanceId", "vnfInstanceId");
+        
         vnfObject.put("vnfPackageId", "vnfPackageId");
+        
         JSONObject resObject = new JSONObject();
         resObject.put("vnfdVersion", "vnfdVersion");
         resObject.put("vnfdId", "vnfdId");
         JSONObject data = new JSONObject();
-        data.put("data", resObject);
-        vnfMgr.saveVnfInfo(vnfObject, data);
+        data.put("vnfInstanceId", "vnfInstanceId");
+        vnfObject.put("data", data);
+        vnfMgr.saveVnfInfo(vnfObject, resObject);
     }
 
     @Test
@@ -496,10 +492,148 @@ public class VnfMgrTest {
                 "{\"vnfPackageId\": \"vnfPackageId\",\"vnfId\": \"vnfId\",\"additionalParam\":{\"parameters\":{\"input\":\"input\"}}}";
         JSONObject subJsonObject = JSONObject.fromObject(data);
         VnfMgr vnfMgr = new VnfMgr();
+        vnfMgr.setConfigedVduType("configedVduType");
         JSONObject result = vnfMgr.scaleVNF(subJsonObject, "testId", "testId");
 
         JSONObject restJson = new JSONObject();
         restJson.put("retCode", Constant.REST_SUCCESS);
         assertEquals(restJson, result);
     }
+    
+    
+    @Test
+    public void scaleVNFObjectNull() {
+    	VnfMgr vnfMgr = new VnfMgr();
+    	vnfMgr.setConfigedVduType("configedVduType");
+    	vnfMgr.scaleVNF(new JSONObject(), "vnfmId", "vnfInstanceId");
+    }
+    
+    @Test
+    public void addVnfJSONObjectNull() {
+    	VnfMgr vnfMgr = new VnfMgr();
+    	assertNotNull(vnfMgr.addVnf(new JSONObject(), "vnfmId"));
+    }
+    
+    
+    @Test
+    public void getVnfBody() throws Exception {
+    	JSONObject restJson =new JSONObject();
+    	JSONObject data =new JSONObject();
+    	data.put("vnf_id", "vnf_id");
+    	data.put("vnf_name", "vnf_name");
+    	data.put("vnf_type", "vnf_type");
+    	data.put("vnfd_id", "vnfd_id");
+    	data.put(Constant.STATUS, Constant.STATUS);
+    	data.put(Constant.RETCODE, Constant.REST_SUCCESS);
+    	restJson.put("data", new JSONObject[] {data});
+    	JSONObject ipObj =new JSONObject();
+    	ipObj.put("data",data);
+    	ipObj.put(Constant.RETCODE, Constant.REST_SUCCESS);
+    	VnfMgr vnfMgr = new VnfMgr();
+    	Method m = VnfMgr.class.getDeclaredMethod("getVnfBody",new Class[] {JSONObject.class,JSONObject.class});
+        m.setAccessible(true);
+        assertNotNull(m.invoke(vnfMgr, restJson,ipObj));
+    	
+    }
+    
+    @Test
+    public void getVnfBodyJSONException() throws Exception {
+    	JSONObject restJson =new JSONObject();
+    	JSONObject ipObj =new JSONObject();
+    	VnfMgr vnfMgr = new VnfMgr();
+    	Method m = VnfMgr.class.getDeclaredMethod("getVnfBody",new Class[] {JSONObject.class,JSONObject.class});
+        m.setAccessible(true);
+        assertNotNull( m.invoke(vnfMgr, restJson,ipObj));
+    	
+    }
+    
+    @Test
+    public void getVnfBodyIndexOutOfBoundsException() throws Exception {
+    	JSONObject restJson =new JSONObject();
+    	restJson.put("data", new JSONObject[] {});
+    	JSONObject ipObj =new JSONObject();
+    	VnfMgr vnfMgr = new VnfMgr();
+    	Method m = VnfMgr.class.getDeclaredMethod("getVnfBody",new Class[] {JSONObject.class,JSONObject.class});
+        m.setAccessible(true);
+        assertNotNull(m.invoke(vnfMgr, restJson,ipObj));
+    }
+    
+    @Test
+    public void transferVnfBody() throws Exception {
+    	JSONObject vnfObject =new JSONObject();
+    	vnfObject.put("vnfInstanceName", "vnfInstanceName");
+    	JSONObject ipObj =new JSONObject();
+    	ipObj.put(Constant.VNFDID, Constant.VNFDID);
+    	ipObj.put("planId", "planId");
+    	ipObj.put("emsUuid", "emsUuid");
+    	VnfMgr vnfMgr = new VnfMgr();
+    	Method m = VnfMgr.class.getDeclaredMethod("transferVnfBody",new Class[] {JSONObject.class,JSONObject.class,String.class});
+        m.setAccessible(true);
+        assertNotNull(m.invoke(vnfMgr, vnfObject,ipObj,"vnfmId"));
+    }
+    
+    @Test
+    public void transferToLcm() {
+    	JSONObject restJson = new JSONObject();
+    	JSONObject data = new JSONObject();
+    	JSONObject jobInfo = new JSONObject();
+    	jobInfo.put("job_id", "job_id");
+    	jobInfo.put("task_progress_rate", "1");
+    	jobInfo.put("task_status", "Successfully");
+    	jobInfo.put("error_code", "error_code");
+    	data.put("job_info", jobInfo);
+    	restJson.put("data",data);
+    	VnfMgr vnfMgr = new VnfMgr();
+    	assertNotNull(vnfMgr.transferToLcm(restJson));
+    }
+    
+    @Test
+    public void transferToLcmFailed() {
+    	JSONObject restJson = new JSONObject();
+    	JSONObject data = new JSONObject();
+    	JSONObject jobInfo = new JSONObject();
+    	jobInfo.put("job_id", "job_id");
+    	jobInfo.put("task_progress_rate", "1");
+    	jobInfo.put("task_status", "Failed");
+    	jobInfo.put("error_code", "error_code");
+    	data.put("job_info", jobInfo);
+    	restJson.put("data",data);
+    	VnfMgr vnfMgr = new VnfMgr();
+    	assertNotNull(vnfMgr.transferToLcm(restJson));
+    }
+    
+    @Test
+    public void getVmsFromVnfm() {
+    	VnfMgr vnfMgr = new VnfMgr();
+    	assertNotNull(vnfMgr.getVmsFromVnfm("vnfmId", "vnfInstanceId"));
+    }
+    
+    @Test
+    public void getVmsFromVnfmVnfInstanceId() {
+    	VnfMgr vnfMgr = new VnfMgr();
+    	assertNotNull(vnfMgr.getVmsFromVnfm("vnfmId", null));
+    }
+    
+    @Test
+    public void getJobFromVnfm() {
+    	VnfMgr vnfMgr = new VnfMgr();
+    	vnfMgr.getJobFromVnfm("jobId", "vnfmId");
+    }
+    
+    
+    @Test
+    public void healVnfNullObject() {
+    	VnfMgr vnfMgr = new VnfMgr();
+    	JSONObject jsonObject = new JSONObject();
+    	vnfMgr.healVnf(jsonObject, "vnfInstanceId", "vnfmId");
+    }
+    
+    @Test
+    public void healVnf() {
+    	VnfMgr vnfMgr = new VnfMgr();
+    	JSONObject jsonObject = new JSONObject();
+    	jsonObject.put("id", "id");
+    	vnfMgr.healVnf(jsonObject, "vnfInstanceId", "vnfmId");
+    }
+    
 }

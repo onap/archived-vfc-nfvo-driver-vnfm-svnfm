@@ -32,13 +32,13 @@ import mockit.MockUp;
 public class VnfmAdapterMgrServiceTest {
     @Test
     public void testRegister(){
-        new MockUp<VnfmAdapterMgrService>(){
-
-            @Mock
-            public  String readVnfmAdapterInfoFromJson() throws IOException {
-                return "{'abc':'123'}";
-            }
-        };
+//        new MockUp<VnfmAdapterMgrService>(){
+//
+//            @Mock
+//            public  String readVnfmAdapterInfoFromJson() throws IOException {
+//                return "{'abc':'123'}";
+//            }
+//        };
         VnfmAdapterMgrService mgr = new VnfmAdapterMgrService();
         mgr.register();
 

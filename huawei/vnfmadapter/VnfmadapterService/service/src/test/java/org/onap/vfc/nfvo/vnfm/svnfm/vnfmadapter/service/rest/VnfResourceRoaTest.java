@@ -19,26 +19,34 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmUtil;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.VnfResourceMgr;
 
-import mockit.Mock;
-import mockit.MockUp;
 import net.sf.json.JSONObject;
-
+@RunWith(MockitoJUnitRunner.class)
 public class VnfResourceRoaTest {
 
     private VnfResourceRoa vnfResourceRoa;
 
     private VnfResourceMgr vnfResourceMgr;
+    
+    @Mock
+    HttpServletRequest context;
+    
+    @Mock
+    ServletInputStream servletInputStream;
 
     @Before
     public void setUp() {
@@ -54,19 +62,9 @@ public class VnfResourceRoaTest {
     }
 
     @Test
-    public void testGrantVnfResByDataObjectNull() {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
-        new MockUp<VnfmJsonUtil>() {
-
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                return null;
-            }
-        };
-
-        String result = vnfResourceRoa.grantVnfRes(mockInstance, "vnfId");
-
+    public void testGrantVnfResByDataObjectNull() throws Exception {
+        Mockito.when(context.getInputStream()).thenReturn(servletInputStream);
+        String result = vnfResourceRoa.grantVnfRes(context, "vnfId");
         JSONObject restJson = new JSONObject();
         restJson.put("retCode", Constant.REST_FAIL);
         restJson.put("data", "Params error");
@@ -75,29 +73,29 @@ public class VnfResourceRoaTest {
 
     @Test
     public void testGrantVnfResByGrantObjNull() {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
+   //     MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
+  //      HttpServletRequest mockInstance = proxyStub.getMockInstance();
         final JSONObject dataObject = new JSONObject();
-        new MockUp<VnfmJsonUtil>() {
+//        new MockUp<VnfmJsonUtil>() {
+//
+//            @SuppressWarnings("unchecked")
+//            @Mock
+//            public <T> T getJsonFromContexts(HttpServletRequest context) {
+//                return (T)dataObject;
+//            }
+//        };
+//        new MockUp<JSONObject>() {
+//
+//            @Mock
+//            public JSONObject getJSONObject(String key) {
+//                if(key == "grant") {
+//                    return null;
+//                }
+//                return dataObject;
+//            }
+//        };
 
-            @SuppressWarnings("unchecked")
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                return (T)dataObject;
-            }
-        };
-        new MockUp<JSONObject>() {
-
-            @Mock
-            public JSONObject getJSONObject(String key) {
-                if(key == "grant") {
-                    return null;
-                }
-                return dataObject;
-            }
-        };
-
-        String result = vnfResourceRoa.grantVnfRes(mockInstance, "vnfId");
+        String result = vnfResourceRoa.grantVnfRes(null, "vnfId");
 
         JSONObject restJson = new JSONObject();
         restJson.put("retCode", Constant.REST_FAIL);
@@ -107,47 +105,47 @@ public class VnfResourceRoaTest {
 
     @Test
     public void testGrantVnfRes() {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
-
-            @Mock
-            public String getHeader(String name) {
-                return "127.0.0.1";
-            }
-        };
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
+//        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
+//
+//            @Mock
+//            public String getHeader(String name) {
+//                return "127.0.0.1";
+//            }
+//        };
+//       HttpServletRequest mockInstance = proxyStub.getMockInstance();
         final JSONObject dataObject = new JSONObject();
         JSONObject grant = new JSONObject();
         grant.put("project_id", "project_id");
         dataObject.put("grant", grant);
-        new MockUp<VnfmJsonUtil>() {
-
-            @SuppressWarnings("unchecked")
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                return (T)dataObject;
-            }
-        };
-        new MockUp<VnfmUtil>() {
-
-            @Mock
-            public String getVnfmIdByIp(String ip) {
-                return "vnfmId";
-            }
-        };
-
-        new MockUp<VnfResourceMgr>() {
-
-            @Mock
-            public JSONObject grantVnfResource(JSONObject vnfObj, String vnfId, String vnfmId) {
-                JSONObject resultJson = new JSONObject();
-                resultJson.put("retCode", Constant.REST_SUCCESS);
-                JSONObject data = new JSONObject();
-                data.put("data", "success");
-                resultJson.put("data", data);
-                return resultJson;
-            }
-        };
-        String result = vnfResourceRoa.grantVnfRes(mockInstance, "vnfId");
+//        new MockUp<VnfmJsonUtil>() {
+//
+//            @SuppressWarnings("unchecked")
+//            @Mock
+//            public <T> T getJsonFromContexts(HttpServletRequest context) {
+//                return (T)dataObject;
+//            }
+//        };
+//        new MockUp<VnfmUtil>() {
+//
+//            @Mock
+//            public String getVnfmIdByIp(String ip) {
+//                return "vnfmId";
+//            }
+//        };
+//
+//        new MockUp<VnfResourceMgr>() {
+//
+//            @Mock
+//            public JSONObject grantVnfResource(JSONObject vnfObj, String vnfId, String vnfmId) {
+//                JSONObject resultJson = new JSONObject();
+//                resultJson.put("retCode", Constant.REST_SUCCESS);
+//                JSONObject data = new JSONObject();
+//                data.put("data", "success");
+//                resultJson.put("data", data);
+//                return resultJson;
+//            }
+//        };
+        String result = vnfResourceRoa.grantVnfRes(null, "vnfId");
 
         JSONObject restJson = new JSONObject();
         restJson.put("retCode", Constant.REST_SUCCESS);
@@ -159,45 +157,46 @@ public class VnfResourceRoaTest {
 
     @Test
     public void testGrantVnfResByFail() {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
-
-            @Mock
-            public String getHeader(String name) {
-                return "127.0.0.1";
-            }
-        };
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
+//        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
+//
+//            @Mock
+//            public String getHeader(String name) {
+//                return "127.0.0.1";
+//            }
+//        };
+ //       HttpServletRequest mockInstance = proxyStub.getMockInstance();
         final JSONObject dataObject = new JSONObject();
         JSONObject grant = new JSONObject();
         grant.put("project_id", "project_id");
         dataObject.put("grant", grant);
-        new MockUp<VnfmJsonUtil>() {
+//        new MockUp<VnfmJsonUtil>() {
+//
+//            @SuppressWarnings("unchecked")
+//            @Mock
+//            public <T> T getJsonFromContexts(HttpServletRequest context) {
+//                return (T)dataObject;
+//            }
+//        };
+//        new MockUp<VnfmUtil>() {
+//
+//            @Mock
+//            public String getVnfmIdByIp(String ip) {
+//                return "vnfmId";
+//            }
+//        };
+//
+//        new MockUp<VnfResourceMgr>() {
+//
+//            @Mock
+//            public JSONObject grantVnfResource(JSONObject vnfObj, String vnfId, String vnfmId) {
+//                JSONObject resultJson = new JSONObject();
+//                resultJson.put("retCode", Constant.REST_FAIL);
+//                resultJson.put("data", "Fail!");
+//                return resultJson;
+//            }
+//        };
 
-            @SuppressWarnings("unchecked")
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                return (T)dataObject;
-            }
-        };
-        new MockUp<VnfmUtil>() {
-
-            @Mock
-            public String getVnfmIdByIp(String ip) {
-                return "vnfmId";
-            }
-        };
-
-        new MockUp<VnfResourceMgr>() {
-
-            @Mock
-            public JSONObject grantVnfResource(JSONObject vnfObj, String vnfId, String vnfmId) {
-                JSONObject resultJson = new JSONObject();
-                resultJson.put("retCode", Constant.REST_FAIL);
-                resultJson.put("data", "Fail!");
-                return resultJson;
-            }
-        };
-        String result = vnfResourceRoa.grantVnfRes(mockInstance, "vnfId");
+        String result = vnfResourceRoa.grantVnfRes(null, "vnfId");
 
         JSONObject restJson = new JSONObject();
         restJson.put("retCode", Constant.REST_FAIL);
@@ -207,44 +206,37 @@ public class VnfResourceRoaTest {
 
     @Test
     public void testGrantVnfResByDataNull() {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
-
-            @Mock
-            public String getHeader(String name) {
-                return "127.0.0.1";
-            }
-        };
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
+        //HttpServletRequest mockInstance = proxyStub.getMockInstance();
         final JSONObject dataObject = new JSONObject();
         JSONObject grant = new JSONObject();
         grant.put("project_id", "project_id");
         dataObject.put("grant", grant);
-        new MockUp<VnfmJsonUtil>() {
-
-            @SuppressWarnings("unchecked")
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                return (T)dataObject;
-            }
-        };
-        new MockUp<VnfmUtil>() {
-
-            @Mock
-            public String getVnfmIdByIp(String ip) {
-                return "vnfmId";
-            }
-        };
-
-        new MockUp<VnfResourceMgr>() {
-
-            @Mock
-            public JSONObject grantVnfResource(JSONObject vnfObj, String vnfId, String vnfmId) {
-                JSONObject resultJson = new JSONObject();
-                resultJson.put("retCode", Constant.REST_FAIL);
-                return resultJson;
-            }
-        };
-        String result = vnfResourceRoa.grantVnfRes(mockInstance, "vnfId");
+//        new MockUp<VnfmJsonUtil>() {
+//
+//            @SuppressWarnings("unchecked")
+//            @Mock
+//            public <T> T getJsonFromContexts(HttpServletRequest context) {
+//                return (T)dataObject;
+//            }
+//        };
+//        new MockUp<VnfmUtil>() {
+//
+//            @Mock
+//            public String getVnfmIdByIp(String ip) {
+//                return "vnfmId";
+//            }
+//        };
+//
+//        new MockUp<VnfResourceMgr>() {
+//
+//            @Mock
+//            public JSONObject grantVnfResource(JSONObject vnfObj, String vnfId, String vnfmId) {
+//                JSONObject resultJson = new JSONObject();
+//                resultJson.put("retCode", Constant.REST_FAIL);
+//                return resultJson;
+//            }
+//        };
+        String result = vnfResourceRoa.grantVnfRes(null, "vnfId");
 
         JSONObject restJson = new JSONObject();
         restJson.put("retCode", Constant.REST_FAIL);
@@ -253,18 +245,31 @@ public class VnfResourceRoaTest {
 
     @Test
     public void testNotify() throws IOException {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
-
-            @Mock
-            public String getHeader(String name) {
-                return "127.0.0.1";
-            }
-        };
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
-        String result = vnfResourceRoa.notify(mockInstance);
+//        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {
+//
+//            @Mock
+//            public String getHeader(String name) {
+//                return "127.0.0.1";
+//            }
+//        };
+//       HttpServletRequest mockInstance = proxyStub.getMockInstance();
+       
+    	Mockito.when(context.getInputStream()).thenReturn(servletInputStream);
+    	String result = vnfResourceRoa.notify(context);
 
         JSONObject restJson = new JSONObject();
         restJson.put(Constant.RETCODE, Constant.REST_SUCCESS);
         assertNotNull(result);
+    }
+    
+    
+    @Test
+    public void callLcmNotify() throws Exception{
+    	VnfResourceRoa vnfRoa = new VnfResourceRoa();
+    	JSONObject json = new JSONObject();
+    	Method m = VnfResourceRoa.class.getDeclaredMethod("callLcmNotify", new Class[] {JSONObject.class});
+    	m.setAccessible(true);
+    	m.invoke(vnfRoa, json);
+    	
     }
 }

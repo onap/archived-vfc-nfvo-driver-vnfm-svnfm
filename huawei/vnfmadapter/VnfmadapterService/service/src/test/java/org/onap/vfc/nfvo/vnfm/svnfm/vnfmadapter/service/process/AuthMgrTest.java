@@ -45,20 +45,11 @@ public class AuthMgrTest {
 
     @Test
     public void testAuthToken() {
-//        new MockUp<VnfmRestfulUtil>() {
-//
-//            @Mock
-//            public RestfulResponse getRestResByDefault(String auth, String method, JSONObject authParams) {
-//                RestfulResponse response = null;
-//                return response;
-//            }
-//        };
 
         AuthMgr authMgr = new AuthMgr();
-        String data = "{\"auth\":{\"identity\":{\"password\":{\"user\":{\"name\":\"om_team\",\"password\":\"123\"}}}}}";
-        JSONObject params = JSONObject.fromObject(data);
-
+        JSONObject params = new JSONObject();
+        params.put(Constant.USERNAME, Constant.USERNAME);
         JSONObject result = authMgr.authToken(params);
-        assertEquals(Constant.REST_FAIL, result.getInt("retCode"));
+        assertEquals(Constant.REST_SUCCESS, result.getInt("retCode"));
     }
 }

@@ -37,16 +37,16 @@ public class VnfAdapterResourceRoaTest {
 
     @Test
     public void testGetAllCloudInfo() {
-        new MockUp<AdapterResourceManager>() {
-
-            @Mock
-            public JSONObject getAllCloud(String url, String conntoken) {
-                JSONObject resultObj = new JSONObject();
-                resultObj.put("dn", "test");
-                resultObj.put("vim_id", "12345");
-                return resultObj;
-            }
-        };
+//        new MockUp<AdapterResourceManager>() {
+//
+//            @Mock
+//            public JSONObject getAllCloud(String url, String conntoken) {
+//                JSONObject resultObj = new JSONObject();
+//                resultObj.put("dn", "test");
+//                resultObj.put("vim_id", "12345");
+//                return resultObj;
+//            }
+//        };
 
         VnfAdapterResourceRoa vnfAdapter = new VnfAdapterResourceRoa();
         String result = vnfAdapter.getAllCloudInfo();

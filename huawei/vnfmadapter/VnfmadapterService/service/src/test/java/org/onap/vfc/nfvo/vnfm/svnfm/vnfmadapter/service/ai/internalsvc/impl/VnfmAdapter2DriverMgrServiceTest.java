@@ -40,13 +40,13 @@ public class VnfmAdapter2DriverMgrServiceTest {
 
     @Test
     public void testRegister2(){
-        new MockUp<VnfmAdapter2DriverMgrService>(){
-            @Mock
-            public  String readVnfmAdapterInfoFromJson() throws IOException {
-                return "{'url':'http://127.0.0.1'}";
-
-            }
-        };
+//        new MockUp<VnfmAdapter2DriverMgrService>(){
+//            @Mock
+//            public  String readVnfmAdapterInfoFromJson() throws IOException {
+//                return "{'url':'http://127.0.0.1'}";
+//
+//            }
+//        };
         VnfmAdapter2DriverMgrService mgr = new VnfmAdapter2DriverMgrService();
         mgr.register();
         mgr.unregister();

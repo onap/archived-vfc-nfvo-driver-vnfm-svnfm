@@ -19,20 +19,24 @@ package org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.common.VnfmJsonUtil;
-import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.constant.Constant;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.onap.vfc.nfvo.vnfm.svnfm.vnfmadapter.service.process.AuthMgr;
 
-import mockit.Mock;
 import mockit.MockUp;
 import net.sf.json.JSONObject;
-
+@RunWith(MockitoJUnitRunner.class)
 public class AuthRoaTest {
 
     private AuthRoa authRoa;
@@ -45,7 +49,16 @@ public class AuthRoaTest {
         authMgr = new AuthMgr();
         authRoa.setAuthMgr(authMgr);
     }
-
+    
+    @Mock
+    HttpServletRequest context;
+    
+    @Mock
+    HttpServletResponse resp;
+    
+    @Mock
+    ServletInputStream servletInputStream;
+    
     @After
     public void tearDown() {
         authRoa = null;
@@ -56,13 +69,13 @@ public class AuthRoaTest {
     public void testAuthTokenBySubJsonObjectNull() {
         MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
         HttpServletRequest mockInstance = proxyStub.getMockInstance();
-        new MockUp<VnfmJsonUtil>() {
-
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                return null;
-            }
-        };
+//        new MockUp<VnfmJsonUtil>() {
+//
+//            @Mock
+//            public <T> T getJsonFromContexts(HttpServletRequest context) {
+//                return null;
+//            }
+//        };
 
         MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
         HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
@@ -80,25 +93,25 @@ public class AuthRoaTest {
         MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
         HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
 
-        new MockUp<VnfmJsonUtil>() {
-
-            @SuppressWarnings("unchecked")
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                JSONObject subJsonObject = new JSONObject();
-                return (T)subJsonObject;
-            }
-        };
-        new MockUp<AuthMgr>() {
-
-            @Mock
-            public JSONObject authToken(JSONObject params) {
-                JSONObject restJson = new JSONObject();
-                restJson.put("retCode", Constant.REST_FAIL);
-                restJson.put("data", "Fail!");
-                return restJson;
-            }
-        };
+//        new MockUp<VnfmJsonUtil>() {
+//
+//            @SuppressWarnings("unchecked")
+//            @Mock
+//            public <T> T getJsonFromContexts(HttpServletRequest context) {
+//                JSONObject subJsonObject = new JSONObject();
+//                return (T)subJsonObject;
+//            }
+//        };
+//        new MockUp<AuthMgr>() {
+//
+//            @Mock
+//            public JSONObject authToken(JSONObject params) {
+//                JSONObject restJson = new JSONObject();
+//                restJson.put("retCode", Constant.REST_FAIL);
+//                restJson.put("data", "Fail!");
+//                return restJson;
+//            }
+//        };
         String result = authRoa.authToken(mockInstance, mockResInstance);
 
         assertEquals("{\"Information\": \"Fail!\"}", result);
@@ -112,72 +125,73 @@ public class AuthRoaTest {
         MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
         HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
 
-        new MockUp<VnfmJsonUtil>() {
-
-            @SuppressWarnings("unchecked")
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                JSONObject subJsonObject = new JSONObject();
-                return (T)subJsonObject;
-            }
-        };
-        new MockUp<AuthMgr>() {
-
-            @Mock
-            public JSONObject authToken(JSONObject params) {
-                JSONObject restJson = new JSONObject();
-                restJson.put("retCode", Constant.HTTP_INNERERROR);
-                restJson.put("data", "HttpInnerError!");
-                return restJson;
-            }
-        };
+//        new MockUp<VnfmJsonUtil>() {
+//
+//            @SuppressWarnings("unchecked")
+//            @Mock
+//            public <T> T getJsonFromContexts(HttpServletRequest context) {
+//                JSONObject subJsonObject = new JSONObject();
+//                return (T)subJsonObject;
+//            }
+//        };
+//        new MockUp<AuthMgr>() {
+//
+//            @Mock
+//            public JSONObject authToken(JSONObject params) {
+//                JSONObject restJson = new JSONObject();
+//                restJson.put("retCode", Constant.HTTP_INNERERROR);
+//                restJson.put("data", "HttpInnerError!");
+//                return restJson;
+//            }
+//        };
         String result = authRoa.authToken(mockInstance, mockResInstance);
 
         assertEquals("{\"Information\": \"HttpInnerError!\"}", result);
     }
 
     @Test
-    public void testAuthToken() {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
-        HttpServletRequest mockInstance = proxyStub.getMockInstance();
-
-        MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
-        HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
-        new MockUp<VnfmJsonUtil>() {
-
-            @SuppressWarnings("unchecked")
-            @Mock
-            public <T> T getJsonFromContexts(HttpServletRequest context) {
-                JSONObject subJsonObject = new JSONObject();
-                return (T)subJsonObject;
-            }
-        };
-        new MockUp<AuthMgr>() {
-
-            @Mock
-            public JSONObject authToken(JSONObject params) {
-                JSONObject restJson = new JSONObject();
-                restJson.put("retCode", Constant.REST_SUCCESS);
-                JSONObject data = new JSONObject();
-                data.put("accessSession", "accessSession");
-                data.put("userName", "userName");
-                data.put("roaRand", "roaRand");
-                restJson.put("data", data);
-                return restJson;
-            }
-        };
-        String result = authRoa.authToken(mockInstance, mockResInstance);
+    public void testAuthToken() throws Exception {
+//        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
+//        HttpServletRequest mockInstance = proxyStub.getMockInstance();
+//
+//        MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
+//        HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
+//        new MockUp<VnfmJsonUtil>() {
+//
+//            @SuppressWarnings("unchecked")
+//            @Mock
+//            public <T> T getJsonFromContexts(HttpServletRequest context) {
+//                JSONObject subJsonObject = new JSONObject();
+//                return (T)subJsonObject;
+//            }
+//        };
+//        new MockUp<AuthMgr>() {
+//
+//            @Mock
+//            public JSONObject authToken(JSONObject params) {
+//                JSONObject restJson = new JSONObject();
+//                restJson.put("retCode", Constant.REST_SUCCESS);
+//                JSONObject data = new JSONObject();
+//                data.put("accessSession", "accessSession");
+//                data.put("userName", "userName");
+//                data.put("roaRand", "roaRand");
+//                restJson.put("data", data);
+//                return restJson;
+//            }
+//        };
+        Mockito.when(context.getInputStream()).thenReturn(servletInputStream);
+        String result = authRoa.authToken(context, resp);
 
         assertNotNull(result);
     }
 
     @Test
     public void testDelAuthToken() {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
-
-        MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
-        HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
-        String result = authRoa.delAuthToken(null, null, mockResInstance);
+//        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
+//
+//        MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
+//        HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
+        String result = authRoa.delAuthToken(null, null, resp);
 
         JSONObject resultJson = new JSONObject();
         resultJson.put("Information", "Operation success");
@@ -186,12 +200,17 @@ public class AuthRoaTest {
 
     @Test
     public void testShakehand() {
-        MockUp<HttpServletRequest> proxyStub = new MockUp<HttpServletRequest>() {};
+        String result = authRoa.shakehand("roattr", resp);
 
-        MockUp<HttpServletResponse> proxyResStub = new MockUp<HttpServletResponse>() {};
-        HttpServletResponse mockResInstance = proxyResStub.getMockInstance();
-        String result = authRoa.shakehand(null, mockResInstance);
-
+        JSONObject resultJson = new JSONObject();
+        resultJson.put("status", "running");
+        resultJson.put("description", "Operation success");
+        assertEquals(resultJson.toString(), result);
+    }
+    
+    @Test
+    public void testShakehandOld() {
+        String result = authRoa.shakehandOld("roattr", resp);
         JSONObject resultJson = new JSONObject();
         resultJson.put("status", "running");
         resultJson.put("description", "Operation success");
