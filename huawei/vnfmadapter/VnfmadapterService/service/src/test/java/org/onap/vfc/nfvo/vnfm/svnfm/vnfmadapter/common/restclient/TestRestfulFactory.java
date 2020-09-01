@@ -89,14 +89,14 @@ public class TestRestfulFactory {
     public void testGetRestInstance() {
         Restful instance = RestfulFactory.getRestInstance("https");
 
-        new MockUp<HttpRest>() {
-
-            @Mock
-            public void initHttpRest(final RestfulOptions option) throws ServiceException {
-                throw new ServiceException();
-            }
-
-        };
+//        new MockUp<HttpRest>() {
+//
+//            @Mock
+//            public void initHttpRest(final RestfulOptions option) throws ServiceException {
+//                throw new ServiceException();
+//            }
+//
+//        };
         instance = RestfulFactory.getRestInstance("http");
         assertNotNull(instance);
 

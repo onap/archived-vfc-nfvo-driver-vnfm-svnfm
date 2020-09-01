@@ -31,14 +31,14 @@ public class ResultRequestUtilTest {
 
     @Test
     public void callTestInternalError() {
-        new MockUp<ConnectMgrVnfm>() {
-
-            @Mock
-            public int connect(JSONObject vnfmObj) {
-                return 500;
-            }
-        };
-    	
+//        new MockUp<ConnectMgrVnfm>() {
+//
+//            @Mock
+//            public int connect(JSONObject vnfmObj) {
+//                return 500;
+//            }
+//        };
+//    	
     	
         JSONObject vnfmObject = new JSONObject();
         String path = "http://localhost:8080";
@@ -53,13 +53,13 @@ public class ResultRequestUtilTest {
 
     @Test
     public void callTestConnectionErrot() {
-        new MockUp<ConnectMgrVnfm>() {
-
-            @Mock
-            public int connect(JSONObject vnfmObj) {
-                return 200;
-            }
-        };
+//        new MockUp<ConnectMgrVnfm>() {
+//
+//            @Mock
+//            public int connect(JSONObject vnfmObj) {
+//                return 200;
+//            }
+//        };
         JSONObject vnfmObject = new JSONObject();
         vnfmObject.put("url", "/test/123");
         String path = "http://localhost:8080";
@@ -71,24 +71,24 @@ public class ResultRequestUtilTest {
 
     @Test
     public void callTest() {
-        new MockUp<ConnectMgrVnfm>() {
-
-            @Mock
-            public int connect(JSONObject vnfmObj) {
-                return 200;
-            }
-
-            @Mock
-            public String getRoaRand() {
-                return "1234";
-            }
-
-            @Mock
-            public String getAccessSession() {
-                return "1234";
-            }
-
-        };
+//        new MockUp<ConnectMgrVnfm>() {
+//
+//            @Mock
+//            public int connect(JSONObject vnfmObj) {
+//                return 200;
+//            }
+//
+//            @Mock
+//            public String getRoaRand() {
+//                return "1234";
+//            }
+//
+//            @Mock
+//            public String getAccessSession() {
+//                return "1234";
+//            }
+//
+//        };
 
         JSONObject vnfmObject = new JSONObject();
         vnfmObject.put("url", "/test/123");
@@ -126,5 +126,5 @@ public class ResultRequestUtilTest {
 		String paramsJson = "";
 		assertNotNull(ResultRequestUtil.callSouth(vnfmObject, path, methodName, paramsJson, "authModel"));
 	}
-
+	
 }

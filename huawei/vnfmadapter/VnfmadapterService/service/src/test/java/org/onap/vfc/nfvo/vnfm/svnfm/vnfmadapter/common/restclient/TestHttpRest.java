@@ -79,12 +79,12 @@ public class TestHttpRest {
         httpClient.start();
         Request request = httpClient.newRequest("http://reqres.in/api/users/2");
         ContentResponse contentResponse = request.send();
-        new MockUp<HttpBaseRest>() {
-            @Mock
-            public ContentResponse getResponse() {
-                return contentResponse;
-            }
-        };
+//        new MockUp<HttpBaseRest>() {
+//            @Mock
+//            public ContentResponse getResponse() {
+//                return contentResponse;
+//            }
+//        };
     }
 
     /**
@@ -127,12 +127,12 @@ public class TestHttpRest {
     @Test
     public void testInitHttpRest() throws Exception {
         final RestfulOptions options = new RestfulOptions();
-        new MockUp<HttpClient>() {
-
-            @Mock
-            public void doStart() {
-            }
-        };
+//        new MockUp<HttpClient>() {
+//
+//            @Mock
+//            public void doStart() {
+//            }
+//        };
         final HttpRest httpRest = new HttpRest();
         httpRest.initHttpRest(options);
         final Field httpClient = HttpBaseRest.class.getDeclaredField("client");

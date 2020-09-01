@@ -83,17 +83,17 @@ public class VNFRestfulUtilTest {
     }
     @Test
     public void sendReqToAppTest(){
-        new MockUp<VNFRestfulUtil>(){
-            @Mock
-            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
-                RestfulResponse resp = new RestfulResponse();
-                resp.setStatus(200);
-                Map<String,Object> map = new HashMap<>();
-                map.put("retCode", 1);
-                resp.setResponseJson(toJson(map));
-                return resp;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>(){
+//            @Mock
+//            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
+//                RestfulResponse resp = new RestfulResponse();
+//                resp.setStatus(200);
+//                Map<String,Object> map = new HashMap<>();
+//                map.put("retCode", 1);
+//                resp.setResponseJson(toJson(map));
+//                return resp;
+//            }
+//        };
         String path="http://localhost:8080/vnfdmgr/v1";
         String methodNames = "get";
         JSONObject bodyParam = new JSONObject();
@@ -104,17 +104,17 @@ public class VNFRestfulUtilTest {
 
     @Test
     public void sendReqToAppTest2(){
-        new MockUp<VNFRestfulUtil>(){
-            @Mock
-            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
-                RestfulResponse resp = new RestfulResponse();
-                resp.setStatus(200);
-                Map<String,Object> map = new HashMap<>();
-                map.put("retCode", -1);
-                resp.setResponseJson(toJson(map));
-                return resp;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>(){
+//            @Mock
+//            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
+//                RestfulResponse resp = new RestfulResponse();
+//                resp.setStatus(200);
+//                Map<String,Object> map = new HashMap<>();
+//                map.put("retCode", -1);
+//                resp.setResponseJson(toJson(map));
+//                return resp;
+//            }
+//        };
         String path="http://localhost:8080/vnfdmgr/v1";
         String methodNames = "get";
         JSONObject bodyParam = new JSONObject();
@@ -124,17 +124,17 @@ public class VNFRestfulUtilTest {
     }
     @Test
     public void sendReqToAppTest3(){
-        new MockUp<VNFRestfulUtil>(){
-            @Mock
-            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
-                RestfulResponse resp = new RestfulResponse();
-                resp.setStatus(500);
-                Map<String,Object> map = new HashMap<>();
-                map.put("retCode", -1);
-                resp.setResponseJson(toJson(map));
-                return resp;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>(){
+//            @Mock
+//            public RestfulResponse getRestResByDefault(String path, String methodNames, JSONObject bodyParam) {
+//                RestfulResponse resp = new RestfulResponse();
+//                resp.setStatus(500);
+//                Map<String,Object> map = new HashMap<>();
+//                map.put("retCode", -1);
+//                resp.setResponseJson(toJson(map));
+//                return resp;
+//            }
+//        };
         String path="http://localhost:8080/vnfdmgr/v1";
         String methodNames = "get";
         JSONObject bodyParam = new JSONObject();

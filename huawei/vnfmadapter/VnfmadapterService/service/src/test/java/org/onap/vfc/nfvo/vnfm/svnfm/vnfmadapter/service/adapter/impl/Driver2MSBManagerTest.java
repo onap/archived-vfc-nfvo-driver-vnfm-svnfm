@@ -60,15 +60,15 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void registerDriverTestNullResp() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-
-                return null;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//
+//                return null;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -79,18 +79,18 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void registerDriverCreateSuccess() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-                response.setStatus(201);
-
-                String vimStr = toJson(vim);
-                response.setResponseJson(vimStr);
-                return response;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//                response.setStatus(201);
+//
+//                String vimStr = toJson(vim);
+//                response.setResponseJson(vimStr);
+//                return response;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -101,18 +101,18 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void registerDriverOkSuccess() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-                response.setStatus(200);
-
-                String vimStr = toJson(vim);
-                response.setResponseJson(vimStr);
-                return response;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//                response.setStatus(200);
+//
+//                String vimStr = toJson(vim);
+//                response.setResponseJson(vimStr);
+//                return response;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -123,18 +123,18 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void registerDriverTestInvalidParams() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-                response.setStatus(415);
-
-                String vimStr = toJson(vim);
-                response.setResponseJson(vimStr);
-                return response;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//                response.setStatus(415);
+//
+//                String vimStr = toJson(vim);
+//                response.setResponseJson(vimStr);
+//                return response;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -145,18 +145,18 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void registerDriverTestInternalError() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-                response.setStatus(500);
-
-                String vimStr = toJson(vim);
-                response.setResponseJson(vimStr);
-                return response;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//                response.setStatus(500);
+//
+//                String vimStr = toJson(vim);
+//                response.setResponseJson(vimStr);
+//                return response;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -167,15 +167,15 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void unregisterDriverTestNullResp() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-
-                return null;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//
+//                return null;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -186,18 +186,18 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void unregisterDriverDeleteSuccess() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-                response.setStatus(204);
-
-                String vimStr = toJson(vim);
-                response.setResponseJson(vimStr);
-                return response;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//                response.setStatus(204);
+//
+//                String vimStr = toJson(vim);
+//                response.setResponseJson(vimStr);
+//                return response;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -208,18 +208,18 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void unregisterDriverResourceNotFound() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-                response.setStatus(404);
-
-                String vimStr = toJson(vim);
-                response.setResponseJson(vimStr);
-                return response;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//                response.setStatus(404);
+//
+//                String vimStr = toJson(vim);
+//                response.setResponseJson(vimStr);
+//                return response;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -230,18 +230,18 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void unregisterDriverTestInvalidParams() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-                response.setStatus(415);
-
-                String vimStr = toJson(vim);
-                response.setResponseJson(vimStr);
-                return response;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//                response.setStatus(415);
+//
+//                String vimStr = toJson(vim);
+//                response.setResponseJson(vimStr);
+//                return response;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
@@ -252,18 +252,18 @@ public class Driver2MSBManagerTest {
 
     @Test
     public void unregisterDriverTestInternalError() {
-        new MockUp<VNFRestfulUtil>() {
-
-            @Mock
-            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
-                RestfulResponse response = new RestfulResponse();
-                response.setStatus(500);
-
-                String vimStr = toJson(vim);
-                response.setResponseJson(vimStr);
-                return response;
-            }
-        };
+//        new MockUp<VNFRestfulUtil>() {
+//
+//            @Mock
+//            public RestfulResponse getRemoteResponse(Map<String, String> paramsMap, String params) {
+//                RestfulResponse response = new RestfulResponse();
+//                response.setStatus(500);
+//
+//                String vimStr = toJson(vim);
+//                response.setResponseJson(vimStr);
+//                return response;
+//            }
+//        };
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("url", "/test/api");
         paramsMap.put("path", "http://localhost:8080");
