@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f13409d6_74953f07",
+        "filename": "huawei/vnfmadapter/VnfmadapterService/docker/docker-env-config.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5275
+      },
+      "writtenOn": "2020-09-18T08:56:46Z",
+      "side": 1,
+      "message": "Is this function still used?",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 8
+      },
+      "revId": "5f9e18ca0a4994236f53f2ceaf1fb357ee4afea3",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
