@@ -21,7 +21,7 @@ urlpatterns = [
 ]
 
 # regist to MSB when startup
-if REG_TO_MSB_WHEN_START:
+if REG_TO_MSB_WHEN_START == "true":
     import json
     from driver.pub.utils.restcall import req_by_msb
     req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(REG_TO_MSB_REG_PARAM))
