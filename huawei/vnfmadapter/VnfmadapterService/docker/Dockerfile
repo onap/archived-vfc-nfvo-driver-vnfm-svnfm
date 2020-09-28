@@ -6,6 +6,9 @@ ENV CATALINA_HOME /service
 ADD . /service
 WORKDIR /service
 RUN bash docker-env-config.sh
+VOLUME /var/lib/mysql
 
+
+EXPOSE 8482
 USER onap
 ENTRYPOINT /service/docker-entrypoint.sh
