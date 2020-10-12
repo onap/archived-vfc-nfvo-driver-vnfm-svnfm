@@ -18,12 +18,12 @@
     <parent>
         <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.huawei</groupId>
         <artifactId>vfc-nfvo-driver-vnfm-svnfm-huawei</artifactId>
-        <version>1.3.7-SNAPSHOT</version>
+        <version>1.3.8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.huawei.vnfmadapter</groupId>
     <artifactId>vnfmadapter</artifactId>
-    <version>1.3.7-SNAPSHOT</version>
+    <version>1.3.8-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>vfc-nfvo-driver-vnfm-svnfm</name>
     <description>nfvo vnfmadapter</description>
