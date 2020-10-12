@@ -47,6 +47,11 @@ public class SwaggerRoa {
     @GET
     @Path("/swagger.json")
     public String apidoc() throws IOException {
+    	// Added only for testing
+    	LOG.info("Entering into health check: {}");
+    	LOG.error("Entering into health check: {}");
+    	LOG.debug("Entering into health check: {}");
+    	LOG.warn("Entering into health check: {}");
     	LOG.warn("function=apidoc, msg=enter to get a swagger: {}");
         ClassLoader classLoader = getClass().getClassLoader();
         return IOUtils.toString(classLoader.getResourceAsStream("swagger.json"));
