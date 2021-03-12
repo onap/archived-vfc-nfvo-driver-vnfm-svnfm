@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Huawei Technologies Co., Ltd.
+ * Copyright 2020-2021 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.KeyManager;
@@ -62,7 +64,7 @@ public class AbstractSslContext {
 
     protected static SSLContext getAnonymousSSLContext() throws GeneralSecurityException {
         SSLContext sslContext = getSSLContext();
-        sslContext.init(null, new TrustManager[] {new TrustAnyTrustManager()}, new SecureRandom());
+        sslContext.init(null, new TrustManager[] {new MyTrustManager()}, new SecureRandom());
         return sslContext;
     }
 
@@ -170,21 +172,61 @@ public class AbstractSslContext {
         return sslJson;
     }
 
-    private static class TrustAnyTrustManager implements X509TrustManager {
-
+    private static class MyTrustManager implements X509TrustManager {
+    	TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    	private MyTrustManager() throws NoSuchAlgorithmException{
+    	}
+    	
         @Override
         public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[] {};
         }
 
         @Override
-        public void checkServerTrusted(X509Certificate[] certs, String authType) {
-            // NOSONAR
+        public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+        	try {
+        		tmf.init((KeyStore)null);	
+        	} catch (KeyStoreException e) {
+        		throw new IllegalStateException(e);
+        	}
+        	
+        	//Get hold of default trust manager
+        	X509TrustManager x509Tm = null;
+        	for(TrustManager tm: tmf.getTrustManagers())
+        	{
+        		if(tm instanceof X509TrustManager) {
+        			x509Tm = (X509TrustManager) tm;
+        			break;
+        		}
+        	}
+        	
+        	//Wrap it in your own class
+        	final X509TrustManager finalTm = x509Tm;
+        	finalTm.checkServerTrusted(certs, authType); 	
+        	 	
         }
 
         @Override
-        public void checkClientTrusted(X509Certificate[] certs, String authType) {
-            // NOSONAR
+        public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+        	try {
+        		tmf.init((KeyStore)null);	
+        	} catch (KeyStoreException e) {
+        		throw new IllegalStateException(e);
+        	}
+        	
+        	//Get hold of default trust manager
+        	X509TrustManager x509Tm = null;
+        	for(TrustManager tm: tmf.getTrustManagers())
+        	{
+        		if(tm instanceof X509TrustManager) {
+        			x509Tm = (X509TrustManager) tm;
+        			break;
+        		}
+        	}
+        	
+        	//Wrap it in your own class
+        	final X509TrustManager finalTm = x509Tm;
+        	finalTm.checkClientTrusted(certs, authType);
         }
     }
 }
