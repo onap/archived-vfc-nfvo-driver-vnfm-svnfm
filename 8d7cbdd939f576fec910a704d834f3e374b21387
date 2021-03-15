@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72773037_d5f88b66",
+        "filename": "huawei/vnfmadapter/VnfmadapterService/service/src/main/java/org/onap/vfc/nfvo/vnfm/svnfm/vnfmadapter/service/csm/connect/AbstractSslContext.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2021-03-15T12:51:07Z",
+      "side": 1,
+      "message": "the 2016 copyright date should not be lost",
+      "revId": "8d7cbdd939f576fec910a704d834f3e374b21387",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cf80926_180528e8",
+        "filename": "huawei/vnfmadapter/VnfmadapterService/service/src/main/java/org/onap/vfc/nfvo/vnfm/svnfm/vnfmadapter/service/csm/connect/AbstractSslContext.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2021-03-15T12:51:07Z",
+      "side": 1,
+      "message": "Do you still want this class named \"TrustAny\" since it no longer is trusting everyone?",
+      "revId": "8d7cbdd939f576fec910a704d834f3e374b21387",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
