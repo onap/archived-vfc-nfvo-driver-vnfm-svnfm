@@ -1,0 +1,10 @@
+distribution_type: 'container'
+container_release_tag: '1.3.9'
+project: 'vfc-nfvo-driver-vnfm-svnfm'
+container_pull_registry: nexus3.onap.org:10003
+container_push_registry: nexus3.onap.org:10002
+log_dir: 'vfc-nfvo-driver-vnfm-svnfm-master-docker-java-version-shell-daily/1489/'
+ref: '29c03635dfb6ba714185e508b788265bd89a1698'
+containers:
+    - name: 'vfc/nfvo/svnfm/huawei'
+      version: '1.3.9-STAGING-20210322T061504'
