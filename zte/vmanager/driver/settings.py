@@ -153,7 +153,6 @@ else:
 
     # yaml configuration of logging
     LOGGING_FILE = os.path.join(BASE_DIR, 'driver/log.yml')
-    config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
     with open(file=LOGGING_FILE, mode='r', encoding="utf-8")as file:
         logging_yaml = yaml.load(stream=file, Loader=yaml.FullLoader)
     config.dictConfig(config=logging_yaml)
