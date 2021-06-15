@@ -1,9 +1,9 @@
 # rest framework
 Django==2.1.10
-djangorestframework==3.9.4
+djangorestframework==3.10.0
 
 # for call rest api
-httplib2==0.12.3
+httplib2==0.19.1
 
 # for unit test
 coverage==4.2
@@ -11,11 +11,11 @@ mock==3.0.5
 unittest_xml_reporting==1.12.0
 
 # for auto swagger
-drf-yasg==1.16.0
+drf-yasg==1.17.0
 flex>=6.11.1
 swagger-spec-validator>=2.1.0
 
 # uwsgi for parallel processing
 # uwsgi
 
-PyYAML==5.3.1
+PyYAML==5.4.1
