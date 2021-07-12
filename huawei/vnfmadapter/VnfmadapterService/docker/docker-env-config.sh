@@ -12,7 +12,7 @@ install_sf(){
     rm -f nfvo-driver-vnfm-huawei.zip
     wait
     pip install --upgrade setuptools pip
-    pip install --no-cache-dir --pre -r  /service/vfc/nfvo/driver/vnfm/svnfm/huawei/vnfmadapter/requirements.txt
+    pip install --no-cache-dir --pre -r  /service/requirements.txt
     find  /service -name '*.sh'|xargs chmod a+x
 }
 

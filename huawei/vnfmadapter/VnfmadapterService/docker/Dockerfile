@@ -12,10 +12,9 @@ ENV pkg_verison=${PKG_VERSION}
 ADD . /service
 WORKDIR /service
 
-RUN bash docker-env-config.sh
-VOLUME /var/lib/mysql
-
+RUN sh /service/docker-env-config.sh
 
 EXPOSE 8482
 USER onap
-ENTRYPOINT /service/docker-entrypoint.sh
+WORKDIR /service
+ENTRYPOINT /docker/docker-entrypoint.sh
