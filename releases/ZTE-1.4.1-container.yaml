@@ -1,0 +1,10 @@
+distribution_type: 'container'
+container_release_tag: '1.4.1'
+project: 'vfc-nfvo-driver-vnfm-svnfm'
+container_pull_registry: nexus3.onap.org:10003
+container_push_registry: nexus3.onap.org:10002
+log_dir: 'vfc-nfvo-driver-vnfm-svnfm-master-docker-java-version-shell-daily/1658/'
+ref: '473fa46747389b9632a6e768fd1d9fc5054cf1fd'
+containers:
+    - name: 'vfc/ztevnfmdriver'
+      version: '1.4.1-STAGING-20210901T032327'
