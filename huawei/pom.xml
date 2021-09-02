@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.huawei</groupId>
     <artifactId>vfc-nfvo-driver-vnfm-svnfm-huawei</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>1.4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>vfc-nfvo-driver-vnfm-svnfm-huawei</name>
     <description>vfc-nfvo-driver-vnfm-svnfm-huawei</description>
