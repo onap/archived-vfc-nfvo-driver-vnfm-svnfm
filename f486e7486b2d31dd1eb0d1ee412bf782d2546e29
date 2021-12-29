@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57bd235a_61dcc936",
+        "filename": "huawei/vnfmadapter/VnfmadapterService/service/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5275
+      },
+      "writtenOn": "2021-12-29T07:11:46Z",
+      "side": 1,
+      "message": "Log4j between versions 2.0 through 2.15 allows REMOTE attackers to add malicious code and then execute this code. TSC suggests: The only approved mitigation technique moving forward will be class removal or patch to 2.16.  Please see the mail: https://lists.onap.org/g/onap-release/message/2218",
+      "range": {
+        "startLine": 31,
+        "startChar": 23,
+        "endLine": 31,
+        "endChar": 29
+      },
+      "revId": "f486e7486b2d31dd1eb0d1ee412bf782d2546e29",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
