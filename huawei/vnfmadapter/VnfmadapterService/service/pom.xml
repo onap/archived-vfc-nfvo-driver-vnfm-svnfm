@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.onap.vfc.nfvo.driver.vnfm.svnfm.huawei.vnfmadapter</groupId>
         <artifactId>vnfmadapter-service-root</artifactId>
-        <version>1.4.1-SNAPSHOT</version>
+        <version>1.4.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>vnfmadapter-service</artifactId>
