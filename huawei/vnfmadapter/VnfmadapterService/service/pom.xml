@@ -72,9 +72,9 @@
             <version>1.1.1</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.codec</artifactId>
-            <version>1.15.0</version>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-http</artifactId>
-            <version>11.0.7</version>
+            <version>9.4.13.v20181111</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-client -->
         <dependency>
@@ -120,13 +120,13 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-util</artifactId>
-            <version>11.0.7</version>
+            <version>9.4.13.v20181111</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-io -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-io</artifactId>
-            <version>11.0.7</version>
+            <version>9.4.13.v20181111</version>
         </dependency>
 
 <!--        <dependency>-->
@@ -191,7 +191,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.3.13.RELEASE</version>
+            <version>5.3.13</version>
         </dependency>
         <!--dependency>
             <groupId>org.springframework</groupId>
@@ -278,9 +278,9 @@
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <version>4.5.13</version>
+            <version>3.1</version>
         </dependency>
-		<dependency>
+	<dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.13</version>
