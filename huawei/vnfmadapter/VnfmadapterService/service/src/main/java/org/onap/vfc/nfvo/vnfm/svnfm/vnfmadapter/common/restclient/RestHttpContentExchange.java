@@ -161,7 +161,7 @@ public class RestHttpContentExchange  {
             final Enumeration<String> names = field.getFieldNames();
             for (final Enumeration<String> e = names; e.hasMoreElements(); ) {
                 final String fieldName = e.nextElement();
-                final String fieldValue = field.getStringField(fieldName);
+                final String fieldValue = field.getField(fieldName).getValue();
                 header.put(fieldName, fieldValue);
             }
 
