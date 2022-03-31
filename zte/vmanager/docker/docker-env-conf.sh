@@ -9,10 +9,9 @@ install_sf(){
     # get binary zip from nexus - vfc-nfvo-driver-vnfm-svnfm-zte-vmanager
     wget -q -O vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.driver.vnfm.svnfm.zte.vmanager&a=vfc-nfvo-driver-vnfm-svnfm-zte-vmanager&v=${pkg_verison}-SNAPSHOT&e=zip" && \
     unzip vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip && \
-    rm -rf vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip
-    wait
-    pip install --upgrade setuptools pip
-    pip install --no-cache-dir --pre -r  /service/vfc/nfvo/driver/vnfm/svnfm/zte/vmanager/requirements.txt
+    rm -rf vfc-nfvo-driver-vnfm-svnfm-zte-vmanager.zip && \
+    pip install --upgrade setuptools pip && \
+    pip install -r  /service/vfc/nfvo/driver/vnfm/svnfm/zte/vmanager/requirements.txt
     find  /service -name '*.sh'|xargs chmod a+x
 }
 
